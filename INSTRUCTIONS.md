@@ -1,0 +1,5 @@
+- Don't forget to run "npm run build" after.
+- Don't forget do not to create new types/interfaces, just use existing. Create types/interfaces if there is no other option.
+- Once the prompt is complete, mark it in PROMPTS.md.
+- Types and interfaces you can find in "prisma/schema.prisma" or "helpers/types/item.d.ts".
+- Prompts you can find in PROMPTS.md

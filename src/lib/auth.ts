@@ -1,0 +1,137 @@
+// auth.ts
+import prisma from "@/db";
+import { countryCodes } from "@/helpers/country-codes";
+import { email } from "@/helpers/email/resend";
+import { ForgotPasswordSchema } from "@/helpers/zod/forgot-password-schema";
+import SignInSchema from "@/helpers/zod/login-schema";
+import { PasswordSchema, SignupSchema } from "@/helpers/zod/signup-schema";
+import { twoFactorSchema } from "@/helpers/zod/two-factor-schema";
+import { UserRole } from "@prisma/client";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import {
+  customSession,
+  twoFactor
+} from "better-auth/plugins";
+import { validator, StandardAdapter } from "validation-better-auth";
+
+export const auth = betterAuth({
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: UserRole.USER,
+        input: false, // don't allow user to set role
+      },
+      phoneNumber: {
+        type: "string",
+        required: true,
+        defaultValue: "555-555-555",
+      },
+      userAgreement: {
+        type: "boolean",
+        required: true,
+        defaultValue: false,
+      },
+      countryCode: {
+        type: "string",
+        required: true,
+        defaultValue: countryCodes[0].code,
+      },
+      companyWebpage: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      companyName: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      companyRole: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+    },
+  },
+  appName: "power-automation",
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 20,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url, token }, request) => {
+      await email.sendMail({
+        from: process.env.MAIL_FROM,
+        // TODO once we will go to prod, change to: user.email,
+        to: process.env.MAIL_TO,
+        subject: "Reset your password",
+        html: `Click the link to reset your password: ${url}`,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await email.sendMail({
+        from: process.env.MAIL_FROM,
+        to: process.env.MAIL_TO,
+        subject: "Email Verification",
+        html: `Click the link to verify your email: ${url}`,
+      });
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
+    freshAge: 60 * 60 * 24,
+    cookieCache: {
+            enabled: true,
+            maxAge: 60 * 60 // Cache duration in seconds
+        }  
+  },
+  plugins: [
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ user, otp }) {
+          await email.sendMail({
+            from: process.env.MAIL_FROM,
+            to: process.env.MAIL_TO,
+            subject: "Two Factor",
+            html: `Your OTP is ${otp}`,
+          });
+        },
+      },
+      skipVerificationOnEnable: true,
+    }),
+    validator([
+      { path: "/sign-up/email", adapter: StandardAdapter(SignupSchema) },
+      { path: "/sign-in/email", adapter: StandardAdapter(SignInSchema) },
+      { path: "/two-factor/enable", adapter: StandardAdapter(PasswordSchema) },
+      { path: "/two-factor/disable", adapter: StandardAdapter(PasswordSchema) },
+      { path: "/two-factor/verify-otp", adapter: StandardAdapter(twoFactorSchema) },
+      { path: "/forgot-password", adapter: StandardAdapter(ForgotPasswordSchema) },
+    ]),
+    customSession(async ({ user, session }) => {
+            const role = await prisma.user.findUnique({
+                where: { id: session.userId },
+                select: { role: true }
+            });
+            return {
+                role,
+                user: {
+                    ...user,
+                    newField: "newField",
+                },
+                session
+            };
+        }),
+  ],
+});

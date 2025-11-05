@@ -1,0 +1,375 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  EMPLOYER
+  ADMIN
+}
+
+model User {
+  id               String          @id @default(cuid())
+  name             String
+  email            String
+  emailVerified    Boolean         @default(false)
+  image            String?
+  phoneNumber      String          @default("")
+  companyName      String?
+  companyWebpage   String?
+  companyRole      String?
+  countryCode      String?
+  userAgreement    Boolean         @default(false)
+  role             UserRole        @default(USER)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  twoFactorEnabled Boolean         @default(false)
+  username         String?
+  displayUsername  String?
+  discountLevel    Int?
+  Session          Session[]
+  Account          Account[]
+  TwoFactor        TwoFactor[]
+  Cart             Cart[]
+  Order            Order[]
+  ItemOpinion      ItemOpinion[]
+  Messages         Messages[]
+  DiscountLevel    DiscountLevel[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id           String    @id @default(cuid())
+  accountId    String
+  providerId   String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  expiresAt    DateTime?
+  password     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id @default(cuid())
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactor")
+}
+
+model Item {
+  id                String              @id @default(cuid())
+  articleId         String              @unique
+  isDisplayed       Boolean             @default(false)
+  sellCounter       Int?                @default(0)
+  itemImageLink     String?
+  categoryId        String
+  subCategoryId     String
+  brandId           String?
+  brandName         String?
+  warrantyType      String?
+  warrantyLength    Int?
+  category          Category            @relation(fields: [categoryId], references: [id])
+  subCategory       SubCategories       @relation(fields: [subCategoryId], references: [id])
+  brand             Brand?              @relation(fields: [brandId], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  itemDetails       ItemDetails[]
+  itemPrice         ItemPrice[]
+  Cart              Cart[]
+  Order             Order[]
+  ItemOpinion       ItemOpinion[]
+  OutOfStockRequest OutOfStockRequest[]
+  ItemPriceHistory  ItemPriceHistory[]
+
+  @@map("item")
+}
+
+model ItemPrice {
+  id             String             @id @default(cuid())
+  itemId         String
+  warehouseId    String
+  price          Float
+  quantity       Int
+  promotionPrice Float?
+  promoCode      String?
+  promoEndDate   DateTime?
+  item           Item               @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse      Warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  badge          Badge?             @default(ABSENT)
+  history        ItemPriceHistory[]
+
+  @@map("item_price")
+}
+
+model ItemDetails {
+  id             String  @id @default(cuid())
+  itemId         String
+  locale         String  @default("pl")
+  description    String
+  specifications String?
+  itemName       String
+  seller         String?
+  discount       Float?
+  popularity     Int?
+  item           Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("item_details")
+}
+
+model Brand {
+  id        String   @id @default(cuid())
+  name      String
+  alias     String   @unique
+  imageLink String
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  items     Item[]
+
+  @@map("brand")
+}
+
+model ItemPriceHistory {
+  id             String      @id @default(cuid())
+  itemId         String
+  warehouseId    String
+  price          Float
+  quantity       Int
+  promotionPrice Float?
+  promoCode      String?
+  promoEndDate   DateTime?
+  badge          Badge?      @default(ABSENT)
+  recordedAt     DateTime    @default(now())
+  item           Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse      Warehouse   @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  ItemPrice      ItemPrice[]
+
+  @@index([itemId, warehouseId, recordedAt])
+  @@map("item_price_history")
+}
+
+model CurrencyExchange {
+  id        String   @id @default(cuid())
+  from      Currency
+  to        Currency
+  rate      Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([from, to], name: "from_to")
+  @@map("currency_exchange")
+}
+
+enum Currency {
+  EUR
+  UAH
+  PLN
+}
+
+enum Badge {
+  NEW_ARRIVALS
+  BESTSELLER
+  HOT_DEALS
+  LIMITED_EDITION
+  ABSENT
+}
+
+model Warehouse {
+  id                String              @id @default(cuid())
+  name              String?
+  country           String?
+  displayedName     String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  item_price        ItemPrice[]
+  isVisible         Boolean?            @default(true)
+  OutOfStockRequest OutOfStockRequest[]
+  ItemPriceHistory  ItemPriceHistory[]
+
+  @@map("warehouse")
+}
+
+model Cart {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      Item[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  totalPrice Float
+  currency   String
+  status     CartStatus @default(PENDING)
+
+  @@map("cart")
+}
+
+model Order {
+  id                 String      @id @default(cuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items              Item[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  originalTotalPrice Float
+  totalPrice         String
+  lineItems          Json?
+  status             OrderStatus @default(NEW)
+  deliveryId         String?
+  comment            String?
+  Messages           Messages[]
+
+  @@map("order")
+}
+
+model ItemOpinion {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("item_opinion")
+}
+
+model Category {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String
+  isVisible     Boolean?        @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  items         Item[]
+  subCategories SubCategories[]
+
+  @@map("category")
+}
+
+model SubCategories {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isVisible  Boolean? @default(true)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  items      Item[]
+
+  @@map("subcategories")
+}
+
+model Messages {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
+}
+
+model DiscountLevel {
+  id                 String   @id @default(cuid())
+  level              Int
+  discountPercentage Float
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  users              User[]
+
+  @@map("discount_level")
+}
+
+model OutOfStockRequest {
+  id          String           @id @default(cuid())
+  itemId      String
+  warehouseId String
+  userEmail   String
+  userName    String?
+  message     String
+  status      OutOfStockStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  item        Item             @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@map("out_of_stock_request")
+}
+
+enum OutOfStockStatus {
+  PENDING
+  PROCESSING
+  FULFILLED
+  CANCELLED
+}
+
+enum OrderStatus {
+  NEW
+  WAITING_FOR_PAYMENT
+  PROCESSING
+  DELIVERY
+  COMPLETED
+  CANCELLED
+  REFUND
+  ASK_FOR_PRICE
+}
+
+enum CartStatus {
+  PENDING
+  CHECKED_OUT
+  COMPLETED
+}

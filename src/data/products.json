@@ -1,0 +1,102 @@
+[
+  {
+    "id": "1",
+    "name": "Wireless Bluetooth Headphones",
+    "price": 199.99,
+    "description": "High-quality wireless headphones with noise cancellation and 30-hour battery life.",
+    "image": "/images/headphones-1.jpg",
+    "category": "Electronics",
+    "brand": "SoundTech",
+    "inStock": true
+  },
+  {
+    "id": "2",
+    "name": "Smart Fitness Watch",
+    "price": 299.99,
+    "description": "Advanced fitness tracker with heart rate monitoring, GPS, and smartphone integration.",
+    "image": "/images/smartwatch-1.jpg",
+    "category": "Electronics",
+    "brand": "FitPro",
+    "inStock": true
+  },
+  {
+    "id": "3",
+    "name": "Organic Cotton T-Shirt",
+    "price": 29.99,
+    "description": "Comfortable and sustainable organic cotton t-shirt in various colors.",
+    "image": "/images/tshirt-1.jpg",
+    "category": "Clothing",
+    "brand": "EcoWear",
+    "inStock": true
+  },
+  {
+    "id": "4",
+    "name": "Professional Coffee Maker",
+    "price": 449.99,
+    "description": "Programmable coffee maker with built-in grinder and thermal carafe.",
+    "image": "/images/coffee-maker-1.jpg",
+    "category": "Kitchen",
+    "brand": "BrewMaster",
+    "inStock": false
+  },
+  {
+    "id": "5",
+    "name": "Ergonomic Office Chair",
+    "price": 349.99,
+    "description": "Adjustable office chair with lumbar support and breathable mesh fabric.",
+    "image": "/images/office-chair-1.jpg",
+    "category": "Furniture",
+    "brand": "ComfortDesk",
+    "inStock": true
+  },
+  {
+    "id": "6",
+    "name": "Wireless Gaming Mouse",
+    "price": 89.99,
+    "description": "High-precision gaming mouse with RGB lighting and programmable buttons.",
+    "image": "/images/gaming-mouse-1.jpg",
+    "category": "Electronics",
+    "brand": "GameTech",
+    "inStock": true
+  },
+  {
+    "id": "7",
+    "name": "Stainless Steel Water Bottle",
+    "price": 24.99,
+    "description": "Insulated water bottle that keeps drinks cold for 24 hours or hot for 12 hours.",
+    "image": "/images/water-bottle-1.jpg",
+    "category": "Sports",
+    "brand": "HydroFlow",
+    "inStock": true
+  },
+  {
+    "id": "8",
+    "name": "Portable Bluetooth Speaker",
+    "price": 79.99,
+    "description": "Waterproof portable speaker with 360-degree sound and 12-hour battery.",
+    "image": "/images/bluetooth-speaker-1.jpg",
+    "category": "Electronics",
+    "brand": "SoundWave",
+    "inStock": true
+  },
+  {
+    "id": "9",
+    "name": "Memory Foam Pillow",
+    "price": 59.99,
+    "description": "Contoured memory foam pillow for optimal neck and spine alignment.",
+    "image": "/images/pillow-1.jpg",
+    "category": "Home",
+    "brand": "SleepWell",
+    "inStock": true
+  },
+  {
+    "id": "10",
+    "name": "LED Desk Lamp",
+    "price": 39.99,
+    "description": "Adjustable LED desk lamp with touch control and USB charging port.",
+    "image": "/images/desk-lamp-1.jpg",
+    "category": "Home",
+    "brand": "BrightLight",
+    "inStock": false
+  }
+]
