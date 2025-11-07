@@ -70,7 +70,7 @@ export const auth = betterAuth({
       await email.sendMail({
         from: process.env.MAIL_FROM,
         // TODO once we will go to prod, change to: user.email,
-        to: process.env.MAIL_TO,
+        to: user.email,
         subject: "Reset your password",
         html: `Click the link to reset your password: ${url}`,
       });
@@ -82,7 +82,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       await email.sendMail({
         from: process.env.MAIL_FROM,
-        to: process.env.MAIL_TO,
+        to: user.email,
         subject: "Email Verification",
         html: `Click the link to verify your email: ${url}`,
       });
@@ -103,7 +103,7 @@ export const auth = betterAuth({
         async sendOTP({ user, otp }) {
           await email.sendMail({
             from: process.env.MAIL_FROM,
-            to: process.env.MAIL_TO,
+            to: user.email,
             subject: "Two Factor",
             html: `Your OTP is ${otp}`,
           });
