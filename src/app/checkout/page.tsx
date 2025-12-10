@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { countryCodes } from "@/helpers/country-codes";
 import { useCartTotals } from "@/hooks/useCartTotals";
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from "@/components/languge-switcher";
 
 interface CheckoutForm {
   firstName: string;
@@ -25,6 +27,7 @@ interface LoginForm {
 }
 
 export default function CheckoutPage() {
+  const t = useTranslations('checkout');
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -114,17 +117,17 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptTerms) {
-      alert('Please accept the terms and user agreement');
+      alert(t('messages.acceptTerms'));
       return;
     }
 
     if (!session.data?.user) {
-      alert('Please log in to place an order');
+      alert(t('messages.pleaseLogin'));
       return;
     }
 
     if (cartItems.length === 0) {
-      alert('Your cart is empty');
+      alert(t('messages.cartEmpty'));
       return;
     }
 
@@ -170,7 +173,7 @@ export default function CheckoutPage() {
       cartItems.forEach(item => removeFromCart(item.id));
       
       // Show success message
-      alert(`Order created successfully! Order ID: ${result.order.id}`);
+      alert(`${t('messages.orderCreated')} ${result.order.id}`);
       
     } catch (error: any) {
       setOrderError(error.message || 'Failed to create order');
@@ -231,12 +234,13 @@ export default function CheckoutPage() {
             <div className="flex-1 flex justify-center">
               <Link href="/" className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors">
                 <ArrowLeft size={20} />
-                <span className="font-medium">Back to Shop</span>
+                <span className="font-medium">{t('backToShop')}</span>
               </Link>
             </div>
             
-            {/* Phone Number */}
-            <div className="flex-shrink-0">
+            {/* Language Switcher and Phone Number */}
+            <div className="flex-shrink-0 flex items-center gap-4">
+              <LanguageSwitcher />
               <a href="tel:+1234567890" className="flex items-center gap-2 text-lg font-semibold text-gray-800 hover:text-blue-600 transition-colors">
                 <Phone size={20} />
                 +1 (234) 567-890
@@ -251,7 +255,7 @@ export default function CheckoutPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Place the Order</h1>
+        <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left Side - User Forms */}
@@ -264,13 +268,13 @@ export default function CheckoutPage() {
                     onClick={() => setActiveTab('register')}
                     className={`px-6 py-3 font-semibold ${activeTab === 'register' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                   >
-                    Create Account
+                    {t('createAccount')}
                   </button>
                   <button
                     onClick={() => setActiveTab('login')}
                     className={`px-6 py-3 font-semibold ${activeTab === 'login' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
                   >
-                    Login
+                    {t('login')}
                   </button>
                 </div>
 
@@ -286,7 +290,7 @@ export default function CheckoutPage() {
                     {/* Name Fields */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.firstName')}</label>
                         <input
                           type="text"
                           value={checkoutForm.firstName}
@@ -296,7 +300,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.lastName')}</label>
                         <input
                           type="text"
                           value={checkoutForm.lastName}
@@ -309,7 +313,7 @@ export default function CheckoutPage() {
 
                     {/* Phone Number with Country Code */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.phoneNumber')}</label>
                       <div className="flex">
                         <select
                           value={checkoutForm.countryCode}
@@ -327,7 +331,7 @@ export default function CheckoutPage() {
                           value={checkoutForm.phone}
                           onChange={(e) => handleCheckoutFormChange('phone', e.target.value)}
                           className="flex-1 px-3 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="123-456-7890"
+                          placeholder={t('form.phonePlaceholder')}
                           required
                         />
                       </div>
@@ -343,14 +347,14 @@ export default function CheckoutPage() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="noCall" className="ml-2 text-sm text-gray-700">
-                        Don't call to confirm the order
+                        {t('form.noCallConfirmation')}
                       </label>
                     </div>
 
                     {/* Location Fields */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.city')}</label>
                         <input
                           type="text"
                           value={checkoutForm.city}
@@ -360,7 +364,7 @@ export default function CheckoutPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.country')}</label>
                         <input
                           type="text"
                           value={checkoutForm.country}
@@ -373,7 +377,7 @@ export default function CheckoutPage() {
 
                     {/* Email */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Commercial Email</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.email')}</label>
                       <input
                         type="email"
                         value={checkoutForm.email}
@@ -389,14 +393,14 @@ export default function CheckoutPage() {
                       disabled={isLoading}
                       className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
-                      {isLoading ? 'Creating Account...' : 'Create Account'}
+                      {isLoading ? t('buttons.creatingAccount') : t('buttons.createAccount')}
                     </button>
                   </form>
                 ) : (
                   <form onSubmit={handleLogin} className="space-y-4">
                     {/* Email */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.email')}</label>
                       <input
                         type="email"
                         value={loginForm.email}
@@ -409,7 +413,7 @@ export default function CheckoutPage() {
 
                     {/* Password */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('form.password')}</label>
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
@@ -436,13 +440,13 @@ export default function CheckoutPage() {
                       disabled={isLoading}
                       className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
-                      {isLoading ? 'Logging in...' : 'Login'}
+                      {isLoading ? t('buttons.loggingIn') : t('buttons.login')}
                     </button>
 
                     {/* Forgot Password Link */}
                     <div className="text-right">
                       <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
-                        Forgot Password?
+                        {t('form.forgotPassword')}
                       </Link>
                     </div>
                   </form>
@@ -450,8 +454,8 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">Welcome back!</h3>
-                <p className="text-gray-600">You are logged in as {session.data.user.email}</p>
+                <h3 className="text-lg font-semibold mb-4">{t('welcome')}</h3>
+                <p className="text-gray-600">{t('loggedInAs')} {session.data.user.email}</p>
               </div>
             )}
 
@@ -466,13 +470,13 @@ export default function CheckoutPage() {
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
                 />
                 <label htmlFor="acceptTerms" className="ml-2 text-sm text-gray-700">
-                  I accept the{' '}
+                  {t('terms.acceptPrefix')}{' '}
                   <Link href="/terms" className="text-blue-600 hover:text-blue-800 underline">
-                    Terms of Service
+                    {t('terms.termsOfService')}
                   </Link>
-                  {' '}and{' '}
+                  {' '}{t('terms.and')}{' '}
                   <Link href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
-                    User Agreement
+                    {t('terms.userAgreement')}
                   </Link>
                 </label>
               </div>
@@ -487,7 +491,7 @@ export default function CheckoutPage() {
               {/* Success Message */}
               {orderSuccess && (
                 <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-                  Order placed successfully! You will receive a confirmation email shortly.
+                  {t('messages.orderSuccess')}
                 </div>
               )}
 
@@ -496,17 +500,17 @@ export default function CheckoutPage() {
                 disabled={isConfirmOrderDisabled()}
                 className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                {isSubmittingOrder ? 'Placing Order...' : 'Confirm Order'}
+                {isSubmittingOrder ? t('buttons.placingOrder') : t('buttons.confirmOrder')}
               </button>
             </div>
           </div>
 
           {/* Right Side - Cart Summary */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-xl font-semibold mb-6">Order Summary</h3>
+            <h3 className="text-xl font-semibold mb-6">{t('orderSummary.title')}</h3>
 
             {cartItems.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Your cart is empty</p>
+              <p className="text-gray-500 text-center py-8">{t('cart.empty')}</p>
             ) : (
               <>
                 <div className="space-y-4 mb-6">
@@ -530,7 +534,7 @@ export default function CheckoutPage() {
                           )}
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
-                          <span>Quantity: {item.quantity}</span>
+                          <span>{t('orderSummary.quantity')}: {item.quantity}</span>
                           <div className="flex items-center gap-1 text-gray-500">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -567,13 +571,13 @@ export default function CheckoutPage() {
                 {/* Total */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center text-xl font-bold">
-                    <span>Total:</span>
+                    <span>{t('orderSummary.total')}:</span>
                     <span className="text-red-600">
                       {cartItems.length > 0 ? formatPrice(baseTotalPrice) : formatPrice(0)}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
-                    {getTotalCartItems()} item{getTotalCartItems() !== 1 ? 's' : ''}
+                    {getTotalCartItems()} {getTotalCartItems() !== 1 ? t('cart.items') : t('cart.item')}
                   </p>
                 </div>
               </>

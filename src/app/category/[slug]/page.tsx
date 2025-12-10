@@ -16,9 +16,11 @@ import { useCatalogPricing } from '@/hooks/useCatalogPricing';
 import { calculateDiscountPercentage } from '@/helpers/pricing';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useTranslations } from 'next-intl';
 
 
 export default function CategoryPage() {
+  const t = useTranslations('categories');
   const params = useParams();
   const slug = params?.slug as string;
   const { cartItems, addToCart, updateCartQuantity, removeFromCart, getTotalCartItems, isCartModalOpen, setIsCartModalOpen } = useCart();
@@ -237,11 +239,11 @@ export default function CategoryPage() {
             <div className="mb-6">
               <nav className="flex items-center space-x-2 text-sm text-gray-600">
                 <Link href="/" className="hover:text-blue-600 transition-colors">
-                  Home
+                  {t('breadcrumb.home')}
                 </Link>
                 <span>/</span>
                 <Link href="/categories" className="hover:text-blue-600 transition-colors">
-                  Categories
+                  {t('breadcrumb.allCategories')}
                 </Link>
                 <span>/</span>
                 <span className="text-gray-900 font-medium">{getOriginalCategoryName()}</span>
@@ -253,14 +255,14 @@ export default function CategoryPage() {
               <div>
                 <h1 className="text-3xl font-bold">{getOriginalCategoryName()}</h1>
                 <p className="text-gray-600 mt-2">
-                  {filteredItems.length} products found
+                  {filteredItems.length} {t('productsFound')}
                 </p>
               </div>
 
               {/* Centered Sort Options with View on Right */}
               <div className="flex-1 flex items-center justify-center">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                  <span className="text-sm font-medium text-gray-700">{t('sortBy')}</span>
                   <div className="flex items-center border rounded-lg">
                     <Button
                       variant={sortBy === 'popularity' ? 'default' : 'ghost'}
@@ -268,7 +270,7 @@ export default function CategoryPage() {
                       onClick={() => setSortBy('popularity')}
                       className={`${sortBy === 'popularity' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-r-none`}
                     >
-                      Popularity
+                      {t('popularity')}
                     </Button>
                     <Button
                       variant={sortBy === 'price-low' ? 'default' : 'ghost'}
@@ -276,7 +278,7 @@ export default function CategoryPage() {
                       onClick={() => setSortBy('price-low')}
                       className={`${sortBy === 'price-low' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-none border-l border-r`}
                     >
-                      Price: Low
+                      {t('priceLow')}
                     </Button>
                     <Button
                       variant={sortBy === 'price-high' ? 'default' : 'ghost'}
@@ -284,7 +286,7 @@ export default function CategoryPage() {
                       onClick={() => setSortBy('price-high')}
                       className={`${sortBy === 'price-high' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-none border-r`}
                     >
-                      Price: High
+                      {t('priceHigh')}
                     </Button>
                     <Button
                       variant={sortBy === 'name' ? 'default' : 'ghost'}
@@ -292,7 +294,7 @@ export default function CategoryPage() {
                       onClick={() => setSortBy('name')}
                       className={`${sortBy === 'name' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-l-none`}
                     >
-                      Name
+                      {t('name')}
                     </Button>
                   </div>
                 </div>
@@ -300,7 +302,7 @@ export default function CategoryPage() {
 
               {/* View Mode Toggle - Far Right */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">View:</span>
+                <span className="text-sm font-medium text-gray-700">{t('view')}</span>
                 <div className="flex items-center border rounded-lg">
                   <Button
                     variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -346,7 +348,7 @@ export default function CategoryPage() {
                 <div className="space-y-6">
                   {/* Categories List */}
                   <Card className="p-4">
-                    <h3 className="font-semibold mb-4">Categories</h3>
+                    <h3 className="font-semibold mb-4">{t('filters.categories')}</h3>
                     <div className="space-y-2">
                       {categories.map((category) => (
                         <Link
@@ -367,7 +369,7 @@ export default function CategoryPage() {
                   {brands.length > 0 && (
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold">Brands</h3>
+                        <h3 className="font-semibold">{t('filters.brands')}</h3>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -401,7 +403,7 @@ export default function CategoryPage() {
                   {warehouses.length > 0 && (
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold">Warehouses</h3>
+                        <h3 className="font-semibold">{t('filters.warehouses')}</h3>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -437,7 +439,7 @@ export default function CategoryPage() {
                   {subcategories.length > 0 && (
                     <Card className="p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold">Subcategories</h3>
+                        <h3 className="font-semibold">{t('filters.subcategories')}</h3>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -472,8 +474,8 @@ export default function CategoryPage() {
                 <div className="lg:col-span-3">
                   {filteredItems.length === 0 ? (
                     <div className="text-center py-16">
-                      <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
-                      <p className="text-gray-500">Try adjusting your filters</p>
+                      <h3 className="text-xl font-semibold text-gray-600 mb-2">{t('noResults')}</h3>
+                      <p className="text-gray-500">{t('adjustFilters')}</p>
                     </div>
                   ) : (
                     <div className={`grid gap-6 ${viewMode === 'grid'
@@ -495,13 +497,13 @@ export default function CategoryPage() {
                           : undefined;
                       
                         const stockBadge = {
-                          text: inStock ? `${quantity} in stock` : 'Out of stock',
+                          text: inStock ? `${quantity} ${t('inStock')}` : t('outOfStock'),
                           className: inStock ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
                         };
                       
-                        const warehouseLabel = `From ${displayedName || warehouseName || 'Unknown Warehouse'}`;
+                        const warehouseLabel = `${t('from')} ${displayedName || warehouseName || 'Unknown Warehouse'}`;
                         const warehouseExtraLabel = hasMultipleWarehouses
-                          ? `+${item.itemPrice.length - 1} more location${item.itemPrice.length > 2 ? 's' : ''}`
+                          ? `+${item.itemPrice.length - 1} ${item.itemPrice.length > 2 ? t('moreLocations') : t('moreLocation')}`
                           : undefined;
                       
                         const addToCartHandler = () => {
@@ -571,7 +573,7 @@ export default function CategoryPage() {
                             description={viewMode === 'list' ? details?.description || undefined : undefined}
                             onAddToCart={addToCartHandler}
                             addToCartDisabled={!inStock}
-                            addToCartLabel={inStock ? 'Buy' : 'Out of Stock'}
+                            addToCartLabel={inStock ? t('buy') : t('outOfStock')}
                           />
                         );
                       })}

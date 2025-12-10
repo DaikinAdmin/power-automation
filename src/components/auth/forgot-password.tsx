@@ -11,9 +11,11 @@ import { FormSuccess } from '../form-success'
 import { useAuthState } from '@/hooks/useAuthState'
 import { authClient } from '@/lib/auth-client'
 import { ForgotPasswordSchema } from '@/helpers/zod/forgot-password-schema'
+import { useTranslations } from 'next-intl'
 
 
 const ForgotPassword = () => {
+  const t = useTranslations('auth.forgotPassword');
   const { error, success, loading, setError, setSuccess, setLoading, resetState } = useAuthState()
 
   const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
@@ -52,11 +54,11 @@ const ForgotPassword = () => {
 
   return (
     <CardWrapper
-      cardTitle='Forgot Password'
-      cardDescription='Enter your email to send link to reset password'
-      cardFooterDescription="Remember your password?"
+      cardTitle={t('title')}
+      cardDescription={t('subtitle')}
+      cardFooterDescription={t('backToSignIn')}
       cardFooterLink='/signin'
-      cardFooterLinkTitle='Signin'
+      cardFooterLinkTitle={t('backToSignIn')}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -65,12 +67,12 @@ const ForgotPassword = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('emailLabel')}</FormLabel>
                 <FormControl>
                   <Input
                     disabled={loading}
                     type="email"
-                    placeholder='example@gmail.com'
+                    placeholder={t('emailPlaceholder')}
                     {...field}
                   />
                 </FormControl>
@@ -80,7 +82,7 @@ const ForgotPassword = () => {
           />
           <FormError message={error} />
           <FormSuccess message={success} />
-          <Button disabled={loading} type="submit" className='w-full'>Submit</Button>
+          <Button disabled={loading} type="submit" className='w-full'>{t('sendResetLink')}</Button>
         </form>
       </Form>
 

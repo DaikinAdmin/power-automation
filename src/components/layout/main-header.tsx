@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
+import LanguageSwitcher from "@/components/languge-switcher";
 
 const NAV_LINKS = [
   { href: "/about", label: "About us" },
@@ -223,6 +224,9 @@ export default function MainHeader() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <div className="hidden md:block">
+              <LanguageSwitcher />
+            </div>
             <a
               href="tel:+1234567890"
               className="hidden items-center gap-2 text-lg font-semibold text-gray-800 transition-colors hover:text-blue-600 sm:flex"
@@ -277,7 +281,10 @@ export default function MainHeader() {
                 </Link>
               ))}
             </nav>
-            <div className="border-t px-4 py-4">
+            <div className="border-t px-4 py-4 space-y-4">
+              <div className="flex justify-center">
+                <LanguageSwitcher />
+              </div>
               <a
                 href="tel:+1234567890"
                 className="flex items-center gap-2 text-base font-semibold text-gray-800 transition-colors hover:text-blue-600"

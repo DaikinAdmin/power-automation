@@ -1,0 +1,159 @@
+{
+  "auth": {
+    "signIn": {
+      "title": "Iniciar Sesión",
+      "subtitle": "Ingresa tus credenciales para iniciar sesión",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "juan.perez@ejemplo.es",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "rememberMe": "Recuérdame",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "signInButton": "Iniciar Sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Regístrate"
+    },
+    "signUp": {
+      "title": "Registrarse",
+      "subtitle": "Crea una cuenta para comenzar",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Juan Pérez",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "juan.perez@ejemplo.es",
+      "phoneNumberLabel": "Número de Teléfono",
+      "phoneNumberPlaceholder": "123-456-7890",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "companyNameLabel": "Nombre de la Empresa",
+      "companyNamePlaceholder": "ABC Limitada",
+      "companyWebpageLabel": "Sitio Web de la Empresa",
+      "companyWebpagePlaceholder": "https://www.abc.es",
+      "companyRoleLabel": "Cargo en la Empresa",
+      "companyRolePlaceholder": "ej. Gerente de Entregas",
+      "termsAccept": "Acepto los",
+      "termsOfService": "Términos de Servicio",
+      "and": "y el",
+      "userAgreement": "Acuerdo de Usuario",
+      "signUpButton": "Registrarse",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signInLink": "Iniciar Sesión"
+    },
+    "forgotPassword": {
+      "title": "¿Olvidaste tu Contraseña?",
+      "subtitle": "Ingresa tu correo electrónico para restablecer tu contraseña",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "juan.perez@ejemplo.es",
+      "sendResetLink": "Enviar Enlace de Restablecimiento",
+      "backToSignIn": "Volver a Iniciar Sesión"
+    },
+    "resetPassword": {
+      "title": "Restablecer Contraseña",
+      "subtitle": "Ingresa tu nueva contraseña",
+      "passwordLabel": "Nueva Contraseña",
+      "passwordPlaceholder": "Ingresa tu nueva contraseña",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "resetButton": "Restablecer Contraseña",
+      "backToSignIn": "Volver a Iniciar Sesión"
+    },
+    "twoFactor": {
+      "title": "Autenticación de Dos Factores",
+      "subtitle": "Ingresa el código de verificación de tu aplicación",
+      "codeLabel": "Código de Verificación",
+      "codePlaceholder": "000000",
+      "verifyButton": "Verificar",
+      "backToSignIn": "Volver a Iniciar Sesión"
+    }
+  },
+  "categories": {
+    "pageTitle": "Todos los Productos",
+    "searchResults": "Resultados de Búsqueda",
+    "productsFound": "productos encontrados para",
+    "productsAvailable": "productos disponibles",
+    "sortBy": "Ordenar por:",
+    "popularity": "Popularidad",
+    "priceLow": "Precio: Bajo",
+    "priceHigh": "Precio: Alto",
+    "name": "Nombre",
+    "view": "Vista:",
+    "filters": {
+      "categories": "Categorías",
+      "brands": "Marcas",
+      "warehouses": "Almacenes",
+      "subcategories": "Subcategorías"
+    },
+    "noResults": "No se encontraron productos",
+    "noResultsSearch": "No se encontraron resultados de búsqueda",
+    "tryDifferentKeywords": "Intenta con diferentes palabras clave o limpia tu búsqueda para ver todos los productos",
+    "adjustFilters": "Intenta ajustar tus filtros",
+    "viewAllProducts": "Ver Todos los Productos",
+    "inStock": "en stock",
+    "outOfStock": "Agotado",
+    "from": "Desde",
+    "moreLocations": "más ubicaciones",
+    "moreLocation": "más ubicación",
+    "buy": "Comprar",
+    "askForPrice": "Preguntar por Precio",
+    "searching": "Buscando...",
+    "breadcrumb": {
+      "home": "Inicio",
+      "allCategories": "Todas las Categorías",
+      "search": "Buscar"
+    }
+  },
+  "checkout": {
+    "title": "Realizar el Pedido",
+    "backToShop": "Volver a la Tienda",
+    "createAccount": "Crear Cuenta",
+    "login": "Iniciar Sesión",
+    "form": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "phoneNumber": "Número de Teléfono",
+      "phonePlaceholder": "123-456-7890",
+      "noCallConfirmation": "No llamar para confirmar el pedido",
+      "city": "Ciudad",
+      "country": "País",
+      "email": "Correo Electrónico Comercial",
+      "password": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu Contraseña?"
+    },
+    "buttons": {
+      "createAccount": "Crear Cuenta",
+      "creatingAccount": "Creando Cuenta...",
+      "login": "Iniciar Sesión",
+      "loggingIn": "Iniciando Sesión...",
+      "confirmOrder": "Confirmar Pedido",
+      "placingOrder": "Realizando Pedido..."
+    },
+    "welcome": "¡Bienvenido de nuevo!",
+    "loggedInAs": "Has iniciado sesión como",
+    "terms": {
+      "acceptPrefix": "Acepto los",
+      "termsOfService": "Términos de servicio",
+      "and": "y",
+      "userAgreement": "Acuerdo de usuario"
+    },
+    "orderSummary": {
+      "title": "Resumen del pedido",
+      "quantity": "Cantidad",
+      "total": "Total"
+    },
+    "cart": {
+      "empty": "Tu carrito está vacío",
+      "items": "artículos",
+      "item": "artículo"
+    },
+    "warehouseNotSpecified": "Almacén no especificado",
+    "removeItem": "Eliminar artículo",
+    "messages": {
+      "acceptTerms": "Por favor acepta los términos y el acuerdo de usuario",
+      "pleaseLogin": "Por favor inicia sesión para realizar un pedido",
+      "cartEmpty": "Tu carrito está vacío",
+      "orderSuccess": "¡Pedido realizado con éxito! Recibirás un correo de confirmación en breve.",
+      "orderCreated": "¡Pedido creado con éxito! ID del pedido:"
+    }
+  }
+}

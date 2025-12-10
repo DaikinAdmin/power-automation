@@ -15,9 +15,11 @@ import { calculateDiscountPercentage } from '@/helpers/pricing';
 import CatalogProductCard from '@/components/catalog-product-card';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useTranslations } from 'next-intl';
 
 
 export default function CategoriesPage() {
+    const t = useTranslations('categories');
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
     const { cartItems, addToCart, updateCartQuantity, removeFromCart, getTotalCartItems, isCartModalOpen, setIsCartModalOpen } = useCart();
@@ -263,11 +265,11 @@ export default function CategoriesPage() {
                         <div className="mb-6">
                             <nav className="flex items-center space-x-2 text-sm text-gray-600">
                                 <Link href="/" className="hover:text-blue-600 transition-colors">
-                                    Home
+                                    {t('breadcrumb.home')}
                                 </Link>
                                 <span>/</span>
                                 <span className="text-gray-900 font-medium">
-                                    {searchQuery ? `Search: "${searchQuery}"` : 'All Categories'}
+                                    {searchQuery ? `${t('breadcrumb.search')}: "${searchQuery}"` : t('breadcrumb.allCategories')}
                                 </span>
                             </nav>
                         </div>
@@ -276,12 +278,12 @@ export default function CategoriesPage() {
                         <div className="flex items-center justify-between mb-8">
                             <div>
                                 <h1 className="text-3xl font-bold">
-                                    {searchQuery ? `Search Results` : 'All Products'}
+                                    {searchQuery ? t('searchResults') : t('pageTitle')}
                                 </h1>
                                 <p className="text-gray-600 mt-2">
                                     {searchQuery
-                                        ? `${filteredItems.length} products found for "${searchQuery}"`
-                                        : `${filteredItems.length} products available`
+                                        ? `${filteredItems.length} ${t('productsFound')} "${searchQuery}"`
+                                        : `${filteredItems.length} ${t('productsAvailable')}`
                                     }
                                 </p>
                             </div>
@@ -289,7 +291,7 @@ export default function CategoriesPage() {
                             {/* Centered Sort Options with View on Right */}
                             <div className="flex-1 flex items-center justify-center">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                                    <span className="text-sm font-medium text-gray-700">{t('sortBy')}</span>
                                     <div className="flex items-center border rounded-lg">
                                         <Button
                                             variant={sortBy === 'popularity' ? 'default' : 'ghost'}
@@ -297,7 +299,7 @@ export default function CategoriesPage() {
                                             onClick={() => setSortBy('popularity')}
                                             className={`${sortBy === 'popularity' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-r-none`}
                                         >
-                                            Popularity
+                                            {t('popularity')}
                                         </Button>
                                         <Button
                                             variant={sortBy === 'price-low' ? 'default' : 'ghost'}
@@ -305,7 +307,7 @@ export default function CategoriesPage() {
                                             onClick={() => setSortBy('price-low')}
                                             className={`${sortBy === 'price-low' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-none border-l border-r`}
                                         >
-                                            Price: Low
+                                            {t('priceLow')}
                                         </Button>
                                         <Button
                                             variant={sortBy === 'price-high' ? 'default' : 'ghost'}
@@ -313,7 +315,7 @@ export default function CategoriesPage() {
                                             onClick={() => setSortBy('price-high')}
                                             className={`${sortBy === 'price-high' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-none border-r`}
                                         >
-                                            Price: High
+                                            {t('priceHigh')}
                                         </Button>
                                         <Button
                                             variant={sortBy === 'name' ? 'default' : 'ghost'}
@@ -321,7 +323,7 @@ export default function CategoriesPage() {
                                             onClick={() => setSortBy('name')}
                                             className={`${sortBy === 'name' ? 'bg-red-500 hover:bg-red-600 text-white' : ''} rounded-l-none`}
                                         >
-                                            Name
+                                            {t('name')}
                                         </Button>
                                     </div>
                                 </div>
@@ -329,7 +331,7 @@ export default function CategoriesPage() {
 
                             {/* View Mode Toggle - Far Right */}
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">View:</span>
+                                <span className="text-sm font-medium text-gray-700">{t('view')}</span>
                                 <div className="flex items-center border rounded-lg">
                                     <Button
                                         variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -376,7 +378,7 @@ export default function CategoriesPage() {
                                     {/* Categories Filter */}
                                     <Card className="p-4">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h3 className="font-semibold">Categories</h3>
+                                            <h3 className="font-semibold">{t('filters.categories')}</h3>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -409,7 +411,7 @@ export default function CategoriesPage() {
                                     {brands.length > 0 && (
                                         <Card className="p-4">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="font-semibold">Brands</h3>
+                                                <h3 className="font-semibold">{t('filters.brands')}</h3>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -443,7 +445,7 @@ export default function CategoriesPage() {
                                     {warehouses.length > 0 && (
                                         <Card className="p-4">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="font-semibold">Warehouses</h3>
+                                                <h3 className="font-semibold">{t('filters.warehouses')}</h3>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -479,7 +481,7 @@ export default function CategoriesPage() {
                                     {subcategories.length > 0 && (
                                         <Card className="p-4">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="font-semibold">Subcategories</h3>
+                                                <h3 className="font-semibold">{t('filters.subcategories')}</h3>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -514,7 +516,7 @@ export default function CategoriesPage() {
                                 {loading && (
                                     <div className="container mx-auto px-4 py-8">
                                         <div className="flex justify-center items-center min-h-64">
-                                            <div className="text-gray-600">Searching...</div>
+                                            <div className="text-gray-600">{t('searching')}</div>
                                         </div>
                                     </div>
                                 )}
@@ -522,12 +524,12 @@ export default function CategoriesPage() {
                                     {filteredItems.length === 0 ? (
                                         <div className="text-center py-16">
                                             <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                                                {searchQuery ? 'No search results found' : 'No products found'}
+                                                {searchQuery ? t('noResultsSearch') : t('noResults')}
                                             </h3>
                                             <p className="text-gray-500">
                                                 {searchQuery
-                                                    ? `Try different keywords or clear your search to see all products`
-                                                    : 'Try adjusting your filters'
+                                                    ? t('tryDifferentKeywords')
+                                                    : t('adjustFilters')
                                                 }
                                             </p>
                                             {searchQuery && (
@@ -535,7 +537,7 @@ export default function CategoriesPage() {
                                                     href="/categories"
                                                     className="inline-block mt-4 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                                 >
-                                                    View All Products
+                                                    {t('viewAllProducts')}
                                                 </Link>
                                             )}
                                         </div>
@@ -559,13 +561,13 @@ export default function CategoriesPage() {
                                                     : undefined;
 
                                                 const stockBadge = {
-                                                    text: inStock ? `${quantity} in stock` : 'Out of stock',
+                                                    text: inStock ? `${quantity} ${t('inStock')}` : t('outOfStock'),
                                                     className: inStock ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
                                                 };
 
-                                                const warehouseLabel = `From ${displayedName || 'Unknown Warehouse'}`;
+                                                const warehouseLabel = `${t('from')} ${displayedName || 'Unknown Warehouse'}`;
                                                 const warehouseExtraLabel = hasMultipleWarehouses
-                                                    ? `+${item.itemPrice.length - 1} more location${item.itemPrice.length > 2 ? 's' : ''}`
+                                                    ? `+${item.itemPrice.length - 1} ${item.itemPrice.length > 2 ? t('moreLocations') : t('moreLocation')}`
                                                     : undefined;
 
                                                 const addToCartHandler = () => {
@@ -637,7 +639,7 @@ export default function CategoriesPage() {
                                                             description={viewMode === 'list' ? details?.description || undefined : undefined}
                                                             onAddToCart={addToCartHandler}
                                                             addToCartDisabled={!inStock}
-                                                            addToCartLabel={inStock ? 'Buy' : 'Out of Stock'}
+                                                            addToCartLabel={inStock ? t('buy') : t('outOfStock')}
                                                         />
                                                         {/* Ask for Price Button - Shows on Hover */}
                                                         <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-lg">
@@ -646,7 +648,7 @@ export default function CategoriesPage() {
                                                                 className="bg-white text-gray-900 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
                                                             >
                                                                 <MessageSquare className="h-4 w-4" />
-                                                                Ask for Price
+                                                                {t('askForPrice')}
                                                             </Link>
                                                         </div>
                                                     </div>

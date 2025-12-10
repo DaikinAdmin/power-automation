@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import CardWrapper from "../card-wrapper";
 import FormError from "../form-error";
@@ -31,6 +32,7 @@ import { requestOTP } from "@/helpers/auth/request-otp";
 import TraditionalSignInSchema from "@/helpers/zod/login-schema";
 
 const SignIn = () => {
+    const t = useTranslations('auth.signIn');
     const router = useRouter();
     const {
         error,
@@ -105,11 +107,11 @@ const SignIn = () => {
 
     return (
         <CardWrapper
-            cardTitle="Sign In"
-            cardDescription="Enter your details below to login to your account"
-            cardFooterDescription="Don't have an account?"
+            cardTitle={t('title')}
+            cardDescription={t('subtitle')}
+            cardFooterDescription={t('noAccount')}
             cardFooterLink="/signup"
-            cardFooterLinkTitle="Sign up"
+            cardFooterLinkTitle={t('signUpLink')}
         >
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -120,13 +122,13 @@ const SignIn = () => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {'Email'}
+                                    {t('emailLabel')}
                                 </FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="text"
-                                        placeholder={"Enter your email"}
+                                        placeholder={t('emailPlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -141,12 +143,12 @@ const SignIn = () => {
                         name="password"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t('passwordLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="password"
-                                        placeholder="********"
+                                        placeholder={t('passwordPlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -155,7 +157,7 @@ const SignIn = () => {
                                     href="/forgot-password"
                                     className="text-xs underline ml-60"
                                 >
-                                    Forgot Password?
+                                    {t('forgotPassword')}
                                 </Link>
                             </FormItem>
                         )}
@@ -166,7 +168,7 @@ const SignIn = () => {
 
                     {/* Submit Button */}
                     <Button disabled={loading} type="submit" className="w-full">
-                        {"Login"}
+                        {t('signInButton')}
                     </Button>
                 </form>
             </Form>

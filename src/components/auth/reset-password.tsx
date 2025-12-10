@@ -13,9 +13,11 @@ import { FormSuccess } from '../form-success'
 import { ResetPasswordSchema } from '@/helpers/zod/reset-password-schema'
 import { authClient } from '@/lib/auth-client'
 import { useAuthState } from '@/hooks/useAuthState'
+import { useTranslations } from 'next-intl'
 
 
 const ResetPassword = () => {
+    const t = useTranslations('auth.resetPassword');
     const searchParams = useSearchParams()
     const token = searchParams.get('token')
     const router = useRouter()
@@ -64,11 +66,11 @@ const ResetPassword = () => {
 
     return (
         <CardWrapper
-            cardTitle='Reset Password'
-            cardDescription='create a new password'
+            cardTitle={t('title')}
+            cardDescription={t('subtitle')}
             cardFooterLink='/signin'
-            cardFooterDescription='Remember your password?'
-            cardFooterLinkTitle='Signin'
+            cardFooterDescription={t('backToSignIn')}
+            cardFooterLinkTitle={t('backToSignIn')}
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -77,12 +79,12 @@ const ResetPassword = () => {
                         name="password"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t('passwordLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="password"
-                                        placeholder='************'
+                                        placeholder={t('passwordPlaceholder')}
                                         {...field} />
                                 </FormControl>
                                 <FormMessage />
@@ -94,12 +96,12 @@ const ResetPassword = () => {
                         name="confirmPassword"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Confirm Password</FormLabel>
+                                <FormLabel>{t('confirmPasswordLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="password"
-                                        placeholder='*************'
+                                        placeholder={t('confirmPasswordPlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -109,7 +111,7 @@ const ResetPassword = () => {
                     />
                     <FormError message={error} />
                     <FormSuccess message={success} />
-                    <Button type="submit" className="w-full" disabled={loading}>Submit</Button>
+                    <Button type="submit" className="w-full" disabled={loading}>{t('resetButton')}</Button>
                 </form>
             </Form>
         </CardWrapper>

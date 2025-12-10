@@ -1,0 +1,159 @@
+{
+  "auth": {
+    "signIn": {
+      "title": "Sign In",
+      "subtitle": "Enter your credentials to sign in",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john.doe@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signInButton": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign Up"
+    },
+    "signUp": {
+      "title": "Sign Up",
+      "subtitle": "Create an account to get started",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john.doe@example.com",
+      "phoneNumberLabel": "Phone Number",
+      "phoneNumberPlaceholder": "123-456-7890",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm password",
+      "companyNameLabel": "Company Name",
+      "companyNamePlaceholder": "ABC Limited",
+      "companyWebpageLabel": "Company Webpage",
+      "companyWebpagePlaceholder": "https://www.abc.com",
+      "companyRoleLabel": "Company Role",
+      "companyRolePlaceholder": "e.g. Delivery Manager",
+      "termsAccept": "I accept the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "userAgreement": "User Agreement",
+      "signUpButton": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign In"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email to reset password",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john.doe@example.com",
+      "sendResetLink": "Send Reset Link",
+      "backToSignIn": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password",
+      "passwordLabel": "New Password",
+      "passwordPlaceholder": "Enter new password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm password",
+      "resetButton": "Reset Password",
+      "backToSignIn": "Back to Sign In"
+    },
+    "twoFactor": {
+      "title": "Two-Factor Authentication",
+      "subtitle": "Enter the verification code from your app",
+      "codeLabel": "Verification Code",
+      "codePlaceholder": "000000",
+      "verifyButton": "Verify",
+      "backToSignIn": "Back to Sign In"
+    }
+  },
+  "categories": {
+    "pageTitle": "All Products",
+    "searchResults": "Search Results",
+    "productsFound": "products found for",
+    "productsAvailable": "products available",
+    "sortBy": "Sort by:",
+    "popularity": "Popularity",
+    "priceLow": "Price: Low",
+    "priceHigh": "Price: High",
+    "name": "Name",
+    "view": "View:",
+    "filters": {
+      "categories": "Categories",
+      "brands": "Brands",
+      "warehouses": "Warehouses",
+      "subcategories": "Subcategories"
+    },
+    "noResults": "No products found",
+    "noResultsSearch": "No search results found",
+    "tryDifferentKeywords": "Try different keywords or clear your search to see all products",
+    "adjustFilters": "Try adjusting your filters",
+    "viewAllProducts": "View All Products",
+    "inStock": "in stock",
+    "outOfStock": "Out of stock",
+    "from": "From",
+    "moreLocations": "more locations",
+    "moreLocation": "more location",
+    "buy": "Buy",
+    "askForPrice": "Ask for Price",
+    "searching": "Searching...",
+    "breadcrumb": {
+      "home": "Home",
+      "allCategories": "All Categories",
+      "search": "Search"
+    }
+  },
+  "checkout": {
+    "title": "Place the Order",
+    "backToShop": "Back to Shop",
+    "createAccount": "Create Account",
+    "login": "Login",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "phoneNumber": "Phone Number",
+      "phonePlaceholder": "123-456-7890",
+      "noCallConfirmation": "Don't call to confirm the order",
+      "city": "City",
+      "country": "Country",
+      "email": "Commercial Email",
+      "password": "Password",
+      "forgotPassword": "Forgot Password?"
+    },
+    "buttons": {
+      "createAccount": "Create Account",
+      "creatingAccount": "Creating Account...",
+      "login": "Login",
+      "loggingIn": "Logging in...",
+      "confirmOrder": "Confirm Order",
+      "placingOrder": "Placing Order..."
+    },
+    "welcome": "Welcome back!",
+    "loggedInAs": "You are logged in as",
+    "terms": {
+      "acceptPrefix": "I accept the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "userAgreement": "User Agreement"
+    },
+    "orderSummary": {
+      "title": "Order Summary",
+      "quantity": "Quantity",
+      "total": "Total"
+    },
+    "cart": {
+      "empty": "Your cart is empty",
+      "items": "items",
+      "item": "item"
+    },
+    "warehouseNotSpecified": "Warehouse not specified",
+    "removeItem": "Remove item",
+    "messages": {
+      "acceptTerms": "Please accept the terms and user agreement",
+      "pleaseLogin": "Please log in to place an order",
+      "cartEmpty": "Your cart is empty",
+      "orderSuccess": "Order placed successfully! You will receive a confirmation email shortly.",
+      "orderCreated": "Order created successfully! Order ID:"
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "auth": {
+    "signIn": {
+      "title": "Zaloguj się",
+      "subtitle": "Wpisz swoje dane, aby się zalogować",
+      "emailLabel": "Email",
+      "emailPlaceholder": "jan.kowalski@przykład.pl",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "Wprowadź hasło",
+      "rememberMe": "Zapamiętaj mnie",
+      "forgotPassword": "Zapomniałeś hasła?",
+      "signInButton": "Zaloguj się",
+      "noAccount": "Nie masz konta?",
+      "signUpLink": "Zarejestruj się"
+    },
+    "signUp": {
+      "title": "Zarejestruj się",
+      "subtitle": "Utwórz konto, aby rozpocząć",
+      "nameLabel": "Imię",
+      "namePlaceholder": "Jan Kowalski",
+      "emailLabel": "Email",
+      "emailPlaceholder": "jan.kowalski@przykład.pl",
+      "phoneNumberLabel": "Numer telefonu",
+      "phoneNumberPlaceholder": "123-456-7890",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "Wprowadź hasło",
+      "confirmPasswordLabel": "Potwierdź hasło",
+      "confirmPasswordPlaceholder": "Potwierdź hasło",
+      "companyNameLabel": "Nazwa firmy",
+      "companyNamePlaceholder": "ABC Sp. z o.o.",
+      "companyWebpageLabel": "Strona internetowa firmy",
+      "companyWebpagePlaceholder": "https://www.abc.pl",
+      "companyRoleLabel": "Stanowisko",
+      "companyRolePlaceholder": "np. Menedżer ds. dostaw",
+      "termsAccept": "Akceptuję",
+      "termsOfService": "Warunki korzystania z usługi",
+      "and": "oraz",
+      "userAgreement": "Umowę użytkownika",
+      "signUpButton": "Zarejestruj się",
+      "haveAccount": "Masz już konto?",
+      "signInLink": "Zaloguj się"
+    },
+    "forgotPassword": {
+      "title": "Zapomniałeś hasła?",
+      "subtitle": "Wprowadź swój email, aby zresetować hasło",
+      "emailLabel": "Email",
+      "emailPlaceholder": "jan.kowalski@przykład.pl",
+      "sendResetLink": "Wyślij link resetujący",
+      "backToSignIn": "Wróć do logowania"
+    },
+    "resetPassword": {
+      "title": "Zresetuj hasło",
+      "subtitle": "Wprowadź nowe hasło",
+      "passwordLabel": "Nowe hasło",
+      "passwordPlaceholder": "Wprowadź nowe hasło",
+      "confirmPasswordLabel": "Potwierdź hasło",
+      "confirmPasswordPlaceholder": "Potwierdź hasło",
+      "resetButton": "Zresetuj hasło",
+      "backToSignIn": "Wróć do logowania"
+    },
+    "twoFactor": {
+      "title": "Weryfikacja dwuskładnikowa",
+      "subtitle": "Wprowadź kod weryfikacyjny z aplikacji",
+      "codeLabel": "Kod weryfikacyjny",
+      "codePlaceholder": "000000",
+      "verifyButton": "Weryfikuj",
+      "backToSignIn": "Wróć do logowania"
+    }
+  },
+  "categories": {
+    "pageTitle": "Wszystkie produkty",
+    "searchResults": "Wyniki wyszukiwania",
+    "productsFound": "znalezionych produktów dla",
+    "productsAvailable": "dostępnych produktów",
+    "sortBy": "Sortuj według:",
+    "popularity": "Popularność",
+    "priceLow": "Cena: Niskie",
+    "priceHigh": "Cena: Wysokie",
+    "name": "Nazwa",
+    "view": "Widok:",
+    "filters": {
+      "categories": "Kategorie",
+      "brands": "Marki",
+      "warehouses": "Magazyny",
+      "subcategories": "Podkategorie"
+    },
+    "noResults": "Nie znaleziono produktów",
+    "noResultsSearch": "Nie znaleziono wyników wyszukiwania",
+    "tryDifferentKeywords": "Spróbuj innych słów kluczowych lub wyczyść wyszukiwanie, aby zobaczyć wszystkie produkty",
+    "adjustFilters": "Spróbuj dostosować filtry",
+    "viewAllProducts": "Zobacz wszystkie produkty",
+    "inStock": "w magazynie",
+    "outOfStock": "Brak w magazynie",
+    "from": "Od",
+    "moreLocations": "więcej lokalizacji",
+    "moreLocation": "więcej lokalizacja",
+    "buy": "Kup",
+    "askForPrice": "Zapytaj o cenę",
+    "searching": "Szukam...",
+    "breadcrumb": {
+      "home": "Strona główna",
+      "allCategories": "Wszystkie kategorie",
+      "search": "Szukaj"
+    }
+  },
+  "checkout": {
+    "title": "Złóż zamówienie",
+    "backToShop": "Wróć do sklepu",
+    "createAccount": "Utwórz konto",
+    "login": "Zaloguj się",
+    "form": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "phoneNumber": "Numer telefonu",
+      "phonePlaceholder": "123-456-7890",
+      "noCallConfirmation": "Nie dzwoń w celu potwierdzenia zamówienia",
+      "city": "Miasto",
+      "country": "Kraj",
+      "email": "E-mail handlowy",
+      "password": "Hasło",
+      "forgotPassword": "Zapomniałeś hasła?"
+    },
+    "buttons": {
+      "createAccount": "Utwórz konto",
+      "creatingAccount": "Tworzenie konta...",
+      "login": "Zaloguj się",
+      "loggingIn": "Logowanie...",
+      "confirmOrder": "Potwierdź zamówienie",
+      "placingOrder": "Składanie zamówienia..."
+    },
+    "welcome": "Witaj ponownie!",
+    "loggedInAs": "Jesteś zalogowany jako",
+    "terms": {
+      "acceptPrefix": "Akceptuję",
+      "termsOfService": "Warunki korzystania z usługi",
+      "and": "oraz",
+      "userAgreement": "Umowę użytkownika"
+    },
+    "orderSummary": {
+      "title": "Podsumowanie zamówienia",
+      "quantity": "Ilość",
+      "total": "Suma"
+    },
+    "cart": {
+      "empty": "Twój koszyk jest pusty",
+      "items": "przedmiotów",
+      "item": "przedmiot"
+    },
+    "warehouseNotSpecified": "Magazyn nieokreślony",
+    "removeItem": "Usuń przedmiot",
+    "messages": {
+      "acceptTerms": "Proszę zaakceptować warunki i umowę użytkownika",
+      "pleaseLogin": "Proszę się zalogować, aby złożyć zamówienie",
+      "cartEmpty": "Twój koszyk jest pusty",
+      "orderSuccess": "Zamówienie złożone pomyślnie! Wkrótce otrzymasz e-mail z potwierdzeniem.",
+      "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:"
+    }
+  }
+}

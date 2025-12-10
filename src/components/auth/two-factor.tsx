@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import CardWrapper from "../card-wrapper";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
@@ -21,6 +22,7 @@ import { requestOTP } from "@/helpers/auth/request-otp";
 import { redirectAfterLogin } from "@/helpers/auth/redirect-after-login";
 
 const TwoFactor: React.FC = () => {
+    const t = useTranslations('auth.twoFactor');
     const router = useRouter();
     const {
         error,
@@ -90,11 +92,11 @@ const TwoFactor: React.FC = () => {
 
     return (
         <CardWrapper
-            cardTitle="Two-Factor Authentication"
-            cardDescription="Verify your identity with a one-time password."
-            cardFooterDescription="Entered the wrong email?"
-            cardFooterLink="/login"
-            cardFooterLinkTitle="Login"
+            cardTitle={t('title')}
+            cardDescription={t('subtitle')}
+            cardFooterDescription={t('backToSignIn')}
+            cardFooterLink="/signin"
+            cardFooterLinkTitle={t('backToSignIn')}
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -103,7 +105,7 @@ const TwoFactor: React.FC = () => {
                         name="code"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>One-Time Password</FormLabel>
+                                <FormLabel>{t('codeLabel')}</FormLabel>
                                 <InputOTP
                                     maxLength={6}
                                     pattern={REGEXP_ONLY_DIGITS}
@@ -135,7 +137,7 @@ const TwoFactor: React.FC = () => {
                         disabled={loading}
                         className="w-full mt-4"
                     >
-                        Verify
+                        {t('verifyButton')}
                     </Button>
                 </form>
             </Form>

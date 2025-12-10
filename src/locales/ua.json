@@ -1,0 +1,159 @@
+{
+  "auth": {
+    "signIn": {
+      "title": "Увійти",
+      "subtitle": "Введіть свої дані для входу",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ivan.petrenko@priklad.ua",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Введіть пароль",
+      "rememberMe": "Запам'ятати мене",
+      "forgotPassword": "Забули пароль?",
+      "signInButton": "Увійти",
+      "noAccount": "Немає облікового запису?",
+      "signUpLink": "Зареєструватися"
+    },
+    "signUp": {
+      "title": "Реєстрація",
+      "subtitle": "Створіть обліковий запис для початку",
+      "nameLabel": "Ім'я",
+      "namePlaceholder": "Іван Петренко",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ivan.petrenko@priklad.ua",
+      "phoneNumberLabel": "Номер телефону",
+      "phoneNumberPlaceholder": "123-456-7890",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Введіть пароль",
+      "confirmPasswordLabel": "Підтвердіть пароль",
+      "confirmPasswordPlaceholder": "Підтвердіть пароль",
+      "companyNameLabel": "Назва компанії",
+      "companyNamePlaceholder": "ABC TOB",
+      "companyWebpageLabel": "Веб-сайт компанії",
+      "companyWebpagePlaceholder": "https://www.abc.ua",
+      "companyRoleLabel": "Посада",
+      "companyRolePlaceholder": "напр. Менеджер з доставки",
+      "termsAccept": "Я приймаю",
+      "termsOfService": "Умови надання послуг",
+      "and": "та",
+      "userAgreement": "Угоду користувача",
+      "signUpButton": "Зареєструватися",
+      "haveAccount": "Вже є обліковий запис?",
+      "signInLink": "Увійти"
+    },
+    "forgotPassword": {
+      "title": "Забули пароль?",
+      "subtitle": "Введіть свій email для скидання пароля",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ivan.petrenko@priklad.ua",
+      "sendResetLink": "Надіслати посилання",
+      "backToSignIn": "Повернутися до входу"
+    },
+    "resetPassword": {
+      "title": "Скинути пароль",
+      "subtitle": "Введіть новий пароль",
+      "passwordLabel": "Новий пароль",
+      "passwordPlaceholder": "Введіть новий пароль",
+      "confirmPasswordLabel": "Підтвердіть пароль",
+      "confirmPasswordPlaceholder": "Підтвердіть пароль",
+      "resetButton": "Скинути пароль",
+      "backToSignIn": "Повернутися до входу"
+    },
+    "twoFactor": {
+      "title": "Двофакторна автентифікація",
+      "subtitle": "Введіть код підтвердження з додатку",
+      "codeLabel": "Код підтвердження",
+      "codePlaceholder": "000000",
+      "verifyButton": "Підтвердити",
+      "backToSignIn": "Повернутися до входу"
+    }
+  },
+  "categories": {
+    "pageTitle": "Всі продукти",
+    "searchResults": "Результати пошуку",
+    "productsFound": "знайдено продуктів для",
+    "productsAvailable": "доступних продуктів",
+    "sortBy": "Сортувати за:",
+    "popularity": "Популярність",
+    "priceLow": "Ціна: Низька",
+    "priceHigh": "Ціна: Висока",
+    "name": "Назва",
+    "view": "Вигляд:",
+    "filters": {
+      "categories": "Категорії",
+      "brands": "Бренди",
+      "warehouses": "Склади",
+      "subcategories": "Підкатегорії"
+    },
+    "noResults": "Продукти не знайдено",
+    "noResultsSearch": "Результати пошуку не знайдено",
+    "tryDifferentKeywords": "Спробуйте інші ключові слова або очистіть пошук, щоб побачити всі продукти",
+    "adjustFilters": "Спробуйте налаштувати фільтри",
+    "viewAllProducts": "Переглянути всі продукти",
+    "inStock": "в наявності",
+    "outOfStock": "Немає в наявності",
+    "from": "Від",
+    "moreLocations": "більше локацій",
+    "moreLocation": "більше локація",
+    "buy": "Купити",
+    "askForPrice": "Запитати ціну",
+    "searching": "Пошук...",
+    "breadcrumb": {
+      "home": "Головна",
+      "allCategories": "Всі категорії",
+      "search": "Пошук"
+    }
+  },
+  "checkout": {
+    "title": "Оформити замовлення",
+    "backToShop": "Повернутися до магазину",
+    "createAccount": "Створити обліковий запис",
+    "login": "Увійти",
+    "form": {
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "phoneNumber": "Номер телефону",
+      "phonePlaceholder": "123-456-7890",
+      "noCallConfirmation": "Не телефонуйте для підтвердження замовлення",
+      "city": "Місто",
+      "country": "Країна",
+      "email": "Комерційний Email",
+      "password": "Пароль",
+      "forgotPassword": "Забули пароль?"
+    },
+    "buttons": {
+      "createAccount": "Створити обліковий запис",
+      "creatingAccount": "Створення облікового запису...",
+      "login": "Увійти",
+      "loggingIn": "Вхід...",
+      "confirmOrder": "Підтвердити замовлення",
+      "placingOrder": "Оформлення замовлення..."
+    },
+    "welcome": "Раді бачити знову!",
+    "loggedInAs": "Ви увійшли як",
+    "terms": {
+      "acceptPrefix": "Я приймаю",
+      "termsOfService": "Умови надання послуг",
+      "and": "та",
+      "userAgreement": "Угоду користувача"
+    },
+    "orderSummary": {
+      "title": "Підсумок замовлення",
+      "quantity": "Кількість",
+      "total": "Сума"
+    },
+    "cart": {
+      "empty": "Ваш кошик порожній",
+      "items": "товарів",
+      "item": "товар"
+    },
+    "warehouseNotSpecified": "Склад не вказано",
+    "removeItem": "Видалити товар",
+    "messages": {
+      "acceptTerms": "Будь ласка, прийміть умови та угоду користувача",
+      "pleaseLogin": "Будь ласка, увійдіть, щоб оформити замовлення",
+      "cartEmpty": "Ваш кошик порожній",
+      "orderSuccess": "Замовлення оформлено успішно! Ви отримаєте email з підтвердженням незабаром.",
+      "orderCreated": "Замовлення створено успішно! ID замовлення:"
+    }
+  }
+}

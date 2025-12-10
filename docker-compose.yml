@@ -1,17 +1,78 @@
-# docker-compose.yml
-version: "3.9"
 services:
-  db:
-    container_name: BETTER_AUTH_NEXTJS_OAUTH
+  # PostgreSQL Database
+  postgres:
     image: postgres:17-alpine
-    restart: always
-    ports:
-      - 5433:5433
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    container_name: powerautomation-postgres
+    restart: unless-stopped
+    command: postgres -c max_connections=100 -c shared_buffers=256MB
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=OAUTH
+      POSTGRES_USER: powerautomation
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-powerautomation_secure_password}
+      POSTGRES_DB: powerautomation
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"  # Changed to 5433 to avoid conflict with local PostgreSQL
+    networks:
+      - powerautomation-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U powerautomation -d powerautomation"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    container_name: powerautomation-app
+    restart: unless-stopped
+    ports:
+      - "3060:3000"
+    environment:
+      # Database
+      DATABASE_URL: postgresql://powerautomation:${DB_PASSWORD}@postgres:5432/powerautomation?schema=public&connection_limit=20&pool_timeout=30&connect_timeout=10&socket_timeout=60
+      
+      # Auth
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+      ADMIN_USER_ID: ${ADMIN_USER_ID}
+      
+      # Base URL
+      BASE_URL: ${BASE_URL}
+      
+      # Mail
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_USER_CONTACT: ${MAIL_USER_CONTACT}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      
+      # Environment
+      ENV: ${ENV:-production}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - powerautomation-network
+    volumes:
+      - ./prisma:/app/prisma
+      - uploads_data:/app/public/uploads
+
+networks:
+  powerautomation-network:
+    driver: bridge
+
 volumes:
-  postgres-data:
+  postgres_data:
+    driver: local
+  uploads_data:
+    driver: local

@@ -15,8 +15,10 @@ import { signUp } from '@/lib/auth-client'
 import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { countryCodes } from '@/helpers/country-codes'
+import { useTranslations } from 'next-intl'
 
 const SignUp = () => {
+    const t = useTranslations('auth.signUp');
     const [showPassword, setShowPassword] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
@@ -87,11 +89,11 @@ const SignUp = () => {
     }
     return (
         <CardWrapper
-            cardTitle='SignUp'
-            cardDescription='Create an new account'
+            cardTitle={t('title')}
+            cardDescription={t('subtitle')}
             cardFooterLink='/signin'
-            cardFooterDescription='Already have an account?'
-            cardFooterLinkTitle='Signin'
+            cardFooterDescription={t('haveAccount')}
+            cardFooterLinkTitle={t('signInLink')}
         >
             <Form {...form}>
                 <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
@@ -100,12 +102,12 @@ const SignUp = () => {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Name</FormLabel>
+                                <FormLabel>{t('nameLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="text"
-                                        placeholder='John Doe'
+                                        placeholder={t('namePlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -118,12 +120,12 @@ const SignUp = () => {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>{t('emailLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="email"
-                                        placeholder='example@gmail.com'
+                                        placeholder={t('emailPlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>
@@ -132,7 +134,7 @@ const SignUp = () => {
                         )}
                     />
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('phoneNumberLabel')}</label>
                       <div className="flex">
                         <select
                           defaultValue={form.getValues('countryCode')}
@@ -150,13 +152,13 @@ const SignUp = () => {
                           defaultValue={form.getValues('phoneNumber')}
                           onChange={(e) => form.setValue('phoneNumber', e.target.value)}
                           className="flex-1 px-3 py-2 text-sm border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="123-456-7890"
+                          placeholder={t('phoneNumberPlaceholder')}
                           required
                         />
                       </div>
                     </div>
             <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('passwordLabel')}</label>
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
@@ -181,12 +183,12 @@ const SignUp = () => {
                 name="companyName"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Company Name</FormLabel>
+                        <FormLabel>{t('companyNameLabel')}</FormLabel>
                         <FormControl>
                             <Input
                                 disabled={loading}
                                 type="text"
-                                placeholder='ABC Limited'
+                                placeholder={t('companyNamePlaceholder')}
                                 {...field}
                             />
                         </FormControl>
@@ -199,12 +201,12 @@ const SignUp = () => {
                 name="companyWebpage"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Company WebPage</FormLabel>
+                        <FormLabel>{t('companyWebpageLabel')}</FormLabel>
                         <FormControl>
                             <Input
                                 disabled={loading}
                                 type="text"
-                                placeholder='https://www.abc.com'
+                                placeholder={t('companyWebpagePlaceholder')}
                                 {...field}
                             />
                         </FormControl>
@@ -217,12 +219,12 @@ const SignUp = () => {
                 name="companyRole"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Company Role</FormLabel>
+                        <FormLabel>{t('companyRoleLabel')}</FormLabel>
                         <FormControl>
                             <Input
                                 disabled={loading}
                                 type="text"
-                                placeholder='e.g. Delivery Manager'
+                                placeholder={t('companyRolePlaceholder')}
                                 {...field}
                             />
                         </FormControl>
@@ -245,13 +247,13 @@ const SignUp = () => {
                                 
                             />
                             <label htmlFor="userAgreement" className="ml-2 text-sm text-gray-700">
-                                I accept the{' '}
+                                {t('termsAccept')}{' '}
                                 <Link href="/terms" className="text-blue-600 hover:text-blue-800 underline">
-                                    Terms of Service
+                                    {t('termsOfService')}
                                 </Link>
-                                {' '}and{' '}
+                                {' '}{t('and')}{' '}
                                 <Link href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
-                                    User Agreement
+                                    {t('userAgreement')}
                                 </Link>
                             </label>
                         </div>
@@ -260,7 +262,7 @@ const SignUp = () => {
             />
             <FormError message={error} />
             <FormSuccess message={success} />
-            <Button disabled={loading || !acceptTerms} type="submit" className='w-full'>Submit</Button>
+            <Button disabled={loading || !acceptTerms} type="submit" className='w-full'>{t('signUpButton')}</Button>
         </form>
             </Form >
         </CardWrapper >
