@@ -6,14 +6,18 @@ import { ForgotPasswordSchema } from "@/helpers/zod/forgot-password-schema";
 import SignInSchema from "@/helpers/zod/login-schema";
 import { PasswordSchema, SignupSchema } from "@/helpers/zod/signup-schema";
 import { twoFactorSchema } from "@/helpers/zod/two-factor-schema";
-import { UserRole } from "@prisma/client";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import {
+  admin as adminPlugin,
   customSession,
+  openAPI,
   twoFactor
 } from "better-auth/plugins";
 import { validator, StandardAdapter } from "validation-better-auth";
+import { roleSignupPlugin } from "./role-signup-plugin";
+import { nextCookies } from "better-auth/next-js";
+import { ac, user, employee, admin } from "./permissions";
 
 export const auth = betterAuth({
   user: {
@@ -21,7 +25,7 @@ export const auth = betterAuth({
       role: {
         type: "string",
         required: false,
-        defaultValue: UserRole.USER,
+        defaultValue: "user",
         input: false, // don't allow user to set role
       },
       phoneNumber: {
@@ -57,6 +61,22 @@ export const auth = betterAuth({
     },
   },
   appName: "power-automation",
+  trustedOrigins: [
+    "http://localhost:3000",
+    // "http://localhost:3030",
+    // "http://217.60.20.130", // VPS IP for temporary access
+    process.env.BASE_URL || "",
+    process.env.BETTER_AUTH_URL || "",
+    process.env.NEXT_PUBLIC_APP_URL || "",
+  ].filter(Boolean), // Remove empty strings
+  advanced: {
+    disableCSRFCheck: false,
+    // Only use secure cookies when actually using HTTPS
+    useSecureCookies: process.env.NODE_ENV === "production" && process.env.BETTER_AUTH_URL?.startsWith("https"),
+    generateSessionId: () => {
+      return crypto.randomUUID();
+    },
+  },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -66,9 +86,10 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     maxPasswordLength: 20,
     requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: 3600 * 24,
     sendResetPassword: async ({ user, url, token }, request) => {
       await email.sendMail({
-        from: process.env.MAIL_FROM,
+        from: process.env.MAIL_USER,
         // TODO once we will go to prod, change to: user.email,
         to: user.email,
         subject: "Reset your password",
@@ -81,7 +102,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       await email.sendMail({
-        from: process.env.MAIL_FROM,
+        from: process.env.MAIL_USER,
         to: user.email,
         subject: "Email Verification",
         html: `Click the link to verify your email: ${url}`,
@@ -89,20 +110,21 @@ export const auth = betterAuth({
     },
   },
   session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
-    freshAge: 60 * 60 * 24,
+    expiresIn: 60 * 60 * 24,
+    updateAge: 60 * 60 * 12,
+    freshAge: 60 * 60 * 1,
     cookieCache: {
-            enabled: true,
-            maxAge: 60 * 60 // Cache duration in seconds
-        }  
+      enabled: true,
+      maxAge: 5 * 60 // Cache duration in seconds
+    }
   },
   plugins: [
+    roleSignupPlugin(),
     twoFactor({
       otpOptions: {
         async sendOTP({ user, otp }) {
           await email.sendMail({
-            from: process.env.MAIL_FROM,
+            from: process.env.MAIL_USER,
             to: user.email,
             subject: "Two Factor",
             html: `Your OTP is ${otp}`,
@@ -119,19 +141,37 @@ export const auth = betterAuth({
       { path: "/two-factor/verify-otp", adapter: StandardAdapter(twoFactorSchema) },
       { path: "/forgot-password", adapter: StandardAdapter(ForgotPasswordSchema) },
     ]),
+    nextCookies(),
+    adminPlugin({
+      defaultRole: "user",
+      impersonationSessionDuration: 60 * 60 * 24,
+      defaultBanReason: "Spamming",
+      ac,
+      roles: {
+        admin,
+        user,
+        employee
+      },
+      allowedRoles: ["user", "employee", "admin"],
+      adminRoles: ["admin"],
+      adminUserIds: [process.env.ADMIN_USER || ""]
+    }),
+    openAPI(),
     customSession(async ({ user, session }) => {
-            const role = await prisma.user.findUnique({
-                where: { id: session.userId },
-                select: { role: true }
-            });
-            return {
-                role,
-                user: {
-                    ...user,
-                    newField: "newField",
-                },
-                session
-            };
-        }),
+      const response = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { role: true, twoFactorEnabled: true }
+      });
+      const role = response?.role || "user";
+      const twoFactorEnabled = response?.twoFactorEnabled || false;
+      return {
+        user: {
+          ...user,
+          role,
+          twoFactorEnabled
+        },
+        session
+      }
+    }),
   ],
 });

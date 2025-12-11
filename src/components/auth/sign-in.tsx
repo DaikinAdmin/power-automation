@@ -79,7 +79,7 @@ const SignIn = () => {
                             const response = await requestOTP()
                             if (response?.data) {
                                 setSuccess("OTP has been sent to your email")
-                                router.push(`/${locale}/$two-factor`)
+                                router.push(`/two-factor`)
                             } else if (response?.error) {
                                 setError(response.error.message)
                             }
@@ -110,7 +110,7 @@ const SignIn = () => {
             cardTitle={t('title')}
             cardDescription={t('subtitle')}
             cardFooterDescription={t('noAccount')}
-            cardFooterLink={`/${locale}/signup`}
+            cardFooterLink={`/signup`}
             cardFooterLinkTitle={t('signUpLink')}
             showCloseButton={true}
             closeButtonLink="/"

@@ -19,7 +19,6 @@ const locales = [
   { value: 'ua', label: 'Ukrainian (ua)' },
   { value: 'en', label: 'English (en)' },
   { value: 'es', label: 'Spanish (es)' },
-  { value: 'ru', label: 'Russian (ru)' },
 ];
 
 interface ItemDetailEditModalProps {

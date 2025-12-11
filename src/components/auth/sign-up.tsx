@@ -92,7 +92,7 @@ const SignUp = () => {
         <CardWrapper
             cardTitle={t('title')}
             cardDescription={t('subtitle')}
-            cardFooterLink={`/${locale}/signin`}
+            cardFooterLink={`/signin`}
             cardFooterDescription={t('haveAccount')}
             cardFooterLinkTitle={t('signInLink')}
         >

@@ -18,7 +18,6 @@ const locales = [
   { value: 'ua', label: 'Ukrainian (ua)' },
   { value: 'en', label: 'English (en)' },
   { value: 'es', label: 'Spanish (es)' },
-  { value: 'ru', label: 'Russian (ru)' },
 ];
 
 export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps) {

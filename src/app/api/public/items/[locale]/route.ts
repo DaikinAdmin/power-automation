@@ -9,7 +9,7 @@ export async function GET(
     const { locale } = await params;
     
     // Validate locale parameter
-    const validLocales = ['pl', 'en', 'de', 'fr', 'es'];
+    const validLocales = ['pl', 'en', 'es', 'ua'];
     if (!validLocales.includes(locale)) {
       return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
     }
