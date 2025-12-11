@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
-import { Warehouse, Brand as PrismaBrand, Badge } from '@prisma/client';
+import { Warehouse, Brand as PrismaBrand, Badge, SubCategories } from '@prisma/client';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
 
 interface BasicInformationStepProps {
@@ -24,7 +24,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null);
   const [newPriceEntry, setNewPriceEntry] = useState<ItemPrice>({
     id: '',
-    itemId: '',
+    itemSlug: '',
     warehouseId: '',
     price: 0,
     quantity: 0,
@@ -122,7 +122,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   };
 
   const getSelectedCategory = () => {
-    return categories.find(cat => cat.id === formData.categoryId);
+    return categories.find(cat => cat.slug === formData.categorySlug);
   };
 
   const addPriceEntry = () => {
@@ -141,7 +141,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     
     const priceEntryToAdd = {
       id: `temp-${Date.now()}`,
-      itemId: formData.id || '',
+      itemSlug: formData.articleId || '',
       warehouseId: newPriceEntry.warehouseId,
       price: newPriceEntry.price,
       quantity: newPriceEntry.quantity,
@@ -172,7 +172,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     // Reset form
     setNewPriceEntry({
       id: '',
-      itemId: '',
+      itemSlug: '',
       warehouseId: '',
       price: 0,
       quantity: 0,
@@ -272,13 +272,13 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Brand *</Label>
             <select
-              value={formData.brandId || ''}
+              value={formData.brandSlug || ''}
               onChange={(e) => {
-                const brandId = e.target.value;
-                const brand = brands.find((b) => b.id === brandId) || null;
+                const brandSlug = e.target.value;
+                const brand = brands.find((b) => b.alias === brandSlug) || null;
                 setFormData((prev: any) => ({
                   ...prev,
-                  brandId: brandId ? brandId : null,
+                  brandSlug: brandSlug ? brandSlug : null,
                   brandName: brand?.name || '',
                   brand,
                 }));
@@ -325,12 +325,12 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Category *</Label>
             <select
-              value={formData.categoryId}
+              value={formData.categorySlug}
               onChange={(e) => setFormData((prev: Item) => ({ 
                 ...prev, 
-                categoryId: e.target.value,
-                subCategoryId: '', // Reset subcategory when category changes
-                category: categories.find(cat => cat.id === e.target.value) || prev.category
+                categorySlug: e.target.value,
+                subCategorySlug: '', // Reset subcategory when category changes
+                category: categories.find(cat => cat.slug === e.target.value) || prev.category
               }))}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               required
@@ -348,21 +348,21 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Sub Category</Label>
             <select
-              value={formData.subCategoryId}
+              value={formData.subCategorySlug}
               onChange={(e) => {
-                const selectedSubCategory = getSelectedCategory()?.subCategories.find((sub: { id: string; }) => sub.id === e.target.value);
+                const selectedSubCategory = getSelectedCategory()?.subCategories.find((sub: { slug: string; }) => sub.slug === e.target.value);
                 setFormData((prev: Item) => ({ 
                   ...prev, 
-                  subCategoryId: e.target.value,
+                  subCategorySlug: e.target.value,
                   subCategory: selectedSubCategory || prev.subCategory
                 }));
               }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
-              disabled={!formData.categoryId}
+              disabled={!formData.categorySlug}
             >
               <option value="">Select Sub Category</option>
-              {getSelectedCategory()?.subCategories.map((sub: { id: Key | readonly string[] | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
-                <option key={sub.id as string} value={sub.id as string}>
+              {getSelectedCategory()?.subCategories.map((sub: SubCategories) => (
+                <option key={sub.slug as string} value={sub.slug as string}>
                   {sub.name}
                 </option>
               ))}

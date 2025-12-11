@@ -61,8 +61,8 @@ export async function convertUploadTypeToItems(uploadData: UploadType[]): Promis
       isDisplayed: firstUpload.isDisplayed,
       sellCounter: firstUpload.sellCounter || 0,
       itemImageLink: firstUpload.itemImageLink || null,
-      categoryId: category.id,
-      subCategoryId: subCategory.id,
+      categorySlug: category.id,
+      subCategorySlug: subCategory.id,
       brandId: brand?.id || null,
       brandName: brand?.name || null,
       warrantyType: firstUpload.warrantyType || null,
@@ -120,7 +120,7 @@ async function findOrCreateCategoryAndSubCategory(categoryName: string, subCateg
   let subCategory = await prisma.subCategories.findFirst({
     where: {
       name: subCategoryName,
-      categoryId: category.id
+      categorySlug: category.id
     }
   });
 
@@ -129,7 +129,7 @@ async function findOrCreateCategoryAndSubCategory(categoryName: string, subCateg
       data: {
         name: subCategoryName,
         slug: generateSlug(subCategoryName),
-        categoryId: category.id,
+        categorySlug: category.id,
         isVisible: true
       }
     });

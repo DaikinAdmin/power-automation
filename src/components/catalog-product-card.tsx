@@ -15,7 +15,7 @@ type BadgeConfig = {
 
 interface CatalogProductCardProps {
   href: string;
-  imageSrc?: string | null;
+  imageSrc?: string[] | null;
   imageAlt?: string;
   name: string;
   price: number;
@@ -86,7 +86,7 @@ const CatalogProductCard = ({
           className={`px-4 py-2 rounded transition-colors ${disabled
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-red-500 text-white hover:bg-red-600'
-          }`}
+            }`}
           disabled={disabled}
           onClick={handleAddToCart}
         >
@@ -122,7 +122,7 @@ const CatalogProductCard = ({
           className={`${disabled
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-red-500 hover:bg-red-600 text-white'
-          }`}
+            }`}
         >
           {resolvedAddToCartLabel}
         </Button>
@@ -168,8 +168,12 @@ const CatalogProductCard = ({
       )}
 
       <div className={`${isList ? 'w-48 h-48 flex-shrink-0' : 'aspect-square'} bg-gray-100 flex items-center justify-center relative`}>
-        {imageSrc ? (
-          <img src={imageSrc} alt={imageAlt || name} className="w-full h-full object-cover" />
+        {imageSrc && imageSrc.length > 0 ? (
+          imageSrc.map(
+            (src, index) => index === 0 && (
+              <img src={src} alt={imageAlt || name} className="w-full h-full object-cover" />
+            )
+          )
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

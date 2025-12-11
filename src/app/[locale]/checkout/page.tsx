@@ -525,7 +525,7 @@ export default function CheckoutPage({
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg">
                       <img
-                        src={item.itemImageLink!}
+                        src={item.itemImageLink![0]}
                         alt={item.displayName}
                         className="w-16 h-16 object-cover rounded-lg"
                       />

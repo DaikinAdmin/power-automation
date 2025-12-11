@@ -135,8 +135,8 @@ CREATE TABLE "public"."item_details" (
     "specifications" TEXT,
     "itemName" TEXT NOT NULL,
     "brandName" TEXT NOT NULL,
-    "categoryId" TEXT NOT NULL,
-    "subCategoryId" TEXT NOT NULL,
+    "categorySlug" TEXT NOT NULL,
+    "subCategorySlug" TEXT NOT NULL,
     "seller" TEXT,
     "discount" DOUBLE PRECISION,
     "popularity" INTEGER,
@@ -229,7 +229,7 @@ CREATE TABLE "public"."subcategories" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
-    "categoryId" TEXT NOT NULL,
+    "categorySlug" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "isVisible" BOOLEAN DEFAULT true,
@@ -333,10 +333,10 @@ ALTER TABLE "public"."item_price" ADD CONSTRAINT "item_price_itemId_fkey" FOREIG
 ALTER TABLE "public"."item_price" ADD CONSTRAINT "item_price_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "public"."warehouse"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."item_details" ADD CONSTRAINT "item_details_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "public"."category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."item_details" ADD CONSTRAINT "item_details_categorySlug_fkey" FOREIGN KEY ("categorySlug") REFERENCES "public"."category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."item_details" ADD CONSTRAINT "item_details_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "public"."subcategories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."item_details" ADD CONSTRAINT "item_details_subCategorySlug_fkey" FOREIGN KEY ("subCategorySlug") REFERENCES "public"."subcategories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."item_details" ADD CONSTRAINT "item_details_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "public"."item"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -354,7 +354,7 @@ ALTER TABLE "public"."item_opinion" ADD CONSTRAINT "item_opinion_userId_fkey" FO
 ALTER TABLE "public"."item_opinion" ADD CONSTRAINT "item_opinion_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "public"."item"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."subcategories" ADD CONSTRAINT "subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "public"."category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."subcategories" ADD CONSTRAINT "subcategories_categorySlug_fkey" FOREIGN KEY ("categorySlug") REFERENCES "public"."category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."messages" ADD CONSTRAINT "messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

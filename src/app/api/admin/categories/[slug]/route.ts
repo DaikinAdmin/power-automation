@@ -46,9 +46,9 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
 // GET single category
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ categoryId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { categoryId } = await params;
+  const { slug } = await params;
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -59,7 +59,7 @@ export async function GET(
     }
 
     const category = await prisma.category.findUnique({
-      where: { id: categoryId },
+      where: { slug },
       include: { subCategories: true },
     });
 
@@ -82,9 +82,9 @@ export async function GET(
 // PUT update category
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ categoryId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { categoryId } = await params;
+  const { slug } = await params;
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -115,25 +115,10 @@ export async function PUT(
       );
     }
 
-    // Check if slug already exists (excluding current category)
-    const existingCategory = await prisma.category.findFirst({
-      where: { 
-        slug,
-        NOT: { id: categoryId }
-      },
-    });
-
-    if (existingCategory) {
-      return NextResponse.json(
-        { error: 'Category with this slug already exists' },
-        { status: 400 }
-      );
-    }
-
     const normalizedSubcategories = normalizeSubcategories(subcategory);
 
     const category = await prisma.category.update({
-      where: { id: categoryId },
+      where: { slug: slug },
       data: {
         name,
         slug,
@@ -166,9 +151,9 @@ export async function PUT(
 // DELETE category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ categoryId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { categoryId } = await params;
+  const { slug } = await params;
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -190,7 +175,7 @@ export async function DELETE(
 
     // Check if category has items
     const categoryWithItems = await prisma.category.findUnique({
-      where: { id: categoryId },
+      where: { slug },
       include: { _count: { select: { items: true } } },
     });
 
@@ -206,7 +191,7 @@ export async function DELETE(
     }
 
     await prisma.category.delete({
-      where: { id: categoryId },
+      where: { slug },
     });
 
     return NextResponse.json({ message: 'Category deleted successfully' });

@@ -7,10 +7,10 @@ import { Item } from '@/helpers/types/item';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ articleId: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { articleId } = await params;
 
         const session = await auth.api.getSession({
             headers: await headers()
@@ -21,7 +21,7 @@ export async function GET(
         }
 
         const item = await db.item.findUnique({
-            where: { id: id },
+            where: { articleId: articleId },
             include: {
                 category: {
                     include: {
@@ -72,10 +72,10 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ articleId: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { articleId } = await params;
 
         const session = await auth.api.getSession({
             headers: await headers()
@@ -91,29 +91,28 @@ export async function PUT(
             select: { role: true }
         });
 
-        if (user?.role !== 'ADMIN') {
+        if (user?.role !== 'admin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         const data = await request.json() as Item;
 
         await db.$transaction([
-            db.itemPrice.deleteMany({ where: { itemId: id } }),
-            db.itemDetails.deleteMany({ where: { itemId: id } }),
+            db.itemPrice.deleteMany({ where: { itemSlug: articleId } }),
+            db.itemDetails.deleteMany({ where: { itemSlug: articleId } }),
         ]);
 
         const updatedItem = await db.item.update({
-            where: { id },
+            where: { articleId },
             data: {
                 articleId: data.articleId,
                 isDisplayed: data.isDisplayed,
                 itemImageLink: data.itemImageLink || null,
-                category: { connect: { id: data.categoryId } },
-                subCategory: { connect: { id: data.subCategoryId } },
-                brand: data.brandId
-                    ? { connect: { id: data.brandId } }
+                category: { connect: { id: data.categorySlug } },
+                subCategory: { connect: { id: data.subCategorySlug } },
+                brand: data.brandSlug
+                    ? { connect: { alias: data.brandSlug } }
                     : { disconnect: true },
-                brandName: data.brandName || undefined,
                 warrantyType: data.warrantyType || undefined,
                 warrantyLength: typeof data.warrantyLength === 'number' ? data.warrantyLength : undefined,
                 updatedAt: new Date(),
@@ -182,10 +181,10 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ articleId: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { articleId } = await params;
 
         const session = await auth.api.getSession({
             headers: await headers()
@@ -201,13 +200,13 @@ export async function DELETE(
             select: { role: true }
         });
 
-        if (user?.role !== 'ADMIN') {
+        if (user?.role !== 'admin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         // Delete the item (cascade will handle related records)
         await db.item.delete({
-            where: { id },
+            where: { articleId },
         });
 
         return Response.json({ success: true });

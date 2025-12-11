@@ -37,10 +37,9 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
             isDisplayed: item.isDisplayed ?? false,
             itemImageLink: item.itemImageLink || null,
             sellCounter: item.sellCounter || 0,
-            category: { connect: { id: item.categoryId } },
-            subCategory: { connect: { id: item.subCategoryId } },
+            category: { connect: { slug: item.categorySlug } },
+            subCategory: { connect: { slug: item.subCategorySlug } },
             brand: item.brandId ? { connect: { id: item.brandId } } : undefined,
-            brandName: item.brandName || undefined,
             warrantyType: item.warrantyType || undefined,
             warrantyLength: item.warrantyLength || undefined,
             itemDetails: item.item_details ? {
@@ -69,15 +68,21 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
           include: {
             category: {
               include: {
-                subCategories: true
+                subCategories: true,
+                categoryTranslations: true
               }
             },
-            subCategory: true,
+            subCategory: {
+              include: {
+                subCategoryTranslations: true
+              }
+            },
             brand: true,
             itemDetails: true,
             itemPrice: {
               include: {
                 warehouse: true,
+                
               }
             }
           }
@@ -106,20 +111,24 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
               isDisplayed: item.isDisplayed ?? existingItem.isDisplayed,
               itemImageLink: item.itemImageLink || existingItem.itemImageLink,
               sellCounter: item.sellCounter ?? existingItem.sellCounter,
-              brandName: item.brandName || existingItem.brandName,
               warrantyType: item.warrantyType || existingItem.warrantyType,
               warrantyLength: item.warrantyLength ?? existingItem.warrantyLength,
-              subCategoryId: item.subCategoryId || existingItem.subCategoryId,
-              categoryId: item.categoryId || existingItem.categoryId,
-              brandId: item.brandId || existingItem.brandId,
+              subCategorySlug: item.subCategorySlug || existingItem.subCategorySlug,
+              categorySlug: item.categorySlug || existingItem.categorySlug,
+              brandSlug: item.brandSlug || existingItem.brandSlug,
             },
             include: {
               category: {
                 include: {
-                  subCategories: true
+                  subCategories: true,
+                  categoryTranslations: true
                 }
               },
-              subCategory: true,
+              subCategory: {
+                include: {
+                  subCategoryTranslations: true
+                }
+              },
               brand: true,
               itemDetails: true,
               itemPrice: {
@@ -167,7 +176,7 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
             // Create new price
             await prisma.itemPrice.create({
               data: {
-                itemId: existingItem.id,
+                itemSlug: existingItem.articleId,
                 warehouseId: item.item_price.warehouseId,
                 price: item.item_price.price,
                 quantity: item.item_price.quantity,
@@ -217,7 +226,7 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
             // Create new detail
             await prisma.itemDetails.create({
               data: {
-                itemId: existingItem.id,
+                itemSlug: existingItem.articleId,
                 locale: item.item_details.locale,
                 itemName: item.item_details.itemName,
                 description: item.item_details.description,

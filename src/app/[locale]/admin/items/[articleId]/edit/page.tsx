@@ -10,10 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Item } from '@/helpers/types/item';
 import { useItemFormState } from '@/hooks/useItemFormState';
 
-export default function EditItemPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditItemPage({ params }: { params: Promise<{ articleId: string }> }) {
   const router = useRouter();
-  const { id } = use(params);
-  const itemId = id as string;
+  const { articleId } = use(params);
+  const itemId = articleId as string;
   
   const [activeTab, setActiveTab] = useState('basic');
   const {
@@ -45,10 +45,9 @@ export default function EditItemPage({ params }: { params: Promise<{ id: string 
           itemImageLink: item.itemImageLink || '',
           createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
           updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
-          categoryId: item.categoryId || '',
-          subCategoryId: item.subCategoryId || '',
-          brandId: item.brandId || '',
-          brandName: item.brand?.name || item.brandName || '',
+          categorySlug: item.categorySlug || '',
+          subCategorySlug: item.subCategorySlug || '',
+          brandSlug: item.brandSlug || '',
           brand: item.brand || null,
           warrantyType: item.warrantyType || '',
           warrantyLength: typeof item.warrantyLength === 'number' ? item.warrantyLength : undefined,
@@ -69,7 +68,7 @@ export default function EditItemPage({ params }: { params: Promise<{ id: string 
             updatedAt: new Date(),
             slug: '',
             isVisible: true,
-            categoryId: ''
+            categorySlug: ''
           },
           // Properly map itemPrice array
           itemPrice: Array.isArray(item.itemPrice) ? item.itemPrice.map((price: any) => ({

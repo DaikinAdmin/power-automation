@@ -187,7 +187,7 @@
 //       subCategory = await prisma.subCategories.findFirst({
 //         where: { 
 //           name: { equals: item.subCategoryName, mode: 'insensitive' },
-//           categoryId: category.id,
+//           categorySlug: category.id,
 //           isVisible: true
 //         }
 //       });
@@ -249,8 +249,8 @@
 //       // Update the warehouse reference in itemPrice instead of adding warehouseId to item
 //       const resolvedItem = {
 //         ...item,
-//         categoryId: category!.id,
-//         subCategoryId: subCategory!.id,
+//         categorySlug: category!.id,
+//         subCategorySlug: subCategory!.id,
 //         brandId: brand?.id || null,
 //         itemPrice: [{
 //           price: item.price,
@@ -286,8 +286,8 @@
 //               articleId: item.articleId,
 //               isDisplayed: item.isDisplayed ?? false,
 //               itemImageLink: item.itemImageLink || null,
-//               categoryId: item.categoryId,
-//               subCategoryId: item.subCategoryId,
+//               categorySlug: item.categorySlug,
+//               subCategorySlug: item.subCategorySlug,
 //               brandId: item.brandId || null,
 //               brandName: item.brandName || null,
 //               warrantyType: item.warrantyType || null,
@@ -442,7 +442,7 @@ export async function validateAndResolveReferences(items: UploadType[]): Promise
               equals: item.subCategoryName.toString().trim(), 
               mode: 'insensitive' 
             },
-            categoryId: category.id,
+            categorySlug: category.slug,
             isVisible: true
           }
         });
@@ -524,8 +524,8 @@ export async function validateAndResolveReferences(items: UploadType[]): Promise
           subCategoryName: item.subCategoryName.toString().trim(),
           warehouseName: item.warehouseName.toString().trim(),
           brandName: item.brandName ? item.brandName.toString().trim() : '',
-          categoryId: category!.id,
-          subCategoryId: subCategory!.id,
+          categorySlug: category!.id,
+          subCategorySlug: subCategory!.id,
           brandId: brand?.id || null,
           warehouseId: warehouse!.id,
           // Ensure numeric fields are properly converted
@@ -570,10 +570,9 @@ export async function processBulkItems(items: Item[]): Promise<ProcessingResult>
         articleId: item.articleId,
         isDisplayed: item.isDisplayed ?? false,
         itemImageLink: item.itemImageLink || null,
-        categoryId: item.categoryId,
-        subCategoryId: item.subCategoryId,
-        brandId: item.brandId || null,
-        brandName: item.brandName || null,
+        categorySlug: item.categorySlug,
+        subCategorySlug: item.subCategorySlug,
+        brandSlug: item.brandSlug || null,
         warrantyType: item.warrantyType || null,
         warrantyLength: item.warrantyLength || null,
         sellCounter: item.sellCounter ?? 0,

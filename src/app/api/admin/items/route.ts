@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       select: { role: true }
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -43,8 +43,7 @@ export async function GET(request: NextRequest) {
         isDisplayed: true,
         sellCounter: true,
         itemImageLink: true,
-        brandId: true,
-        brandName: true,
+        brandSlug: true,
         warrantyType: true,
         warrantyLength: true,
         category: {
@@ -102,7 +101,8 @@ export async function GET(request: NextRequest) {
               }
             }
           }
-        }
+        },
+        linkedItems: true,
       },
       orderBy: {
         id: 'desc'
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       select: { role: true }
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -145,10 +145,9 @@ export async function POST(request: NextRequest) {
       itemImageLink,
       itemPrice,
       itemDetails,
-      categoryId,
-      subCategoryId,
-      brandId,
-      brandName,
+      categorySlug,
+      subCategorySlug,
+      brandSlug,
       warrantyType,
       warrantyLength,
     } = body;
@@ -163,12 +162,12 @@ export async function POST(request: NextRequest) {
       isDisplayed,
       itemImageLink,
       category: {
-        connect: { id: categoryId },
+        connect: { slug: categorySlug },
       },
       subCategory: {
-        connect: { id: subCategoryId },
+        connect: { slug: subCategorySlug },
       },
-      brandName: brandName || undefined,
+      brand: brandSlug ? { connect: { alias: brandSlug } } : undefined,
       warrantyType: warrantyType || undefined,
       warrantyLength: typeof warrantyLength === 'number' ? warrantyLength : undefined,
       itemPrice: {
@@ -197,8 +196,8 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    if (brandId) {
-      itemData.brand = { connect: { id: brandId } };
+    if (brandSlug) {
+      itemData.brand = { connect: { alias: brandSlug } };
     }
 
     const item = await prisma.item.create({
@@ -214,7 +213,7 @@ export async function POST(request: NextRequest) {
     });
 
     const createdPrices = await prisma.itemPrice.findMany({
-      where: { itemId: item.id },
+      where: { itemSlug: item.articleId },
     });
 
     if (createdPrices.length > 0) {

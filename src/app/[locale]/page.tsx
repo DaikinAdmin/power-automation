@@ -129,7 +129,7 @@ export default function Home() {
           }
 
           // Process brands
-          const brandName = item.brand?.name || item.brandName;
+          const brandName = item.brand?.name || item.brandSlug;
           if (brandName && !brandMap.has(brandName)) {
             brandMap.set(brandName, {
               id: brandName.toLowerCase().replace(/\s+/g, '-'),
@@ -354,8 +354,8 @@ export default function Home() {
                       isDisplayed: item.isDisplayed,
                       sellCounter: item.sellCounter,
                       itemImageLink: item.itemImageLink,
-                      categoryId: item.categoryId,
-                      subCategoryId: item.subCategoryId,
+                      categorySlug: item.categorySlug,
+                      subCategorySlug: item.subCategorySlug,
                       createdAt: item.createdAt,
                       updatedAt: item.updatedAt,
                       itemPrice: item.itemPrice,
@@ -364,8 +364,7 @@ export default function Home() {
                       subCategory: item.subCategory,
                       warrantyType: item.warrantyType,
                       warrantyLength: item.warrantyLength,
-                      brandId: item.brandId,
-                      brandName: item.brand?.name!
+                      brandSlug: item.brandSlug
                     });
                   };
 

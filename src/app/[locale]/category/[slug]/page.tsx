@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PageLayout from '@/components/layout/page-layout';
 import CatalogProductCard from '@/components/catalog-product-card';
-import { Item, CartItemType } from '@/helpers/types/item';
+import { Item, CartItemType, ItemDetailResponse } from '@/helpers/types/item';
 import { useCatalogPricing } from '@/hooks/useCatalogPricing';
 import { calculateDiscountPercentage } from '@/helpers/pricing';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
@@ -21,12 +21,11 @@ import { useTranslations } from 'next-intl';
 export default function CategoryPage({
   param,
 }: {
-  param: Promise<{ locale: string }>;
+  param: Promise<{ locale: string, slug: string }>;
 }) {
-  const { locale } = use(param);
+  const { locale, slug } = use(param);
   const t = useTranslations('categories');
   const params = useParams();
-  const slug = params?.slug as string;
   const { cartItems, addToCart, updateCartQuantity, removeFromCart, getTotalCartItems, isCartModalOpen, setIsCartModalOpen } = useCart();
 
   // All category page states
@@ -73,19 +72,10 @@ export default function CategoryPage({
       setIsLoading(true);
       const response = await fetch(`/api/public/items/${locale}`);
       if (response.ok) {
-        const data: Item[] = await response.json();
-
-        // Build category map from the data
-        const categoryMap = new Map<string, {
-          id: string;
-          name: string;
-          slug: string;
-          image: string;
-          subcategories: Map<string, { id: string, name: string, slug: string }>;
-        }>();
+        const data = await response.json() as ItemDetailResponse[];
 
         data.forEach(item => {
-          const { category, subCategory } = item;
+          const { categoryName, subcategoryName, categorySlug, subcategorySlug } = item;
 
           if (category) {
             if (!categoryMap.has(category.id)) {
@@ -98,7 +88,7 @@ export default function CategoryPage({
               });
             }
 
-            if (subCategory) {
+            if (subcategory) {
               const subMap = categoryMap.get(category.id)!.subcategories;
               if (!subMap.has(subCategory.id)) {
                 subMap.set(subCategory.id, {
@@ -138,7 +128,7 @@ export default function CategoryPage({
           const uniqueBrands = Array.from(
             new Set(
               categoryItems
-                .map(item => item.brand?.name || item.brandName)
+                .map(item => item.brand?.name)
                 .filter((name): name is string => Boolean(name))
             )
           );
@@ -177,7 +167,7 @@ export default function CategoryPage({
     // Filter by brands
     if (selectedBrands.length > 0) {
       filtered = filtered.filter(item => {
-        const brandName = item.brand?.name || item.brandName;
+        const brandName = item.brand?.name;
         return brandName ? selectedBrands.includes(brandName) : false;
       });
     }
@@ -517,8 +507,8 @@ export default function CategoryPage({
                             id: `${item.id}-${warehouseId}`,
                             articleId: item.articleId,
                             itemImageLink: item.itemImageLink,
-                            categoryId: item.categoryId,
-                            subCategoryId: item.subCategoryId,
+                            categorySlug: item.categorySlug,
+                            subCategorySlug: item.subCategorySlug,
                             isDisplayed: item.isDisplayed,
                             sellCounter: item.sellCounter,
                             createdAt: item.createdAt,
@@ -532,8 +522,7 @@ export default function CategoryPage({
                               createdAt: item.subCategory.createdAt || now,
                               updatedAt: item.subCategory.updatedAt || now,
                             },
-                            brandId: item.brandId ?? null,
-                            brandName: item.brand?.name || item.brandName || '',
+                            brandSlug: item.brandSlug ?? null,
                             brand: item.brand
                               ? {
                                 ...item.brand,
@@ -568,7 +557,7 @@ export default function CategoryPage({
                             viewMode={viewMode}
                             badge={badge}
                             stockBadge={stockBadge}
-                            brand={item.brand?.name || item.brandName || undefined}
+                            brand={item.brand?.name || undefined}
                             warehouseLabel={warehouseLabel}
                             warehouseExtraLabel={warehouseExtraLabel}
                             description={viewMode === 'list' ? details?.description || undefined : undefined}

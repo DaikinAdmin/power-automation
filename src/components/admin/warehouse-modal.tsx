@@ -18,7 +18,7 @@ interface WarehouseModalProps {
 export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: WarehouseModalProps) {
   const [formData, setFormData] = useState({
     name: warehouse?.name || '',
-    country: warehouse?.country || 'Other',
+    countrySlug: warehouse?.countrySlug || 'other',
     displayedName: warehouse?.displayedName || '',
     isVisible: warehouse?.isVisible ?? true,
     createdAt: warehouse?.createdAt || new Date(),
@@ -49,7 +49,7 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
       // Reset form
       setFormData({
         name: '',
-        country: 'Other',
+        countrySlug: 'other',
         displayedName: '',
         isVisible: true,
         createdAt: new Date(),
@@ -126,7 +126,7 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
               </Label>
               <select
                 id="country"
-                value={formData.country}
+                value={formData.countrySlug}
                 onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
                 className="col-span-3 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 required

@@ -151,7 +151,7 @@ export default function CartModal({
                           {/* Item Details */}
                           <div className="col-span-4 flex items-center gap-4">
                             <img
-                              src={item.itemImageLink!}
+                              src={item.itemImageLink![0]}
                               alt={itemName}
                               className="w-16 h-16 object-cover rounded-lg"
                             />

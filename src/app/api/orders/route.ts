@@ -32,7 +32,11 @@ export async function GET(request: NextRequest) {
             },
             itemPrice: {
               include: {
-                warehouse: true,
+                warehouse: {
+                  include: {
+                    country: true,
+                  }
+                },
               },
               take: 1,
             },
@@ -121,7 +125,7 @@ async function priceRequestHandler(body: any, userId: string) {
       warehouseId: itemPrice.warehouse.id,
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
-      warehouseCountry: itemPrice.warehouse.country,
+      warehouseCountry: itemPrice.warehouse.countrySlug,
       basePrice: itemPrice.price,
       baseSpecialPrice: itemPrice.promotionPrice,
       unitPrice: 0,
@@ -243,13 +247,13 @@ async function orderHandler(body: any, userId: string) {
       name:
         cartItem.name ||
         dbItem.itemDetails?.[0]?.itemName ||
-        dbItem.brandName ||
+        dbItem.brandSlug ||
         cartArticleId,
       quantity: cartItem.quantity,
       warehouseId: itemPrice.warehouse.id,
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
-      warehouseCountry: itemPrice.warehouse.country,
+      warehouseCountry: itemPrice.warehouse.countrySlug,
       basePrice: itemPrice.price,
       baseSpecialPrice: itemPrice.promotionPrice,
       unitPrice: baseUnitPrice,
@@ -315,7 +319,7 @@ async function orderHandler(body: any, userId: string) {
     if (dbItem) {
       await prisma.itemPrice.updateMany({
         where: {
-          itemId: dbItem.id,
+          itemSlug: dbItem.articleId,
           warehouseId: cartItem.warehouseId
         },
         data: {

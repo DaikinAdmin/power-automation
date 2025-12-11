@@ -5,10 +5,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ articleId: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { articleId } = await params;
 
         const session = await auth.api.getSession({
             headers: await headers()
@@ -24,13 +24,13 @@ export async function PUT(
             select: { role: true }
         });
 
-        if (user?.role !== 'ADMIN') {
+        if (user?.role !== 'admin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         const data = await request.json();
         const updatedItem = await db.item.update({
-            where: { id },
+            where: { articleId },
             data: { isDisplayed: data.isDisplayed }
         });
         return NextResponse.json(updatedItem);

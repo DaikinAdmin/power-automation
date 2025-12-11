@@ -71,7 +71,7 @@ export default function ItemsPage() {
     try {
       if (selectedItem) {
         // Update existing item
-        const response = await fetch(`/api/admin/items/${selectedItem.id}`, {
+        const response = await fetch(`/api/admin/items/${selectedItem.articleId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export default function ItemsPage() {
 
   const handleConfirmDelete = async (item: any) => {
     try {
-      const response = await fetch(`/api/admin/items/${item.id}`, {
+      const response = await fetch(`/api/admin/items/${item.articleId}`, {
         method: 'DELETE',
       });
 
@@ -124,7 +124,7 @@ export default function ItemsPage() {
 
   const handleToggleDisplay = async (item: Item) => {
     try {
-      const response = await fetch(`/api/admin/items/${item.id}/setVisible`, {
+      const response = await fetch(`/api/admin/items/${item.articleId}/setVisible`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -317,7 +317,7 @@ export default function ItemsPage() {
                       <td className="py-3 px-4">
                         {item.itemImageLink ? (
                           <img
-                            src={item.itemImageLink}
+                            src={item.itemImageLink[0]}
                             alt={details?.itemName || 'Item'}
                             className="w-12 h-12 object-cover rounded-lg"
                           />

@@ -14,13 +14,12 @@ const initialFormData: Item = {
   id: '',
   articleId: '',
   isDisplayed: false,
-  itemImageLink: '',
+  itemImageLink: [],
   createdAt: new Date(),
   updatedAt: new Date(),
-  categoryId: '',
-  subCategoryId: '',
-  brandId: '',
-  brandName: '',
+  categorySlug: '',
+  subCategorySlug: '',
+  brandSlug: '',
   brand: null,
   warrantyType: '',
   warrantyLength: null,
@@ -32,7 +31,8 @@ const initialFormData: Item = {
     updatedAt: new Date(),
     slug: '',
     isVisible: true,
-    subCategories: []
+    subCategories: [],
+    categoryTranslations: []
   },
   subCategory: {
     id: '',
@@ -41,7 +41,7 @@ const initialFormData: Item = {
     updatedAt: new Date(),
     slug: '',
     isVisible: true,
-    categoryId: ''
+    categorySlug: ''
   },
   itemPrice: [],
   itemDetails: []

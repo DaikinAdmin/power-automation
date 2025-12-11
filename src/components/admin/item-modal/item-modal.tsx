@@ -21,8 +21,8 @@ const initialFormData: Item = {
   itemImageLink: '',
   createdAt: new Date(),
   updatedAt: new Date(),
-  categoryId: '',
-  subCategoryId: '',
+  categorySlug: '',
+  subCategorySlug: '',
   sellCounter: 0,
   category: {
     id: '',
@@ -40,7 +40,7 @@ const initialFormData: Item = {
     updatedAt: new Date(),
     slug: '',
     isVisible: true,
-    categoryId: ''
+    categorySlug: ''
   },
   itemPrice: [],
   itemDetails: [],
@@ -64,8 +64,8 @@ export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
         articleId: item.articleId,
         isDisplayed: item.isDisplayed,
         itemImageLink: item.itemImageLink || '',
-        categoryId: item.categoryId || '',
-        subCategoryId: item.subCategoryId || '',
+        categorySlug: item.categorySlug || '',
+        subCategorySlug: item.subCategorySlug || '',
         category: item.category,
         subCategory: item.subCategory,
         itemPrice: item.itemPrice,

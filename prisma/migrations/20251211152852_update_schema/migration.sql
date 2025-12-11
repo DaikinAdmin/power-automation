@@ -3,8 +3,8 @@
 
   - You are about to drop the column `brandId` on the `item` table. All the data in the column will be lost.
   - You are about to drop the column `brandName` on the `item` table. All the data in the column will be lost.
-  - You are about to drop the column `categoryId` on the `item` table. All the data in the column will be lost.
-  - You are about to drop the column `subCategoryId` on the `item` table. All the data in the column will be lost.
+  - You are about to drop the column `categorySlug` on the `item` table. All the data in the column will be lost.
+  - You are about to drop the column `subCategorySlug` on the `item` table. All the data in the column will be lost.
   - The `itemImageLink` column on the `item` table would be dropped and recreated. This will lead to data loss if there is data in the column.
   - A unique constraint covering the columns `[slug]` on the table `category` will be added. If there are existing duplicate values, this will fail.
   - A unique constraint covering the columns `[slug]` on the table `subcategories` will be added. If there are existing duplicate values, this will fail.
@@ -16,16 +16,16 @@
 ALTER TABLE "item" DROP CONSTRAINT "item_brandId_fkey";
 
 -- DropForeignKey
-ALTER TABLE "item" DROP CONSTRAINT "item_categoryId_fkey";
+ALTER TABLE "item" DROP CONSTRAINT "item_categorySlug_fkey";
 
 -- DropForeignKey
-ALTER TABLE "item" DROP CONSTRAINT "item_subCategoryId_fkey";
+ALTER TABLE "item" DROP CONSTRAINT "item_subCategorySlug_fkey";
 
 -- AlterTable
 ALTER TABLE "item" DROP COLUMN "brandId",
 DROP COLUMN "brandName",
-DROP COLUMN "categoryId",
-DROP COLUMN "subCategoryId",
+DROP COLUMN "categorySlug",
+DROP COLUMN "subCategorySlug",
 ADD COLUMN     "brandSlug" TEXT,
 ADD COLUMN     "categorySlug" TEXT NOT NULL,
 ADD COLUMN     "subCategorySlug" TEXT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE "linked_items" (
 -- CreateTable
 CREATE TABLE "category_translation" (
     "id" TEXT NOT NULL,
-    "categoryId" TEXT NOT NULL,
+    "categorySlug" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
@@ -59,7 +59,7 @@ CREATE TABLE "category_translation" (
 -- CreateTable
 CREATE TABLE "subcategory_translation" (
     "id" TEXT NOT NULL,
-    "subCategoryId" TEXT NOT NULL,
+    "subCategorySlug" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
@@ -79,10 +79,10 @@ CREATE TABLE "warehouse_countries" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "category_translation_categoryId_locale_key" ON "category_translation"("categoryId", "locale");
+CREATE UNIQUE INDEX "category_translation_categorySlug_locale_key" ON "category_translation"("categorySlug", "locale");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "subcategory_translation_subCategoryId_locale_key" ON "subcategory_translation"("subCategoryId", "locale");
+CREATE UNIQUE INDEX "subcategory_translation_subCategorySlug_locale_key" ON "subcategory_translation"("subCategorySlug", "locale");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "warehouse_countries_slug_key" ON "warehouse_countries"("slug");
@@ -106,7 +106,7 @@ ALTER TABLE "item" ADD CONSTRAINT "item_brandSlug_fkey" FOREIGN KEY ("brandSlug"
 ALTER TABLE "linked_items" ADD CONSTRAINT "linked_items_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "item"("articleId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "category_translation" ADD CONSTRAINT "category_translation_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "category_translation" ADD CONSTRAINT "category_translation_categorySlug_fkey" FOREIGN KEY ("categorySlug") REFERENCES "category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "subcategory_translation" ADD CONSTRAINT "subcategory_translation_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "subcategories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "subcategory_translation" ADD CONSTRAINT "subcategory_translation_subCategorySlug_fkey" FOREIGN KEY ("subCategorySlug") REFERENCES "subcategories"("id") ON DELETE CASCADE ON UPDATE CASCADE;

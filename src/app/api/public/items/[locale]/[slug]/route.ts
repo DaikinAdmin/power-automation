@@ -3,13 +3,13 @@ import prisma from '@/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ locale: string; id: string }> }
+  { params }: { params: Promise<{ locale: string; slug: string }> }
 ) {
   try {
-    const { locale, id } = await params;
-    
+    const { locale, slug } = await params;
+
     // Validate locale parameter
-    const validLocales = ['pl', 'en', 'de', 'fr', 'es'];
+    const validLocales = ['pl', 'en', 'ua', 'es'];
     if (!validLocales.includes(locale)) {
       return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
     }
@@ -17,7 +17,7 @@ export async function GET(
     // Find the item by ID
     const item = await prisma.item.findUnique({
       where: {
-        id: id,
+        articleId: slug,
         isDisplayed: true
       },
       include: {
@@ -26,14 +26,34 @@ export async function GET(
             id: true,
             name: true,
             slug: true
-          }
-        },
-        subCategory: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            categoryId: true
+          },
+          include: {
+            subCategories:{
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                
+              },
+              include: {
+                subCategoryTranslations: {
+                  where: {
+                    locale: locale.toLowerCase()
+                  },
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            },
+            categoryTranslations: {
+              where: {
+                locale: locale.toLowerCase()
+              },
+              select: {
+                name: true
+              }
+            }
           }
         },
         brand: {
@@ -46,6 +66,9 @@ export async function GET(
           }
         },
         itemDetails: {
+          where: {
+            locale: locale.toLowerCase()
+          },
           select: {
             id: true,
             locale: true,
@@ -64,14 +87,16 @@ export async function GET(
             quantity: true,
             promotionPrice: true,
             promoEndDate: true,
-             promoCode: true,
-             badge: true,
+            promoCode: true,
+            badge: true,
             warehouse: {
               select: {
                 id: true,
                 name: true,
-                country: true,
                 displayedName: true
+              },
+              include: {
+                country: true
               }
             }
           }
@@ -88,17 +113,17 @@ export async function GET(
 
     const formattedRecommended = recommendedPrice
       ? {
-          warehouse: {
-            id: recommendedPrice.warehouse.id,
-            name: recommendedPrice.warehouse.name,
-            country: recommendedPrice.warehouse.country,
-            displayedName: recommendedPrice.warehouse.displayedName,
-          },
-          price: recommendedPrice.price,
-          promotionPrice: recommendedPrice.promotionPrice,
-          quantity: recommendedPrice.quantity,
-          badge: recommendedPrice.badge || null,
-        }
+        warehouse: {
+          id: recommendedPrice.warehouse.id,
+          name: recommendedPrice.warehouse.name,
+          country: recommendedPrice.warehouse.country?.name || '',
+          displayedName: recommendedPrice.warehouse.displayedName,
+        },
+        price: recommendedPrice.price,
+        promotionPrice: recommendedPrice.promotionPrice,
+        quantity: recommendedPrice.quantity,
+        badge: recommendedPrice.badge || null
+      }
       : undefined;
 
     const normalizedLocale = locale.toLowerCase();
@@ -116,19 +141,16 @@ export async function GET(
       id: item.id,
       articleId: item.articleId,
       itemImageLink: item.itemImageLink,
-      image: item.itemImageLink,
       isDisplayed: item.isDisplayed,
       sellCounter: item.sellCounter,
-      categoryId: item.categoryId,
-      subCategoryId: item.subCategoryId,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      
+
       // Format warehouses for display
-      warehouses: item.itemPrice.map((price: any) => ({
+      prices: item.itemPrice.map((price: any) => ({
         warehouseId: price.warehouse.id,
         warehouseName: price.warehouse.name || '',
-        warehouseCountry: price.warehouse.country || '',
+        warehouseCountry: price.warehouse.country.name || '',
         displayedName: price.warehouse.displayedName,
         price: `${price.price} €`,
         specialPrice: price.promotionPrice ? `${price.promotionPrice} €` : null,
@@ -136,23 +158,27 @@ export async function GET(
         inStock: price.quantity > 0,
         quantity: price.quantity,
         badge: price.badge || null,
+        promoEndDate: price.promoEndDate,
+        promoCode: price.promoCode || null,
       })),
-      
+
       // Get the first available details or empty object
       name: resolvedDetail?.itemName || 'Unnamed Product',
-      brand: item.brand?.name || item.brandName || '',
-      brandId: item.brand?.id || null,
-      brandAlias: item.brand?.alias || null,
+      brandName: item.brand?.name || null,
       brandImage: item.brand?.imageLink || null,
       description: resolvedDetail?.description || '',
+      specifications: resolvedDetail?.specifications || '',
+      seller: resolvedDetail?.seller || '',
+      discount: resolvedDetail?.discount || 0,
+      popularity: resolvedDetail?.popularity || 0,
       badge: formattedRecommended?.badge || null,
       warrantyMonths: item.warrantyLength || 0,
       warrantyType: item.warrantyType || null,
-      
+
       // Category information
-      category: item.category.name,
+      categoryName: item.category.categoryTranslations[0]?.name || item.category.name,
       categorySlug: item.category.slug,
-      subcategory: item.subCategory.name,
+      subcategory: item.category.subCategories,
       itemDetails: normalizedDetails,
 
       // Include the recommended warehouse

@@ -15,7 +15,14 @@ export async function GET(
     }
     const categories = await prisma.category.findMany({
       orderBy: { name: 'asc' },
-      include: { subCategories: true },
+      include: { subCategories: true, categoryTranslations: {
+        where: {
+          locale: locale.toLowerCase()
+        },
+        select: {
+          name: true
+        }
+      } }
     });
     const response = NextResponse.json(categories);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');

@@ -1,7 +1,7 @@
 import { Badge as UiBadge } from '@/components/ui/badge';
 
 interface ProductImageProps {
-  imageSrc: string;
+  imageSrc: string[];
   productName: string;
   badge?: string | null;
 }
@@ -16,7 +16,15 @@ export function ProductImage({ imageSrc, productName, badge }: ProductImageProps
   return (
     <div className="relative mx-auto max-w-md">
       <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-        <img src={imageSrc} alt={productName} className="h-full w-full object-cover" />
+        {
+          imageSrc.length === 0 ? (
+            imageSrc.map((src, index) => (
+              <img src={src} alt={productName} key={index} className="h-full w-full object-cover" />
+          ))) : (
+            <></>
+          )
+        }
+        
       </div>
 
       {badge && (

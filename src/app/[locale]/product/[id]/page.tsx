@@ -89,15 +89,15 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
     return product.warehouses.map((warehouse) => {
 
       return {
-      warehouseId: warehouse.warehouseId,
-      warehouseName: warehouse.warehouseName,
-      warehouseCountry: warehouse.warehouseCountry,
-      displayName: warehouse.displayedName,
-      price: parsePriceValue(warehouse.price)!,
-      specialPrice: parsePriceValue(warehouse.specialPrice)!,
-      inStock: warehouse.inStock,
-      quantity: warehouse.quantity,
-    };
+        warehouseId: warehouse.warehouseId,
+        warehouseName: warehouse.warehouseName,
+        warehouseCountry: warehouse.warehouseCountry,
+        displayName: warehouse.displayedName,
+        price: parsePriceValue(warehouse.price)!,
+        specialPrice: parsePriceValue(warehouse.specialPrice)!,
+        inStock: warehouse.inStock,
+        quantity: warehouse.quantity,
+      };
     });
   }, [product]);
 
@@ -176,49 +176,49 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
           id: product.id,
           articleId: product.articleId,
           isDisplayed: product.isDisplayed,
-          itemImageLink: product.itemImageLink || product.image || '',
-          categoryId: product.categoryId,
-          subCategoryId: product.subCategoryId,
-          brandId: product.brandId ?? null,
-          brandName: product.brand,
+          itemImageLink: product.itemImageLink || [product.image] || [],
+          categorySlug: product.categorySlug,
+          subCategorySlug: product.subCategorySlug,
+          brandSlug: product.brandSlug ?? null,
           warrantyType: product.warrantyType ?? null,
           warrantyLength: product.warrantyMonths ?? null,
           sellCounter: product.sellCounter ?? 0,
           createdAt: now,
           updatedAt: now,
           category: {
-            id: product.categoryId,
+            id: product.categorySlug,
             name: product.category,
             slug: product.categorySlug,
             isVisible: true,
             createdAt: now,
             updatedAt: now,
             subCategories: [],
+            categoryTranslations: []
           },
           subCategory: {
-            id: product.subCategoryId,
+            id: product.subCategorySlug,
             name: product.subcategory,
             slug: `${product.categorySlug}-${product.subcategory.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-            categoryId: product.categoryId,
+            categorySlug: product.categorySlug,
             isVisible: true,
             createdAt: now,
             updatedAt: now,
           },
-          brand: product.brandId
+          brand: product.brandSlug
             ? {
-                id: product.brandId,
-                name: product.brand,
-                alias: product.brandAlias || '',
-                imageLink: product.brandImage || '',
-                isVisible: true,
-                createdAt: now,
-                updatedAt: now,
-              }
+              id: '',
+              name: product.brand,
+              alias: product.brandAlias || '',
+              imageLink: product.brandImage || '',
+              isVisible: true,
+              createdAt: now,
+              updatedAt: now,
+            }
             : null,
           itemDetails: [
             {
               id: '',
-              itemId: product.id,
+              itemSlug: product.articleId,
               locale: resolvedDetailLocale,
               itemName: productName,
               description: product.description,
@@ -226,6 +226,8 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
               seller: resolvedDetail?.seller ?? '',
               discount: resolvedDetail?.discount ?? null,
               popularity: resolvedDetail?.popularity ?? null,
+              metaKeyWords: resolvedDetail?.metaKeyWords || null,
+              metaDescription: resolvedDetail?.metaDescription || null,
             },
           ],
           itemPrice: [],
@@ -315,7 +317,7 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
     );
   }
 
-  const imageSrc = product.image || product.itemImageLink || '/imgs/placeholder-product.jpg';
+  const imageSrc = product.itemImageLink || ['/imgs/placeholder-product.jpg'];
   const warehouseLabel = selectedWarehouse ? t('from', { warehouse: selectedWarehouse.displayedName }) : undefined;
   const warehouseExtraLabel = selectedWarehouse && product.warehouses.length > 1
     ? t('moreLocations', { count: product.warehouses.length - 1 })
