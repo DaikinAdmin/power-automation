@@ -15,7 +15,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'USER' | 'ADMIN' | 'EMPLOYER';
+  role: string;
   emailVerified: Date | null;
   companyName: string | null;
   discountLevel: number | null;
@@ -113,9 +113,9 @@ function EditUserModal({
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USER">User</SelectItem>
-                  <SelectItem value="EMPLOYER">Employer</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="employee">Employer</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -296,8 +296,8 @@ export default function UsersPage() {
   const userStats = {
     total: users.length,
     verified: users.filter(user => user.emailVerified).length,
-    admins: users.filter(user => user.role === 'ADMIN').length,
-    employers: users.filter(user => user.role === 'EMPLOYER').length,
+    admins: users.filter(user => user.role === 'admin').length,
+    employers: users.filter(user => user.role === 'employee').length,
   };
 
   if (isLoading) {
@@ -400,9 +400,9 @@ export default function UsersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.role === 'ADMIN' 
+                        user.role === 'admin' 
                           ? 'bg-red-100 text-red-800'
-                          : user.role === 'EMPLOYER'
+                          : user.role === 'employee'
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>

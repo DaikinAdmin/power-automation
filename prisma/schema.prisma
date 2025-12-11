@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
 model User {
@@ -28,7 +27,7 @@ model User {
   username         String?
   displayUsername  String?
   discountLevel    Int?
-  banned           Boolean?     @default(false)
+  banned           Boolean?        @default(false)
   banReason        String?
   banExpires       DateTime?
   Session          Session[]
@@ -105,16 +104,15 @@ model Item {
   articleId         String              @unique
   isDisplayed       Boolean             @default(false)
   sellCounter       Int?                @default(0)
-  itemImageLink     String?
-  categoryId        String
-  subCategoryId     String
-  brandId           String?
-  brandName         String?
+  itemImageLink     String[]
+  categorySlug      String
+  subCategorySlug   String
+  brandSlug         String?
   warrantyType      String?
   warrantyLength    Int?
-  category          Category            @relation(fields: [categoryId], references: [id])
-  subCategory       SubCategories       @relation(fields: [subCategoryId], references: [id])
-  brand             Brand?              @relation(fields: [brandId], references: [id])
+  category          Category            @relation(fields: [categorySlug], references: [slug])
+  subCategory       SubCategories       @relation(fields: [subCategorySlug], references: [slug])
+  brand             Brand?              @relation(fields: [brandSlug], references: [alias])
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   itemDetails       ItemDetails[]
@@ -124,8 +122,19 @@ model Item {
   ItemOpinion       ItemOpinion[]
   OutOfStockRequest OutOfStockRequest[]
   ItemPriceHistory  ItemPriceHistory[]
+  linkedItems       LinkedItems[]
 
   @@map("item")
+}
+
+model LinkedItems {
+  id                 String  @id @default(cuid())
+  itemSlug           String
+  linkedItemSlug     String[]
+  linkedCaregorySlug String[]
+  item               Item    @relation(fields: [itemSlug], references: [articleId])
+
+  @@map("linked_items")
 }
 
 model ItemPrice {
@@ -148,16 +157,18 @@ model ItemPrice {
 }
 
 model ItemDetails {
-  id             String  @id @default(cuid())
-  itemId         String
-  locale         String  @default("pl")
-  description    String
-  specifications String?
-  itemName       String
-  seller         String?
-  discount       Float?
-  popularity     Int?
-  item           Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  id              String  @id @default(cuid())
+  itemId          String
+  locale          String  @default("pl")
+  description     String
+  specifications  String?
+  itemName        String
+  metaKeyWords    String?
+  metaDescription String?
+  seller          String?
+  discount        Float?
+  popularity      Int?
+  item            Item    @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@map("item_details")
 }
@@ -282,30 +293,54 @@ model ItemOpinion {
 }
 
 model Category {
-  id            String          @id @default(cuid())
-  name          String
-  slug          String
-  isVisible     Boolean?        @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  items         Item[]
-  subCategories SubCategories[]
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String                @unique
+  isVisible            Boolean?              @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  subCategories        SubCategories[]
+  categoryTranslations CategoryTranslation[]
+  items                Item[]
 
   @@map("category")
 }
 
 model SubCategories {
-  id         String   @id @default(cuid())
-  name       String
-  slug       String
-  categoryId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isVisible  Boolean? @default(true)
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  items      Item[]
+  id                      String                   @id @default(cuid())
+  name                    String
+  slug                    String                   @unique
+  categoryId              String
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  isVisible               Boolean?                 @default(true)
+  category                Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  items                   Item[]
+  subCategoryTranslations SubCategoryTranslation[]
 
   @@map("subcategories")
+}
+
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  categoryId String
+  locale     String
+  name       String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@map("category_translation")
+}
+
+model SubCategoryTranslation {
+  id            String        @id @default(cuid())
+  subCategoryId String
+  locale        String
+  name          String
+  subCategory   SubCategories @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+
+  @@unique([subCategoryId, locale])
+  @@map("subcategory_translation")
 }
 
 model Messages {
@@ -370,4 +405,15 @@ enum CartStatus {
   PENDING
   CHECKED_OUT
   COMPLETED
+}
+
+model WarehouseCountries {
+  id          Int     @id @default(autoincrement())
+  slug        String  @unique
+  countryCode String
+  phoneCode   String?
+  name        String
+  isActive    Boolean @default(true)
+
+  @@map("warehouse_countries")
 }

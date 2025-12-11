@@ -78,15 +78,14 @@ const SignIn = () => {
                         if (ctx.data.twoFactorRedirect) {
                             const response = await requestOTP()
                             if (response?.data) {
-                                setSuccess("OTP has been sent to your email")
+                                setSuccess(t('success.otpSent'))
                                 router.push(`/two-factor`)
                             } else if (response?.error) {
                                 setError(response.error.message)
                             }
                         } else {
-                            setSuccess("Logged in successfully.");
-                            
-                            // Small delay to ensure session is updated, then redirect based on role
+                            setSuccess(t('success.loggedIn'));
+                            router.replace(`/`);
                         }
                     },
                     onError: (ctx) => {

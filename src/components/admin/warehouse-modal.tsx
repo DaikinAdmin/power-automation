@@ -27,10 +27,10 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
   const [isLoading, setIsLoading] = useState(false);
 
   const countryOptions = [
-    { value: 'Ukraine', label: 'Ukraine' },
-    { value: 'Spain', label: 'Spain' },
-    { value: 'Poland', label: 'Poland' },
-    { value: 'Other', label: 'Other' }
+    { value: 'ua', label: 'Ukraine' },
+    { value: 'es', label: 'Spain' },
+    { value: 'pl', label: 'Poland' },
+    { value: 'other', label: 'Other' }
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

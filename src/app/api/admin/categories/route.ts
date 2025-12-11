@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       select: { role: true },
     });
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

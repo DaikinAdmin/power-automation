@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import prisma from '@/db';
 import { auth } from '@/lib/auth';
 
-const AUTHORIZED_ROLES = new Set(['ADMIN', 'EMPLOYER']);
+const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
 
 async function ensureAuthorized() {
   const session = await auth.api.getSession({

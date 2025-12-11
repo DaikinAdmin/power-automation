@@ -20,7 +20,7 @@ export async function GET() {
       select: { role: true },
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       select: { role: true },
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

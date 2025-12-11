@@ -11,7 +11,7 @@ import { useCatalogPricing } from "@/hooks/useCatalogPricing";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import CatalogProductCard from "@/components/catalog-product-card";
 import { useCurrency } from "@/hooks/useCurrency";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type CarouselSlide = {
   id: string;
@@ -76,6 +76,7 @@ const FEATURE_ITEMS = [
 ];
 
 export default function Home() {
+  const locale = useLocale();
   const t = useTranslations('home');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState<'bestsellers' | 'discount' | 'new'>('bestsellers');
@@ -97,7 +98,7 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setIsDataLoading(true);
-      const response = await fetch('/api/public/items/pl');
+      const response = await fetch(`/api/public/items/${locale}`);
       if (response.ok) {
         const data = await response.json();
         setItems(data);

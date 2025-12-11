@@ -8,7 +8,7 @@ import Settings from "@/components/auth/settings";
 import SignOut from "@/components/auth/sign-out";
 import { Category } from "@/helpers/types/item";
 import { useRouter } from "next/navigation";
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function SecondaryHeader() {
   const t = useTranslations('header');
@@ -20,12 +20,13 @@ export default function SecondaryHeader() {
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
   const session = authClient.useSession();
   const router = useRouter();
+  const locale = useLocale();
 
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/public/categories/pl");
+        const response = await fetch(`/api/public/categories/${locale}`);
         const fetchedCategories = await response.json() as Category[];
         setCategories(fetchedCategories);
       } catch (error) {

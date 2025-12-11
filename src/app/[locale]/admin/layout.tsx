@@ -26,7 +26,7 @@ export default async function AdminLayout({
   });
 
   // Redirect if not admin
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYER')) {
+  if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
     redirect('/');
   }
 
