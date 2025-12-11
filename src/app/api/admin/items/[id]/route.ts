@@ -119,8 +119,8 @@ export async function PUT(
                 updatedAt: new Date(),
                 itemPrice: {
                     create: data.itemPrice
-                        .filter((price) => price.warehouseId)
-                        .map((price) => ({
+                        .filter((price: { warehouseId: any; }) => price.warehouseId)
+                        .map((price: { warehouseId: any; price: any; quantity: any; promotionPrice: any; promoEndDate: string | number | Date | null; promoCode: any; badge: any; }) => ({
                             warehouseId: price.warehouseId!,
                             price: price.price,
                             quantity: price.quantity,
@@ -131,7 +131,7 @@ export async function PUT(
                         })),
                 },
                 itemDetails: {
-                    create: data.itemDetails.map((detail) => ({
+                    create: data.itemDetails.map((detail: { locale: any; itemName: any; description: any; specifications: any; seller: any; discount: any; popularity: any; }) => ({
                         locale: detail.locale,
                         itemName: detail.itemName,
                         description: detail.description,
@@ -150,7 +150,15 @@ export async function PUT(
 
         if (updatedItem.itemPrice.length > 0) {
             await db.itemPriceHistory.createMany({
-                data: updatedItem.itemPrice.map((price) => ({
+                data: updatedItem.itemPrice.map((price: {
+                    warehouseId: string;
+                    price: number;
+                    quantity: number;
+                    promotionPrice: number | null;
+                    promoEndDate: Date | null;
+                    promoCode: string | null;
+                    badge: Badge | null;
+                }) => ({
                     itemId: updatedItem.id,
                     warehouseId: price.warehouseId,
                     price: price.price,

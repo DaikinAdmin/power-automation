@@ -338,8 +338,8 @@
 //   }
 // }
 import { Item, UploadType } from '@/helpers/types/item';
-import { Badge, PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { Badge } from '@prisma/client';
+import prisma from '@/db';
 
 export interface ValidationResult {
   isValid: boolean;

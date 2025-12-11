@@ -155,5 +155,182 @@
       "orderSuccess": "Замовлення оформлено успішно! Ви отримаєте email з підтвердженням незабаром.",
       "orderCreated": "Замовлення створено успішно! ID замовлення:"
     }
+  },
+  "dashboard": {
+    "welcomeBack": "Ласкаво просимо",
+    "statsOverview": "Огляд статистики",
+    "greeting": "Привіт {{name}}, ось швидкий огляд вашої останньої активності. Детальні звіти в дорозі.",
+    "stats": {
+      "ordersPlaced": "Розміщені замовлення",
+      "itemsPurchased": "Куплені товари",
+      "totalSpend": "Загальні витрати",
+      "supportTickets": "Відкриті заявки підтримки"
+    },
+    "descriptions": {
+      "analyticsComingSoon": "Аналітика незабаром",
+      "trendingCategories": "Наступними ми виділимо популярні категорії",
+      "currencySummaries": "Тут з'являться підсумки з урахуванням валюти",
+      "contactSupport": "Звертайтеся в будь-який час з розділу Контакти"
+    },
+    "whatsNext": {
+      "title": "Що далі?",
+      "visualizeSpending": "Візуалізуйте витрати в часі за допомогою місячних графіків.",
+      "trackOrders": "Відстежуйте етапи виконання замовлення в реальному часі.",
+      "loyaltyRewards": "Слідкуйте за нагородами лояльності та майбутніми поновленнями."
+    }
+  },
+  "product": {
+    "loading": "Завантаження товару…",
+    "notFound": {
+      "title": "Товар не знайдено",
+      "description": "Товар, який ви шукаєте, недоступний або був видалений.",
+      "backToHome": "Повернутися на головну"
+    },
+    "articleId": "ID артикулу",
+    "from": "Від {{warehouse}}",
+    "moreLocations": "+{{count}} більше локацій",
+    "price": {
+      "discount": "-{{percent}}%",
+      "badges": {
+        "bestseller": "Бестселер",
+        "hotDeal": "Гаряча пропозиція",
+        "new": "Новинка",
+        "limited": "Обмежена",
+        "standard": "Стандарт"
+      }
+    },
+    "actions": {
+      "addToCart": "Додати в кошик",
+      "outOfStock": "Немає в наявності",
+      "askPrice": "Запитати ціну",
+      "addToWishlist": "Додати до обраного",
+      "compare": "Порівняти"
+    },
+    "tabs": {
+      "delivery": "Доставка та наявність",
+      "warranty": "Гарантія",
+      "documents": "Документи"
+    },
+    "tabContent": {
+      "deliveryAvailable": "Доставка доступна протягом 3-5 робочих днів з обраного складу.",
+      "fasterShipping": "Потрібна швидша доставка? Зв'яжіться з нашою логістичною командою для експрес-варіантів.",
+      "manufacturerWarranty": "Гарантія виробника: {{months}} місяців.",
+      "warrantyNotSpecified": "Гарантія виробника: Не вказано.",
+      "additionalContracts": "Додаткові сервісні контракти доступні за запитом.",
+      "datasheets": "Технічні паспорти та сертифікати доступні за запитом. Зв'яжіться з підтримкою для отримання додаткової інформації."
+    },
+    "details": {
+      "title": "Деталі товару",
+      "brand": "Бренд",
+      "warranty": "Гарантія",
+      "category": "Категорія",
+      "subcategory": "Підкатегорія",
+      "months": "{{count}} місяців",
+      "warrantyMonths": "{{count}} місяців",
+      "notSpecified": "—",
+      "notAvailable": "—"
+    },
+    "opinion": {
+      "title": "Залиште свою думку",
+      "namePlaceholder": "Ваше ім'я",
+      "emailPlaceholder": "E-mail",
+      "opinionPlaceholder": "Поділіться своїм досвідом",
+      "submit": "Відправити відгук"
+    },
+    "askPriceModal": {
+      "title": "Запитати ціну",
+      "product": "Товар",
+      "warehouse": "Склад",
+      "selectWarehouse": "Оберіть склад",
+      "selectWarehousePlaceholder": "Оберіть склад...",
+      "quantity": "Кількість",
+      "quantityPlaceholder": "Введіть кількість",
+      "comment": "Коментар (необов'язково)",
+      "comments": "Коментарі (необов'язково)",
+      "commentPlaceholder": "Будь-які конкретні вимоги або питання...",
+      "commentsPlaceholder": "Будь-які конкретні вимоги або питання...",
+      "cancel": "Скасувати",
+      "submit": "Запитати ціну",
+      "submitting": "Відправлення...",
+      "success": "Запит на ціну успішно відправлено! Ми зв'яжемося з вами найближчим часом.",
+      "error": "Не вдалося надіслати запит на ціну. Будь ласка, спробуйте ще раз."
+    }
+  },
+  "home": {
+    "features": {
+      "payment": "Оплата при доставці",
+      "refund": "Повернення",
+      "delivery": "Швидка доставка",
+      "warranty": "Якість продукту",
+      "oneClick": "Покупка в один клік"
+    },
+    "tabs": {
+      "bestsellers": "Бестселери",
+      "discount": "Знижки",
+      "new": "Новинки"
+    },
+    "sections": {
+      "categories": "Категорії товарів",
+      "brands": "Наші бренди"
+    },
+    "badges": {
+      "bestseller": "БЕСТСЕЛЕР",
+      "discount": "ЗНИЖКА",
+      "new": "НОВИНКА"
+    },
+    "messages": {
+      "noProducts": "Немає товарів у цій категорії.",
+      "noCategories": "Немає доступних категорій.",
+      "noBrands": "Немає доступних брендів.",
+      "moreSubcategories": "+{{count}} більше"
+    }
+  },
+  "header": {
+    "nav": {
+      "about": "Про нас",
+      "brands": "Бренди",
+      "purchaseDelivery": "Покупка та доставка",
+      "refunding": "Повернення",
+      "contacts": "Контакти",
+      "other": "Інше",
+      "menu": "Меню"
+    },
+    "categories": "Категорії",
+    "search": "Пошук товарів...",
+    "enter": "Увійти",
+    "cart": "Кошик",
+    "dashboard": "Панель"
+  },
+  "footer": {
+    "copyright": "© 2024 Всі права захищені",
+    "weAccept": "Ми приймаємо:",
+    "categories": "Категорії",
+    "moreCategories": "Більше категорій",
+    "forClients": "Для клієнтів",
+    "contactInfo": "Контактна інформація",
+    "links": {
+      "enterShop": "Увійти в магазин",
+      "about": "Про нас",
+      "brands": "Бренди",
+      "purchaseDelivery": "Покупка та доставка",
+      "refunding": "Повернення",
+      "contacts": "Контакти"
+    },
+    "categories1": {
+      "electronics": "Електроніка",
+      "fashion": "Мода",
+      "homeGarden": "Дім і сад",
+      "sports": "Спорт"
+    },
+    "categories2": {
+      "books": "Книги",
+      "healthBeauty": "Здоров'я та краса",
+      "automotive": "Автомобілі",
+      "toysGames": "Іграшки та ігри"
+    },
+    "workingHours": {
+      "weekdays": "Пн-Пт: 9:00-18:00",
+      "saturday": "Сб: 9:00-16:00"
+    }
   }
 }

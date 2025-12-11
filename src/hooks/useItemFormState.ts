@@ -18,14 +18,14 @@ export const useItemFormState = ({ initialItem }: UseItemFormStateOptions) => {
   }, [formData, originalFormData]);
 
   const updateFormData = useCallback((updater: (prev: Item) => Item) => {
-    setFormData((prev) => {
+    setFormData((prev: any) => {
       if (!prev) return prev;
       return updater(prev);
     });
   }, []);
 
   const setItemFormData = useCallback((value: Item | ((prev: Item) => Item)) => {
-    setFormData((prev) => {
+    setFormData((prev: any) => {
       if (typeof value === 'function') {
         if (!prev) return prev;
         return (value as (prev: Item) => Item)(prev);

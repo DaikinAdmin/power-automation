@@ -173,8 +173,8 @@ export async function POST(request: NextRequest) {
       warrantyLength: typeof warrantyLength === 'number' ? warrantyLength : undefined,
       itemPrice: {
         create: itemPrice
-          .filter((price) => price.warehouseId)
-          .map((price) => ({
+          .filter((price: { warehouseId: string; }) => price.warehouseId)
+          .map((price: { warehouseId: string; price: number; quantity: number; promotionPrice: number | null; promoEndDate: string | number | Date | null; promoCode: any; badge: any; }) => ({
             warehouseId: price.warehouseId!,
             price: price.price,
             quantity: price.quantity,
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
           })),
       },
       itemDetails: {
-        create: itemDetails.map((detail) => ({
+        create: itemDetails.map((detail: { locale: any; itemName: any; description: any; specifications: any; seller: any; discount: any; popularity: any; }) => ({
           locale: detail.locale,
           itemName: detail.itemName,
           description: detail.description,
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
 
     if (createdPrices.length > 0) {
       await prisma.itemPriceHistory.createMany({
-        data: createdPrices.map((price) => ({
+        data: createdPrices.map((price: any) => ({
           itemId: price.itemId,
           warehouseId: price.warehouseId,
           price: price.price,

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import CardWrapper from "../card-wrapper";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
@@ -22,6 +22,7 @@ import { requestOTP } from "@/helpers/auth/request-otp";
 import { redirectAfterLogin } from "@/helpers/auth/redirect-after-login";
 
 const TwoFactor: React.FC = () => {
+    const locale = useLocale();
     const t = useTranslations('auth.twoFactor');
     const router = useRouter();
     const {
@@ -95,7 +96,7 @@ const TwoFactor: React.FC = () => {
             cardTitle={t('title')}
             cardDescription={t('subtitle')}
             cardFooterDescription={t('backToSignIn')}
-            cardFooterLink="/signin"
+            cardFooterLink={`/${locale}/signin`}
             cardFooterLinkTitle={t('backToSignIn')}
         >
             <Form {...form}>

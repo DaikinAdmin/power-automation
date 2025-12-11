@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -114,7 +114,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     if (file) {
       // Here you would typically upload the file to your storage service
       // For now, we'll just store the file name
-      setFormData(prev => ({
+      setFormData((prev: any) => ({
         ...prev,
         itemImageLink: file.name
       }));
@@ -164,7 +164,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       }
     };
 
-    setFormData(prev => ({
+    setFormData((prev: Item) => ({
       ...prev,
       itemPrice: [...prev.itemPrice, priceEntryToAdd]
     }));
@@ -197,9 +197,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   };
 
   const removePriceEntry = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev: Item) => ({
       ...prev,
-      itemPrice: prev.itemPrice.filter((_, i) => i !== index)
+      itemPrice: prev.itemPrice.filter((_: any, i: number) => i !== index)
     }));
   };
 
@@ -212,7 +212,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     if (editingPriceIndex !== null) {
       const updatedPrices = [...formData.itemPrice];
       updatedPrices[editingPriceIndex] = updatedPrice;
-      setFormData(prev => ({ ...prev, itemPrice: updatedPrices }));
+      setFormData((prev: any) => ({ ...prev, itemPrice: updatedPrices }));
     }
     setIsEditingPrice(false);
     setEditingPriceIndex(null);
@@ -251,7 +251,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Input
               id="articleId"
               value={formData.articleId}
-              onChange={(e) => setFormData(prev => ({ ...prev, articleId: e.target.value }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, articleId: e.target.value }))}
               className="mt-1"
               placeholder="Enter article ID"
               required
@@ -263,7 +263,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Switch
               id="isDisplayed"
               checked={formData.isDisplayed}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isDisplayed: checked }))}
+              onCheckedChange={(checked) => setFormData((prev: any) => ({ ...prev, isDisplayed: checked }))}
             />
             <Label htmlFor="isDisplayed">Display Item</Label>
           </div>
@@ -276,7 +276,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               onChange={(e) => {
                 const brandId = e.target.value;
                 const brand = brands.find((b) => b.id === brandId) || null;
-                setFormData((prev) => ({
+                setFormData((prev: any) => ({
                   ...prev,
                   brandId: brandId ? brandId : null,
                   brandName: brand?.name || '',
@@ -326,7 +326,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Label>Category *</Label>
             <select
               value={formData.categoryId}
-              onChange={(e) => setFormData(prev => ({ 
+              onChange={(e) => setFormData((prev: Item) => ({ 
                 ...prev, 
                 categoryId: e.target.value,
                 subCategoryId: '', // Reset subcategory when category changes
@@ -350,8 +350,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <select
               value={formData.subCategoryId}
               onChange={(e) => {
-                const selectedSubCategory = getSelectedCategory()?.subCategories.find(sub => sub.id === e.target.value);
-                setFormData(prev => ({ 
+                const selectedSubCategory = getSelectedCategory()?.subCategories.find((sub: { id: string; }) => sub.id === e.target.value);
+                setFormData((prev: Item) => ({ 
                   ...prev, 
                   subCategoryId: e.target.value,
                   subCategory: selectedSubCategory || prev.subCategory
@@ -361,8 +361,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               disabled={!formData.categoryId}
             >
               <option value="">Select Sub Category</option>
-              {getSelectedCategory()?.subCategories.map(sub => (
-                <option key={sub.id} value={sub.id}>
+              {getSelectedCategory()?.subCategories.map((sub: { id: Key | readonly string[] | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
+                <option key={sub.id as string} value={sub.id as string}>
                   {sub.name}
                 </option>
               ))}
@@ -374,7 +374,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Label>Warranty Type</Label>
             <select
               value={formData.warrantyType || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, warrantyType: e.target.value || null }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, warrantyType: e.target.value || null }))}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
             >
               <option value="">Select Warranty Type</option>
@@ -393,7 +393,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               type="number"
               min="0"
               value={formData.warrantyLength ?? ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, warrantyLength: e.target.value ? parseInt(e.target.value) : null }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, warrantyLength: e.target.value ? parseInt(e.target.value) : null }))}
               className="mt-1"
               placeholder="Enter warranty length"
             />
@@ -434,10 +434,10 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {formData.itemPrice.map((price, index) => {
+                {formData.itemPrice.map((price: { promoEndDate: string | number | Date | null; price: number; promotionPrice: number | null; badge: any; id: any; warehouse: { displayedName: any; name: any; }; warehouseId: any; quantity: any; }, index: number) => {
                   // console.log(`Rendering price row ${index}:`, price);
-                  const isPromoActive = isPromotionActive(new Date(), price.promoEndDate);
-                  const effectivePrice = getEffectivePrice(price.price, price.promotionPrice, new Date(), price.promoEndDate);
+                  const isPromoActive = isPromotionActive(new Date(), price.promoEndDate as Date);
+                  const effectivePrice = getEffectivePrice(price.price, price.promotionPrice, new Date(), price.promoEndDate as Date);
                   const badgeLabel = badgeOptions.find(option => option.value === (price.badge || Badge.ABSENT))?.label || 'None';
 
                   return (
@@ -529,7 +529,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <Label>Warehouse *</Label>
                 <select
                   value={newPriceEntry.warehouseId}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, warehouseId: e.target.value }))
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, warehouseId: e.target.value }))
                   }
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
                   required
@@ -550,7 +550,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.01"
                   value={newPriceEntry.price}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                   className="mt-1"
                   placeholder="0.00"
                   required
@@ -563,7 +563,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   type="number"
                   min="0"
                   value={newPriceEntry.quantity}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
                   className="mt-1"
                   placeholder="0"
                   required
@@ -574,7 +574,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <Label>Badge</Label>
                 <select
                   value={newPriceEntry.badge || Badge.ABSENT}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, badge: e.target.value as Badge }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
                   className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 >
                   {badgeOptions.map(option => (
@@ -592,7 +592,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.01"
                   value={newPriceEntry.promotionPrice || ''}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
                   className="mt-1"
                   placeholder="0.00"
                 />
@@ -603,7 +603,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <Input
                   type="datetime-local"
                   value={newPriceEntry.promoEndDate ? new Date(newPriceEntry.promoEndDate).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
                   className="mt-1"
                 />
               </div>
@@ -612,7 +612,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <Label>Promo Code</Label>
                 <Input
                   value={newPriceEntry.promoCode || ''}
-                  onChange={(e) => setNewPriceEntry(prev => ({ ...prev, promoCode: e.target.value }))}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, promoCode: e.target.value }))}
                   className="mt-1"
                   placeholder="Enter promo code"
                 />

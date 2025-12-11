@@ -1,6 +1,6 @@
 'use client';
 
-import { CartItemType, Item } from '@/helpers/types/item';
+import { CartItemType } from '@/helpers/types/item';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { parsePriceString } from '@/helpers/currency';
 
@@ -25,7 +25,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
   const normaliseCartItem = (item: CartItemType): CartItemType => {
-    const resolvedWarehouse = item.availableWarehouses?.find((warehouse) => warehouse.warehouseId === item.warehouseId);
+    const resolvedWarehouse = item.availableWarehouses?.find((warehouse: { warehouseId: any; }) => warehouse.warehouseId === item.warehouseId);
 
     const resolvedBasePrice = typeof item.basePrice === 'number'
       ? item.basePrice
@@ -142,7 +142,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return prev.map(item => {
         if (item.id === id && item.availableWarehouses) {
           const selectedWarehouse = item.availableWarehouses.find(
-            wh => wh.warehouseId === warehouseId
+            (            wh: { warehouseId: string; }) => wh.warehouseId === warehouseId
           );
           
           if (selectedWarehouse) {

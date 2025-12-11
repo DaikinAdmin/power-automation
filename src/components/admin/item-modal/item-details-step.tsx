@@ -37,7 +37,7 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
   });
 
   const availableLocales = useMemo(() => {
-    const usedLocales = formData.itemDetails.map((detail) => detail.locale);
+    const usedLocales = formData.itemDetails.map((detail: { locale: any; }) => detail.locale);
     return locales.filter((locale) => !usedLocales.includes(locale.value));
   }, [formData.itemDetails]);
 
@@ -75,7 +75,7 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
       popularity: null,
     } as ItemDetail;
 
-    setFormData((prev) => ({
+    setFormData((prev: Item) => ({
       ...prev,
       itemDetails: [...prev.itemDetails, detailToAdd],
     }));
@@ -84,9 +84,9 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
   };
 
   const removeDetailEntry = (index: number) => {
-    setFormData((prev) => ({
+    setFormData((prev: Item) => ({
       ...prev,
-      itemDetails: prev.itemDetails.filter((_detail, i) => i !== index),
+      itemDetails: prev.itemDetails.filter((_detail: any, i: number) => i !== index),
     }));
   };
 
@@ -100,9 +100,9 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
   const handleSaveEditedDetail = (updatedDetail: ItemDetail) => {
     if (editingDetailIndex === null) return;
 
-    setFormData((prev) => ({
+    setFormData((prev: Item) => ({
       ...prev,
-      itemDetails: prev.itemDetails.map((detail, idx) => (idx === editingDetailIndex ? updatedDetail : detail)),
+      itemDetails: prev.itemDetails.map((detail: any, idx: number) => (idx === editingDetailIndex ? updatedDetail : detail)),
     }));
 
     setIsEditModalOpen(false);
@@ -139,7 +139,7 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {formData.itemDetails.map((detail, index) => (
+                {formData.itemDetails.map((detail: { id: any; locale: string; itemName: any; seller: any; discount: any; }, index: number) => (
                   <tr key={detail.id || `detail-${index}`}>
                     <td className="px-4 py-2 text-sm text-gray-900">{getLocaleName(detail.locale)}</td>
                     <td className="px-4 py-2 text-sm text-gray-900">{detail.itemName || 'No name'}</td>

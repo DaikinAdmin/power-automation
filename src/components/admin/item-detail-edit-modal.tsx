@@ -37,7 +37,7 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
   }, [itemDetail]);
 
   const handleInputChange = (field: keyof ItemDetail, value: string | number | undefined | null) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [field]: value,
     }));

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, Grid, List, MessageSquare } from "lucide-react";
@@ -18,7 +18,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useTranslations } from 'next-intl';
 
 
-export default function CategoriesPage() {
+export default function CategoriesPage({ locale }: { locale: string }) {
     const t = useTranslations('categories');
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
@@ -82,7 +82,7 @@ export default function CategoriesPage() {
     const fetchAllData = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch('/api/public/items/pl');
+            const response = await fetch(`/api/public/items/${locale}`);
             if (response.ok) {
                 const data: Item[] = await response.json();
 
@@ -154,7 +154,7 @@ export default function CategoriesPage() {
                 // Extract unique warehouses from all items
                 const warehouseMap = new Map();
                 data.forEach(item => {
-                    item.itemPrice.forEach(price => {
+                    item.itemPrice.forEach((price: { warehouse: { id: any; displayedName: any; }; }) => {
                         if (price.warehouse) {
                             warehouseMap.set(price.warehouse.id, {
                                 displayedName: price.warehouse.displayedName || "Unknown Warehouse"
@@ -217,7 +217,7 @@ export default function CategoriesPage() {
         // Filter by warehouses
         if (selectedWarehouses.length > 0) {
             filtered = filtered.filter(item =>
-                item.itemPrice.some(price =>
+                item.itemPrice.some((price: { warehouse: { id: string; }; }) =>
                     selectedWarehouses.includes(price.warehouse.id)
                 )
             );
@@ -264,7 +264,7 @@ export default function CategoriesPage() {
                         {/* Breadcrumb */}
                         <div className="mb-6">
                             <nav className="flex items-center space-x-2 text-sm text-gray-600">
-                                <Link href="/" className="hover:text-blue-600 transition-colors">
+                                <Link href={`/${locale}`} className="hover:text-blue-600 transition-colors">
                                     {t('breadcrumb.home')}
                                 </Link>
                                 <span>/</span>

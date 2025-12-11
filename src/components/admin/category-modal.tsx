@@ -68,7 +68,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
   useEffect(() => {
     if (isOpen) {
       if (mode === 'edit' && category) {
-        const mappedSubs = category.subCategories?.map(sub => ({
+        const mappedSubs = category.subCategories?.map((sub: { name: string; slug: string; isVisible: boolean | null; }) => ({
           name: sub.name,
           slug: sub.slug,
           isVisible: sub.isVisible ?? true,

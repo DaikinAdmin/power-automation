@@ -1,19 +1,18 @@
 "use client";
 
-import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import CardWrapper from "../card-wrapper";
 import FormError from "../form-error";
 import { FormSuccess } from "../form-success";
 
 import { useAuthState } from "@/hooks/useAuthState";
-import { signIn, useSession } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { redirectAfterLogin } from "@/helpers/auth/redirect-after-login";
 
 import {
@@ -32,6 +31,7 @@ import { requestOTP } from "@/helpers/auth/request-otp";
 import TraditionalSignInSchema from "@/helpers/zod/login-schema";
 
 const SignIn = () => {
+    const locale = useLocale();
     const t = useTranslations('auth.signIn');
     const router = useRouter();
     const {
@@ -79,7 +79,7 @@ const SignIn = () => {
                             const response = await requestOTP()
                             if (response?.data) {
                                 setSuccess("OTP has been sent to your email")
-                                router.push("/two-factor")
+                                router.push(`/${locale}/$two-factor`)
                             } else if (response?.error) {
                                 setError(response.error.message)
                             }
@@ -110,8 +110,10 @@ const SignIn = () => {
             cardTitle={t('title')}
             cardDescription={t('subtitle')}
             cardFooterDescription={t('noAccount')}
-            cardFooterLink="/signup"
+            cardFooterLink={`/${locale}/signup`}
             cardFooterLinkTitle={t('signUpLink')}
+            showCloseButton={true}
+            closeButtonLink="/"
         >
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>

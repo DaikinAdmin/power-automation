@@ -215,7 +215,7 @@ async function orderHandler(body: any, userId: string) {
   // Validate stock availability
   for (const cartItem of cartItems) {
     const cartArticleId = cartItem.articleId || cartItem.productId;
-    const dbItem = dbItems.find(item => item.articleId === cartArticleId);
+    const dbItem = dbItems.find((item: { articleId: string }) => item.articleId === cartArticleId);
     if (!dbItem) {
       return NextResponse.json(
         { error: `Item ${cartArticleId} not found` },
@@ -224,7 +224,7 @@ async function orderHandler(body: any, userId: string) {
     }
 
     const itemPrice = dbItem.itemPrice.find(
-      price => price.warehouse.id === cartItem.warehouseId
+      (price: { warehouse: { id: string } }) => price.warehouse.id === cartItem.warehouseId
     );
 
     if (!itemPrice || itemPrice.quantity < cartItem.quantity) {
@@ -291,7 +291,7 @@ async function orderHandler(body: any, userId: string) {
       status: 'NEW',
       deliveryId: deliveryId || null,
       items: {
-        connect: dbItems.map(item => ({ id: item.id }))
+        connect: dbItems.map((item: { id: string }) => ({ id: item.id }))
       }
     },
     include: {
@@ -311,7 +311,7 @@ async function orderHandler(body: any, userId: string) {
   // Update stock quantities
   for (const cartItem of cartItems) {
     const cartArticleId = cartItem.articleId || cartItem.productId;
-    const dbItem = dbItems.find(item => item.articleId === cartArticleId);
+    const dbItem = dbItems.find((item: { articleId: string }) => item.articleId === cartArticleId);
     if (dbItem) {
       await prisma.itemPrice.updateMany({
         where: {

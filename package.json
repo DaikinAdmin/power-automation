@@ -7,9 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
     "create-sample-files": "node scripts/create-sample-xlsx.js"
   },
   "prisma": {
@@ -62,6 +59,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.13.14",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.23.0",

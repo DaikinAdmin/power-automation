@@ -1,16 +1,13 @@
-import type { PrismaConfig } from "prisma";
-import "dotenv/config";
+import 'dotenv/config'
+import { defineConfig, env } from 'prisma/config'
 
-// Use DATABASE_URL from environment (Docker Compose provides it)
-const config: PrismaConfig = {
+export default defineConfig({
   schema: 'prisma/schema.prisma',
-  datasource: {
-    url: process.env.DATABASE_URL!,
-  },
-  migrations: { 
+  migrations: {
     path: 'prisma/migrations',
     seed: 'tsx prisma/seed.ts',
   },
-};
-
-export default config;
+  datasource: {
+    url: env('DATABASE_URL'),
+  },
+})

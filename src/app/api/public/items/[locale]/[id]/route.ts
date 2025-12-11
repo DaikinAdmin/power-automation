@@ -84,7 +84,7 @@ export async function GET(
     }
 
     // Get the first recommended warehouse that has stock
-    const recommendedPrice = item.itemPrice.find(p => p.quantity > 0) || item.itemPrice[0];
+    const recommendedPrice = item.itemPrice.find((p: { quantity: number }) => p.quantity > 0) || item.itemPrice[0];
 
     const formattedRecommended = recommendedPrice
       ? {
@@ -102,13 +102,13 @@ export async function GET(
       : undefined;
 
     const normalizedLocale = locale.toLowerCase();
-    const normalizedDetails = item.itemDetails.map((detail) => ({
+    const normalizedDetails = item.itemDetails.map((detail: any) => ({
       ...detail,
       locale: detail.locale ? detail.locale.toLowerCase() : '',
     }));
 
-    const detailForLocale = normalizedDetails.find((detail) => detail.locale === normalizedLocale);
-    const fallbackDetail = normalizedDetails.find((detail) => detail.locale === 'en') || normalizedDetails[0];
+    const detailForLocale = normalizedDetails.find((detail: any) => detail.locale === normalizedLocale);
+    const fallbackDetail = normalizedDetails.find((detail: any) => detail.locale === 'en') || normalizedDetails[0];
     const resolvedDetail = detailForLocale || fallbackDetail;
 
     // Format item data for the frontend
@@ -125,7 +125,7 @@ export async function GET(
       updatedAt: item.updatedAt,
       
       // Format warehouses for display
-      warehouses: item.itemPrice.map(price => ({
+      warehouses: item.itemPrice.map((price: any) => ({
         warehouseId: price.warehouse.id,
         warehouseName: price.warehouse.name || '',
         warehouseCountry: price.warehouse.country || '',

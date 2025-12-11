@@ -17,7 +17,7 @@ export const useCartTotals = ({ items }: UseCartTotalsOptions) => {
     if (typeof item.basePrice === 'number') return item.basePrice;
 
     if (item.availableWarehouses && item.warehouseId) {
-      const warehouse = item.availableWarehouses.find((wh) => wh.warehouseId === item.warehouseId);
+      const warehouse = item.availableWarehouses.find((wh: { warehouseId: string; }) => wh.warehouseId === item.warehouseId);
       if (warehouse) {
         if (typeof warehouse.baseSpecialPrice === 'number') return warehouse.baseSpecialPrice;
         if (typeof warehouse.basePrice === 'number') return warehouse.basePrice;

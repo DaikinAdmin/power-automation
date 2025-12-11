@@ -1,16 +1,18 @@
 "use client"
-import React from 'react'
+
 import { Button } from '../ui/button'
 import { authClient, signOut } from '@/lib/auth-client'
+import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 
 const SignOut = () => {
+  const locale = useLocale();
     const router = useRouter()
     const session = authClient.useSession()
 
     if(!session.data) {
       return (
-        <Button variant="ghost" onClick={() => {router.push("/signin")}}>
+        <Button variant="ghost" onClick={() => {router.push(`/${locale}/signin`)}}>
           Login
         </Button>
       )
@@ -21,7 +23,7 @@ const SignOut = () => {
     onClick={async() => {await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/signin")
+          router.push(`/${locale}/signin`)
         }
       }
     })}}

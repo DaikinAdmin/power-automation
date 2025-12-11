@@ -5,19 +5,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/components/languge-switcher";
+import { useTranslations } from 'next-intl';
 
 const NAV_LINKS = [
-  { href: "/about", label: "About us" },
-  { href: "/brands", label: "Brands" },
-  { href: "/purchase-delivery", label: "Purchase and Delivery" },
-  { href: "/refunding", label: "Refunding" },
-  { href: "/contacts", label: "Contacts" },
+  { href: "/about", labelKey: "about" },
+  { href: "/brands", labelKey: "brands" },
+  { href: "/purchase-delivery", labelKey: "purchaseDelivery" },
+  { href: "/refunding", labelKey: "refunding" },
+  { href: "/contacts", labelKey: "contacts" },
 ];
 
 const navLinkClass = "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap";
 const otherTriggerClass = "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors whitespace-nowrap";
 
 export default function MainHeader() {
+  const t = useTranslations('header');
   const [visibleCount, setVisibleCount] = useState<number>(NAV_LINKS.length);
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -186,7 +188,7 @@ export default function MainHeader() {
           >
             {visibleItems.map((item) => (
               <Link key={item.href} href={item.href} className={navLinkClass}>
-                {item.label}
+                {t(`nav.${item.labelKey}`)}
               </Link>
             ))}
 
@@ -199,7 +201,7 @@ export default function MainHeader() {
                   aria-haspopup="menu"
                   aria-expanded={isOverflowOpen}
                 >
-                  Other
+                  {t('nav.other')}
                   <ChevronDown
                     size={16}
                     className={`transition-transform ${isOverflowOpen ? "rotate-180" : ""}`}
@@ -214,7 +216,7 @@ export default function MainHeader() {
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsOverflowOpen(false)}
                       >
-                        {item.label}
+                        {t(`nav.${item.labelKey}`)}
                       </Link>
                     ))}
                   </div>
@@ -259,7 +261,7 @@ export default function MainHeader() {
             className="relative ml-auto flex h-full w-72 flex-col bg-white shadow-xl"
           >
             <div className="flex items-center justify-between border-b px-4 py-4">
-              <span className="text-lg font-semibold text-gray-900">Menu</span>
+              <span className="text-lg font-semibold text-gray-900">{t('nav.menu')}</span>
               <button
                 type="button"
                 className="rounded-md p-2 text-gray-600 transition-colors hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -277,7 +279,7 @@ export default function MainHeader() {
                   className="rounded-md px-2 py-2 text-base font-medium text-gray-700 transition-colors hover:bg-gray-100"
                   onClick={closeMobileMenu}
                 >
-                  {item.label}
+                  {t(`nav.${item.labelKey}`)}
                 </Link>
               ))}
             </nav>
@@ -309,11 +311,11 @@ export default function MainHeader() {
               }}
               className={navLinkClass}
             >
-              {item.label}
+              {t(`nav.${item.labelKey}`)}
             </span>
           ))}
           <span ref={otherMeasurementRef} className={otherTriggerClass}>
-            Other
+            {t('nav.other')}
           </span>
         </div>
       </div>

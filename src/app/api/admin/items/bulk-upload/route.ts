@@ -133,7 +133,7 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
         // Handle item price
         if (item.item_price) {
           const existingPrice = existingItem.itemPrice.find(
-            price => price.warehouseId === item.item_price!.warehouseId
+            (price: { warehouseId: string }) => price.warehouseId === item.item_price!.warehouseId
           );
 
           if (existingPrice) {
@@ -197,7 +197,7 @@ async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
         // Handle item details
         if (item.item_details) {
           const existingDetail = existingItem.itemDetails.find(
-            detail => detail.locale === item.item_details!.locale
+            (detail: { locale: string }) => detail.locale === item.item_details!.locale
           );
 
           if (existingDetail) {

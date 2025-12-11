@@ -111,7 +111,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Warehouse *</Label>
               <select
                 value={formData.warehouseId}
-                onChange={(e) => setFormData(prev => ({ ...prev, warehouseId: e.target.value }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, warehouseId: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
                 required
               >
@@ -131,7 +131,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 min="0"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                 className="mt-1"
                 placeholder="0.00"
                 required
@@ -144,7 +144,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 type="number"
                 min="0"
                 value={formData.quantity}
-                onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
                 className="mt-1"
                 placeholder="0"
                 required
@@ -158,7 +158,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 min="0"
                 step="0.01"
                 value={formData.promotionPrice || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
                 className="mt-1"
                 placeholder="0.00"
               />
@@ -168,7 +168,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Badge</Label>
               <select
                 value={formData.badge || Badge.ABSENT}
-                onChange={(e) => setFormData(prev => ({ ...prev, badge: e.target.value as Badge }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               >
                 {badgeOptions.map(option => (
@@ -183,7 +183,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Promo Code</Label>
               <Input
                 value={formData.promoCode || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, promoCode: e.target.value }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, promoCode: e.target.value }))}
                 className="mt-1"
                 placeholder="Enter promo code"
               />
@@ -194,7 +194,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Input
                 type="date"
                 value={formData.promoEndDate ? new Date(formData.promoEndDate).toISOString().split('T')[0] : ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
                 className="mt-1"
               />
             </div>

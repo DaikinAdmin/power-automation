@@ -20,9 +20,9 @@ export const useCatalogPricing = (
 
   const getItemPrice = useCallback((item: Item) => {
     const prioritizedPrice =
-      item.itemPrice.find(price => price.warehouse.country === preferredCountryCode && price.quantity > 0) ||
-      item.itemPrice.find(price => price.warehouse.country === preferredCountryCode) ||
-      item.itemPrice.find(price => price.quantity > 0) ||
+      item.itemPrice.find((price) => price.warehouse.country === preferredCountryCode && price.quantity > 0) ||
+      item.itemPrice.find((price) => price.warehouse.country === preferredCountryCode) ||
+      item.itemPrice.find((price) => price.quantity > 0) ||
       item.itemPrice[0];
 
     if (!prioritizedPrice) {
@@ -54,7 +54,7 @@ export const useCatalogPricing = (
   }, [preferredCountryCode]);
 
   const getAvailableWarehouses = useCallback((item: Item) => {
-    return item.itemPrice.map(priceInfo => ({
+    return item.itemPrice.map((priceInfo: { warehouse: { id: any; name: any; displayedName: any; country: any; }; promotionPrice: any; price: any; quantity: number; }) => ({
       warehouseId: priceInfo.warehouse.id,
       warehouseName: priceInfo.warehouse.name || priceInfo.warehouse.displayedName || 'Unknown Warehouse',
       warehouseCountry: priceInfo.warehouse.country || 'Unknown Country',

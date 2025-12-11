@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useMemo } from 'react';
 import { X, Plus, Minus, ShoppingBag, ArrowLeft, Trash2, MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { CartItemType } from '@/helpers/types/item';
@@ -47,7 +47,7 @@ export default function CartModal({
   const getItemName = (item: CartItemType) => {
     if (item.itemDetails && item.itemDetails.length > 0) {
       for (const preference of localePreferences) {
-        const match = item.itemDetails.find((detail) => {
+        const match = item.itemDetails.find((detail: { locale: string; }) => {
           const detailLocale = detail.locale ? detail.locale.toLowerCase() : '';
           return detailLocale === preference;
         });
@@ -60,7 +60,7 @@ export default function CartModal({
   };
 
   const resolveBasePrices = (item: CartItemType) => {
-    const warehouse = item.availableWarehouses?.find((wh) => wh.warehouseId === item.warehouseId);
+    const warehouse = item.availableWarehouses?.find((wh: { warehouseId: any; }) => wh.warehouseId === item.warehouseId);
 
     const basePrice = typeof item.basePrice === 'number'
       ? item.basePrice
@@ -182,7 +182,7 @@ export default function CartModal({
                                 <select
                                   value={item.warehouseId}
                                   onChange={(e) => {
-                                    const selectedWarehouse = item.availableWarehouses?.find(w => w.warehouseId === e.target.value);
+                                    const selectedWarehouse = item.availableWarehouses?.find((w: { warehouseId: string; }) => w.warehouseId === e.target.value);
                                     if (selectedWarehouse && onUpdateWarehouse) {
                                       onUpdateWarehouse(item.id, e.target.value);
                                     }
@@ -190,12 +190,12 @@ export default function CartModal({
                                   className="w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                 >
                                   {item.availableWarehouses.map((warehouse) => (
-                                    <option 
-                                      key={warehouse.warehouseId} 
+                                    <option
+                                      key={warehouse.warehouseId}
                                       value={warehouse.warehouseId}
                                       disabled={!warehouse.inStock}
                                     >
-                                      {warehouse.displayName}
+                                      {warehouse.displayName || warehouse.warehouseName}
                                       {!warehouse.inStock ? ' - Out of stock' : ''}
                                     </option>
                                   ))}

@@ -155,5 +155,182 @@
       "orderSuccess": "Zamówienie złożone pomyślnie! Wkrótce otrzymasz e-mail z potwierdzeniem.",
       "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:"
     }
+  },
+  "dashboard": {
+    "welcomeBack": "Witaj ponownie",
+    "statsOverview": "Przegląd statystyk",
+    "greeting": "Cześć {{name}}, oto szybki przegląd Twojej ostatniej aktywności. Szczegółowe raporty są w drodze.",
+    "stats": {
+      "ordersPlaced": "Złożone zamówienia",
+      "itemsPurchased": "Zakupione przedmioty",
+      "totalSpend": "Całkowite wydatki",
+      "supportTickets": "Otwarte zgłoszenia wsparcia"
+    },
+    "descriptions": {
+      "analyticsComingSoon": "Wkrótce dostępne analizy",
+      "trendingCategories": "Następnie wyróżnimy popularne kategorie",
+      "currencySummaries": "Tutaj pojawią się podsumowania z uwzględnieniem waluty",
+      "contactSupport": "Skontaktuj się w dowolnym momencie z sekcji Kontakt"
+    },
+    "whatsNext": {
+      "title": "Co dalej?",
+      "visualizeSpending": "Wizualizuj wydatki w czasie za pomocą miesięcznych wykresów.",
+      "trackOrders": "Śledź etapy realizacji zamówienia w czasie rzeczywistym.",
+      "loyaltyRewards": "Miej oko na nagrody lojalnościowe i nadchodzące odnowienia."
+    }
+  },
+  "product": {
+    "loading": "Ładowanie produktu…",
+    "notFound": {
+      "title": "Produkt nie został znaleziony",
+      "description": "Produkt, którego szukasz, jest niedostępny lub został usunięty.",
+      "backToHome": "Powrót do strony głównej"
+    },
+    "articleId": "ID Artykułu",
+    "from": "Z {{warehouse}}",
+    "moreLocations": "+{{count}} więcej lokalizacji",
+    "price": {
+      "discount": "-{{percent}}%",
+      "badges": {
+        "bestseller": "Bestseller",
+        "hotDeal": "Gorąca oferta",
+        "new": "Nowość",
+        "limited": "Limitowana",
+        "standard": "Standard"
+      }
+    },
+    "actions": {
+      "addToCart": "Dodaj do koszyka",
+      "outOfStock": "Brak w magazynie",
+      "askPrice": "Zapytaj o cenę",
+      "addToWishlist": "Dodaj do ulubionych",
+      "compare": "Porównaj"
+    },
+    "tabs": {
+      "delivery": "Dostawa i dostępność",
+      "warranty": "Gwarancja",
+      "documents": "Dokumenty"
+    },
+    "tabContent": {
+      "deliveryAvailable": "Dostawa dostępna w ciągu 3-5 dni roboczych z wybranego magazynu.",
+      "fasterShipping": "Potrzebujesz szybszej wysyłki? Skontaktuj się z naszym zespołem logistycznym w sprawie opcji ekspresowych.",
+      "manufacturerWarranty": "Gwarancja producenta: {{months}} miesięcy.",
+      "warrantyNotSpecified": "Gwarancja producenta: Nie określono.",
+      "additionalContracts": "Dodatkowe umowy serwisowe dostępne na żądanie.",
+      "datasheets": "Karty katalogowe i certyfikaty dostępne na żądanie. Skontaktuj się ze wsparciem, aby uzyskać więcej informacji."
+    },
+    "details": {
+      "title": "Szczegóły produktu",
+      "brand": "Marka",
+      "warranty": "Gwarancja",
+      "category": "Kategoria",
+      "subcategory": "Podkategoria",
+      "months": "{{count}} miesięcy",
+      "warrantyMonths": "{{count}} miesięcy",
+      "notSpecified": "—",
+      "notAvailable": "—"
+    },
+    "opinion": {
+      "title": "Zostaw swoją opinię",
+      "namePlaceholder": "Twoje imię",
+      "emailPlaceholder": "E-mail",
+      "opinionPlaceholder": "Podziel się swoim doświadczeniem",
+      "submit": "Wyślij opinię"
+    },
+    "askPriceModal": {
+      "title": "Zapytaj o cenę",
+      "product": "Produkt",
+      "warehouse": "Magazyn",
+      "selectWarehouse": "Wybierz magazyn",
+      "selectWarehousePlaceholder": "Wybierz magazyn...",
+      "quantity": "Ilość",
+      "quantityPlaceholder": "Wprowadź ilość",
+      "comment": "Komentarz (opcjonalnie)",
+      "comments": "Komentarze (opcjonalnie)",
+      "commentPlaceholder": "Jakieś konkretne wymagania lub pytania...",
+      "commentsPlaceholder": "Jakieś konkretne wymagania lub pytania...",
+      "cancel": "Anuluj",
+      "submit": "Zapytaj o cenę",
+      "submitting": "Wysyłanie...",
+      "success": "Zapytanie o cenę zostało wysłane pomyślnie! Wkrótce się z Tobą skontaktujemy.",
+      "error": "Nie udało się przesłać zapytania o cenę. Spróbuj ponownie."
+    }
+  },
+  "home": {
+    "features": {
+      "payment": "Płatność przy odbiorze",
+      "refund": "Zwroty",
+      "delivery": "Szybka dostawa",
+      "warranty": "Jakość produktu",
+      "oneClick": "Zakup jednym kliknięciem"
+    },
+    "tabs": {
+      "bestsellers": "Bestsellery",
+      "discount": "Promocje",
+      "new": "Nowości"
+    },
+    "sections": {
+      "categories": "Kategorie produktów",
+      "brands": "Nasze marki"
+    },
+    "badges": {
+      "bestseller": "BESTSELLER",
+      "discount": "PROMOCJA",
+      "new": "NOWOŚĆ"
+    },
+    "messages": {
+      "noProducts": "Brak produktów w tej kategorii.",
+      "noCategories": "Brak dostępnych kategorii.",
+      "noBrands": "Brak dostępnych marek.",
+      "moreSubcategories": "+{{count}} więcej"
+    }
+  },
+  "header": {
+    "nav": {
+      "about": "O nas",
+      "brands": "Marki",
+      "purchaseDelivery": "Zakup i dostawa",
+      "refunding": "Zwroty",
+      "contacts": "Kontakt",
+      "other": "Inne",
+      "menu": "Menu"
+    },
+    "categories": "Kategorie",
+    "search": "Szukaj produktów...",
+    "enter": "Zaloguj",
+    "cart": "Koszyk",
+    "dashboard": "Panel"
+  },
+  "footer": {
+    "copyright": "© 2024 Wszelkie prawa zastrzeżone",
+    "weAccept": "Akceptujemy:",
+    "categories": "Kategorie",
+    "moreCategories": "Więcej kategorii",
+    "forClients": "Dla klientów",
+    "contactInfo": "Informacje kontaktowe",
+    "links": {
+      "enterShop": "Wejdź do sklepu",
+      "about": "O nas",
+      "brands": "Marki",
+      "purchaseDelivery": "Zakup i dostawa",
+      "refunding": "Zwroty",
+      "contacts": "Kontakt"
+    },
+    "categories1": {
+      "electronics": "Elektronika",
+      "fashion": "Moda",
+      "homeGarden": "Dom i ogród",
+      "sports": "Sport"
+    },
+    "categories2": {
+      "books": "Książki",
+      "healthBeauty": "Zdrowie i uroda",
+      "automotive": "Motoryzacja",
+      "toysGames": "Zabawki i gry"
+    },
+    "workingHours": {
+      "weekdays": "Pon-Pt: 9:00-18:00",
+      "saturday": "Sob: 9:00-16:00"
+    }
   }
 }

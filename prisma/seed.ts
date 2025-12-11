@@ -1,6 +1,21 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Badge, Currency } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Modify connection string to disable SSL certificate validation for seeding
+const getConnectionString = () => {
+  if (!process.env.DATABASE_URL) return undefined;
+  
+  const url = new URL(process.env.DATABASE_URL);
+  url.searchParams.set('sslmode', 'no-verify');
+  return url.toString();
+};
+
+const connectionString = getConnectionString();
+const prisma = connectionString
+  ? new PrismaClient({
+      adapter: new PrismaPg({ connectionString }),
+    })
+  : new PrismaClient();
 
 const slugify = (value: string) =>
   value
@@ -671,7 +686,7 @@ async function seedItems(
     });
 
     await prisma.itemPriceHistory.createMany({
-      data: createdItem.itemPrice.map((price) => ({
+      data: createdItem.itemPrice.map((price: { warehouseId: any; price: any; quantity: any; badge: any; }) => ({
         itemId: createdItem.id,
         warehouseId: price.warehouseId,
         price: price.price,

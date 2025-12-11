@@ -8,8 +8,10 @@ import Settings from "@/components/auth/settings";
 import SignOut from "@/components/auth/sign-out";
 import { Category } from "@/helpers/types/item";
 import { useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
 
 export default function SecondaryHeader() {
+  const t = useTranslations('header');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -60,31 +62,31 @@ export default function SecondaryHeader() {
       <div className="px-4">
         <div className="flex items-center justify-between gap-4">
           <div className="relative">
-            <button 
-              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)} 
-              onMouseEnter={() => setIsCategoriesOpen(true)} 
+            <button
+              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+              onMouseEnter={() => setIsCategoriesOpen(true)}
               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 hover:bg-red-700 transition-colors h-max"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-layout-grid-icon lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-              <span className="hidden sm:inline font-bold">Categories</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid-icon lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
+              <span className="hidden sm:inline font-bold">{t('categories')}</span>
               <ChevronDown size={16} className={`transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
             </button>
-            
+
             {isCategoriesOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsCategoriesOpen(false)} />
-                <div 
-                  className="absolute top-full left-0 mt-1 w-80 bg-white rounded-lg shadow-lg border z-20" 
+                <div
+                  className="absolute top-full left-0 mt-1 w-80 bg-white rounded-lg shadow-lg border z-20"
                   onMouseLeave={() => { setIsCategoriesOpen(false); setHoveredCategory(null); }}
                 >
                   <div className="py-2 flex">
                     <div className="flex-1 border-r">
                       {categories.map((category) => (
-                        <Link 
-                          key={category.id} 
-                          href={`/category/${category.slug}`} 
-                          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors" 
-                          onMouseEnter={() => setHoveredCategory(category.id)} 
+                        <Link
+                          key={category.id}
+                          href={`/category/${category.slug}`}
+                          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors"
+                          onMouseEnter={() => setHoveredCategory(category.id)}
                           onClick={() => setIsCategoriesOpen(false)}
                         >
                           <span className="font-medium">{category.name}</span>
@@ -96,10 +98,10 @@ export default function SecondaryHeader() {
                         <div className="text-sm font-semibold text-gray-600 mb-2">
                           {categories.find(cat => cat.id === hoveredCategory)?.name}
                         </div>
-                        {categories.find(cat => cat.id === hoveredCategory)?.subCategories?.map((subcategory, index) => (
-                          <div 
-                            key={index} 
-                            className="py-1 text-sm text-gray-700 hover:text-blue-600 cursor-pointer transition-colors" 
+                        {categories.find(cat => cat.id === hoveredCategory)?.subCategories?.map((subcategory: { name: string }, index: number) => (
+                          <div
+                            key={index}
+                            className="py-1 text-sm text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
                             onClick={() => setIsCategoriesOpen(false)}
                           >
                             {subcategory.name}
@@ -112,15 +114,15 @@ export default function SecondaryHeader() {
               </>
             )}
           </div>
-          
+
           <div className="flex-1 max-w-2xl">
             <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Search products..." 
+              <input
+                type="text"
+                placeholder={t('search')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-10 py-0.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" 
+                className="w-full pl-10 pr-10 py-0.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
               <Search className="absolute left-3 top-0.5 text-gray-400" size={20} />
               {searchQuery && (
@@ -133,7 +135,7 @@ export default function SecondaryHeader() {
               )}
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <button className="p-2 hover:bg-gray-500 rounded-lg transition-colors text-white">
               <GitCompare size={20} />
@@ -141,14 +143,14 @@ export default function SecondaryHeader() {
             <button className="p-2 hover:bg-gray-500 rounded-lg transition-colors text-white">
               <Heart size={20} />
             </button>
-            
+
             <div className="relative">
-              <button 
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 p-2 hover:bg-gray-500 rounded-lg transition-colors text-white"
               >
                 <User size={20} />
-                <span className="text-sm">Enter</span>
+                <span className="text-sm">{t('enter')}</span>
                 <ChevronDown size={12} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               {isDropdownOpen && (
@@ -164,7 +166,7 @@ export default function SecondaryHeader() {
                             onClick={() => setIsDropdownOpen(false)}
                           >
                             <LayoutGrid size={16} />
-                            <span>Dashboard</span>
+                            <span>{t('dashboard')}</span>
                           </Link>
                           <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors">
                             <SettingsIcon size={16} />
@@ -181,9 +183,9 @@ export default function SecondaryHeader() {
                 </>
               )}
             </div>
-            
-            <button 
-              onClick={() => setIsCartModalOpen(true)} 
+
+            <button
+              onClick={() => setIsCartModalOpen(true)}
               className="flex items-center gap-2 p-2 hover:bg-gray-500 rounded-lg transition-colors text-white"
             >
               <div className="relative">
@@ -194,7 +196,7 @@ export default function SecondaryHeader() {
                   </span>
                 )}
               </div>
-              <span className="text-sm">Cart</span>
+              <span className="text-sm">{t('cart')}</span>
             </button>
           </div>
         </div>

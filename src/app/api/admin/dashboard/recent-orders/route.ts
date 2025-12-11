@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/db';
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,7 +19,7 @@ export async function GET(req: NextRequest) {
     });
     
     // Format the orders for the frontend
-    const formattedOrders = recentOrders.map(order => ({
+    const formattedOrders = recentOrders.map((order: { id: any; user: { name: any; }; totalPrice: any; originalTotalPrice: any; status: any; createdAt: { toISOString: () => any; }; }) => ({
       id: order.id,
       customerName: order.user.name,
       totalPriceFormatted: order.totalPrice,

@@ -11,10 +11,11 @@ import { FormSuccess } from '../form-success'
 import { useAuthState } from '@/hooks/useAuthState'
 import { authClient } from '@/lib/auth-client'
 import { ForgotPasswordSchema } from '@/helpers/zod/forgot-password-schema'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 
 const ForgotPassword = () => {
+  const locale = useLocale();
   const t = useTranslations('auth.forgotPassword');
   const { error, success, loading, setError, setSuccess, setLoading, resetState } = useAuthState()
 
@@ -27,9 +28,10 @@ const ForgotPassword = () => {
 
   const onSubmit = async (values: z.infer<typeof ForgotPasswordSchema>) => {
     try {
+      // @ts-ignore - forgetPassword method exists but types may not be fully updated
       await authClient.forgetPassword({
         email: values.email,
-        redirectTo: "/reset-password"
+        redirectTo: `/${locale}/reset-password`
       }, {
         onResponse: () => {
           setLoading(false)
@@ -41,7 +43,7 @@ const ForgotPassword = () => {
         onSuccess: () => {
           setSuccess("Reset password link has been sent")
         },
-        onError: (ctx) => {
+        onError: (ctx: any) => {
           setError(ctx.error.message);
         },
       });
@@ -57,7 +59,7 @@ const ForgotPassword = () => {
       cardTitle={t('title')}
       cardDescription={t('subtitle')}
       cardFooterDescription={t('backToSignIn')}
-      cardFooterLink='/signin'
+      cardFooterLink={`/${locale}/signin`}
       cardFooterLinkTitle={t('backToSignIn')}
     >
       <Form {...form}>

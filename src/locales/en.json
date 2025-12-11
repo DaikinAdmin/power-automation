@@ -155,5 +155,182 @@
       "orderSuccess": "Order placed successfully! You will receive a confirmation email shortly.",
       "orderCreated": "Order created successfully! Order ID:"
     }
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back",
+    "statsOverview": "Stats overview",
+    "greeting": "Hi {{name}}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
+    "stats": {
+      "ordersPlaced": "Orders placed",
+      "itemsPurchased": "Items purchased",
+      "totalSpend": "Total spend",
+      "supportTickets": "Open support tickets"
+    },
+    "descriptions": {
+      "analyticsComingSoon": "Analytics coming soon",
+      "trendingCategories": "We'll highlight trending categories next",
+      "currencySummaries": "Currency-aware summaries will appear here",
+      "contactSupport": "Reach out any time from the Contact section"
+    },
+    "whatsNext": {
+      "title": "What's next?",
+      "visualizeSpending": "Visualize spending over time with monthly charts.",
+      "trackOrders": "Track order fulfillment stages in real time.",
+      "loyaltyRewards": "Keep an eye on loyalty rewards and upcoming renewals."
+    }
+  },
+  "product": {
+    "loading": "Loading product…",
+    "notFound": {
+      "title": "Product Not Found",
+      "description": "The product you are looking for is unavailable or has been removed.",
+      "backToHome": "Back to Home"
+    },
+    "articleId": "Article ID",
+    "from": "From {{warehouse}}",
+    "moreLocations": "+{{count}} more locations",
+    "price": {
+      "discount": "-{{percent}}%",
+      "badges": {
+        "bestseller": "Bestseller",
+        "hotDeal": "Hot Deal",
+        "new": "New",
+        "limited": "Limited",
+        "standard": "Standard"
+      }
+    },
+    "actions": {
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "askPrice": "Ask Price",
+      "addToWishlist": "Add to Wishlist",
+      "compare": "Compare"
+    },
+    "tabs": {
+      "delivery": "Delivery & Availability",
+      "warranty": "Warranty",
+      "documents": "Documents"
+    },
+    "tabContent": {
+      "deliveryAvailable": "Delivery available within 3-5 business days from the selected warehouse.",
+      "fasterShipping": "Need faster shipping? Contact our logistics team for express options.",
+      "manufacturerWarranty": "Manufacturer warranty: {{months}} months.",
+      "warrantyNotSpecified": "Manufacturer warranty: Not specified.",
+      "additionalContracts": "Additional service contracts available upon request.",
+      "datasheets": "Datasheets and certificates are available upon request. Contact support for more information."
+    },
+    "details": {
+      "title": "Product Details",
+      "brand": "Brand",
+      "warranty": "Warranty",
+      "category": "Category",
+      "subcategory": "Subcategory",
+      "months": "{{count}} months",
+      "warrantyMonths": "{{count}} months",
+      "notSpecified": "—",
+      "notAvailable": "—"
+    },
+    "opinion": {
+      "title": "Leave Your Opinion",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "Email",
+      "opinionPlaceholder": "Share your experience",
+      "submit": "Submit Opinion"
+    },
+    "askPriceModal": {
+      "title": "Ask for Price",
+      "product": "Product",
+      "warehouse": "Warehouse",
+      "selectWarehouse": "Select warehouse",
+      "selectWarehousePlaceholder": "Choose a warehouse...",
+      "quantity": "Quantity",
+      "quantityPlaceholder": "Enter quantity",
+      "comment": "Comment (optional)",
+      "comments": "Comments (optional)",
+      "commentPlaceholder": "Any specific requirements or questions...",
+      "commentsPlaceholder": "Any specific requirements or questions...",
+      "cancel": "Cancel",
+      "submit": "Ask for Price",
+      "submitting": "Submitting...",
+      "success": "Price request submitted successfully! We will contact you soon.",
+      "error": "Failed to submit price request. Please try again."
+    }
+  },
+  "home": {
+    "features": {
+      "payment": "Payment on Delivery",
+      "refund": "Refunding",
+      "delivery": "Fast Delivery",
+      "warranty": "Product Quality",
+      "oneClick": "One-click Buy"
+    },
+    "tabs": {
+      "bestsellers": "Bestsellers",
+      "discount": "Discount",
+      "new": "New Products"
+    },
+    "sections": {
+      "categories": "Shop by Categories",
+      "brands": "Our Brands"
+    },
+    "badges": {
+      "bestseller": "BESTSELLER",
+      "discount": "DISCOUNT",
+      "new": "NEW"
+    },
+    "messages": {
+      "noProducts": "No products available in this category.",
+      "noCategories": "No categories available.",
+      "noBrands": "No brands available.",
+      "moreSubcategories": "+{{count}} more"
+    }
+  },
+  "header": {
+    "nav": {
+      "about": "About us",
+      "brands": "Brands",
+      "purchaseDelivery": "Purchase and Delivery",
+      "refunding": "Refunding",
+      "contacts": "Contacts",
+      "other": "Other",
+      "menu": "Menu"
+    },
+    "categories": "Categories",
+    "search": "Search products...",
+    "enter": "Enter",
+    "cart": "Cart",
+    "dashboard": "Dashboard"
+  },
+  "footer": {
+    "copyright": "© 2024 All rights reserved",
+    "weAccept": "We accept:",
+    "categories": "Categories",
+    "moreCategories": "More Categories",
+    "forClients": "For Clients",
+    "contactInfo": "Contact Information",
+    "links": {
+      "enterShop": "Enter the shop",
+      "about": "About us",
+      "brands": "Brands",
+      "purchaseDelivery": "Purchase and Delivery",
+      "refunding": "Refunding",
+      "contacts": "Contacts"
+    },
+    "categories1": {
+      "electronics": "Electronics",
+      "fashion": "Fashion",
+      "homeGarden": "Home & Garden",
+      "sports": "Sports"
+    },
+    "categories2": {
+      "books": "Books",
+      "healthBeauty": "Health & Beauty",
+      "automotive": "Automotive",
+      "toysGames": "Toys & Games"
+    },
+    "workingHours": {
+      "weekdays": "Mon-Fri: 9AM-6PM",
+      "saturday": "Sat: 9AM-4PM"
+    }
   }
 }

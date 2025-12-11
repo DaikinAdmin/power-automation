@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Transform items to UploadType format
     const exportData: UploadType[] = [];
 
-    items.forEach(item => {
+    items.forEach((item: any) => {
       // Create base item data
       const baseItemData = {
         articleId: item.articleId,
@@ -88,8 +88,8 @@ export async function GET(request: NextRequest) {
       const details = item.itemDetails.length > 0 ? item.itemDetails : [null];
       const prices = item.itemPrice.length > 0 ? item.itemPrice : [null];
 
-      details.forEach(detail => {
-        prices.forEach(price => {
+      details.forEach((detail: any) => {
+        prices.forEach((price: any) => {
           exportData.push({
             ...baseItemData,
             locale: detail?.locale || 'pl',
