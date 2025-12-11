@@ -30,7 +30,6 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-ENV DATABASE_URL="postgresql://powerautomation:aJY1c0TLKzMEA9kjel5wDuHc+mXRN/cNHX9dG7VJYxI=@postgres:5432/powerautomation?schema=public&connection_limit=20&pool_timeout=30&connect_timeout=10&socket_timeout=60"
 
 # Generate Prisma Client for both native and Debian
 RUN npx prisma generate
