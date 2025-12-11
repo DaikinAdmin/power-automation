@@ -1,0 +1,493 @@
+import { pgTable, varchar, timestamp, text, integer, uniqueIndex, doublePrecision, foreignKey, boolean, index, jsonb, serial, primaryKey, pgEnum } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
+
+export const badge = pgEnum("Badge", ['NEW_ARRIVALS', 'BESTSELLER', 'HOT_DEALS', 'LIMITED_EDITION', 'ABSENT'])
+export const cartStatus = pgEnum("CartStatus", ['PENDING', 'CHECKED_OUT', 'COMPLETED'])
+export const currency = pgEnum("Currency", ['EUR', 'UAH', 'PLN'])
+export const orderStatus = pgEnum("OrderStatus", ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUND', 'DELIVERY', 'ASK_FOR_PRICE'])
+export const outOfStockStatus = pgEnum("OutOfStockStatus", ['PENDING', 'PROCESSING', 'FULFILLED', 'CANCELLED'])
+
+
+export const prismaMigrations = pgTable("_prisma_migrations", {
+	id: varchar({ length: 36 }).primaryKey().notNull(),
+	checksum: varchar({ length: 64 }).notNull(),
+	finishedAt: timestamp("finished_at", { withTimezone: true, mode: 'string' }),
+	migrationName: varchar("migration_name", { length: 255 }).notNull(),
+	logs: text(),
+	rolledBackAt: timestamp("rolled_back_at", { withTimezone: true, mode: 'string' }),
+	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
+});
+
+export const verification = pgTable("verification", {
+	id: text().primaryKey().notNull(),
+	identifier: text().notNull(),
+	value: text().notNull(),
+	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }),
+});
+
+export const currencyExchange = pgTable("currency_exchange", {
+	id: text().primaryKey().notNull(),
+	from: currency().notNull(),
+	to: currency().notNull(),
+	rate: doublePrecision().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	uniqueIndex("currency_exchange_from_to_key").using("btree", table.from.asc().nullsLast().op("enum_ops"), table.to.asc().nullsLast().op("enum_ops")),
+]);
+
+export const itemPrice = pgTable("item_price", {
+	id: text().primaryKey().notNull(),
+	warehouseId: text().notNull(),
+	price: doublePrecision().notNull(),
+	quantity: integer().notNull(),
+	promotionPrice: doublePrecision(),
+	promoCode: text(),
+	promoEndDate: timestamp({ precision: 3, mode: 'string' }),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	badge: badge().default('ABSENT'),
+	itemSlug: text().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.warehouseId],
+			foreignColumns: [warehouse.id],
+			name: "item_price_warehouseId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.itemSlug],
+			foreignColumns: [item.articleId],
+			name: "item_price_itemSlug_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const warehouse = pgTable("warehouse", {
+	id: text().primaryKey().notNull(),
+	name: text(),
+	displayedName: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	isVisible: boolean().default(true),
+	countrySlug: text(),
+}, (table) => [
+	foreignKey({
+			columns: [table.countrySlug],
+			foreignColumns: [warehouseCountries.slug],
+			name: "warehouse_countrySlug_fkey"
+		}).onUpdate("cascade").onDelete("set null"),
+]);
+
+export const user = pgTable("user", {
+	id: text().primaryKey().notNull(),
+	name: text().notNull(),
+	email: text().notNull(),
+	emailVerified: boolean().default(false).notNull(),
+	image: text(),
+	phoneNumber: text().default('').notNull(),
+	companyName: text(),
+	companyWebpage: text(),
+	companyRole: text(),
+	countryCode: text(),
+	userAgreement: boolean().default(false).notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	twoFactorEnabled: boolean().default(false).notNull(),
+	username: text(),
+	displayUsername: text(),
+	discountLevel: integer(),
+	role: text().default('user').notNull(),
+	banExpires: timestamp({ precision: 3, mode: 'string' }),
+	banReason: text(),
+	banned: boolean().default(false),
+}, (table) => [
+	uniqueIndex("user_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
+]);
+
+export const session = pgTable("session", {
+	id: text().primaryKey().notNull(),
+	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	token: text().notNull(),
+	ipAddress: text(),
+	userAgent: text(),
+	userId: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	uniqueIndex("session_token_key").using("btree", table.token.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "session_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const account = pgTable("account", {
+	id: text().primaryKey().notNull(),
+	accountId: text().notNull(),
+	providerId: text().notNull(),
+	userId: text().notNull(),
+	accessToken: text(),
+	refreshToken: text(),
+	idToken: text(),
+	expiresAt: timestamp({ precision: 3, mode: 'string' }),
+	password: text(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	accessTokenExpiresAt: timestamp({ precision: 3, mode: 'string' }),
+	refreshTokenExpiresAt: timestamp({ precision: 3, mode: 'string' }),
+	scope: text(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "account_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const twoFactor = pgTable("twoFactor", {
+	id: text().primaryKey().notNull(),
+	secret: text().notNull(),
+	backupCodes: text().notNull(),
+	userId: text().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "twoFactor_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const item = pgTable("item", {
+	id: text().primaryKey().notNull(),
+	articleId: text().notNull(),
+	isDisplayed: boolean().default(false).notNull(),
+	sellCounter: integer().default(0),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	warrantyLength: integer(),
+	warrantyType: text(),
+	brandSlug: text(),
+	categorySlug: text().notNull(),
+	itemImageLink: text().array(),
+}, (table) => [
+	foreignKey({
+			columns: [table.brandSlug],
+			foreignColumns: [brand.alias],
+			name: "item_brandSlug_fkey"
+		}).onUpdate("cascade").onDelete("set null"),
+]);
+
+export const category = pgTable("category", {
+	id: text().primaryKey().notNull(),
+	name: text().notNull(),
+	slug: text().notNull(),
+	isVisible: boolean().default(true),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	uniqueIndex("category_slug_key").using("btree", table.slug.asc().nullsLast().op("text_ops")),
+]);
+
+export const subcategories = pgTable("subcategories", {
+	id: text().primaryKey().notNull(),
+	name: text().notNull(),
+	slug: text().notNull(),
+	categorySlug: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	isVisible: boolean().default(true),
+}, (table) => [
+	uniqueIndex("subcategories_slug_key").using("btree", table.slug.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.categorySlug],
+			foreignColumns: [category.id],
+			name: "subcategories_categorySlug_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const cart = pgTable("cart", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	totalPrice: doublePrecision().notNull(),
+	currency: text().notNull(),
+	status: cartStatus().default('PENDING').notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "cart_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const itemOpinion = pgTable("item_opinion", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	itemId: text().notNull(),
+	rating: integer().notNull(),
+	comment: text(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "item_opinion_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.itemId],
+			foreignColumns: [item.id],
+			name: "item_opinion_itemId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const messages = pgTable("messages", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	orderId: text().notNull(),
+	content: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "messages_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.orderId],
+			foreignColumns: [order.id],
+			name: "messages_orderId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const outOfStockRequest = pgTable("out_of_stock_request", {
+	id: text().primaryKey().notNull(),
+	itemId: text().notNull(),
+	warehouseId: text().notNull(),
+	userEmail: text().notNull(),
+	userName: text(),
+	message: text().notNull(),
+	status: outOfStockStatus().default('PENDING').notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.itemId],
+			foreignColumns: [item.id],
+			name: "out_of_stock_request_itemId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.warehouseId],
+			foreignColumns: [warehouse.id],
+			name: "out_of_stock_request_warehouseId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const discountLevel = pgTable("discount_level", {
+	id: text().primaryKey().notNull(),
+	level: integer().notNull(),
+	discountPercentage: doublePrecision().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+});
+
+export const itemDetails = pgTable("item_details", {
+	id: text().primaryKey().notNull(),
+	locale: text().default('pl').notNull(),
+	description: text().notNull(),
+	specifications: text(),
+	itemName: text().notNull(),
+	seller: text(),
+	discount: doublePrecision(),
+	popularity: integer(),
+	metaDescription: text(),
+	metaKeyWords: text(),
+	itemSlug: text().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.itemSlug],
+			foreignColumns: [item.articleId],
+			name: "item_details_itemSlug_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const brand = pgTable("brand", {
+	id: text().primaryKey().notNull(),
+	name: text().notNull(),
+	alias: text().notNull(),
+	imageLink: text().notNull(),
+	isVisible: boolean().default(true).notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+});
+
+export const itemPriceHistory = pgTable("item_price_history", {
+	id: text().primaryKey().notNull(),
+	itemId: text().notNull(),
+	warehouseId: text().notNull(),
+	price: doublePrecision().notNull(),
+	quantity: integer().notNull(),
+	promotionPrice: doublePrecision(),
+	promoCode: text(),
+	promoEndDate: timestamp({ precision: 3, mode: 'string' }),
+	badge: badge().default('ABSENT'),
+	recordedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	index("item_price_history_itemId_warehouseId_recordedAt_idx").using("btree", table.itemId.asc().nullsLast().op("timestamp_ops"), table.warehouseId.asc().nullsLast().op("text_ops"), table.recordedAt.asc().nullsLast().op("timestamp_ops")),
+	foreignKey({
+			columns: [table.itemId],
+			foreignColumns: [item.id],
+			name: "item_price_history_itemId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.warehouseId],
+			foreignColumns: [warehouse.id],
+			name: "item_price_history_warehouseId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const order = pgTable("order", {
+	id: text().primaryKey().notNull(),
+	userId: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	totalPrice: text().notNull(),
+	status: orderStatus().default('NEW').notNull(),
+	deliveryId: text(),
+	originalTotalPrice: doublePrecision().notNull(),
+	lineItems: jsonb(),
+	comment: text(),
+}, (table) => [
+	foreignKey({
+			columns: [table.userId],
+			foreignColumns: [user.id],
+			name: "order_userId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const linkedItems = pgTable("linked_items", {
+	id: text().primaryKey().notNull(),
+	itemSlug: text().notNull(),
+	linkedItemSlug: text().array(),
+	linkedCaregorySlug: text().array(),
+}, (table) => [
+	foreignKey({
+			columns: [table.itemSlug],
+			foreignColumns: [item.articleId],
+			name: "linked_items_itemSlug_fkey"
+		}).onUpdate("cascade").onDelete("restrict"),
+]);
+
+export const categoryTranslation = pgTable("category_translation", {
+	id: text().primaryKey().notNull(),
+	categorySlug: text().notNull(),
+	locale: text().notNull(),
+	name: text().notNull(),
+}, (table) => [
+	uniqueIndex("category_translation_categorySlug_locale_key").using("btree", table.categorySlug.asc().nullsLast().op("text_ops"), table.locale.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.categorySlug],
+			foreignColumns: [category.id],
+			name: "category_translation_categorySlug_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const subcategoryTranslation = pgTable("subcategory_translation", {
+	id: text().primaryKey().notNull(),
+	subCategorySlug: text().notNull(),
+	locale: text().notNull(),
+	name: text().notNull(),
+}, (table) => [
+	uniqueIndex("subcategory_translation_subCategorySlug_locale_key").using("btree", table.subCategorySlug.asc().nullsLast().op("text_ops"), table.locale.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.subCategorySlug],
+			foreignColumns: [subcategories.id],
+			name: "subcategory_translation_subCategorySlug_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const warehouseCountries = pgTable("warehouse_countries", {
+	id: serial().primaryKey().notNull(),
+	slug: text().notNull(),
+	countryCode: text().notNull(),
+	phoneCode: text(),
+	name: text().notNull(),
+	isActive: boolean().default(true).notNull(),
+});
+
+export const itemToOrder = pgTable("_ItemToOrder", {
+	a: text("A").notNull(),
+	b: text("B").notNull(),
+}, (table) => [
+	index().using("btree", table.b.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.a],
+			foreignColumns: [item.id],
+			name: "_ItemToOrder_A_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.b],
+			foreignColumns: [order.id],
+			name: "_ItemToOrder_B_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	primaryKey({ columns: [table.a, table.b], name: "_ItemToOrder_AB_pkey"}),
+]);
+
+export const cartToItem = pgTable("_CartToItem", {
+	a: text("A").notNull(),
+	b: text("B").notNull(),
+}, (table) => [
+	index().using("btree", table.b.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.a],
+			foreignColumns: [cart.id],
+			name: "_CartToItem_A_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.b],
+			foreignColumns: [item.id],
+			name: "_CartToItem_B_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	primaryKey({ columns: [table.a, table.b], name: "_CartToItem_AB_pkey"}),
+]);
+
+export const discountLevelToUser = pgTable("_DiscountLevelToUser", {
+	a: text("A").notNull(),
+	b: text("B").notNull(),
+}, (table) => [
+	index().using("btree", table.b.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.a],
+			foreignColumns: [discountLevel.id],
+			name: "_DiscountLevelToUser_A_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.b],
+			foreignColumns: [user.id],
+			name: "_DiscountLevelToUser_B_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	primaryKey({ columns: [table.a, table.b], name: "_DiscountLevelToUser_AB_pkey"}),
+]);
+
+export const itemPriceToItemPriceHistory = pgTable("_ItemPriceToItemPriceHistory", {
+	a: text("A").notNull(),
+	b: text("B").notNull(),
+}, (table) => [
+	index().using("btree", table.b.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.a],
+			foreignColumns: [itemPrice.id],
+			name: "_ItemPriceToItemPriceHistory_A_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.b],
+			foreignColumns: [itemPriceHistory.id],
+			name: "_ItemPriceToItemPriceHistory_B_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	primaryKey({ columns: [table.a, table.b], name: "_ItemPriceToItemPriceHistory_AB_pkey"}),
+]);
