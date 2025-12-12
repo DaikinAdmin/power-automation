@@ -7,17 +7,16 @@ export const currency = pgEnum("Currency", ['EUR', 'UAH', 'PLN'])
 export const orderStatus = pgEnum("OrderStatus", ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUND', 'DELIVERY', 'ASK_FOR_PRICE'])
 export const outOfStockStatus = pgEnum("OutOfStockStatus", ['PENDING', 'PROCESSING', 'FULFILLED', 'CANCELLED'])
 
-
-export const prismaMigrations = pgTable("_prisma_migrations", {
-	id: varchar({ length: 36 }).primaryKey().notNull(),
-	checksum: varchar({ length: 64 }).notNull(),
-	finishedAt: timestamp("finished_at", { withTimezone: true, mode: 'string' }),
-	migrationName: varchar("migration_name", { length: 255 }).notNull(),
-	logs: text(),
-	rolledBackAt: timestamp("rolled_back_at", { withTimezone: true, mode: 'string' }),
-	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
-});
+// export const prismaMigrations = pgTable("_prisma_migrations", {
+// 	id: varchar({ length: 36 }).primaryKey().notNull(),
+// 	checksum: varchar({ length: 64 }).notNull(),
+// 	finishedAt: timestamp("finished_at", { withTimezone: true, mode: 'string' }),
+// 	migrationName: varchar("migration_name", { length: 255 }).notNull(),
+// 	logs: text(),
+// 	rolledBackAt: timestamp("rolled_back_at", { withTimezone: true, mode: 'string' }),
+// 	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+// 	appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
+// });
 
 export const verification = pgTable("verification", {
 	id: text().primaryKey().notNull(),
@@ -163,6 +162,7 @@ export const twoFactor = pgTable("twoFactor", {
 export const item = pgTable("item", {
 	id: text().primaryKey().notNull(),
 	articleId: text().notNull(),
+	slug: text().notNull().unique(),
 	isDisplayed: boolean().default(false).notNull(),
 	sellCounter: integer().default(0),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -170,6 +170,7 @@ export const item = pgTable("item", {
 	warrantyLength: integer(),
 	warrantyType: text(),
 	brandSlug: text(),
+	// categorySlug can reference either subcategories.slug (if item has subcategory) or category.slug (if not)
 	categorySlug: text().notNull(),
 	itemImageLink: text().array(),
 }, (table) => [
@@ -203,7 +204,7 @@ export const subcategories = pgTable("subcategories", {
 	uniqueIndex("subcategories_slug_key").using("btree", table.slug.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.categorySlug],
-			foreignColumns: [category.id],
+			foreignColumns: [category.slug],
 			name: "subcategories_categorySlug_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
 ]);
@@ -392,7 +393,7 @@ export const categoryTranslation = pgTable("category_translation", {
 	uniqueIndex("category_translation_categorySlug_locale_key").using("btree", table.categorySlug.asc().nullsLast().op("text_ops"), table.locale.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.categorySlug],
-			foreignColumns: [category.id],
+			foreignColumns: [category.slug],
 			name: "category_translation_categorySlug_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
 ]);
@@ -406,7 +407,7 @@ export const subcategoryTranslation = pgTable("subcategory_translation", {
 	uniqueIndex("subcategory_translation_subCategorySlug_locale_key").using("btree", table.subCategorySlug.asc().nullsLast().op("text_ops"), table.locale.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.subCategorySlug],
-			foreignColumns: [subcategories.id],
+			foreignColumns: [subcategories.slug],
 			name: "subcategory_translation_subCategorySlug_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
 ]);
