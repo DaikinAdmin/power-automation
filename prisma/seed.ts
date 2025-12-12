@@ -1,12 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Badge, Currency } from '@prisma/client';
 
-// Modify connection string to disable SSL certificate validation for seeding
+// Modify connection string to disable SSL for seeding (local dev)
 const getConnectionString = () => {
   if (!process.env.DATABASE_URL) return undefined;
   
   const url = new URL(process.env.DATABASE_URL);
-  url.searchParams.set('sslmode', 'no-verify');
+  url.searchParams.set('sslmode', 'disable');
   return url.toString();
 };
 
