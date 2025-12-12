@@ -1,6 +1,17 @@
-'use client';
+"use client";
 import { useState, useEffect, useCallback } from "react";
-import { User, ChevronDown, Settings as SettingsIcon, LogOut, Search, Menu, GitCompare, Heart, ShoppingCart, LayoutGrid, X } from "lucide-react";
+import {
+  ChevronDown,
+  Settings as SettingsIcon,
+  LogOut,
+  Search,
+  GitCompare,
+  LayoutGrid,
+  X,
+} from "lucide-react";
+import { BiSolidCategory } from "react-icons/bi";
+import { FaCircleUser, FaHeart } from "react-icons/fa6";
+import { MdShoppingCart } from "react-icons/md";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
@@ -11,12 +22,13 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from 'next-intl';
 
 export default function SecondaryHeader() {
-  const t = useTranslations('header');
+  const t = useTranslations("header");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
   const session = authClient.useSession();
   const router = useRouter();
@@ -30,7 +42,7 @@ export default function SecondaryHeader() {
         const fetchedCategories = await response.json() as Category[];
         setCategories(fetchedCategories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       }
     };
 
@@ -55,81 +67,129 @@ export default function SecondaryHeader() {
 
   const clearSearch = () => {
     setSearchQuery("");
-    router.push('/categories');
+    router.push("/categories");
   };
 
   return (
-    <div style={{ backgroundColor: '#404040' }}>
-      <div className="px-4">
+    <div className="bg-[#404040]">
+      <div className="max-w-[90rem] mx-auto">
         <div className="flex items-center justify-between gap-4">
+          {/* Category Dropdown */}
           <div className="relative">
             <button
               onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
               onMouseEnter={() => setIsCategoriesOpen(true)}
               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 hover:bg-red-700 transition-colors h-max"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid-icon lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
-              <span className="hidden sm:inline font-bold">{t('categories')}</span>
-              <ChevronDown size={16} className={`transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+              <BiSolidCategory size={25} />
+              <span className="hidden sm:inline font-bold">
+                {t("categories")}
+              </span>
+              <ChevronDown
+                size={16}
+                className={`transition-transform ${
+                  isCategoriesOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
             {isCategoriesOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setIsCategoriesOpen(false)} />
                 <div
-                  className="absolute top-full left-0 mt-1 w-80 bg-white rounded-lg shadow-lg border z-20"
-                  onMouseLeave={() => { setIsCategoriesOpen(false); setHoveredCategory(null); }}
+                  className="fixed inset-0 z-10"
+                  onClick={() => {
+                    setIsCategoriesOpen(false);
+                    setHoveredCategory(null);
+                  }}
+                />
+
+                {/* Category Dropdown */}
+                <div
+                  className="absolute top-full left-0 bg-white rounded-lg shadow-lg border z-20"
+                  onMouseLeave={() => setHoveredCategory(null)}
+                  style={{
+                    width: hoveredCategory ? "500px" : "240px", // x width when subcategory
+                  }}
                 >
-                  <div className="py-2 flex">
+                  <div className="flex py-2">
+                    {/* category column */}
                     <div className="flex-1 border-r">
-                      {categories.map((category) => (
-                        <Link
-                          key={category.id}
-                          href={`/category/${category.slug}`}
-                          className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer transition-colors"
-                          onMouseEnter={() => setHoveredCategory(category.id)}
-                          onClick={() => setIsCategoriesOpen(false)}
-                        >
-                          <span className="font-medium">{category.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                    {hoveredCategory && (
-                      <div className="flex-1 px-4 py-2">
-                        <div className="text-sm font-semibold text-gray-600 mb-2">
-                          {categories.find(cat => cat.id === hoveredCategory)?.name}
-                        </div>
-                        {categories.find(cat => cat.id === hoveredCategory)?.subCategories?.map((subcategory: { name: string }, index: number) => (
-                          <div
-                            key={index}
-                            className="py-1 text-sm text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
+                      {categories.map((category) => {
+                        const isHovered = hoveredCategory === category.id;
+                        return (
+                          <Link
+                            key={category.id}
+                            href={`/category/${category.slug}`}
+                            className={`block px-4 py-2 cursor-pointer transition-colors ${
+                              isHovered
+                                ? "bg-gray-100"
+                                : "text-gray-800 hover:bg-gray-100"
+                            }`}
+                            onMouseEnter={() => setHoveredCategory(category.id)}
                             onClick={() => setIsCategoriesOpen(false)}
                           >
-                            {subcategory.name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                            <span className="text-dropdown-item">
+                              {category.name}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+
+                    {/* subcategory column */}
+                    {hoveredCategory &&
+                      categories.find((cat) => cat.id === hoveredCategory)
+                        ?.subCategories?.length > 0 && (
+                        <div className="flex-1 px-4 py-2">
+                          {categories
+                            .find((cat) => cat.id === hoveredCategory)
+                            ?.subCategories?.map(
+                              (
+                                subcategory: { name: string },
+                                index: number
+                              ) => (
+                                <div
+                                  key={index}
+                                  className="py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
+                                  onClick={() => setIsCategoriesOpen(false)}
+                                >
+                                  {subcategory.name}
+                                </div>
+                              )
+                            )}
+                        </div>
+                      )}
                   </div>
                 </div>
               </>
             )}
           </div>
 
-          <div className="flex-1 max-w-2xl">
-            <div className="relative">
+          {/* Search Input */}
+          <div className="flex-1 flex justify-start">
+            <div className="relative w-48 sm:w-64">
               <input
                 type="text"
-                placeholder={t('search')}
+                placeholder={t("search")}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="w-full pl-10 pr-10 py-0.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                className={`w-full py-[6px] pr-10 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm
+        transition-all duration-300
+        ${isFocused ? "pl-2" : "pl-10"}
+      `}
               />
-              <Search className="absolute left-3 top-0.5 text-gray-400" size={20} />
+              <Search
+                size={20}
+                className={`absolute top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300
+        ${isFocused ? "right-3 left-auto" : "left-3 right-auto"}
+      `}
+              />
               {searchQuery && (
                 <button
                   onClick={clearSearch}
-                  className="absolute right-3 top-0.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -137,45 +197,54 @@ export default function SecondaryHeader() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-500 rounded-lg transition-colors text-white">
+          {/*  */}
+          <div className="flex items-center gap-1">
+            <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
               <GitCompare size={20} />
             </button>
-            <button className="p-2 hover:bg-gray-500 rounded-lg transition-colors text-white">
-              <Heart size={20} />
+            <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
+              <FaHeart size={20} />
             </button>
 
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-500 rounded-lg transition-colors text-white"
+                className="flex items-center gap-2 p-2 hover:text-opacity-60 rounded-lg transition-colors text-white"
               >
-                <User size={20} />
-                <span className="text-sm">{t('enter')}</span>
-                <ChevronDown size={12} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <FaCircleUser size={20} />
+                <span className="text-sm">{t("enter")}</span>
+                <ChevronDown
+                  size={12}
+                  className={`transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
               {isDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-20">
                     <div className="py-2">
                       {session.data?.user && (
                         <>
                           <Link
                             href="/dashboard"
-                            className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors"
                             onClick={() => setIsDropdownOpen(false)}
                           >
                             <LayoutGrid size={16} />
-                            <span>{t('dashboard')}</span>
+                            <span>{t("dashboard")}</span>
                           </Link>
-                          <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors">
                             <SettingsIcon size={16} />
                             <Settings />
                           </div>
                         </>
                       )}
-                      <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors">
                         <LogOut size={16} />
                         <SignOut />
                       </div>
@@ -187,17 +256,17 @@ export default function SecondaryHeader() {
 
             <button
               onClick={() => setIsCartModalOpen(true)}
-              className="flex items-center gap-2 p-2 hover:bg-gray-500 rounded-lg transition-colors text-white"
+              className="flex items-center gap-2 p-2 hover:text-opacity-60 rounded-lg transition-colors text-white"
             >
               <div className="relative">
-                <ShoppingCart size={20} />
+                <MdShoppingCart size={20} />
                 {getTotalCartItems() > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {getTotalCartItems()}
                   </span>
                 )}
               </div>
-              <span className="text-sm">{t('cart')}</span>
+              <span className="text-sm">{t("cart")}</span>
             </button>
           </div>
         </div>
@@ -207,7 +276,10 @@ export default function SecondaryHeader() {
 }
 
 // Debounce utility function
-function debounce<T extends (...args: any[]) => void>(func: T, delay: number): T {
+function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): T {
   let timeoutId: NodeJS.Timeout;
   return ((...args: any[]) => {
     clearTimeout(timeoutId);

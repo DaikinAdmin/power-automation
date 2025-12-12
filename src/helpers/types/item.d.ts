@@ -1,14 +1,4 @@
-import {
-  Category as CategoryType,
-  ItemDetails as PrismaItemDetails,
-  ItemPrice as ItemPriceType,
-  Item as ItemType,
-  SubCategories,
-  Warehouse,
-  Brand,
-  ItemPriceHistory as PrismaItemPriceHistory,
-  CategoryTranslation,
-} from '@prisma/client';
+
 
 export type ItemPrice = ItemPriceType & {
   warehouse: Warehouse;

@@ -14,8 +14,8 @@ export default function Footer() {
   const t = useTranslations('footer');
   
   return (
-    <footer style={{ backgroundColor: '#404040' }} className="text-white py-12 mt-16">
-      <div className="container mx-auto px-4">
+    <footer style={{ backgroundColor: '#404040' }} className="text-white py-12">
+      <div className="max-w-[90rem] mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Column 1: Logo & Company Info */}
           <div>

@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
