@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import db from '@/db';
+// import db from '@/db';
+import { db } from '@/db';
+import { eq, asc, sql } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
+import { randomUUID } from 'crypto';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +18,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Drizzle implementation
+    const discountLevelsData = await db
+      .select({
+        id: schema.discountLevel.id,
+        level: schema.discountLevel.level,
+        discountPercentage: schema.discountLevel.discountPercentage,
+        createdAt: schema.discountLevel.createdAt,
+        updatedAt: schema.discountLevel.updatedAt,
+        userCount: sql<number>`cast(count(${schema.user.id}) as integer)`,
+      })
+      .from(schema.discountLevel)
+      .leftJoin(schema.user, eq(schema.user.discountLevel, schema.discountLevel.id))
+      .groupBy(schema.discountLevel.id)
+      .orderBy(asc(schema.discountLevel.level));
+
+    const discountLevels = discountLevelsData.map((dl) => ({
+      ...dl,
+      _count: { users: dl.userCount },
+      userCount: undefined,
+    }));
+
+    /* Prisma implementation (commented out)
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
@@ -35,6 +66,7 @@ export async function GET(request: NextRequest) {
         level: 'asc'
       }
     });
+    */
 
     return NextResponse.json(discountLevels);
   } catch (error: any) {
@@ -56,13 +88,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true }
-    });
-
-    if (user?.role !== 'admin') {
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -84,6 +111,46 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if level already exists
+    const [existingLevel] = await db
+      .select()
+      .from(schema.discountLevel)
+      .where(eq(schema.discountLevel.level, parseInt(level)))
+      .limit(1);
+
+    if (existingLevel) {
+      return NextResponse.json(
+        { error: 'A discount level with this number already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Create discount level
+    const [discountLevel] = await db
+      .insert(schema.discountLevel)
+      .values({
+        id: randomUUID(),
+        level: parseInt(level),
+        discountPercentage: parseFloat(discountPercentage),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      .returning();
+
+    const levelWithCount = {
+      ...discountLevel,
+      _count: { users: 0 },
+    };
+
+    /* Prisma implementation (commented out)
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const existingLevel = await db.discountLevel.findFirst({
       where: { level: parseInt(level) }
     });
@@ -108,8 +175,9 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+    */
 
-    return NextResponse.json(discountLevel);
+    return NextResponse.json(levelWithCount);
   } catch (error: any) {
     console.error('Error creating discount level:', error);
     return NextResponse.json(

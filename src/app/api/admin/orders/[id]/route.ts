@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { OrderStatus, Prisma } from '@prisma/client';
 
-import prisma from '@/db';
+// import prisma from '@/db';
+import { db } from '@/db';
 import { auth } from '@/lib/auth';
+import { eq, inArray } from 'drizzle-orm';
+import * as schema from '@/db/schema';
 
 const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
 
@@ -41,10 +44,11 @@ async function ensureAuthorized() {
     return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const [user] = await db
+    .select({ role: schema.user.role })
+    .from(schema.user)
+    .where(eq(schema.user.id, session.user.id))
+    .limit(1);
 
   if (!user || !AUTHORIZED_ROLES.has(user.role)) {
     return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
@@ -81,6 +85,89 @@ export async function GET(
 
     const { id } = await params;
 
+    // Drizzle implementation
+    const [orderData] = await db
+      .select({
+        id: schema.order.id,
+        status: schema.order.status,
+        totalPrice: schema.order.totalPrice,
+        originalTotalPrice: schema.order.originalTotalPrice,
+        lineItems: schema.order.lineItems,
+        createdAt: schema.order.createdAt,
+        comment: schema.order.comment,
+        deliveryId: schema.order.deliveryId,
+        updatedAt: schema.order.updatedAt,
+        itemIds: schema.order.itemIds,
+        userName: schema.user.name,
+        userPhoneNumber: schema.user.phoneNumber,
+        userCountryCode: schema.user.countryCode,
+        userEmail: schema.user.email,
+      })
+      .from(schema.order)
+      .leftJoin(schema.user, eq(schema.order.userId, schema.user.id))
+      .where(eq(schema.order.id, id))
+      .limit(1);
+
+    if (!orderData) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    // Fetch items with details
+    let items: any[] = [];
+    if (orderData.itemIds && orderData.itemIds.length > 0) {
+      const itemsData = await db
+        .select()
+        .from(schema.item)
+        .where(inArray(schema.item.id, orderData.itemIds));
+
+      items = await Promise.all(
+        itemsData.map(async (item) => {
+          const [itemDetail] = await db
+            .select({ itemName: schema.itemDetails.itemName })
+            .from(schema.itemDetails)
+            .where(eq(schema.itemDetails.itemSlug, item.articleId))
+            .limit(1);
+
+          const [priceData] = await db
+            .select({
+              id: schema.itemPrice.id,
+              price: schema.itemPrice.price,
+              warehouse: schema.warehouse,
+            })
+            .from(schema.itemPrice)
+            .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+            .where(eq(schema.itemPrice.itemSlug, item.articleId))
+            .limit(1);
+
+          return {
+            id: item.id,
+            itemDetails: itemDetail ? [itemDetail] : [],
+            itemPrice: priceData ? [priceData] : [],
+          };
+        })
+      );
+    }
+
+    const order = {
+      id: orderData.id,
+      status: orderData.status,
+      totalPrice: orderData.totalPrice,
+      originalTotalPrice: orderData.originalTotalPrice,
+      lineItems: orderData.lineItems,
+      createdAt: orderData.createdAt,
+      comment: orderData.comment,
+      deliveryId: orderData.deliveryId,
+      updatedAt: orderData.updatedAt,
+      user: {
+        name: orderData.userName,
+        phoneNumber: orderData.userPhoneNumber,
+        countryCode: orderData.userCountryCode,
+        email: orderData.userEmail,
+      },
+      items,
+    };
+
+    /* Prisma implementation (commented out)
     const order = await prisma.order.findUnique({
       where: { id },
       select: {
@@ -122,6 +209,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
+    */
 
     return NextResponse.json({
       order: mapOrder(order),
@@ -155,6 +243,83 @@ export async function PATCH(
       return NextResponse.json({ error: 'Delivery ID is required when status is DELIVERY' }, { status: 400 });
     }
 
+    const updateData: any = { 
+      status,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (status === 'DELIVERY') {
+      updateData.deliveryId = deliveryId?.trim() ?? null;
+    } else if (deliveryId !== undefined) {
+      updateData.deliveryId = deliveryId ? deliveryId.trim() : null;
+    }
+
+    // Drizzle implementation
+    const [updatedOrderData] = await db
+      .update(schema.order)
+      .set(updateData)
+      .where(eq(schema.order.id, id))
+      .returning();
+
+    if (!updatedOrderData) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    // Fetch user data
+    const [userData] = await db
+      .select({
+        id: schema.user.id,
+        name: schema.user.name,
+        email: schema.user.email,
+      })
+      .from(schema.user)
+      .where(eq(schema.user.id, updatedOrderData.userId))
+      .limit(1);
+
+    // Fetch items with details
+    let items: any[] = [];
+    if (updatedOrderData.itemIds && updatedOrderData.itemIds.length > 0) {
+      const itemsData = await db
+        .select()
+        .from(schema.item)
+        .where(inArray(schema.item.id, updatedOrderData.itemIds));
+
+      items = await Promise.all(
+        itemsData.map(async (item) => {
+          const [itemDetail] = await db
+            .select({ itemName: schema.itemDetails.itemName })
+            .from(schema.itemDetails)
+            .where(eq(schema.itemDetails.itemSlug, item.articleId))
+            .limit(1);
+
+          const [priceData] = await db
+            .select({
+              id: schema.itemPrice.id,
+              price: schema.itemPrice.price,
+              warehouse: schema.warehouse,
+            })
+            .from(schema.itemPrice)
+            .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+            .where(eq(schema.itemPrice.itemSlug, item.articleId))
+            .limit(1);
+
+          return {
+            id: item.id,
+            articleId: item.articleId,
+            itemDetails: itemDetail ? [itemDetail] : [],
+            itemPrice: priceData ? [priceData] : [],
+          };
+        })
+      );
+    }
+
+    const updatedOrder = {
+      ...updatedOrderData,
+      user: userData,
+      items,
+    };
+
+    /* Prisma implementation (commented out)
     const updateData: Record<string, unknown> = { status };
 
     if (status === 'DELIVERY') {
@@ -192,6 +357,7 @@ export async function PATCH(
         },
       },
     });
+    */
 
     return NextResponse.json({
       order: mapOrder(updatedOrder),

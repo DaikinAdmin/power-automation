@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import prisma from '@/db';
+// import prisma from '@/db';
+import { db } from '@/db';
+import { eq, sql } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
 
 const ONE_DAY_CACHE_HEADER = 'public, max-age=0, s-maxage=86400, stale-while-revalidate=600';
 
@@ -19,6 +23,34 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Drizzle implementation
+    const [brand] = await db
+      .select()
+      .from(schema.brand)
+      .where(eq(schema.brand.id, brandId))
+      .limit(1);
+
+    if (!brand) {
+      return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
+    }
+
+    // Get item count
+    const [itemCount] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(schema.item)
+      .where(eq(schema.item.brandSlug, brand.alias));
+
+    const brandWithCount = {
+      ...brand,
+      _count: { items: itemCount?.count || 0 },
+    };
+
+    /* Prisma implementation (commented out)
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
@@ -40,8 +72,9 @@ export async function GET(
     if (!brand) {
       return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
     }
+    */
 
-    const response = NextResponse.json(brand);
+    const response = NextResponse.json(brandWithCount);
     response.headers.set('Cache-Control', ONE_DAY_CACHE_HEADER);
     return response;
   } catch (error) {
@@ -64,12 +97,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role !== 'admin') {
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -78,6 +107,45 @@ export async function PUT(
 
     if (!name || !alias || !imageLink) {
       return NextResponse.json({ error: 'Name, alias, and imageLink are required' }, { status: 400 });
+    }
+
+    // Check if alias exists for different brand
+    const [existingAlias] = await db
+      .select()
+      .from(schema.brand)
+      .where(eq(schema.brand.alias, alias))
+      .limit(1);
+
+    if (existingAlias && existingAlias.id !== brandId) {
+      return NextResponse.json({ error: 'Brand with this alias already exists' }, { status: 400 });
+    }
+
+    // Update brand
+    const [brand] = await db
+      .update(schema.brand)
+      .set({
+        name,
+        alias,
+        imageLink,
+        isVisible: isVisible ?? true,
+        createdAt: createdAt || undefined,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.brand.id, brandId))
+      .returning();
+
+    if (!brand) {
+      return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
+    }
+
+    /* Prisma implementation (commented out)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    if (user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const existingAlias = await prisma.brand.findFirst({
@@ -101,6 +169,7 @@ export async function PUT(
         createdAt: createdAt ? new Date(createdAt) : undefined,
       },
     });
+    */
 
     return NextResponse.json(brand);
   } catch (error: any) {
@@ -126,6 +195,39 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Check if brand exists and get its alias
+    const [brand] = await db
+      .select()
+      .from(schema.brand)
+      .where(eq(schema.brand.id, brandId))
+      .limit(1);
+
+    if (!brand) {
+      return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
+    }
+
+    // Check for associated items
+    const [itemCount] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(schema.item)
+      .where(eq(schema.item.brandSlug, brand.alias));
+
+    if (itemCount && itemCount.count > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete brand with associated items' },
+        { status: 400 }
+      );
+    }
+
+    // Delete brand
+    await db.delete(schema.brand).where(eq(schema.brand.id, brandId));
+
+    /* Prisma implementation (commented out)
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
@@ -156,6 +258,7 @@ export async function DELETE(
     }
 
     await prisma.brand.delete({ where: { id: brandId } });
+    */
 
     return NextResponse.json({ message: 'Brand deleted successfully' });
   } catch (error: any) {

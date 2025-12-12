@@ -1,7 +1,104 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/db';
+// import prisma from '@/db';
+import { getItemByArticleId } from '@/helpers/db/queries';
+import type { ItemResponse } from '@/helpers/types/api-responses';
 
 export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ locale: string; slug: string }> }
+) {
+  try {
+    const { locale, slug } = await params;
+
+    // Validate locale parameter
+    const validLocales = ['pl', 'en', 'ua', 'es'];
+    if (!validLocales.includes(locale)) {
+      return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
+    }
+
+    // Drizzle implementation
+    const itemData: ItemResponse | null = await getItemByArticleId(slug, locale.toLowerCase());
+
+    if (!itemData) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
+    // Get the first recommended warehouse that has stock
+    const recommendedPrice = itemData.prices.find((p) => p.quantity > 0) || itemData.prices[0];
+
+    const formattedRecommended = recommendedPrice
+      ? {
+          warehouse: {
+            slug: recommendedPrice.warehouseSlug,
+            name: recommendedPrice.warehouse.name,
+            country: recommendedPrice.warehouse.country?.name || '',
+            displayedName: recommendedPrice.warehouse.displayedName,
+          },
+          price: recommendedPrice.price,
+          promotionPrice: recommendedPrice.promotionPrice,
+          quantity: recommendedPrice.quantity,
+          badge: recommendedPrice.badge || null,
+        }
+      : undefined;
+
+    // Format item data for the frontend
+    const formattedItem = {
+      id: itemData.articleId, // Keep for backwards compatibility
+      articleId: itemData.articleId,
+      itemImageLink: itemData.itemImageLink,
+      isDisplayed: itemData.isDisplayed,
+      sellCounter: itemData.sellCounter,
+      createdAt: itemData.createdAt,
+      updatedAt: itemData.updatedAt,
+
+      // Format warehouses for display
+      prices: itemData.prices.map((price) => ({
+        warehouseSlug: price.warehouseSlug,
+        warehouseName: price.warehouse.name || '',
+        warehouseCountry: price.warehouse.country?.name || '',
+        displayedName: price.warehouse.displayedName,
+        price: `${price.price} €`,
+        specialPrice: price.promotionPrice ? `${price.promotionPrice} €` : null,
+        originalPrice: `${price.price} €`,
+        inStock: price.quantity > 0,
+        quantity: price.quantity,
+        badge: price.badge || null,
+        promoEndDate: price.promoEndDate,
+        promoCode: price.promoCode || null,
+      })),
+
+      // Product details
+      name: itemData.details.itemName,
+      brandName: itemData.brand?.name || null,
+      brandImage: itemData.brand?.imageLink || null,
+      brandSlug: itemData.brandSlug,
+      description: itemData.details.description || '',
+      specifications: itemData.details.specifications || '',
+      seller: itemData.details.seller || '',
+      discount: itemData.details.discount || 0,
+      popularity: itemData.details.popularity || 0,
+      badge: formattedRecommended?.badge || null,
+      warrantyMonths: itemData.warrantyLength || 0,
+      warrantyType: itemData.warrantyType || null,
+
+      // Category information
+      categoryName: itemData.category.name,
+      categorySlug: itemData.category.slug,
+      subcategory: itemData.category.subCategories,
+
+      // Include the recommended warehouse
+      recommendedWarehouse: formattedRecommended,
+    };
+
+    return NextResponse.json(formattedItem);
+  } catch (error) {
+    console.error('Error fetching item:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/* Prisma implementation (commented out)
+export async function GET_PRISMA(
   request: NextRequest,
   { params }: { params: Promise<{ locale: string; slug: string }> }
 ) {
@@ -191,3 +288,4 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+*/

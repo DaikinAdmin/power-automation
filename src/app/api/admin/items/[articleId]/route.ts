@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/db';
+// import db from '@/db';
+import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { Badge } from '@prisma/client';
 import { Item } from '@/helpers/types/item';
+import { eq, asc } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function GET(
     request: NextRequest,
@@ -20,6 +24,100 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // Drizzle implementation with new category/subcategory logic
+        const [item] = await db
+            .select()
+            .from(schema.item)
+            .where(eq(schema.item.articleId, articleId))
+            .limit(1);
+
+        if (!item) {
+            return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+        }
+
+        let category = null;
+        let subCategory = null;
+
+        // Check if categorySlug is a category or subcategory
+        if (item.categorySlug) {
+            // First, try to find in categories
+            const [foundCategory] = await db
+                .select()
+                .from(schema.category)
+                .where(eq(schema.category.slug, item.categorySlug))
+                .limit(1);
+
+            if (foundCategory) {
+                // It's a category - fetch subcategories
+                const subCategories = await db
+                    .select()
+                    .from(schema.subcategories)
+                    .where(eq(schema.subcategories.categorySlug, foundCategory.slug));
+                category = { ...foundCategory, subCategories };
+            } else {
+                // Try to find in subcategories
+                const [foundSubCategory] = await db
+                    .select()
+                    .from(schema.subcategories)
+                    .where(eq(schema.subcategories.slug, item.categorySlug))
+                    .limit(1);
+
+                if (foundSubCategory) {
+                    subCategory = foundSubCategory;
+                    // Get parent category with its subcategories
+                    const [parentCategory] = await db
+                        .select()
+                        .from(schema.category)
+                        .where(eq(schema.category.slug, foundSubCategory.categorySlug))
+                        .limit(1);
+                    
+                    if (parentCategory) {
+                        const subCategories = await db
+                            .select()
+                            .from(schema.subcategories)
+                            .where(eq(schema.subcategories.categorySlug, parentCategory.slug));
+                        category = { ...parentCategory, subCategories };
+                    }
+                }
+            }
+        }
+
+        // Fetch other related data
+        const [brand, itemPriceData, itemDetails] = await Promise.all([
+            item.brandSlug
+                ? db.select().from(schema.brand).where(eq(schema.brand.alias, item.brandSlug)).limit(1).then(r => r[0])
+                : null,
+            db.select({
+                id: schema.itemPrice.id,
+                itemId: schema.itemPrice.itemId,
+                warehouseId: schema.itemPrice.warehouseId,
+                price: schema.itemPrice.price,
+                quantity: schema.itemPrice.quantity,
+                promotionPrice: schema.itemPrice.promotionPrice,
+                promoEndDate: schema.itemPrice.promoEndDate,
+                promoCode: schema.itemPrice.promoCode,
+                badge: schema.itemPrice.badge,
+                createdAt: schema.itemPrice.createdAt,
+                updatedAt: schema.itemPrice.updatedAt,
+                warehouse: schema.warehouse,
+            })
+                .from(schema.itemPrice)
+                .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+                .where(eq(schema.itemPrice.itemSlug, articleId))
+                .orderBy(asc(schema.itemPrice.createdAt)),
+            db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, articleId)).orderBy(asc(schema.itemDetails.locale)),
+        ]);
+
+        const itemWithRelations = {
+            ...item,
+            category,
+            subCategory,
+            brand,
+            itemPrice: itemPriceData,
+            itemDetails,
+        };
+
+        /* Prisma implementation (commented out)
         const item = await db.item.findUnique({
             where: { articleId: articleId },
             include: {
@@ -49,18 +147,18 @@ export async function GET(
         if (!item) {
             return NextResponse.json({ error: 'Item not found' }, { status: 404 });
         }
+        */
 
-        // Add debug logging
         console.log('API returning item:', {
-            id: item.id,
-            articleId: item.articleId,
-            itemPriceCount: item.itemPrice?.length || 0,
-            itemDetailsCount: item.itemDetails?.length || 0,
-            itemPrice: item.itemPrice,
-            itemDetails: item.itemDetails
+            id: itemWithRelations.id,
+            articleId: itemWithRelations.articleId,
+            itemPriceCount: itemWithRelations.itemPrice?.length || 0,
+            itemDetailsCount: itemWithRelations.itemDetails?.length || 0,
+            itemPrice: itemWithRelations.itemPrice,
+            itemDetails: itemWithRelations.itemDetails
         });
 
-        return NextResponse.json(item);
+        return NextResponse.json(itemWithRelations);
     } catch (error) {
         console.error('Error fetching item:', error);
         return NextResponse.json(
@@ -85,7 +183,147 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Check if user is admin
+        const isAdmin = await isUserAdmin(session.user.id);
+        if (!isAdmin) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const data = await request.json() as Item;
+        const now = new Date().toISOString();
+
+        // Drizzle implementation with new category/subcategory logic
+        // First, find the item
+        const [existingItem] = await db
+            .select()
+            .from(schema.item)
+            .where(eq(schema.item.articleId, articleId))
+            .limit(1);
+
+        if (!existingItem) {
+            return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+        }
+
+        // Determine if categorySlug is a category or subcategory
+        let finalCategorySlug = data.categorySlug;
+        if (data.categorySlug) {
+            // Check if it's a category
+            const [category] = await db
+                .select()
+                .from(schema.category)
+                .where(eq(schema.category.slug, data.categorySlug))
+                .limit(1);
+
+            if (!category) {
+                // Check if it's a subcategory
+                const [subCategory] = await db
+                    .select()
+                    .from(schema.subcategories)
+                    .where(eq(schema.subcategories.slug, data.categorySlug))
+                    .limit(1);
+
+                if (subCategory) {
+                    // Use subcategory slug as categorySlug
+                    finalCategorySlug = subCategory.slug;
+                }
+            }
+        }
+
+        // Delete existing prices and details
+        await db
+            .delete(schema.itemPrice)
+            .where(eq(schema.itemPrice.itemSlug, articleId));
+
+        await db
+            .delete(schema.itemDetails)
+            .where(eq(schema.itemDetails.itemSlug, articleId));
+
+        // Update the item
+        const [updatedItem] = await db
+            .update(schema.item)
+            .set({
+                articleId: data.articleId,
+                isDisplayed: data.isDisplayed,
+                itemImageLink: data.itemImageLink || null,
+                categorySlug: finalCategorySlug || null,
+                subCategorySlug: null, // Always null with new logic
+                brandSlug: data.brandSlug || null,
+                warrantyType: data.warrantyType || null,
+                warrantyLength: data.warrantyLength || null,
+                updatedAt: now,
+            })
+            .where(eq(schema.item.articleId, articleId))
+            .returning();
+
+        // Create new item prices
+        if (data.itemPrice && data.itemPrice.length > 0) {
+            const priceRecords = data.itemPrice
+                .filter((price: any) => price.warehouseId)
+                .map((price: any) => ({
+                    id: crypto.randomUUID(),
+                    itemId: updatedItem.id,
+                    itemSlug: updatedItem.articleId,
+                    warehouseId: price.warehouseId,
+                    price: price.price,
+                    quantity: price.quantity,
+                    promotionPrice: price.promotionPrice ?? null,
+                    promoEndDate: price.promoEndDate ? new Date(price.promoEndDate).toISOString() : null,
+                    promoCode: price.promoCode || null,
+                    badge: price.badge || Badge.ABSENT,
+                    createdAt: now,
+                    updatedAt: now,
+                }));
+
+            await db.insert(schema.itemPrice).values(priceRecords);
+
+            // Create price history entries
+            const historyRecords = priceRecords.map((price: any) => ({
+                id: crypto.randomUUID(),
+                itemId: price.itemId,
+                warehouseId: price.warehouseId,
+                price: price.price,
+                quantity: price.quantity,
+                promotionPrice: price.promotionPrice,
+                promoEndDate: price.promoEndDate,
+                promoCode: price.promoCode,
+                badge: price.badge,
+                createdAt: now,
+                updatedAt: now,
+            }));
+
+            await db.insert(schema.itemPriceHistory).values(historyRecords);
+        }
+
+        // Create new item details
+        if (data.itemDetails && data.itemDetails.length > 0) {
+            const detailRecords = data.itemDetails.map((detail: any) => ({
+                id: crypto.randomUUID(),
+                itemSlug: updatedItem.articleId,
+                locale: detail.locale,
+                itemName: detail.itemName,
+                description: detail.description,
+                specifications: detail.specifications,
+                seller: detail.seller || null,
+                discount: detail.discount ?? null,
+                popularity: detail.popularity ?? null,
+                createdAt: now,
+                updatedAt: now,
+            }));
+
+            await db.insert(schema.itemDetails).values(detailRecords);
+        }
+
+        // Fetch the updated item with relations
+        const updatedItemDetails = await db
+            .select()
+            .from(schema.itemDetails)
+            .where(eq(schema.itemDetails.itemSlug, updatedItem.articleId));
+
+        const updatedItemPrices = await db
+            .select()
+            .from(schema.itemPrice)
+            .where(eq(schema.itemPrice.itemSlug, updatedItem.articleId));
+
+        /* Prisma implementation (commented out)
         const user = await db.user.findUnique({
             where: { id: session.user.id },
             select: { role: true }
@@ -169,7 +407,15 @@ export async function PUT(
                 }))
             });
         }
-        return NextResponse.json(updatedItem);
+        */
+
+        const responseData = {
+            ...updatedItem,
+            itemDetails: updatedItemDetails,
+            itemPrice: updatedItemPrices,
+        };
+
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error('Error updating item:', error);
         return NextResponse.json(
@@ -194,7 +440,20 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Check if user is admin
+        const isAdmin = await isUserAdmin(session.user.id);
+        if (!isAdmin) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        // Delete related records first (manually handle cascade)
+        await db.delete(schema.itemPrice).where(eq(schema.itemPrice.itemSlug, articleId));
+        await db.delete(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, articleId));
+        await db.delete(schema.itemPriceHistory).where(eq(schema.itemPriceHistory.itemSlug, articleId));
+        
+        // Delete the item
+        await db.delete(schema.item).where(eq(schema.item.articleId, articleId));
+
+        /* Prisma implementation (commented out)
         const user = await db.user.findUnique({
             where: { id: session.user.id },
             select: { role: true }
@@ -204,10 +463,10 @@ export async function DELETE(
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        // Delete the item (cascade will handle related records)
         await db.item.delete({
             where: { articleId },
         });
+        */
 
         return Response.json({ success: true });
     } catch (error) {

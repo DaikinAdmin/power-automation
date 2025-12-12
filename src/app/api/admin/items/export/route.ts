@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import prisma from '@/db';
+// import prisma from '@/db';
+import { db } from '@/db';
 import { UploadType } from '@/helpers/types/item';
+import { eq, desc } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +18,63 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format') || 'json';
+
+    // Drizzle implementation - Fetch all items
+    const items = await db
+      .select()
+      .from(schema.item)
+      .orderBy(desc(schema.item.id));
+
+    // Fetch related data for each item
+    const itemsWithRelations = await Promise.all(
+      items.map(async (item) => {
+        const [category, subCategory, brand, itemDetails, itemPrices] = await Promise.all([
+          item.categorySlug
+            ? db.select().from(schema.category).where(eq(schema.category.slug, item.categorySlug)).limit(1).then(r => r[0])
+            : null,
+          item.subCategorySlug
+            ? db.select().from(schema.subcategories).where(eq(schema.subcategories.slug, item.subCategorySlug)).limit(1).then(r => r[0])
+            : null,
+          item.brandSlug
+            ? db.select().from(schema.brand).where(eq(schema.brand.alias, item.brandSlug)).limit(1).then(r => r[0])
+            : null,
+          db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.articleId)),
+          db.select({
+            id: schema.itemPrice.id,
+            itemId: schema.itemPrice.itemId,
+            warehouseId: schema.itemPrice.warehouseId,
+            price: schema.itemPrice.price,
+            quantity: schema.itemPrice.quantity,
+            promotionPrice: schema.itemPrice.promotionPrice,
+            promoEndDate: schema.itemPrice.promoEndDate,
+            promoCode: schema.itemPrice.promoCode,
+            badge: schema.itemPrice.badge,
+            warehouse: schema.warehouse,
+          })
+            .from(schema.itemPrice)
+            .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+            .where(eq(schema.itemPrice.itemSlug, item.articleId)),
+        ]);
+
+        return {
+          ...item,
+          category,
+          subCategory,
+          brand,
+          itemDetails,
+          itemPrice: itemPrices,
+        };
+      })
+    );
+
+    /* Prisma implementation (commented out)
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
@@ -24,10 +84,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const format = searchParams.get('format') || 'json';
-
-    // Fetch all items with related data
     const items = await prisma.item.findMany({
       include: {
         category: true,
@@ -44,11 +100,12 @@ export async function GET(request: NextRequest) {
         id: 'desc'
       }
     });
+    */
 
     // Transform items to UploadType format
     const exportData: UploadType[] = [];
 
-    items.forEach((item: any) => {
+    itemsWithRelations.forEach((item: any) => {
       // Create base item data
       const baseItemData = {
         articleId: item.articleId,

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import db from '@/db';
+// import db from '@/db';
+import { db } from '@/db';
+import { eq, and, ne, sql } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +22,34 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Drizzle implementation
+    const [discountLevel] = await db
+      .select()
+      .from(schema.discountLevel)
+      .where(eq(schema.discountLevel.id, id))
+      .limit(1);
+
+    if (!discountLevel) {
+      return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
+    }
+
+    // Get user count
+    const [userCount] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(schema.user)
+      .where(eq(schema.user.discountLevel, id));
+
+    const levelWithCount = {
+      ...discountLevel,
+      _count: { users: userCount?.count || 0 },
+    };
+
+    /* Prisma implementation (commented out)
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
@@ -42,8 +73,9 @@ export async function GET(
     if (!discountLevel) {
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
+    */
 
-    return NextResponse.json(discountLevel);
+    return NextResponse.json(levelWithCount);
   } catch (error: any) {
     console.error('Error fetching discount level:', error);
     return NextResponse.json(
@@ -68,13 +100,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true }
-    });
-
-    if (user?.role !== 'admin') {
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -96,6 +123,67 @@ export async function PUT(
     }
 
     // Check if the discount level exists
+    const [existingDiscountLevel] = await db
+      .select()
+      .from(schema.discountLevel)
+      .where(eq(schema.discountLevel.id, id))
+      .limit(1);
+
+    if (!existingDiscountLevel) {
+      return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
+    }
+
+    // Check if level already exists (but not for the current record)
+    const [levelExists] = await db
+      .select()
+      .from(schema.discountLevel)
+      .where(
+        and(
+          eq(schema.discountLevel.level, parseInt(level)),
+          ne(schema.discountLevel.id, id)
+        )
+      )
+      .limit(1);
+
+    if (levelExists) {
+      return NextResponse.json(
+        { error: 'A discount level with this number already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Update discount level
+    const [updatedDiscountLevel] = await db
+      .update(schema.discountLevel)
+      .set({
+        level: parseInt(level),
+        discountPercentage: parseFloat(discountPercentage),
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.discountLevel.id, id))
+      .returning();
+
+    // Get user count
+    const [userCount] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(schema.user)
+      .where(eq(schema.user.discountLevel, id));
+
+    const levelWithCount = {
+      ...updatedDiscountLevel,
+      _count: { users: userCount?.count || 0 },
+    };
+
+    /* Prisma implementation (commented out)
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const existingDiscountLevel = await db.discountLevel.findUnique({
       where: { id }
     });
@@ -104,7 +192,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Check if level already exists (but not for the current record)
     const levelExists = await db.discountLevel.findFirst({
       where: {
         level: parseInt(level),
@@ -133,8 +220,9 @@ export async function PUT(
         }
       }
     });
+    */
 
-    return NextResponse.json(updatedDiscountLevel);
+    return NextResponse.json(levelWithCount);
   } catch (error: any) {
     console.error('Error updating discount level:', error);
     return NextResponse.json(
@@ -159,7 +247,42 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Check if the discount level exists
+    const [existingDiscountLevel] = await db
+      .select()
+      .from(schema.discountLevel)
+      .where(eq(schema.discountLevel.id, id))
+      .limit(1);
+
+    if (!existingDiscountLevel) {
+      return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
+    }
+
+    // Get user count
+    const [userCount] = await db
+      .select({ count: sql<number>`cast(count(*) as integer)` })
+      .from(schema.user)
+      .where(eq(schema.user.discountLevel, id));
+
+    // Remove discount level from all users first
+    if (userCount && userCount.count > 0) {
+      await db
+        .update(schema.user)
+        .set({ discountLevel: null })
+        .where(eq(schema.user.discountLevel, id));
+    }
+
+    // Delete the discount level
+    await db
+      .delete(schema.discountLevel)
+      .where(eq(schema.discountLevel.id, id));
+
+    /* Prisma implementation (commented out)
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
@@ -169,7 +292,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Check if the discount level exists
     const existingDiscountLevel = await db.discountLevel.findUnique({
       where: { id },
       include: {
@@ -185,7 +307,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Remove discount level from all users first
     if (existingDiscountLevel._count.users > 0) {
       await db.user.updateMany({
         where: {
@@ -200,7 +321,6 @@ export async function DELETE(
         }
       });
 
-      // Disconnect all users from this discount level
       await db.discountLevel.update({
         where: { id },
         data: {
@@ -211,10 +331,10 @@ export async function DELETE(
       });
     }
 
-    // Delete the discount level
     await db.discountLevel.delete({
       where: { id }
     });
+    */
 
     return NextResponse.json({ message: 'Discount level deleted successfully' });
   } catch (error: any) {
