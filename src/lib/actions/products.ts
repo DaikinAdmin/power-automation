@@ -1,6 +1,7 @@
 'use server';
 
-import prisma from "@/db";
+import { db } from "@/db";
+import { outOfStockRequest } from "@/db/schema";
 import { getUserCountry } from "./location";
 
 // interface WarehousePrice {
@@ -33,7 +34,7 @@ import { getUserCountry } from "./location";
 //   try {
 //     const userCountry = await getUserCountry();
 
-//     const item = await prisma.item.findFirst({
+//     const item = await db.item.findFirst({
 //       where: {
 //         id: id,
 //         isDisplayed: true
@@ -110,16 +111,20 @@ import { getUserCountry } from "./location";
 
 export async function requestOutOfStockItem(itemId: string, warehouseId: string, userEmail: string, message: string, userName?: string) {
   try {
+    const { nanoid } = await import('nanoid');
+    const now = new Date().toISOString();
+    
     // Store the request in database
-    await prisma.outOfStockRequest.create({
-      data: {
-        itemId,
-        warehouseId,
-        userEmail,
-        userName: userName || 'Anonymous',
-        message,
-        status: 'PENDING'
-      }
+    await db.insert(outOfStockRequest).values({
+      id: nanoid(),
+      itemId,
+      warehouseId,
+      userEmail,
+      userName: userName || 'Anonymous',
+      message,
+      status: 'PENDING',
+      createdAt: now,
+      updatedAt: now
     });
 
     // console.log('Out of stock request stored:', {
@@ -141,7 +146,7 @@ export async function requestOutOfStockItem(itemId: string, warehouseId: string,
 //   try {
 //     const currentUserCountry = userCountry || await getUserCountry();
 
-//     const items = await prisma.item.findMany({
+//     const items = await db.item.findMany({
 //       where: {
 //         isDisplayed: true,
 //       },

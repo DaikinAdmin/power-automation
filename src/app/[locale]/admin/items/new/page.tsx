@@ -12,13 +12,13 @@ import { useItemFormState } from '@/hooks/useItemFormState';
 
 const initialFormData: Item = {
   id: '',
+  slug: '',
   articleId: '',
   isDisplayed: false,
   itemImageLink: [],
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
   categorySlug: '',
-  subCategorySlug: '',
   brandSlug: '',
   brand: null,
   warrantyType: '',
@@ -27,8 +27,8 @@ const initialFormData: Item = {
   category: {
     id: '',
     name: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: '',
     isVisible: true,
     subCategories: [],
@@ -37,14 +37,15 @@ const initialFormData: Item = {
   subCategory: {
     id: '',
     name: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: '',
     isVisible: true,
     categorySlug: ''
   },
   itemPrice: [],
-  itemDetails: []
+  itemDetails: [],
+  linkedItems: []
 };
 
 export default function NewItemPage() {

@@ -10,13 +10,15 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import PageLayout from '@/components/layout/page-layout';
 import CatalogProductCard from '@/components/catalog-product-card';
-import { Item, CartItemType, ItemDetailResponse } from '@/helpers/types/item';
+import { CartItemType } from '@/helpers/types/item';
+import { ItemResponse } from '@/helpers/types/api-responses';
 import { useCatalogPricing } from '@/hooks/useCatalogPricing';
 import { calculateDiscountPercentage } from '@/helpers/pricing';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useTranslations } from 'next-intl';
 
+type Item = ItemResponse;
 
 export default function CategoryPage({
   param,
@@ -72,56 +74,40 @@ export default function CategoryPage({
       setIsLoading(true);
       const response = await fetch(`/api/public/items/${locale}`);
       if (response.ok) {
-        const data = await response.json() as ItemDetailResponse[];
+        const data = await response.json() as Item[];
 
+        // Build categories map from items
+        const categoryMap = new Map();
         data.forEach(item => {
-          const { categoryName, subcategoryName, categorySlug, subcategorySlug } = item;
-
-          if (category) {
-            if (!categoryMap.has(category.id)) {
-              categoryMap.set(category.id, {
-                id: category.id,
-                name: category.name,
-                slug: category.slug,
-                image: "/placeholder-category.jpg",
-                subcategories: new Map()
-              });
-            }
-
-            if (subcategory) {
-              const subMap = categoryMap.get(category.id)!.subcategories;
-              if (!subMap.has(subCategory.id)) {
-                subMap.set(subCategory.id, {
-                  id: subCategory.id,
-                  name: subCategory.name,
-                  slug: subCategory.slug
-                });
-              }
-            }
+          if (item.category && !categoryMap.has(item.category.slug)) {
+            categoryMap.set(item.category.slug, {
+              id: item.category.slug,
+              name: item.category.name,
+              slug: item.category.slug,
+              image: "/placeholder-category.jpg",
+              subcategories: item.category.subCategories.map(sub => ({
+                id: sub.slug,
+                name: sub.name,
+                slug: sub.slug
+              }))
+            });
           }
         });
 
-        // Convert maps to arrays for state
-        const categoriesArray = Array.from(categoryMap.values()).map(cat => ({
-          ...cat,
-          subcategories: Array.from(cat.subcategories.values())
-        }));
-
+        const categoriesArray = Array.from(categoryMap.values());
         setCategories(categoriesArray);
 
         // Filter items by current category slug
-        const currentCategory = categoriesArray.find(cat => cat.slug === slug);
-        let categoryItems: Item[] = [];
+        const categoryItems = data.filter(item => item.category.slug === slug);
 
-        if (currentCategory) {
-          categoryItems = data.filter(item => item.category.slug === slug);
-
+        if (categoryItems.length > 0) {
           // Extract unique subcategories for this category
-          const uniqueSubcategories = Array.from(
-            new Map(
-              categoryItems.map(item => [item.subCategory.id, item.subCategory])
-            ).values()
-          );
+          const currentCategory = categoryItems[0].category;
+          const uniqueSubcategories = currentCategory.subCategories.map(sub => ({
+            id: sub.slug,
+            name: sub.name,
+            slug: sub.slug
+          }));
           setSubcategories(uniqueSubcategories);
 
           // Extract unique brands for this category
@@ -137,13 +123,13 @@ export default function CategoryPage({
           // Extract unique warehouses for this category
           const warehouseMap = new Map();
           categoryItems.forEach(item => {
-            item.itemPrice.forEach((price: { warehouse: { id: any; name: any; country: any; displayedName: any; }; }) => {
+            item.prices.forEach(price => {
               if (price.warehouse) {
-                warehouseMap.set(price.warehouse.id, {
-                  id: price.warehouse.id,
-                  name: price.warehouse.name || price.warehouse.id,
-                  country: price.warehouse.country || 'Unknown',
-                  displayedName: price.warehouse.displayedName || price.warehouse.name || price.warehouse.id
+                warehouseMap.set(price.warehouse.slug, {
+                  id: price.warehouse.slug,
+                  name: price.warehouse.name || price.warehouse.slug,
+                  country: price.warehouse.country?.name || 'Unknown',
+                  displayedName: price.warehouse.displayedName || price.warehouse.name || price.warehouse.slug
                 });
               }
             });
@@ -175,8 +161,8 @@ export default function CategoryPage({
     // Filter by warehouses
     if (selectedWarehouses.length > 0) {
       filtered = filtered.filter(item =>
-        item.itemPrice.some((price: { warehouse: { id: string; }; }) =>
-          selectedWarehouses.includes(price.warehouse.id)
+        item.prices.some(price =>
+          selectedWarehouses.includes(price.warehouse.slug)
         )
       );
     }
@@ -184,16 +170,16 @@ export default function CategoryPage({
     // Filter by subcategories
     if (selectedSubcategories.length > 0) {
       filtered = filtered.filter(item =>
-        selectedSubcategories.includes(item.subCategory.id)
+        item.subCategorySlug && selectedSubcategories.includes(item.subCategorySlug)
       );
     }
 
     // Sort items
     filtered.sort((a, b) => {
-      const aDetails = a.itemDetails[0];
-      const bDetails = b.itemDetails[0];
-      const aPrice = a.itemPrice[0]?.promotionPrice || a.itemPrice[0]?.price || 0;
-      const bPrice = b.itemPrice[0]?.promotionPrice || b.itemPrice[0]?.price || 0;
+      const aDetails = a.details;
+      const bDetails = b.details;
+      const aPrice = a.prices[0]?.promotionPrice || a.prices[0]?.price || 0;
+      const bPrice = b.prices[0]?.promotionPrice || b.prices[0]?.price || 0;
 
       switch (sortBy) {
         case 'name':
@@ -478,7 +464,7 @@ export default function CategoryPage({
                         const { price, originalPrice, inStock, warehouseName, quantity, warehouseId, displayedName } = getItemPrice(item);
                         const convertedPrice = convertPrice(price);
                         const convertedOriginalPrice = originalPrice != null ? convertPrice(originalPrice) : null;
-                        const hasMultipleWarehouses = item.itemPrice.length > 1;
+                        const hasMultipleWarehouses = item.prices.length > 1;
 
                         const badge = originalPrice
                           ? {
@@ -494,7 +480,7 @@ export default function CategoryPage({
 
                         const warehouseLabel = `${t('from')} ${displayedName || warehouseName || 'Unknown Warehouse'}`;
                         const warehouseExtraLabel = hasMultipleWarehouses
-                          ? `+${item.itemPrice.length - 1} ${item.itemPrice.length > 2 ? t('moreLocations') : t('moreLocation')}`
+                          ? `+${item.prices.length - 1} ${item.prices.length > 2 ? t('moreLocations') : t('moreLocation')}`
                           : undefined;
 
                         const addToCartHandler = () => {
@@ -503,41 +489,61 @@ export default function CategoryPage({
                           }
 
                           const now = new Date();
+                          const subCategory = item.subCategorySlug 
+                            ? item.category.subCategories.find(s => s.slug === item.subCategorySlug) 
+                            : null;
                           const cartItem: Omit<CartItemType, 'quantity'> = {
-                            id: `${item.id}-${warehouseId}`,
+                            id: `${item.articleId}-${warehouseId}`,
+                            slug: item.articleId,
                             articleId: item.articleId,
                             itemImageLink: item.itemImageLink,
                             categorySlug: item.categorySlug,
-                            subCategorySlug: item.subCategorySlug,
                             isDisplayed: item.isDisplayed,
                             sellCounter: item.sellCounter,
                             createdAt: item.createdAt,
                             updatedAt: item.updatedAt,
                             category: {
                               ...item.category,
+                              id: item.category.slug,
                               subCategories: [],
+                              categoryTranslations: [],
                             },
-                            subCategory: {
-                              ...item.subCategory,
-                              createdAt: item.subCategory.createdAt || now,
-                              updatedAt: item.subCategory.updatedAt || now,
+                            subCategory: subCategory ? {
+                              ...subCategory,
+                              id: subCategory.slug,
+                              createdAt: subCategory.createdAt || now,
+                              updatedAt: subCategory.updatedAt || now,
+                            } as any : {
+                              id: '',
+                              slug: '',
+                              name: '',
+                              categorySlug: '',
+                              isVisible: true,
+                              createdAt: now,
+                              updatedAt: now,
                             },
                             brandSlug: item.brandSlug ?? null,
                             brand: item.brand
                               ? {
                                 ...item.brand,
+                                id: item.brand.alias,
                                 createdAt: item.brand.createdAt || now,
                                 updatedAt: item.brand.updatedAt || now,
-                              }
+                              } as any
                               : null,
                             warrantyType: item.warrantyType ?? null,
                             warrantyLength: item.warrantyLength ?? null,
-                            itemDetails: item.itemDetails,
-                            itemPrice: item.itemPrice,
+                            itemDetails: [{
+                              ...item.details,
+                              id: item.articleId,
+                              itemSlug: item.articleId,
+                            }] as any,
+                            itemPrice: item.prices as any,
                             price,
                             warehouseId,
                             displayName: details?.itemName,
                             availableWarehouses: getAvailableWarehouses(item),
+                            linkedItems: [],
                           };
 
                           addToCart(cartItem);
@@ -545,8 +551,8 @@ export default function CategoryPage({
 
                         return (
                           <CatalogProductCard
-                            key={item.id}
-                            href={`/product/${item.id}`}
+                            key={item.articleId}
+                            href={`/product/${item.articleId}`}
                             imageSrc={item.itemImageLink}
                             imageAlt={details?.itemName || 'Product'}
                             name={details?.itemName || 'Unnamed Product'}

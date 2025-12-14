@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { WarehouseModal } from '@/components/admin/warehouse-modal';
 import { DeleteWarehouseModal } from '@/components/admin/delete-warehouse-modal';
 import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Warehouse as Warehouses} from '@prisma/client';
+import { Warehouse as Warehouses} from '@/db/schema';
 import { usePagination } from '@/hooks/usePagination';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 

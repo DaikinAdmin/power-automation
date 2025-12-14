@@ -61,6 +61,7 @@ export interface ItemResponse {
   sellCounter: number | null;
   itemImageLink: string[];
   categorySlug: string;
+  subCategorySlug: string | null;
   brandSlug: string | null;
   warrantyType: string | null;
   warrantyLength: number | null;
@@ -99,6 +100,7 @@ export interface BrandResponse {
 
 // ==================== Warehouse Types ====================
 export interface WarehouseResponse {
+  id?: string;
   slug: string;
   name: string | null;
   displayedName: string;

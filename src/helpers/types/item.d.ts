@@ -1,15 +1,15 @@
-
+import { Item as ItemType, ItemPrice as ItemPriceType, ItemPriceHistory as ItemPriceHistoryType, ItemDetails as ItemDetailsType, Category as CategoryType, Warehouse, SubCategories, CategoryTranslation, Brand } from '@/db/schema';
 
 export type ItemPrice = ItemPriceType & {
   warehouse: Warehouse;
   history?: ItemPriceHistory[];
 }
 
-export type ItemPriceHistory = PrismaItemPriceHistory & {
+export type ItemPriceHistory = ItemPriceHistoryType & {
   warehouse: Warehouse;
 }
 
-export type ItemDetail = PrismaItemDetails;
+export type ItemDetail = ItemDetailsType;
 
 export type Category = CategoryType & {
   subCategories: SubCategories[]

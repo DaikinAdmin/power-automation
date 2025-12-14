@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from 'drizzle-orm';
-import * schema from '@/db/schema';
+import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function PUT(
@@ -34,7 +34,7 @@ export async function PUT(
             .update(schema.user)
             .set({
                 role: data.role,
-                emailVerified: data.emailVerified ? new Date(data.emailVerified).toISOString() : null,
+                emailVerified: data.emailVerified ? true : false,
                 discountLevel: data.discountLevel,
                 updatedAt: new Date().toISOString(),
             })

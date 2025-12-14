@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { OrderStatus, Prisma } from '@prisma/client';
+import type { OrderStatus } from '@/db/schema';
 
 // import prisma from '@/db';
 import { db } from '@/db';
@@ -10,7 +10,11 @@ import * as schema from '@/db/schema';
 
 const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
 
-type JsonValue = Prisma.JsonValue;
+// Valid order statuses
+const VALID_ORDER_STATUSES: OrderStatus[] = ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING', 'COMPLETED', 'CANCELLED', 'REFUND', 'DELIVERY', 'ASK_FOR_PRICE'];
+
+// JSON value type (replaces Prisma.JsonValue)
+type JsonValue = string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[];
 
 type OrderLineItem = {
   itemId: string;
@@ -97,7 +101,6 @@ export async function GET(
         comment: schema.order.comment,
         deliveryId: schema.order.deliveryId,
         updatedAt: schema.order.updatedAt,
-        itemIds: schema.order.itemIds,
         userName: schema.user.name,
         userPhoneNumber: schema.user.phoneNumber,
         userCountryCode: schema.user.countryCode,
@@ -114,11 +117,13 @@ export async function GET(
 
     // Fetch items with details
     let items: any[] = [];
-    if (orderData.itemIds && orderData.itemIds.length > 0) {
+    const lineItems = parseLineItems(orderData.lineItems as JsonValue | null);
+    const itemIds = lineItems.map(li => li.itemId).filter(Boolean);
+    if (itemIds.length > 0) {
       const itemsData = await db
         .select()
         .from(schema.item)
-        .where(inArray(schema.item.id, orderData.itemIds));
+        .where(inArray(schema.item.id, itemIds));
 
       items = await Promise.all(
         itemsData.map(async (item) => {
@@ -168,7 +173,7 @@ export async function GET(
     };
 
     /* Prisma implementation (commented out)
-    const order = await prisma.order.findUnique({
+    const order = await db.order.findUnique({
       where: { id },
       select: {
         id: true,
@@ -235,7 +240,7 @@ export async function PATCH(
     const body = await request.json();
     const { status, deliveryId } = body as { status?: OrderStatus; deliveryId?: string | null };
 
-    if (!status || !Object.values(OrderStatus).includes(status)) {
+    if (!status || !VALID_ORDER_STATUSES.includes(status)) {
       return NextResponse.json({ error: 'Invalid order status' }, { status: 400 });
     }
 
@@ -278,11 +283,13 @@ export async function PATCH(
 
     // Fetch items with details
     let items: any[] = [];
-    if (updatedOrderData.itemIds && updatedOrderData.itemIds.length > 0) {
+    const lineItems = parseLineItems(updatedOrderData.lineItems as JsonValue | null);
+    const itemIds = lineItems.map(li => li.itemId).filter(Boolean);
+    if (itemIds.length > 0) {
       const itemsData = await db
         .select()
         .from(schema.item)
-        .where(inArray(schema.item.id, updatedOrderData.itemIds));
+        .where(inArray(schema.item.id, itemIds));
 
       items = await Promise.all(
         itemsData.map(async (item) => {
@@ -328,7 +335,7 @@ export async function PATCH(
       updateData.deliveryId = deliveryId ? deliveryId.trim() : null;
     }
 
-    const updatedOrder = await prisma.order.update({
+    const updatedOrder = await db.order.update({
       where: { id },
       data: updateData,
       include: {

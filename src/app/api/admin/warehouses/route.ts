@@ -24,7 +24,7 @@ export async function GET() {
       .select({
         id: schema.warehouse.id,
         name: schema.warehouse.name,
-        country: schema.warehouse.country,
+        countrySlug: schema.warehouse.countrySlug,
         displayedName: schema.warehouse.displayedName,
         isVisible: schema.warehouse.isVisible,
         createdAt: schema.warehouse.createdAt,
@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, country, isVisible, displayedName } = body;
+    const { name, countrySlug, isVisible, displayedName } = body;
 
-    if (!name || !country) {
-      return NextResponse.json({ error: 'Name and country are required' }, { status: 400 });
+    if (!name || !countrySlug) {
+      return NextResponse.json({ error: 'Name and countrySlug are required' }, { status: 400 });
     }
 
     // Drizzle implementation
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       .values({
         id: randomUUID(),
         name,
-        country,
+        countrySlug,
         displayedName: displayedName || name,
         isVisible: isVisible ?? true,
         createdAt: new Date().toISOString(),

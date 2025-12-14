@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { Badge, Prisma } from '@prisma/client';
 import { Item } from '@/helpers/types/item';
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
@@ -77,7 +76,7 @@ export async function GET(request: NextRequest) {
           db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.articleId)),
           db.select({
             id: schema.itemPrice.id,
-            itemId: schema.itemPrice.itemId,
+            itemSlug: schema.itemPrice.itemSlug,
             warehouseId: schema.itemPrice.warehouseId,
             price: schema.itemPrice.price,
             quantity: schema.itemPrice.quantity,
@@ -114,7 +113,7 @@ export async function GET(request: NextRequest) {
     );
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
     });
@@ -123,7 +122,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const items = await prisma.item.findMany({
+    const items = await db.item.findMany({
       select: {
         id: true,
         articleId: true,
@@ -268,17 +267,15 @@ export async function POST(request: NextRequest) {
     const [newItem] = await db
       .insert(schema.item)
       .values({
-        id: itemId,
-        articleId,
+        articleId: articleId,
+        slug: articleId, // Add the required slug field
         isDisplayed: isDisplayed ?? false,
         itemImageLink: itemImageLink || null,
-        categorySlug: finalCategorySlug || null,
-        subCategorySlug: null, // Always null with new logic
-        brandSlug: brandSlug || null,
-        warrantyType: warrantyType || null,
-        warrantyLength: warrantyLength || null,
+        categorySlug: finalCategorySlug || "",
+        brandSlug: brandSlug || "",
+        warrantyType: warrantyType || "",
+        warrantyLength: warrantyLength || 0,
         sellCounter: 0,
-        linkedItems: [],
         createdAt: now,
         updatedAt: now,
       })
@@ -298,7 +295,7 @@ export async function POST(request: NextRequest) {
           promotionPrice: price.promotionPrice ?? null,
           promoEndDate: price.promoEndDate ? new Date(price.promoEndDate).toISOString() : null,
           promoCode: price.promoCode || null,
-          badge: price.badge || Badge.ABSENT,
+          badge: price.badge || "ABSENT",
           createdAt: now,
           updatedAt: now,
         }));
@@ -357,7 +354,7 @@ export async function POST(request: NextRequest) {
     const createdItemPrices = await db
       .select({
         id: schema.itemPrice.id,
-        itemId: schema.itemPrice.itemId,
+        itemSlug: schema.itemPrice.itemSlug,
         warehouseId: schema.itemPrice.warehouseId,
         price: schema.itemPrice.price,
         quantity: schema.itemPrice.quantity,
@@ -374,7 +371,7 @@ export async function POST(request: NextRequest) {
       .where(eq(schema.itemPrice.itemSlug, createdItem.articleId));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
     });
@@ -444,7 +441,7 @@ export async function POST(request: NextRequest) {
       itemData.brand = { connect: { alias: brandSlug } };
     }
 
-    const item = await prisma.item.create({
+    const item = await db.item.create({
       data: itemData,
       include: {
         itemDetails: true,
@@ -456,12 +453,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const createdPrices = await prisma.itemPrice.findMany({
+    const createdPrices = await db.itemPrice.findMany({
       where: { itemSlug: item.articleId },
     });
 
     if (createdPrices.length > 0) {
-      await prisma.itemPriceHistory.createMany({
+      await db.itemPriceHistory.createMany({
         data: createdPrices.map((price: any) => ({
           itemId: price.itemId,
           warehouseId: price.warehouseId,

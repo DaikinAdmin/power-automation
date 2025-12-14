@@ -540,8 +540,8 @@
 //     const warehouse = await prisma.warehouse.create({
 //       data: {
 //         ...data,
-//         createdAt: new Date(),
-//         updatedAt: new Date(),
+//         createdAt: new Date().toISOString(),
+//         updatedAt: new Date().toISOString(),
 //       },
 //     });
 //     warehouses.push(warehouse);
@@ -563,8 +563,8 @@
 //         alias: data.alias,
 //         imageLink: data.imageLink,
 //         isVisible: true,
-//         createdAt: new Date(),
-//         updatedAt: new Date(),
+//         createdAt: new Date().toISOString(),
+//         updatedAt: new Date().toISOString(),
 //       },
 //     });
 //     brands.push(brand);
@@ -586,8 +586,8 @@
 //         name,
 //         slug: slugify(name),
 //         isVisible: true,
-//         createdAt: new Date(),
-//         updatedAt: new Date(),
+//         createdAt: new Date().toISOString(),
+//         updatedAt: new Date().toISOString(),
 //       },
 //     });
 
@@ -601,8 +601,8 @@
 //           slug: `${slugify(name)}-${sub.slugSuffix}`,
 //           categorySlug: category.id,
 //           isVisible: true,
-//           createdAt: new Date(),
-//           updatedAt: new Date(),
+//           createdAt: new Date().toISOString(),
+//           updatedAt: new Date().toISOString(),
 //         },
 //       });
 //       subcategories[category.id].push(subCategory);
@@ -718,8 +718,8 @@
 //         from: pair.from,
 //         to: pair.to,
 //         rate: pair.rate,
-//         createdAt: new Date(),
-//         updatedAt: new Date(),
+//         createdAt: new Date().toISOString(),
+//         updatedAt: new Date().toISOString(),
 //       },
 //     });
 //     console.log(`Created currency exchange: ${exchange.from} -> ${exchange.to} (${exchange.rate})`);

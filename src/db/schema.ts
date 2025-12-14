@@ -19,7 +19,7 @@ export const outOfStockStatus = pgEnum("OutOfStockStatus", ['PENDING', 'PROCESSI
 // });
 
 export const verification = pgTable("verification", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	identifier: text().notNull(),
 	value: text().notNull(),
 	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
@@ -28,7 +28,7 @@ export const verification = pgTable("verification", {
 });
 
 export const currencyExchange = pgTable("currency_exchange", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	from: currency().notNull(),
 	to: currency().notNull(),
 	rate: doublePrecision().notNull(),
@@ -39,7 +39,7 @@ export const currencyExchange = pgTable("currency_exchange", {
 ]);
 
 export const itemPrice = pgTable("item_price", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	warehouseId: text().notNull(),
 	price: doublePrecision().notNull(),
 	quantity: integer().notNull(),
@@ -64,7 +64,7 @@ export const itemPrice = pgTable("item_price", {
 ]);
 
 export const warehouse = pgTable("warehouse", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text(),
 	displayedName: text().notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -80,7 +80,7 @@ export const warehouse = pgTable("warehouse", {
 ]);
 
 export const user = pgTable("user", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
 	email: text().notNull(),
 	emailVerified: boolean().default(false).notNull(),
@@ -106,7 +106,7 @@ export const user = pgTable("user", {
 ]);
 
 export const session = pgTable("session", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
 	token: text().notNull(),
 	ipAddress: text(),
@@ -124,7 +124,7 @@ export const session = pgTable("session", {
 ]);
 
 export const account = pgTable("account", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	accountId: text().notNull(),
 	providerId: text().notNull(),
 	userId: text().notNull(),
@@ -147,7 +147,7 @@ export const account = pgTable("account", {
 ]);
 
 export const twoFactor = pgTable("twoFactor", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	secret: text().notNull(),
 	backupCodes: text().notNull(),
 	userId: text().notNull(),
@@ -160,7 +160,7 @@ export const twoFactor = pgTable("twoFactor", {
 ]);
 
 export const item = pgTable("item", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	articleId: text().notNull(),
 	slug: text().notNull().unique(),
 	isDisplayed: boolean().default(false).notNull(),
@@ -173,6 +173,7 @@ export const item = pgTable("item", {
 	// categorySlug can reference either subcategories.slug (if item has subcategory) or category.slug (if not)
 	categorySlug: text().notNull(),
 	itemImageLink: text().array(),
+	linkedItems: text().array(),
 }, (table) => [
 	foreignKey({
 			columns: [table.brandSlug],
@@ -182,7 +183,7 @@ export const item = pgTable("item", {
 ]);
 
 export const category = pgTable("category", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
 	slug: text().notNull(),
 	isVisible: boolean().default(true),
@@ -193,7 +194,7 @@ export const category = pgTable("category", {
 ]);
 
 export const subcategories = pgTable("subcategories", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
 	slug: text().notNull(),
 	categorySlug: text().notNull(),
@@ -210,7 +211,7 @@ export const subcategories = pgTable("subcategories", {
 ]);
 
 export const cart = pgTable("cart", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	userId: text().notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
@@ -226,7 +227,7 @@ export const cart = pgTable("cart", {
 ]);
 
 export const itemOpinion = pgTable("item_opinion", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	userId: text().notNull(),
 	itemId: text().notNull(),
 	rating: integer().notNull(),
@@ -247,7 +248,7 @@ export const itemOpinion = pgTable("item_opinion", {
 ]);
 
 export const messages = pgTable("messages", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	userId: text().notNull(),
 	orderId: text().notNull(),
 	content: text().notNull(),
@@ -267,7 +268,7 @@ export const messages = pgTable("messages", {
 ]);
 
 export const outOfStockRequest = pgTable("out_of_stock_request", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	itemId: text().notNull(),
 	warehouseId: text().notNull(),
 	userEmail: text().notNull(),
@@ -290,7 +291,7 @@ export const outOfStockRequest = pgTable("out_of_stock_request", {
 ]);
 
 export const discountLevel = pgTable("discount_level", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	level: integer().notNull(),
 	discountPercentage: doublePrecision().notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -298,7 +299,7 @@ export const discountLevel = pgTable("discount_level", {
 });
 
 export const itemDetails = pgTable("item_details", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	locale: text().default('pl').notNull(),
 	description: text().notNull(),
 	specifications: text(),
@@ -318,7 +319,7 @@ export const itemDetails = pgTable("item_details", {
 ]);
 
 export const brand = pgTable("brand", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
 	alias: text().notNull(),
 	imageLink: text().notNull(),
@@ -328,7 +329,7 @@ export const brand = pgTable("brand", {
 });
 
 export const itemPriceHistory = pgTable("item_price_history", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	itemId: text().notNull(),
 	warehouseId: text().notNull(),
 	price: doublePrecision().notNull(),
@@ -353,7 +354,7 @@ export const itemPriceHistory = pgTable("item_price_history", {
 ]);
 
 export const order = pgTable("order", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	userId: text().notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
@@ -372,7 +373,7 @@ export const order = pgTable("order", {
 ]);
 
 export const linkedItems = pgTable("linked_items", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	itemSlug: text().notNull(),
 	linkedItemSlug: text().array(),
 	linkedCaregorySlug: text().array(),
@@ -385,7 +386,7 @@ export const linkedItems = pgTable("linked_items", {
 ]);
 
 export const categoryTranslation = pgTable("category_translation", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	categorySlug: text().notNull(),
 	locale: text().notNull(),
 	name: text().notNull(),
@@ -399,7 +400,7 @@ export const categoryTranslation = pgTable("category_translation", {
 ]);
 
 export const subcategoryTranslation = pgTable("subcategory_translation", {
-	id: text().primaryKey().notNull(),
+	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	subCategorySlug: text().notNull(),
 	locale: text().notNull(),
 	name: text().notNull(),
@@ -492,3 +493,58 @@ export const itemPriceToItemPriceHistory = pgTable("_ItemPriceToItemPriceHistory
 		}).onUpdate("cascade").onDelete("cascade"),
 	primaryKey({ columns: [table.a, table.b], name: "_ItemPriceToItemPriceHistory_AB_pkey"}),
 ]);
+// Type exports for use in the application
+export type Badge = typeof badge.enumValues[number];
+export type CartStatus = typeof cartStatus.enumValues[number];
+export type Currency = typeof currency.enumValues[number];
+export type OrderStatus = typeof orderStatus.enumValues[number];
+export type OutOfStockStatus = typeof outOfStockStatus.enumValues[number];
+
+export type Item = typeof item.$inferSelect;
+export type ItemInsert = typeof item.$inferInsert;
+export type ItemPrice = typeof itemPrice.$inferSelect;
+export type ItemPriceInsert = typeof itemPrice.$inferInsert;
+export type ItemPriceHistory = typeof itemPriceHistory.$inferSelect;
+export type ItemPriceHistoryInsert = typeof itemPriceHistory.$inferInsert;
+export type ItemDetails = typeof itemDetails.$inferSelect;
+export type ItemDetailsInsert = typeof itemDetails.$inferInsert;
+export type Warehouse = typeof warehouse.$inferSelect;
+export type WarehouseInsert = typeof warehouse.$inferInsert;
+export type WarehouseCountries = typeof warehouseCountries.$inferSelect;
+export type WarehouseCountriesInsert = typeof warehouseCountries.$inferInsert;
+export type Category = typeof category.$inferSelect;
+export type CategoryInsert = typeof category.$inferInsert;
+export type CategoryTranslation = typeof categoryTranslation.$inferSelect;
+export type CategoryTranslationInsert = typeof categoryTranslation.$inferInsert;
+export type SubCategories = typeof subcategories.$inferSelect;
+export type SubCategoriesInsert = typeof subcategories.$inferInsert;
+export type SubcategoryTranslation = typeof subcategoryTranslation.$inferSelect;
+export type SubcategoryTranslationInsert = typeof subcategoryTranslation.$inferInsert;
+export type Brand = typeof brand.$inferSelect;
+export type BrandInsert = typeof brand.$inferInsert;
+export type User = typeof user.$inferSelect;
+export type UserInsert = typeof user.$inferInsert;
+export type Order = typeof order.$inferSelect;
+export type OrderInsert = typeof order.$inferInsert;
+export type Cart = typeof cart.$inferSelect;
+export type CartInsert = typeof cart.$inferInsert;
+export type ItemOpinion = typeof itemOpinion.$inferSelect;
+export type ItemOpinionInsert = typeof itemOpinion.$inferInsert;
+export type OutOfStockRequest = typeof outOfStockRequest.$inferSelect;
+export type OutOfStockRequestInsert = typeof outOfStockRequest.$inferInsert;
+export type DiscountLevel = typeof discountLevel.$inferSelect;
+export type DiscountLevelInsert = typeof discountLevel.$inferInsert;
+export type LinkedItems = typeof linkedItems.$inferSelect;
+export type LinkedItemsInsert = typeof linkedItems.$inferInsert;
+export type Session = typeof session.$inferSelect;
+export type SessionInsert = typeof session.$inferInsert;
+export type Account = typeof account.$inferSelect;
+export type AccountInsert = typeof account.$inferInsert;
+export type TwoFactor = typeof twoFactor.$inferSelect;
+export type TwoFactorInsert = typeof twoFactor.$inferInsert;
+export type Verification = typeof verification.$inferSelect;
+export type VerificationInsert = typeof verification.$inferInsert;
+export type CurrencyExchange = typeof currencyExchange.$inferSelect;
+export type CurrencyExchangeInsert = typeof currencyExchange.$inferInsert;
+export type Messages = typeof messages.$inferSelect;
+export type MessagesInsert = typeof messages.$inferInsert;

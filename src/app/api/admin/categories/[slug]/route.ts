@@ -86,7 +86,7 @@ export async function GET(
     };
 
     /* Prisma implementation (commented out)
-    const category = await prisma.category.findUnique({
+    const category = await db.category.findUnique({
       where: { slug },
       include: { subCategories: true },
     });
@@ -188,7 +188,7 @@ export async function PUT(
     };
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -199,7 +199,7 @@ export async function PUT(
 
     const normalizedSubcategories = normalizeSubcategories(subcategory);
 
-    const category = await prisma.category.update({
+    const category = await db.category.update({
       where: { slug: slug },
       data: {
         name,
@@ -286,7 +286,7 @@ export async function DELETE(
       .where(eq(schema.category.slug, slug));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -295,7 +295,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const categoryWithItems = await prisma.category.findUnique({
+    const categoryWithItems = await db.category.findUnique({
       where: { slug },
       include: { _count: { select: { items: true } } },
     });
@@ -311,7 +311,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.category.delete({
+    await db.category.delete({
       where: { slug },
     });
     */

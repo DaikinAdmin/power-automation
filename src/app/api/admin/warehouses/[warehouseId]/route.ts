@@ -39,7 +39,7 @@ export async function PUT(
       .update(schema.warehouse)
       .set({
         name,
-        country,
+        countrySlug: country,
         isVisible,
         displayedName,
         updatedAt: new Date().toISOString(),
@@ -52,7 +52,7 @@ export async function PUT(
     }
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
     });
@@ -61,7 +61,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const warehouse = await prisma.warehouse.update({
+    const warehouse = await db.warehouse.update({
       where: { id: warehouseId },
       data: {
         name,
@@ -127,7 +127,7 @@ export async function DELETE(
     await db.delete(schema.warehouse).where(eq(schema.warehouse.id, warehouseId));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true }
     });
@@ -136,7 +136,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const warehouseWithPrices = await prisma.warehouse.findUnique({
+    const warehouseWithPrices = await db.warehouse.findUnique({
       where: { id: warehouseId },
       include: {
         _count: {
@@ -158,7 +158,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.warehouse.delete({
+    await db.warehouse.delete({
       where: { id: warehouseId }
     });
     */

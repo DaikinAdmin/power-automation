@@ -145,7 +145,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                 const uniqueBrands = Array.from(
                     new Set(
                         data
-                            .map(item => item.brand?.name || item.brandName)
+                            .map(item => item.brand?.name || item.brandSlug)
                             .filter((name): name is string => Boolean(name))
                     )
                 );
@@ -209,7 +209,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
         // Filter by brands
         if (selectedBrands.length > 0) {
             filtered = filtered.filter(item => {
-                const itemBrandName = item.brand?.name || item.brandName;
+                const itemBrandName = item.brand?.name || item.brandSlug;
                 return itemBrandName ? selectedBrands.includes(itemBrandName) : false;
             });
         }
@@ -580,9 +580,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                                     const cartItem: Omit<CartItemType, 'quantity'> = {
                                                         id: `${item.id}-${warehouseId}`,
                                                         articleId: item.articleId,
+                                                        slug: item.slug,
                                                         itemImageLink: item.itemImageLink,
                                                         categorySlug: item.categorySlug,
-                                                        subCategorySlug: item.subCategorySlug,
                                                         isDisplayed: item.isDisplayed,
                                                         sellCounter: item.sellCounter,
                                                         createdAt: item.createdAt,
@@ -593,16 +593,15 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                                         },
                                                         subCategory: {
                                                             ...item.subCategory,
-                                                            createdAt: item.subCategory.createdAt || now,
-                                                            updatedAt: item.subCategory.updatedAt || now,
+                                                            createdAt: item.subCategory.createdAt || now.toISOString(),
+                                                            updatedAt: item.subCategory.updatedAt || now.toISOString(),
                                                         },
-                                                        brandId: item.brandId ?? null,
-                                                        brandName: item.brand?.name || item.brandName || '',
+                                                        brandSlug: item.brandSlug ?? null,
                                                         brand: item.brand
                                                             ? {
                                                                 ...item.brand,
-                                                                createdAt: item.brand.createdAt || now,
-                                                                updatedAt: item.brand.updatedAt || now,
+                                                                createdAt: item.brand.createdAt || now.toISOString(),
+                                                                updatedAt: item.brand.updatedAt || now.toISOString(),
                                                             }
                                                             : null,
                                                         warrantyType: item.warrantyType ?? null,
@@ -613,6 +612,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                                         warehouseId,
                                                         displayName: details?.itemName,
                                                         availableWarehouses: getAvailableWarehouses(item),
+                                                        linkedItems: item.linkedItems || [],
                                                     };
 
                                                     addToCart(cartItem);
@@ -632,7 +632,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                                             viewMode={viewMode}
                                                             badge={badge}
                                                             stockBadge={stockBadge}
-                                                            brand={item.brand?.name || item.brandName || undefined}
+                                                            brand={item.brand?.name || item.brandSlug || undefined}
                                                             categoryName={item.category.name}
                                                             warehouseLabel={warehouseLabel}
                                                             warehouseExtraLabel={warehouseExtraLabel}

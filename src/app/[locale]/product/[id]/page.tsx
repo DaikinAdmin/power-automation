@@ -170,15 +170,15 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
         const baseSpecialPrice = selectedWarehouse.baseSpecialPrice ?? (selectedWarehouse.specialPrice ? parsePriceValue(selectedWarehouse.specialPrice) ?? undefined : undefined);
         const specialPrice = baseSpecialPrice;
 
-        const now = new Date();
+        const now = new Date().toISOString();
 
         const cartItem: Omit<CartItemType, 'quantity'> = {
           id: product.id,
+          slug: product.articleId,
           articleId: product.articleId,
           isDisplayed: product.isDisplayed,
           itemImageLink: product.itemImageLink || [product.image] || [],
           categorySlug: product.categorySlug,
-          subCategorySlug: product.subCategorySlug,
           brandSlug: product.brandSlug ?? null,
           warrantyType: product.warrantyType ?? null,
           warrantyLength: product.warrantyMonths ?? null,
@@ -237,6 +237,7 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
           warehouseId: selectedWarehouse.warehouseId,
           displayName: productName,
           availableWarehouses: availableWarehousesForCart,
+          linkedItems: [],
         };
 
         addToCart(cartItem);

@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     }));
     
     /* Prisma implementation (commented out)
-    const recentOrders = await prisma.order.findMany({
+    const recentOrders = await db.order.findMany({
       take: 5,
       orderBy: {
         createdAt: 'desc'

@@ -1,11 +1,15 @@
 import { useCallback } from 'react';
 import { CartItemType, Item } from '@/helpers/types/item';
+import { ItemResponse } from '@/helpers/types/api-responses';
 
 interface CatalogPricingOptions {
   preferredCountryCode?: string;
 }
 
 type AvailableWarehouse = NonNullable<CartItemType['availableWarehouses']>[number];
+
+// Type that can accept both Item and ItemResponse
+type ItemType = Item | ItemResponse;
 
 export const useCatalogPricing = (
   options: CatalogPricingOptions = {}
@@ -14,16 +18,23 @@ export const useCatalogPricing = (
     preferredCountryCode = 'PL'
   } = options;
 
-  const getItemDetails = useCallback((item: Item) => {
-    return item.itemDetails[0];
+  const getItemDetails = useCallback((item: ItemType) => {
+    // Handle both Item (itemDetails) and ItemResponse (details)
+    if ('itemDetails' in item) {
+      return item.itemDetails[0];
+    }
+    return item.details;
   }, []);
 
-  const getItemPrice = useCallback((item: Item) => {
+  const getItemPrice = useCallback((item: ItemType) => {
+    // Handle both Item (itemPrice) and ItemResponse (prices)
+    const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
+    
     const prioritizedPrice =
-      item.itemPrice.find((price) => price.warehouse.country === preferredCountryCode && price.quantity > 0) ||
-      item.itemPrice.find((price) => price.warehouse.country === preferredCountryCode) ||
-      item.itemPrice.find((price) => price.quantity > 0) ||
-      item.itemPrice[0];
+      prices.find((price) => price.warehouse.countrySlug === preferredCountryCode && price.quantity > 0) ||
+      prices.find((price) => price.warehouse.countrySlug === preferredCountryCode) ||
+      prices.find((price) => price.quantity > 0) ||
+      prices[0];
 
     if (!prioritizedPrice) {
       return {
@@ -48,16 +59,18 @@ export const useCatalogPricing = (
       quantity: prioritizedPrice.quantity,
       warehouseId: prioritizedPrice.warehouse.id,
       warehouseName: prioritizedPrice.warehouse.name || prioritizedPrice.warehouse.displayedName || undefined,
-      warehouseCountry: prioritizedPrice.warehouse.country || undefined,
+      warehouseCountry: prioritizedPrice.warehouse.countrySlug || undefined,
       displayedName: prioritizedPrice.warehouse.displayedName || undefined
     };
   }, [preferredCountryCode]);
 
-  const getAvailableWarehouses = useCallback((item: Item) => {
-    return item.itemPrice.map((priceInfo: { warehouse: { id: any; name: any; displayedName: any; country: any; }; promotionPrice: any; price: any; quantity: number; }) => ({
+  const getAvailableWarehouses = useCallback((item: ItemType) => {
+    const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
+    
+    return prices.map((priceInfo) => ({
       warehouseId: priceInfo.warehouse.id,
       warehouseName: priceInfo.warehouse.name || priceInfo.warehouse.displayedName || 'Unknown Warehouse',
-      warehouseCountry: priceInfo.warehouse.country || 'Unknown Country',
+      warehouseCountry: priceInfo.warehouse.countrySlug || 'Unknown Country',
       displayName: priceInfo.warehouse.displayedName || undefined,
       price: priceInfo.promotionPrice ?? priceInfo.price,
       specialPrice: priceInfo.promotionPrice || undefined,

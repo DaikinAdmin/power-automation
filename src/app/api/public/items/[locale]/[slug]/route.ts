@@ -112,7 +112,7 @@ export async function GET_PRISMA(
     }
 
     // Find the item by ID
-    const item = await prisma.item.findUnique({
+    const item = await db.item.findUnique({
       where: {
         articleId: slug,
         isDisplayed: true

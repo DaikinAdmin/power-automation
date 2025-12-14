@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
-import { Warehouse, Brand as PrismaBrand, Badge, SubCategories } from '@prisma/client';
+import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
 
 interface BasicInformationStepProps {
@@ -18,7 +18,7 @@ interface BasicInformationStepProps {
 export function BasicInformationStep({ formData, setFormData }: BasicInformationStepProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [brands, setBrands] = useState<PrismaBrand[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null);
@@ -31,18 +31,18 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     promotionPrice: null,
     promoEndDate: null,
     promoCode: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    badge: Badge.ABSENT,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    badge: 'ABSENT',
     history: [],
     warehouse: {
       id: '',
       name: '',
       displayedName: '',
       isVisible: true,
-      country: 'Other',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      countrySlug: 'other',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,11 +53,11 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   ];
 
   const badgeOptions = [
-    { value: Badge.ABSENT, label: 'None' },
-    { value: Badge.NEW_ARRIVALS, label: 'New Arrivals' },
-    { value: Badge.BESTSELLER, label: 'Bestseller' },
-    { value: Badge.HOT_DEALS, label: 'Hot Deals' },
-    { value: Badge.LIMITED_EDITION, label: 'Limited Edition' },
+    { value: 'ABSENT', label: 'None' },
+    { value: 'NEW_ARRIVALS', label: 'New Arrivals' },
+    { value: 'BESTSELLER', label: 'Bestseller' },
+    { value: 'HOT_DEALS', label: 'Hot Deals' },
+    { value: 'LIMITED_EDITION', label: 'Limited Edition' },
   ];
 
   useEffect(() => {
@@ -149,18 +149,18 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promoStartDate: null,
       promoEndDate: newPriceEntry.promoEndDate || null,
       promoCode: newPriceEntry.promoCode || '',
-      badge: newPriceEntry.badge || Badge.ABSENT,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      badge: newPriceEntry.badge || 'ABSENT',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       history: [],
       warehouse: warehouse || {
         id: newPriceEntry.warehouseId,
         name: 'Unknown',
         displayedName: 'Unknown',
         isVisible: true,
-        country: 'Other',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        countrySlug: 'other',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
     };
 
@@ -179,18 +179,18 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promotionPrice: null,
       promoEndDate: null,
       promoCode: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      badge: Badge.ABSENT,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      badge: 'ABSENT',
       history: [],
       warehouse: {
         id: '',
         name: '',
         displayedName: '',
         isVisible: true,
-        country: 'Other',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        countrySlug: 'other',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
     });
     setIsAddingPrice(false);
@@ -288,7 +288,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             >
               <option value="">Select Brand</option>
               {brands.map((brand) => (
-                <option key={brand.id} value={brand.id}>
+                <option key={brand.id} value={brand.alias}>
                   {brand.name}
                 </option>
               ))}
@@ -329,7 +329,6 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               onChange={(e) => setFormData((prev: Item) => ({ 
                 ...prev, 
                 categorySlug: e.target.value,
-                subCategorySlug: '', // Reset subcategory when category changes
                 category: categories.find(cat => cat.slug === e.target.value) || prev.category
               }))}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
@@ -337,33 +336,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             >
               <option value="">Select Category</option>
               {categories.map(category => (
-                <option key={category.id} value={category.id}>
+                <option key={category.id} value={category.slug}>
                   {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sub Category */}
-          <div>
-            <Label>Sub Category</Label>
-            <select
-              value={formData.subCategorySlug}
-              onChange={(e) => {
-                const selectedSubCategory = getSelectedCategory()?.subCategories.find((sub: { slug: string; }) => sub.slug === e.target.value);
-                setFormData((prev: Item) => ({ 
-                  ...prev, 
-                  subCategorySlug: e.target.value,
-                  subCategory: selectedSubCategory || prev.subCategory
-                }));
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
-              disabled={!formData.categorySlug}
-            >
-              <option value="">Select Sub Category</option>
-              {getSelectedCategory()?.subCategories.map((sub: SubCategories) => (
-                <option key={sub.slug as string} value={sub.slug as string}>
-                  {sub.name}
                 </option>
               ))}
             </select>
@@ -438,7 +412,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   // console.log(`Rendering price row ${index}:`, price);
                   const isPromoActive = isPromotionActive(new Date(), price.promoEndDate as Date);
                   const effectivePrice = getEffectivePrice(price.price, price.promotionPrice, new Date(), price.promoEndDate as Date);
-                  const badgeLabel = badgeOptions.find(option => option.value === (price.badge || Badge.ABSENT))?.label || 'None';
+                  const badgeLabel = badgeOptions.find(option => option.value === (price.badge || 'ABSENT'))?.label || 'None';
 
                   return (
                     <tr key={price.id || `price-${index}`}>
@@ -573,7 +547,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               <div>
                 <Label>Badge</Label>
                 <select
-                  value={newPriceEntry.badge || Badge.ABSENT}
+                  value={newPriceEntry.badge || 'ABSENT'}
                   onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
                   className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 >

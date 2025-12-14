@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import prisma from '@/db';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
@@ -24,16 +26,17 @@ export async function GET(
     }
 
     // Get user role from database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
-    });
+    const [userData] = await db
+      .select({ role: schema.user.role })
+      .from(schema.user)
+      .where(eq(schema.user.id, userId))
+      .limit(1);
 
-    if (!user) {
+    if (!userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ role: user.role });
+    return NextResponse.json({ role: userData.role });
   } catch (error) {
     console.error('Error fetching user role:', error);
     return NextResponse.json(

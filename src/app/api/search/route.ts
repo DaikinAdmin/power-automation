@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         itemImageLink: schema.item.itemImageLink,
         brandSlug: schema.item.brandSlug,
         categorySlug: schema.item.categorySlug,
-        subCategorySlug: schema.item.subCategorySlug,
         warrantyType: schema.item.warrantyType,
         warrantyLength: schema.item.warrantyLength,
         linkedItems: schema.item.linkedItems,
@@ -66,7 +65,7 @@ export async function GET(request: NextRequest) {
           db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.articleId)),
           db.select({
             id: schema.itemPrice.id,
-            itemId: schema.itemPrice.itemId,
+            itemSlug: schema.itemPrice.itemSlug,
             warehouseId: schema.itemPrice.warehouseId,
             price: schema.itemPrice.price,
             quantity: schema.itemPrice.quantity,
@@ -84,8 +83,8 @@ export async function GET(request: NextRequest) {
           item.categorySlug
             ? db.select().from(schema.category).where(eq(schema.category.slug, item.categorySlug)).limit(1).then(r => r[0])
             : null,
-          item.subCategorySlug
-            ? db.select().from(schema.subcategories).where(eq(schema.subcategories.slug, item.subCategorySlug)).limit(1).then(r => r[0])
+          item.categorySlug
+            ? db.select().from(schema.subcategories).where(eq(schema.subcategories.slug, item.categorySlug)).limit(1).then(r => r[0])
             : null,
           item.brandSlug
             ? db.select().from(schema.brand).where(eq(schema.brand.alias, item.brandSlug)).limit(1).then(r => r[0])
@@ -104,7 +103,7 @@ export async function GET(request: NextRequest) {
     );
 
     /* Prisma implementation (commented out)
-    const items = await prisma.item.findMany({
+    const items = await db.item.findMany({
       where: {
         OR: [
           {

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { Badge } from '@prisma/client';
+import type { Badge } from '@/db/schema';
 import { Item } from '@/helpers/types/item';
 import { eq, asc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
@@ -89,7 +89,7 @@ export async function GET(
                 : null,
             db.select({
                 id: schema.itemPrice.id,
-                itemId: schema.itemPrice.itemId,
+                itemSlug: schema.itemPrice.itemSlug,
                 warehouseId: schema.itemPrice.warehouseId,
                 price: schema.itemPrice.price,
                 quantity: schema.itemPrice.quantity,
@@ -244,8 +244,7 @@ export async function PUT(
                 articleId: data.articleId,
                 isDisplayed: data.isDisplayed,
                 itemImageLink: data.itemImageLink || null,
-                categorySlug: finalCategorySlug || null,
-                subCategorySlug: null, // Always null with new logic
+                categorySlug: finalCategorySlug || '',
                 brandSlug: data.brandSlug || null,
                 warrantyType: data.warrantyType || null,
                 warrantyLength: data.warrantyLength || null,
@@ -268,7 +267,7 @@ export async function PUT(
                     promotionPrice: price.promotionPrice ?? null,
                     promoEndDate: price.promoEndDate ? new Date(price.promoEndDate).toISOString() : null,
                     promoCode: price.promoCode || null,
-                    badge: price.badge || Badge.ABSENT,
+                    badge: price.badge || 'ABSENT',
                     createdAt: now,
                     updatedAt: now,
                 }));
@@ -353,7 +352,7 @@ export async function PUT(
                     : { disconnect: true },
                 warrantyType: data.warrantyType || undefined,
                 warrantyLength: typeof data.warrantyLength === 'number' ? data.warrantyLength : undefined,
-                updatedAt: new Date(),
+                updatedAt: new Date().toISOString(),
                 itemPrice: {
                     create: data.itemPrice
                         .filter((price: { warehouseId: any; }) => price.warehouseId)
@@ -445,10 +444,21 @@ export async function DELETE(
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
+        // Get the item's ID first
+        const [itemToDelete] = await db
+            .select({ id: schema.item.id })
+            .from(schema.item)
+            .where(eq(schema.item.articleId, articleId))
+            .limit(1);
+
+        if (!itemToDelete) {
+            return NextResponse.json({ message: 'Item not found' }, { status: 404 });
+        }
+
         // Delete related records first (manually handle cascade)
         await db.delete(schema.itemPrice).where(eq(schema.itemPrice.itemSlug, articleId));
         await db.delete(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, articleId));
-        await db.delete(schema.itemPriceHistory).where(eq(schema.itemPriceHistory.itemSlug, articleId));
+        await db.delete(schema.itemPriceHistory).where(eq(schema.itemPriceHistory.itemId, itemToDelete.id));
         
         // Delete the item
         await db.delete(schema.item).where(eq(schema.item.articleId, articleId));

@@ -46,7 +46,7 @@ export async function GET(
       ? lineItems.map((item: any) => item.itemId).filter(Boolean)
       : [];
 
-    let items = [];
+    let items: any[] = [];
     if (itemIds.length > 0) {
       // Fetch items with details, prices, and brand
       const dbItems = await db
@@ -93,7 +93,7 @@ export async function GET(
     const orderWithItems = { ...order, items };
 
     /* Prisma implementation (commented out)
-    const order = await prisma.order.findFirst({
+    const order = await db.order.findFirst({
       where: {
         id,
         userId: session.user.id,
@@ -180,7 +180,7 @@ export async function PATCH(
         .returning();
 
       /* Prisma implementation (commented out)
-      const updatedOrder = await prisma.order.update({
+      const updatedOrder = await db.order.update({
         where: { id: id },
         data: { status: 'CANCELLED' },
       });

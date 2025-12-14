@@ -11,8 +11,6 @@ import { useCartTotals } from "@/hooks/useCartTotals";
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from "@/components/languge-switcher";
 
-export const dynamic = 'force-dynamic';
-
 interface CheckoutForm {
   firstName: string;
   lastName: string;

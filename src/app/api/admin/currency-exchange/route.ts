@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { Currency } from '@prisma/client';
+// import { Currency } from '@/db/schema';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
@@ -36,7 +36,7 @@ export async function GET() {
       .orderBy(desc(schema.currencyExchange.updatedAt));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -45,7 +45,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const exchangeRates = await prisma.currencyExchange.findMany({
+    const exchangeRates = await db.currencyExchange.findMany({
       orderBy: {
         updatedAt: 'desc'
       }
@@ -111,8 +111,8 @@ export async function PUT(req: NextRequest) {
       .from(schema.currencyExchange)
       .where(
         and(
-          eq(schema.currencyExchange.from, from as Currency),
-          eq(schema.currencyExchange.to, to as Currency)
+          eq(schema.currencyExchange.from, from as any),
+          eq(schema.currencyExchange.to, to as any)
         )
       )
       .limit(1);
@@ -134,8 +134,8 @@ export async function PUT(req: NextRequest) {
         .insert(schema.currencyExchange)
         .values({
           id: randomUUID(),
-          from: from as Currency,
-          to: to as Currency,
+          from: from as any,
+          to: to as any,
           rate,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -144,7 +144,7 @@ export async function PUT(req: NextRequest) {
     }
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -160,7 +160,7 @@ export async function PUT(req: NextRequest) {
       );
     }
     
-    const exchangeRate = await prisma.currencyExchange.upsert({
+    const exchangeRate = await db.currencyExchange.upsert({
       where: {
         from_to: {
           from: from as Currency,

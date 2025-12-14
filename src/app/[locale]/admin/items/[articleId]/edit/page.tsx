@@ -40,13 +40,13 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
         // Convert item data to FormData format - ensure proper mapping
         const itemFormData: Item = {
           id: item.id || '',
+          slug: item.slug || item.articleId || '',
           articleId: item.articleId || '',
           isDisplayed: Boolean(item.isDisplayed),
           itemImageLink: item.itemImageLink || '',
-          createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
-          updatedAt: item.updatedAt ? new Date(item.updatedAt) : new Date(),
+          createdAt: item.createdAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || new Date().toISOString(),
           categorySlug: item.categorySlug || '',
-          subCategorySlug: item.subCategorySlug || '',
           brandSlug: item.brandSlug || '',
           brand: item.brand || null,
           warrantyType: item.warrantyType || '',
@@ -55,8 +55,8 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
           category: item.category || {
             id: '',
             name: '',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             slug: '',
             isVisible: true,
             subCategories: []
@@ -64,8 +64,8 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
           subCategory: item.subCategory || {
             id: '',
             name: '',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             slug: '',
             isVisible: true,
             categorySlug: ''
@@ -89,8 +89,8 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
               displayedName: 'Unknown Warehouse',
               isVisible: true,
               country: 'Other',
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
             }
           })) : [],
           // Properly map itemDetails array
@@ -104,7 +104,8 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
             seller: detail.seller || '',
             discount: detail.discount ? parseFloat(detail.discount) : null,
             popularity: detail.popularity || null
-          })) : []
+          })) : [],
+          linkedItems: item.linkedItems || [],
         };
         
         setInitialData(itemFormData);

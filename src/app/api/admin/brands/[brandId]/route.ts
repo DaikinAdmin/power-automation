@@ -51,7 +51,7 @@ export async function GET(
     };
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -60,7 +60,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const brand = await prisma.brand.findUnique({
+    const brand = await db.brand.findUnique({
       where: { id: brandId },
       include: {
         _count: {
@@ -139,7 +139,7 @@ export async function PUT(
     }
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -148,7 +148,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const existingAlias = await prisma.brand.findFirst({
+    const existingAlias = await db.brand.findFirst({
       where: {
         alias,
         NOT: { id: brandId },
@@ -159,7 +159,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Brand with this alias already exists' }, { status: 400 });
     }
 
-    const brand = await prisma.brand.update({
+    const brand = await db.brand.update({
       where: { id: brandId },
       data: {
         name,
@@ -228,7 +228,7 @@ export async function DELETE(
     await db.delete(schema.brand).where(eq(schema.brand.id, brandId));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -237,7 +237,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const brandWithRelations = await prisma.brand.findUnique({
+    const brandWithRelations = await db.brand.findUnique({
       where: { id: brandId },
       include: {
         _count: {
@@ -257,7 +257,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.brand.delete({ where: { id: brandId } });
+    await db.brand.delete({ where: { id: brandId } });
     */
 
     return NextResponse.json({ message: 'Brand deleted successfully' });

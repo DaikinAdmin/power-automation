@@ -13,8 +13,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowRight, RefreshCw, Save } from 'lucide-react';
-import { Currency } from '@prisma/client';
+import type { Currency } from '@/db/schema';
 import { formatDate } from '@/helpers/formatting';
+
+// Currency enum values as constants
+const CURRENCY = {
+  EUR: 'EUR' as const,
+  PLN: 'PLN' as const,
+  UAH: 'UAH' as const,
+};
 
 interface CurrencyExchange {
   id: string;
@@ -140,12 +147,12 @@ export default function CurrencyExchangePage() {
         <CurrencyExchangeCard
           title="EUR to PLN"
           description="Euro to Polish Złoty exchange rate"
-          fromCurrency={Currency.EUR}
-          toCurrency={Currency.PLN}
-          exchangeRate={getCurrencyPair(Currency.EUR, Currency.PLN)}
-          editRate={editRates[`${Currency.EUR}_${Currency.PLN}`]}
-          onRateChange={(value) => handleRateChange(Currency.EUR, Currency.PLN, value)}
-          onSave={() => updateExchangeRate(Currency.EUR, Currency.PLN)}
+          fromCurrency={CURRENCY.EUR}
+          toCurrency={CURRENCY.PLN}
+          exchangeRate={getCurrencyPair(CURRENCY.EUR, CURRENCY.PLN)}
+          editRate={editRates[`${CURRENCY.EUR}_${CURRENCY.PLN}`]}
+          onRateChange={(value) => handleRateChange(CURRENCY.EUR, CURRENCY.PLN, value)}
+          onSave={() => updateExchangeRate(CURRENCY.EUR, CURRENCY.PLN)}
           isLoading={isLoading}
         />
         
@@ -153,12 +160,12 @@ export default function CurrencyExchangePage() {
         <CurrencyExchangeCard
           title="EUR to UAH"
           description="Euro to Ukrainian Hryvnia exchange rate"
-          fromCurrency={Currency.EUR}
-          toCurrency={Currency.UAH}
-          exchangeRate={getCurrencyPair(Currency.EUR, Currency.UAH)}
-          editRate={editRates[`${Currency.EUR}_${Currency.UAH}`]}
-          onRateChange={(value) => handleRateChange(Currency.EUR, Currency.UAH, value)}
-          onSave={() => updateExchangeRate(Currency.EUR, Currency.UAH)}
+          fromCurrency={CURRENCY.EUR}
+          toCurrency={CURRENCY.UAH}
+          exchangeRate={getCurrencyPair(CURRENCY.EUR, CURRENCY.UAH)}
+          editRate={editRates[`${CURRENCY.EUR}_${CURRENCY.UAH}`]}
+          onRateChange={(value) => handleRateChange(CURRENCY.EUR, CURRENCY.UAH, value)}
+          onSave={() => updateExchangeRate(CURRENCY.EUR, CURRENCY.UAH)}
           isLoading={isLoading}
         />
         
@@ -166,12 +173,12 @@ export default function CurrencyExchangePage() {
         <CurrencyExchangeCard
           title="PLN to EUR"
           description="Polish Złoty to Euro exchange rate"
-          fromCurrency={Currency.PLN}
-          toCurrency={Currency.EUR}
-          exchangeRate={getCurrencyPair(Currency.PLN, Currency.EUR)}
-          editRate={editRates[`${Currency.PLN}_${Currency.EUR}`]}
-          onRateChange={(value) => handleRateChange(Currency.PLN, Currency.EUR, value)}
-          onSave={() => updateExchangeRate(Currency.PLN, Currency.EUR)}
+          fromCurrency={CURRENCY.PLN}
+          toCurrency={CURRENCY.EUR}
+          exchangeRate={getCurrencyPair(CURRENCY.PLN, CURRENCY.EUR)}
+          editRate={editRates[`${CURRENCY.PLN}_${CURRENCY.EUR}`]}
+          onRateChange={(value) => handleRateChange(CURRENCY.PLN, CURRENCY.EUR, value)}
+          onSave={() => updateExchangeRate(CURRENCY.PLN, CURRENCY.EUR)}
           isLoading={isLoading}
         />
         
@@ -179,12 +186,12 @@ export default function CurrencyExchangePage() {
         <CurrencyExchangeCard
           title="UAH to EUR"
           description="Ukrainian Hryvnia to Euro exchange rate"
-          fromCurrency={Currency.UAH}
-          toCurrency={Currency.EUR}
-          exchangeRate={getCurrencyPair(Currency.UAH, Currency.EUR)}
-          editRate={editRates[`${Currency.UAH}_${Currency.EUR}`]}
-          onRateChange={(value) => handleRateChange(Currency.UAH, Currency.EUR, value)}
-          onSave={() => updateExchangeRate(Currency.UAH, Currency.EUR)}
+          fromCurrency={CURRENCY.UAH}
+          toCurrency={CURRENCY.EUR}
+          exchangeRate={getCurrencyPair(CURRENCY.UAH, CURRENCY.EUR)}
+          editRate={editRates[`${CURRENCY.UAH}_${CURRENCY.EUR}`]}
+          onRateChange={(value) => handleRateChange(CURRENCY.UAH, CURRENCY.EUR, value)}
+          onSave={() => updateExchangeRate(CURRENCY.UAH, CURRENCY.EUR)}
           isLoading={isLoading}
         />
       </div>

@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: "Power Automation",
   description: "Best deals on electronics, fashion, and more!",
 };
+
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

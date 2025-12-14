@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Warehouse } from '@prisma/client';
+import { Warehouse } from '@/db/schema';
 
 interface WarehouseModalProps {
   isOpen: boolean;
@@ -40,10 +40,19 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
     try {
       if (warehouse) {
         // Edit existing warehouse
-        await onSave({ ...warehouse, ...formData });
+        onSave({ 
+          ...warehouse, 
+          ...formData,
+          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
+          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+        });
       } else {
         // Create new warehouse
-        await onSave(formData);
+        onSave({
+          ...formData,
+          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
+          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+        });
       }
       
       // Reset form
@@ -52,8 +61,8 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
         countrySlug: 'other',
         displayedName: '',
         isVisible: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
       onClose();
     } catch (error) {

@@ -5,8 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import PageLayout from "@/components/layout/page-layout";
 import Carousel from "@/components/banner-carousel";
-import { Item } from "@/helpers/types/item";
-import { Badge } from "@prisma/client";
+import { ItemResponse } from "@/helpers/types/api-responses";
+import type { Badge } from "@/db/schema";
+
+type Item = ItemResponse;
 import { useCatalogPricing } from "@/hooks/useCatalogPricing";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import CatalogProductCard from "@/components/catalog-product-card";
@@ -122,7 +124,7 @@ export default function Home() {
       setIsDataLoading(true);
       const response = await fetch(`/api/public/items/${locale}`);
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as Item[];
         setItems(data);
 
         // Extract categories from items
@@ -132,31 +134,22 @@ export default function Home() {
         data.forEach((item: Item) => {
           // Process categories
           if (item.category) {
-            const categoryName =
-              typeof item.category === "object"
-                ? item.category.name
-                : item.category;
-            const categorySlug =
-              typeof item.category === "object"
-                ? item.category.slug
-                : categoryName.toLowerCase().replace(/\s+/g, "-");
+            const categoryName = item.category.name;
+            const categorySlug = item.category.slug;
 
-            if (!categoryMap.has(categoryName)) {
-              categoryMap.set(categoryName, {
-                id: categoryName.toLowerCase().replace(/\s+/g, "-"),
+            if (!categoryMap.has(categorySlug)) {
+              categoryMap.set(categorySlug, {
+                id: categorySlug,
                 name: categoryName,
                 slug: categorySlug,
                 image: "/placeholder-category.jpg",
                 subcategories: new Set(),
               });
             }
-            if (item.subCategory) {
-              const subCategoryName =
-                typeof item.subCategory === "object"
-                  ? item.subCategory.name
-                  : item.subCategory;
-              categoryMap.get(categoryName).subcategories.add(subCategoryName);
-            }
+            // Add subcategories from the category object
+            item.category.subCategories.forEach(sub => {
+              categoryMap.get(categorySlug).subcategories.add(sub.name);
+            });
           }
 
           // Process brands
@@ -204,13 +197,13 @@ export default function Home() {
         return displayedItems
           .filter((item) => {
             // Check if item has DISCOUNT badge
-            const hasDiscountBadge = item.itemPrice.some(
-              (price: { badge: Badge | null }) =>
-                price.badge === Badge.HOT_DEALS
+            const hasDiscountBadge = item.prices.some(
+              (price) =>
+                price.badge === 'HOT_DEALS'
             );
 
             // Check if item has active promotion price
-            const hasActivePromotion = item.itemPrice.some(
+            const hasActivePromotion = item.prices.some(
               (price: {
                 promotionPrice: number | null;
                 price: number;
@@ -240,9 +233,9 @@ export default function Home() {
       case "new":
         return displayedItems
           .filter((item) =>
-            item.itemPrice.some(
-              (price: { badge: string | null }) =>
-                price.badge === Badge.NEW_ARRIVALS
+            item.prices.some(
+              (price) =>
+                price.badge === 'NEW_ARRIVALS'
             )
           )
           .slice(0, 4);
@@ -384,31 +377,48 @@ export default function Home() {
                       return;
                     }
 
+                    const { warehouseId } = getItemPrice(item);
+                    const subCategory = item.subCategorySlug 
+                      ? item.category.subCategories.find(s => s.slug === item.subCategorySlug) 
+                      : null;
+
                     addToCart({
-                      id: item.id,
+                      id: `${item.articleId}-${warehouseId}`,
+                      slug: item.articleId,
                       availableWarehouses: getAvailableWarehouses(item),
                       articleId: item.articleId,
                       isDisplayed: item.isDisplayed,
                       sellCounter: item.sellCounter,
                       itemImageLink: item.itemImageLink,
                       categorySlug: item.categorySlug,
-                      subCategorySlug: item.subCategorySlug,
                       createdAt: item.createdAt,
                       updatedAt: item.updatedAt,
-                      itemPrice: item.itemPrice,
-                      itemDetails: item.itemDetails,
-                      category: item.category,
-                      subCategory: item.subCategory,
+                      itemPrice: item.prices as any,
+                      itemDetails: [item.details as any],
+                      category: {
+                        ...item.category,
+                        id: item.category.slug,
+                        categoryTranslations: [],
+                      } as any,
+                      subCategory: subCategory ? {
+                        ...subCategory,
+                        id: subCategory.slug,
+                      } as any : null,
                       warrantyType: item.warrantyType,
                       warrantyLength: item.warrantyLength,
-                      brandSlug: item.brandSlug
+                      brandSlug: item.brandSlug,
+                      brand: item.brand ? {
+                        ...item.brand,
+                        id: item.brand.alias,
+                      } as any : null,
+                      linkedItems: [],
                     });
                   };
 
                   return (
                     <CatalogProductCard
-                      key={item.id}
-                      href={`/product/${item.id}`}
+                      key={item.articleId}
+                      href={`/product/${item.articleId}`}
                       imageSrc={item.itemImageLink}
                       imageAlt={details?.itemName || "Product"}
                       name={details?.itemName || "Unnamed Product"}

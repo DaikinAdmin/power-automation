@@ -47,7 +47,7 @@ export default function SecondaryHeader() {
     };
 
     fetchCategories();
-  }, []);
+  }, [locale]);
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -138,11 +138,13 @@ export default function SecondaryHeader() {
 
                     {/* subcategory column */}
                     {hoveredCategory &&
-                      categories.find((cat) => cat.id === hoveredCategory)
-                        ?.subCategories?.length > 0 && (
+                      categories?.find((cat) => cat.slug === hoveredCategory)
+                        ?.subCategories &&
+                      categories?.find((cat) => cat.slug === hoveredCategory)
+                        ?.subCategories?.length && (
                         <div className="flex-1 px-4 py-2">
                           {categories
-                            .find((cat) => cat.id === hoveredCategory)
+                            .find((cat) => cat.slug === hoveredCategory)
                             ?.subCategories?.map(
                               (
                                 subcategory: { name: string },

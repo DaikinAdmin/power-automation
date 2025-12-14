@@ -47,16 +47,26 @@ export async function GET(request: NextRequest) {
         originalTotalPrice: schema.order.originalTotalPrice,
         lineItems: schema.order.lineItems,
         createdAt: schema.order.createdAt,
-        itemIds: schema.order.itemIds,
+        itemIds: schema.order.lineItems,
         userName: schema.user.name,
         userEmail: schema.user.email,
       })
       .from(schema.order)
       .leftJoin(schema.user, eq(schema.order.userId, schema.user.id))
-      .orderBy(desc(schema.order.createdAt));
+      .orderBy(desc(schema.order.createdAt)) as unknown as Array<{
+        id: string;
+        status: string;
+        totalPrice: number;
+        originalTotalPrice: number;
+        lineItems: any;
+        createdAt: Date;
+        itemIds: string[];
+        userName: string | null;
+        userEmail: string | null;
+      }>;
 
     // Fetch item details for all orders
-    const allItemIds = ordersWithUser.flatMap(order => order.itemIds || []);
+    const allItemIds = ordersWithUser.flatMap(order => order.itemIds || []) as string[];
     const uniqueItemIds = [...new Set(allItemIds)];
     
     let itemsMap = new Map();
@@ -103,7 +113,7 @@ export async function GET(request: NextRequest) {
     }));
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -112,7 +122,7 @@ export async function GET(request: NextRequest) {
       return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
     }
 
-    const orders = await prisma.order.findMany({
+    const orders = await db.order.findMany({
       select: {
         id: true,
         status: true,

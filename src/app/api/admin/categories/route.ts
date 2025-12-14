@@ -73,11 +73,11 @@ export async function GET() {
     // Map subcategories to categories
     const categoriesWithSubs = categories.map((cat) => ({
       ...cat,
-      subCategories: subcategories.filter((sub) => sub.categorySlug === cat.id),
+      subCategories: subcategories.filter((sub) => sub.categorySlug === cat.slug),
     }));
 
     /* Prisma implementation (commented out)
-    const categories = await prisma.category.findMany({
+    const categories = await db.category.findMany({
       orderBy: { name: 'asc' },
       include: { subCategories: true },
     });
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     }
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const existingCategory = await prisma.category.findFirst({
+    const existingCategory = await db.category.findFirst({
       where: { slug },
     });
 
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const category = await prisma.category.create({
+    const category = await db.category.create({
       data: {
         name,
         slug,

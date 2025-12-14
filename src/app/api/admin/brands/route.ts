@@ -55,7 +55,7 @@ export async function GET() {
     });
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -64,7 +64,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const brands = await prisma.brand.findMany({
+    const brands = await db.brand.findMany({
       orderBy: { name: 'asc' },
       include: {
         _count: {
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       .returning();
 
     /* Prisma implementation (commented out)
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const aliasExists = await prisma.brand.findFirst({
+    const aliasExists = await db.brand.findFirst({
       where: { alias },
     });
 
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Brand with this alias already exists' }, { status: 400 });
     }
 
-    const brand = await prisma.brand.create({
+    const brand = await db.brand.create({
       data: {
         name,
         alias,

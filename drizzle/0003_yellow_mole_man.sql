@@ -1,0 +1,23 @@
+ALTER TABLE "account" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "brand" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "cart" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "category" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "category_translation" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "currency_exchange" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "discount_level" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "item" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "item_details" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "item_opinion" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "item_price" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "item_price_history" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "linked_items" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "messages" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "order" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "out_of_stock_request" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "session" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "subcategories" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "subcategory_translation" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "twoFactor" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "user" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "verification" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+ALTER TABLE "warehouse" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();

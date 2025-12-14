@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { PrismaClient } from '@prisma/client';
-
-// import prisma from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { mapOrderForUser } from './shared';
@@ -81,7 +78,7 @@ export async function GET(request: NextRequest) {
     );
 
     /* Prisma implementation (commented out)
-    const orders = await prisma.order.findMany({
+    const orders = await db.order.findMany({
       where: {
         userId: session.user.id,
       },
@@ -223,7 +220,7 @@ async function priceRequestHandler(body: any, userId: string) {
     .returning();
 
   /* Prisma implementation (commented out)
-  const item = await prisma.item.findUnique({
+  const item = await db.item.findUnique({
     where: { id: itemId },
     include: {
       itemDetails: {
@@ -264,7 +261,7 @@ async function priceRequestHandler(body: any, userId: string) {
       lineTotal: 0,
     }];
 
-  const order = await prisma.order.create({
+  const order = await db.order.create({
     data: {
       userId: userId,
       originalTotalPrice: price || 0,
@@ -341,7 +338,6 @@ async function orderHandler(body: any, userId: string) {
           .limit(1),
         db.select({
           id: schema.itemPrice.id,
-          itemId: schema.itemPrice.itemId,
           itemSlug: schema.itemPrice.itemSlug,
           warehouseId: schema.itemPrice.warehouseId,
           price: schema.itemPrice.price,
@@ -363,7 +359,7 @@ async function orderHandler(body: any, userId: string) {
   );
 
   /* Prisma implementation (commented out)
-  const dbItems = await prisma.item.findMany({
+  const dbItems = await db.item.findMany({
     where: {
       articleId: { in: itemIds }
     },
@@ -498,7 +494,7 @@ async function orderHandler(body: any, userId: string) {
   }
 
   /* Prisma implementation (commented out)
-  const order = await prisma.order.create({
+  const order = await db.order.create({
     data: {
       userId: userId,
       originalTotalPrice: normalizedOriginalTotal,
@@ -528,7 +524,7 @@ async function orderHandler(body: any, userId: string) {
     const cartArticleId = cartItem.articleId || cartItem.productId;
     const dbItem = dbItems.find((item: { articleId: string }) => item.articleId === cartArticleId);
     if (dbItem) {
-      await prisma.itemPrice.updateMany({
+      await db.itemPrice.updateMany({
         where: {
           itemSlug: dbItem.articleId,
           warehouseId: cartItem.warehouseId

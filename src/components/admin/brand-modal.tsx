@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import type { Brand } from '@prisma/client';
+import type { Brand } from '@/db/schema';
 
 interface BrandModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
         imageLink: formState.imageLink,
         isVisible: formState.isVisible,
         createdAt: new Date(formState.createdAt),
-      } as Partial<Brand> & Pick<Brand, 'name' | 'alias' | 'imageLink'>);
+      } as unknown as Partial<Brand> & Pick<Brand, 'name' | 'alias' | 'imageLink'>);
       onClose();
     } catch (error) {
       console.error('Error saving brand:', error);

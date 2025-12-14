@@ -48,7 +48,7 @@ export async function getCategoriesByLocale(locale: string) {
   // Map data
   return categories.map((cat) => {
     const translation = categoryTranslations.find((t) => t.categorySlug === cat.slug);
-    const subs = subcategories.filter((s) => s.categorySlug === cat.id);
+    const subs = subcategories.filter((s) => s.categorySlug === cat.slug);
 
     return {
       slug: cat.slug,
@@ -57,7 +57,7 @@ export async function getCategoriesByLocale(locale: string) {
       createdAt: cat.createdAt || '',
       updatedAt: cat.updatedAt || '',
       subCategories: subs.map((sub) => {
-        const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.id);
+        const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.slug);
         return {
           slug: sub.slug,
           name: subTranslation?.name || sub.name,
@@ -94,7 +94,7 @@ export async function getCategoryBySlug(slug: string, locale: string) {
   const subcategories = await db
     .select()
     .from(schema.subcategories)
-    .where(eq(schema.subcategories.categorySlug, category.id));
+    .where(eq(schema.subcategories.categorySlug, category.slug));
 
   const subcategoryTranslations = await db
     .select()
@@ -108,7 +108,7 @@ export async function getCategoryBySlug(slug: string, locale: string) {
     createdAt: category.createdAt || '',
     updatedAt: category.updatedAt || '',
     subCategories: subcategories.map((sub) => {
-      const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.id);
+      const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.slug);
       return {
         slug: sub.slug,
         name: subTranslation?.name || sub.name,
@@ -247,11 +247,19 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
       .limit(1);
   }
 
-  // Get category
+  // Get category - item.categorySlug can reference either a category.slug or subcategory.slug
+  // First check if it's a subcategory
+  const [subcategory] = await db
+    .select()
+    .from(schema.subcategories)
+    .where(eq(schema.subcategories.slug, item.categorySlug))
+    .limit(1);
+
+  // If it's a subcategory, get the parent category, otherwise check if it's a category
   const [category] = await db
     .select()
     .from(schema.category)
-    .where(eq(schema.category.id, item.categorySlug))
+    .where(eq(schema.category.slug, subcategory?.categorySlug || item.categorySlug))
     .limit(1);
 
   const [categoryTranslation] = await db
@@ -259,7 +267,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
     .from(schema.categoryTranslation)
     .where(
       and(
-        eq(schema.categoryTranslation.categorySlug, category?.id || ''),
+        eq(schema.categoryTranslation.categorySlug, category?.slug || ''),
         eq(schema.categoryTranslation.locale, locale)
       )
     )
@@ -269,7 +277,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
     ? await db
         .select()
         .from(schema.subcategories)
-        .where(eq(schema.subcategories.categorySlug, category.id))
+        .where(eq(schema.subcategories.categorySlug, category.slug))
     : [];
 
   const subcategoryTranslations = await db
@@ -283,6 +291,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
     sellCounter: item.sellCounter,
     itemImageLink: item.itemImageLink || [],
     categorySlug: category?.slug || '',
+    subCategorySlug: subcategory?.slug || '',
     brandSlug: item.brandSlug,
     warrantyType: item.warrantyType,
     warrantyLength: item.warrantyLength,
@@ -347,7 +356,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
       createdAt: category?.createdAt || '',
       updatedAt: category?.updatedAt || '',
       subCategories: subcategories.map((sub) => {
-        const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.id);
+        const subTranslation = subcategoryTranslations.find((t) => t.subCategorySlug === sub.slug);
         return {
           slug: sub.slug,
           name: subTranslation?.name || sub.name,

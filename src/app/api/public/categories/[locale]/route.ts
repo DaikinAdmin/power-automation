@@ -20,7 +20,7 @@ export async function GET(
     const categories: CategoryResponse[] = await getCategoriesByLocale(locale.toLowerCase());
 
     // Prisma implementation (commented out)
-    // const categories = await prisma.category.findMany({
+    // const categories = await db.category.findMany({
     //   orderBy: { name: 'asc' },
     //   include: { subCategories: true, categoryTranslations: {
     //     where: {
