@@ -21,13 +21,12 @@ import { useTranslations } from 'next-intl';
 type Item = ItemResponse;
 
 export default function CategoryPage({
-  param,
+  params,
 }: {
-  param: Promise<{ locale: string, slug: string }>;
+  params: Promise<{ locale: string, slug: string }>;
 }) {
-  const { locale, slug } = use(param);
+  const { locale, slug } = use(params);
   const t = useTranslations('categories');
-  const params = useParams();
   const { cartItems, addToCart, updateCartQuantity, removeFromCart, getTotalCartItems, isCartModalOpen, setIsCartModalOpen } = useCart();
 
   // All category page states

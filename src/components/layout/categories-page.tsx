@@ -136,7 +136,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                 // Extract unique subcategories from all items
                 const uniqueSubcategories = Array.from(
                     new Map(
-                        data.map(item => [item.subCategory.id, item.subCategory])
+                        data
+                            .filter(item => item.subCategory) // Filter out items without subcategory
+                            .map(item => [item.subCategory.slug, item.subCategory])
                     ).values()
                 );
                 setSubcategories(uniqueSubcategories);
@@ -154,13 +156,15 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                 // Extract unique warehouses from all items
                 const warehouseMap = new Map();
                 data.forEach(item => {
-                    item.itemPrice.forEach((price: { warehouse: { id: any; displayedName: any; }; }) => {
-                        if (price.warehouse) {
-                            warehouseMap.set(price.warehouse.id, {
-                                displayedName: price.warehouse.displayedName || "Unknown Warehouse"
-                            });
-                        }
-                    });
+                    if (item.itemPrice && Array.isArray(item.itemPrice)) {
+                        item.itemPrice.forEach((price: { warehouse: { id: any; displayedName: any; }; }) => {
+                            if (price.warehouse) {
+                                warehouseMap.set(price.warehouse.id, {
+                                    displayedName: price.warehouse.displayedName || "Unknown Warehouse"
+                                });
+                            }
+                        });
+                    }
                 });
                 const uniqueWarehouses = Array.from(warehouseMap.values());
                 setWarehouses(uniqueWarehouses);
@@ -233,10 +237,10 @@ export default function CategoriesPage({ locale }: { locale: string }) {
         // console.log('Filtered Items:', filtered);
         // Sort items
         filtered.sort((a, b) => {
-            const aDetails = a.itemDetails[0];
-            const bDetails = b.itemDetails[0];
-            const aPrice = a.itemPrice[0]?.promotionPrice || a.itemPrice[0]?.price || 0;
-            const bPrice = b.itemPrice[0]?.promotionPrice || b.itemPrice[0]?.price || 0;
+            const aDetails = a.itemDetails?.[0];
+            const bDetails = b.itemDetails?.[0];
+            const aPrice = a.itemPrice?.[0]?.promotionPrice || a.itemPrice?.[0]?.price || 0;
+            const bPrice = b.itemPrice?.[0]?.promotionPrice || b.itemPrice?.[0]?.price || 0;
 
             switch (sortBy) {
                 case 'name':
@@ -390,15 +394,15 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                         {sectionsOpen.categories && (
                                             <div className="space-y-2">
                                                 {categories.map((category) => (
-                                                    <div key={category.id} className="flex items-center space-x-2">
+                                                    <div key={category.slug} className="flex items-center space-x-2">
                                                         <Checkbox
-                                                            id={`category-${category.id}`}
-                                                            checked={selectedCategories.includes(category.id)}
+                                                            id={`category-${category.slug}`}
+                                                            checked={selectedCategories.includes(category.slug)}
                                                             onCheckedChange={(checked) =>
-                                                                handleCategorySelection(category.id, Boolean(checked))
+                                                                handleCategorySelection(category.slug, Boolean(checked))
                                                             }
                                                         />
-                                                        <label htmlFor={`category-${category.id}`} className="text-sm cursor-pointer">
+                                                        <label htmlFor={`category-${category.slug}`} className="text-sm cursor-pointer">
                                                             {category.name}
                                                         </label>
                                                     </div>
@@ -551,7 +555,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                                                 const { price, originalPrice, inStock, quantity, warehouseId, displayedName } = getItemPrice(item);
                                                 const convertedPrice = convertPrice(price);
                                                 const convertedOriginalPrice = originalPrice != null ? convertPrice(originalPrice) : null;
-                                                const hasMultipleWarehouses = item.itemPrice.length > 1;
+                                                const hasMultipleWarehouses = (item.itemPrice?.length || 0) > 1;
 
                                                 const badge = originalPrice
                                                     ? {

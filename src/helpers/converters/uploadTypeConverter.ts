@@ -82,7 +82,7 @@ export async function convertUploadTypeToItems(uploadData: UploadType[]): Promis
     };
     items.push(item);
   }
-  console.log("Converted items: ", items);
+  // console.log("Converted items: ", items);
   return items;
 }
 

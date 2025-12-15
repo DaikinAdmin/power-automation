@@ -14,7 +14,6 @@ import { FaCircleUser, FaHeart } from "react-icons/fa6";
 import { MdShoppingCart } from "react-icons/md";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
-import { authClient } from "@/lib/auth-client";
 import Settings from "@/components/auth/settings";
 import SignOut from "@/components/auth/sign-out";
 import { Category } from "@/helpers/types/item";
@@ -22,6 +21,9 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from 'next-intl';
 
 export default function SecondaryHeader() {
+  // Check if we're on the client side
+  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const t = useTranslations("header");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -30,9 +32,20 @@ export default function SecondaryHeader() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
-  const session = authClient.useSession();
   const router = useRouter();
   const locale = useLocale();
+
+  // Fetch session only on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('@/lib/auth-client').then(({ authClient }) => {
+        authClient.getSession().then(({ data }) => {
+          setSessionData(data);
+          setSessionLoading(false);
+        });
+      });
+    }
+  }, []);
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -115,17 +128,17 @@ export default function SecondaryHeader() {
                     {/* category column */}
                     <div className="flex-1 border-r">
                       {categories.map((category) => {
-                        const isHovered = hoveredCategory === category.id;
+                        const isHovered = hoveredCategory === category.slug;
                         return (
                           <Link
-                            key={category.id}
+                            key={category.slug}
                             href={`/category/${category.slug}`}
                             className={`block px-4 py-2 cursor-pointer transition-colors ${
                               isHovered
                                 ? "bg-gray-100"
                                 : "text-gray-800 hover:bg-gray-100"
                             }`}
-                            onMouseEnter={() => setHoveredCategory(category.id)}
+                            onMouseEnter={() => setHoveredCategory(category.slug)}
                             onClick={() => setIsCategoriesOpen(false)}
                           >
                             <span className="text-dropdown-item">
@@ -151,7 +164,7 @@ export default function SecondaryHeader() {
                                 index: number
                               ) => (
                                 <div
-                                  key={index}
+                                  key={`${subcategory.name}-${index}`}
                                   className="py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
                                   onClick={() => setIsCategoriesOpen(false)}
                                 >
@@ -230,7 +243,7 @@ export default function SecondaryHeader() {
                   />
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-20">
                     <div className="py-2">
-                      {session.data?.user && (
+                      {sessionData?.user && (
                         <>
                           <Link
                             href="/dashboard"

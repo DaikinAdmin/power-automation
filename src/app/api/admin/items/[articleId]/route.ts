@@ -149,14 +149,14 @@ export async function GET(
         }
         */
 
-        console.log('API returning item:', {
-            id: itemWithRelations.id,
-            articleId: itemWithRelations.articleId,
-            itemPriceCount: itemWithRelations.itemPrice?.length || 0,
-            itemDetailsCount: itemWithRelations.itemDetails?.length || 0,
-            itemPrice: itemWithRelations.itemPrice,
-            itemDetails: itemWithRelations.itemDetails
-        });
+        // console.log('API returning item:', {
+        //     id: itemWithRelations.id,
+        //     articleId: itemWithRelations.articleId,
+        //     itemPriceCount: itemWithRelations.itemPrice?.length || 0,
+        //     itemDetailsCount: itemWithRelations.itemDetails?.length || 0,
+        //     itemPrice: itemWithRelations.itemPrice,
+        //     itemDetails: itemWithRelations.itemDetails
+        // });
 
         return NextResponse.json(itemWithRelations);
     } catch (error) {

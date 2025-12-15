@@ -185,24 +185,21 @@ export const item = pgTable("item", {
 export const category = pgTable("category", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
-	slug: text().notNull(),
+	slug: text().notNull().unique(),
 	isVisible: boolean().default(true),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-}, (table) => [
-	uniqueIndex("category_slug_key").using("btree", table.slug.asc().nullsLast().op("text_ops")),
-]);
+});
 
 export const subcategories = pgTable("subcategories", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
-	slug: text().notNull(),
+	slug: text().notNull().unique(),
 	categorySlug: text().notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
 	isVisible: boolean().default(true),
 }, (table) => [
-	uniqueIndex("subcategories_slug_key").using("btree", table.slug.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.categorySlug],
 			foreignColumns: [category.slug],

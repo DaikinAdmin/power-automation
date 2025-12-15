@@ -25,22 +25,8 @@ export default function LanguageSwitcher() {
   const pathname = usePathname()
 
   // Handle language change
-  const handleLanguageChange = async (newLocale: string) => {
+  const handleLanguageChange = (newLocale: string) => {
     if (newLocale === locale) return
-
-    try {
-      // Update locale on the server (for email preferences)
-      await fetch('/api/user/update-locale', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locale: newLocale })
-      }).catch(err => {
-        // Silently fail if user is not logged in or if there's an error
-        console.log('Could not update locale preference:', err);
-      });
-    } catch (error) {
-      console.log('Error updating locale:', error);
-    }
 
     // Navigate to the same page but with the new locale
     router.replace(pathname, { locale: newLocale })
@@ -57,7 +43,6 @@ export default function LanguageSwitcher() {
           <span className="text-lg" aria-hidden="true">
             {currentLang.flag}
           </span>
-          <span className="hidden sm:inline-block">{currentLang.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -78,4 +63,3 @@ export default function LanguageSwitcher() {
     </div>
   )
 }
-

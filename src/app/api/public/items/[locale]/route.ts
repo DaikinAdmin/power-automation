@@ -16,14 +16,25 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
     }
 
+    console.log('[API] Fetching items for locale:', locale);
     // Drizzle implementation - returns complete item data with all prices, warehouse info, and category/subcategory data
     const items: ItemResponse[] = await getItemsByLocale(locale);
+    console.log('[API] Retrieved items:', items.length);
 
     const response = NextResponse.json(items);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
-  } catch (error) {
-    console.error('Error fetching public items:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[API] Error fetching public items:', error);
+    console.error('[API] Error name:', error?.name);
+    console.error('[API] Error code:', error?.code);
+    console.error('[API] Error detail:', error?.detail);
+    console.error('[API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: error?.code,
+      detail: error?.detail
+    }, { status: 500 });
   }
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import MainHeader from "./main-header";
 import SecondaryHeader from "./secondary-header";
 import Footer from "./footer";

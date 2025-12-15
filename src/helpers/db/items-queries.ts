@@ -1,18 +1,21 @@
 // Query helpers for items list endpoint
 import { db } from '@/db';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import type { ItemResponse } from '@/helpers/types/api-responses';
 
 export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> {
-  // Get displayed items
-  const items = await db
-    .select()
-    .from(schema.item)
-    .where(eq(schema.item.isDisplayed, true))
-    .orderBy(desc(schema.item.createdAt));
+  try {
+    console.log('[getItemsByLocale] Starting query for locale:', locale);
+    // Get displayed items
+    const items = await db
+      .select()
+      .from(schema.item)
+      .where(eq(schema.item.isDisplayed, sql`true`))
+      .orderBy(desc(schema.item.createdAt));
 
-  if (items.length === 0) return [];
+    console.log('[getItemsByLocale] Found items:', items.length);
+    if (items.length === 0) return [];
 
   // Get all article IDs and category slugs
   const articleIds = items.map((i) => i.articleId);
@@ -24,7 +27,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
     .from(schema.itemDetails)
     .where(
       and(
-        sql`${schema.itemDetails.itemSlug} = ANY(${articleIds})`,
+        inArray(schema.itemDetails.itemSlug, articleIds),
         eq(schema.itemDetails.locale, locale)
       )
     );
@@ -33,41 +36,45 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
   const itemPrices = await db
     .select()
     .from(schema.itemPrice)
-    .where(sql`${schema.itemPrice.itemSlug} = ANY(${articleIds})`);
+    .where(inArray(schema.itemPrice.itemSlug, articleIds));
 
   // Fetch brands
-  const brandSlugs = [...new Set(items.map((i) => i.brandSlug).filter(Boolean))];
+  const brandSlugs = [...new Set(items.map((i) => i.brandSlug).filter(Boolean))] as string[];
   const brands = brandSlugs.length > 0
-    ? await db.select().from(schema.brand).where(sql`${schema.brand.alias} = ANY(${brandSlugs})`)
+    ? await db.select().from(schema.brand).where(inArray(schema.brand.alias, brandSlugs))
     : [];
 
   // Fetch warehouses
   const warehouseIds = [...new Set(itemPrices.map((p) => p.warehouseId))];
   const warehouses = warehouseIds.length > 0
-    ? await db.select().from(schema.warehouse).where(sql`${schema.warehouse.id} = ANY(${warehouseIds})`)
+    ? await db.select().from(schema.warehouse).where(inArray(schema.warehouse.id, warehouseIds))
     : [];
 
   // Fetch warehouse countries
-  const countrySlugs = [...new Set(warehouses.map((w) => w.countrySlug).filter(Boolean))];
+  const countrySlugs = [...new Set(warehouses.map((w) => w.countrySlug).filter(Boolean))] as string[];
   const countries = countrySlugs.length > 0
-    ? await db.select().from(schema.warehouseCountries).where(sql`${schema.warehouseCountries.slug} = ANY(${countrySlugs})`)
+    ? await db.select().from(schema.warehouseCountries).where(inArray(schema.warehouseCountries.slug, countrySlugs))
     : [];
 
   // Fetch categories (check if categorySlug is category or subcategory)
-  const categories = await db
-    .select()
-    .from(schema.category)
-    .where(sql`${schema.category.slug} = ANY(${categorySlugs})`);
+  const categories = categorySlugs.length > 0
+    ? await db
+        .select()
+        .from(schema.category)
+        .where(inArray(schema.category.slug, categorySlugs as string[]))
+    : [];
 
-  const subcategories = await db
-    .select()
-    .from(schema.subcategories)
-    .where(sql`${schema.subcategories.slug} = ANY(${categorySlugs})`);
+  const subcategories = categorySlugs.length > 0
+    ? await db
+        .select()
+        .from(schema.subcategories)
+        .where(inArray(schema.subcategories.slug, categorySlugs as string[]))
+    : [];
 
   // Get parent categories for subcategories
-  const parentCategorySlugs = [...new Set(subcategories.map((s) => s.categorySlug).filter(Boolean))];
+  const parentCategorySlugs = [...new Set(subcategories.map((s) => s.categorySlug).filter(Boolean))] as string[];
   const parentCategories = parentCategorySlugs.length > 0
-    ? await db.select().from(schema.category).where(sql`${schema.category.slug} = ANY(${parentCategorySlugs})`)
+    ? await db.select().from(schema.category).where(inArray(schema.category.slug, parentCategorySlugs))
     : [];
 
   // Combine all unique category slugs for translations
@@ -83,7 +90,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
         .from(schema.categoryTranslation)
         .where(
           and(
-            sql`${schema.categoryTranslation.categorySlug} = ANY(${allCategorySlugs})`,
+            inArray(schema.categoryTranslation.categorySlug, allCategorySlugs),
             eq(schema.categoryTranslation.locale, locale)
           )
         )
@@ -94,7 +101,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
     ? await db
         .select()
         .from(schema.subcategories)
-        .where(sql`${schema.subcategories.categorySlug} = ANY(${allCategorySlugs})`)
+        .where(inArray(schema.subcategories.categorySlug, allCategorySlugs))
     : [];
 
   const allSubcategorySlugs = [...new Set(allSubcategories.map((s) => s.slug))];
@@ -106,7 +113,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
         .from(schema.subcategoryTranslation)
         .where(
           and(
-            sql`${schema.subcategoryTranslation.subCategorySlug} = ANY(${allSubcategorySlugs})`,
+            inArray(schema.subcategoryTranslation.subCategorySlug, allSubcategorySlugs),
             eq(schema.subcategoryTranslation.locale, locale)
           )
         )
@@ -220,4 +227,8 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
   });
 
   return mapped.filter((item): item is ItemResponse => item !== null);
+  } catch (error) {
+    console.error('Error in getItemsByLocale:', error);
+    throw error;
+  }
 }

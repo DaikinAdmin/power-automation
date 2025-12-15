@@ -20,14 +20,14 @@ export async function GET() {
       headers: await headers(),
     });
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // if (!session) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // }
 
-    const isAdmin = await isUserAdmin(session.user.id);
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // const isAdmin = await isUserAdmin(session.user.id);
+    // if (!isAdmin) {
+    //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // }
 
     // Drizzle implementation
     const exchangeRates = await db
