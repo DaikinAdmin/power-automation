@@ -18,14 +18,21 @@ export const outOfStockStatus = pgEnum("OutOfStockStatus", ['PENDING', 'PROCESSI
 // 	appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
 // });
 
-export const verification = pgTable("verification", {
-	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	identifier: text().notNull(),
-	value: text().notNull(),
-	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }),
-});
+export const verification = pgTable(
+  "verification",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("verification_identifier_idx").on(table.identifier)],
+);
 
 export const currencyExchange = pgTable("currency_exchange", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
@@ -80,88 +87,92 @@ export const warehouse = pgTable("warehouse", {
 ]);
 
 export const user = pgTable("user", {
-	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	name: text().notNull(),
-	email: text().notNull(),
-	emailVerified: boolean().default(false).notNull(),
-	image: text(),
-	phoneNumber: text().default('').notNull(),
-	companyName: text(),
-	companyWebpage: text(),
-	companyRole: text(),
-	countryCode: text(),
-	userAgreement: boolean().default(false).notNull(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	twoFactorEnabled: boolean().default(false).notNull(),
-	username: text(),
-	displayUsername: text(),
-	discountLevel: integer(),
-	role: text().default('user').notNull(),
-	banExpires: timestamp({ precision: 3, mode: 'string' }),
-	banReason: text(),
-	banned: boolean().default(false),
-}, (table) => [
-	uniqueIndex("user_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
-]);
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  image: text("image"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  role: text("role").default("user"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
+  phoneNumber: text("phone_number").default("555-555-555").notNull(),
+  userAgreement: boolean("user_agreement").default(false).notNull(),
+  countryCode: text("country_code").default("+48").notNull(),
+  companyWebpage: text("company_webpage").default(""),
+  companyName: text("company_name").default(""),
+  companyRole: text("company_role").default(""),
+});
 
-export const session = pgTable("session", {
-	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	token: text().notNull(),
-	ipAddress: text(),
-	userAgent: text(),
-	userId: text().notNull(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-}, (table) => [
-	uniqueIndex("session_token_key").using("btree", table.token.asc().nullsLast().op("text_ops")),
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "session_userId_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
-]);
+export const session = pgTable(
+  "session",
+  {
+	id: text("id").primaryKey(),
+	expiresAt: timestamp("expires_at").notNull(),
+	token: text("token").notNull().unique(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at")
+	  .$onUpdate(() => /* @__PURE__ */ new Date())
+	  .notNull(),
+	ipAddress: text("ip_address"),
+	userAgent: text("user_agent"),
+	userId: text("user_id")
+	  .notNull()
+	  .references(() => user.id, { onDelete: "cascade" }),
+	impersonatedBy: text("impersonated_by"),
+  },
+  (table) => [index("session_userId_idx").on(table.userId)],
+);
 
-export const account = pgTable("account", {
-	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	accountId: text().notNull(),
-	providerId: text().notNull(),
-	userId: text().notNull(),
-	accessToken: text(),
-	refreshToken: text(),
-	idToken: text(),
-	expiresAt: timestamp({ precision: 3, mode: 'string' }),
-	password: text(),
-	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
-	accessTokenExpiresAt: timestamp({ precision: 3, mode: 'string' }),
-	refreshTokenExpiresAt: timestamp({ precision: 3, mode: 'string' }),
-	scope: text(),
-}, (table) => [
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "account_userId_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
-]);
+export const account = pgTable(
+  "account",
+  {
+	id: text("id").primaryKey(),
+	accountId: text("account_id").notNull(),
+	providerId: text("provider_id").notNull(),
+	userId: text("user_id")
+	  .notNull()
+	  .references(() => user.id, { onDelete: "cascade" }),
+	accessToken: text("access_token"),
+	refreshToken: text("refresh_token"),
+	idToken: text("id_token"),
+	accessTokenExpiresAt: timestamp("access_token_expires_at"),
+	refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+	scope: text("scope"),
+	password: text("password"),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+	updatedAt: timestamp("updated_at")
+	  .$onUpdate(() => /* @__PURE__ */ new Date())
+	  .notNull(),
+  },
+  (table) => [index("account_userId_idx").on(table.userId)],
+);
 
-export const twoFactor = pgTable("twoFactor", {
-	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	secret: text().notNull(),
-	backupCodes: text().notNull(),
-	userId: text().notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.userId],
-			foreignColumns: [user.id],
-			name: "twoFactor_userId_fkey"
-		}).onUpdate("cascade").onDelete("cascade"),
-]);
+export const twoFactor = pgTable(
+  "two_factor",
+  {
+	id: text("id").primaryKey(),
+	secret: text("secret").notNull(),
+	backupCodes: text("backup_codes").notNull(),
+	userId: text("user_id")
+	  .notNull()
+	  .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+	index("twoFactor_secret_idx").on(table.secret),
+	index("twoFactor_userId_idx").on(table.userId),
+  ],
+);
 
 export const item = pgTable("item", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
-	articleId: text().notNull(),
+	articleId: text().notNull().unique(),
 	slug: text().notNull().unique(),
 	isDisplayed: boolean().default(false).notNull(),
 	sellCounter: integer().default(0),
@@ -318,7 +329,7 @@ export const itemDetails = pgTable("item_details", {
 export const brand = pgTable("brand", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
-	alias: text().notNull(),
+	alias: text().notNull().unique(),
 	imageLink: text().notNull(),
 	isVisible: boolean().default(true).notNull(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -412,7 +423,7 @@ export const subcategoryTranslation = pgTable("subcategory_translation", {
 
 export const warehouseCountries = pgTable("warehouse_countries", {
 	id: serial().primaryKey().notNull(),
-	slug: text().notNull(),
+	slug: text().notNull().unique(),
 	countryCode: text().notNull(),
 	phoneCode: text(),
 	name: text().notNull(),

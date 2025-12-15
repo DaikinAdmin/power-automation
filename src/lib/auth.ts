@@ -18,7 +18,13 @@ import { roleSignupPlugin } from "./role-signup-plugin";
 import { nextCookies } from "better-auth/next-js";
 import { ac, user, employee, admin } from "./permissions";
 import { db } from "@/db";
-import { user as userTable } from "@/db/schema";
+import { 
+  user as userTable, 
+  session as sessionTable, 
+  account as accountTable, 
+  verification as verificationTable,
+  twoFactor as twoFactorTable 
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
@@ -81,6 +87,13 @@ export const auth = betterAuth({
   },
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: {
+      user: userTable,
+      session: sessionTable,
+      account: accountTable,
+      verification: verificationTable,
+      twoFactor: twoFactorTable,
+    },
   }),
   emailAndPassword: {
     enabled: true,
