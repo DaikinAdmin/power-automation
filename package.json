@@ -9,7 +9,11 @@
     "lint": "next lint",
     "create-sample-files": "node scripts/create-sample-xlsx.js",
     "seed:excel": "tsx scripts/run-seed.ts",
-    "excel:to-json": "tsx scripts/excel-to-json.ts"
+    "excel:to-json": "tsx scripts/excel-to-json.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
