@@ -348,7 +348,7 @@ export const itemPriceHistory = pgTable("item_price_history", {
 	badge: badge().default('ABSENT'),
 	recordedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
-	index("item_price_history_itemId_warehouseId_recordedAt_idx").using("btree", table.itemId.asc().nullsLast().op("timestamp_ops"), table.warehouseId.asc().nullsLast().op("text_ops"), table.recordedAt.asc().nullsLast().op("timestamp_ops")),
+	index("item_price_history_itemId_warehouseId_recordedAt_idx").using("btree", table.itemId.asc().nullsLast().op("text_ops"), table.warehouseId.asc().nullsLast().op("text_ops"), table.recordedAt.asc().nullsLast().op("timestamp_ops")),
 	foreignKey({
 			columns: [table.itemId],
 			foreignColumns: [item.id],

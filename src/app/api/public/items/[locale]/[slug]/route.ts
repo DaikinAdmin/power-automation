@@ -43,23 +43,34 @@ export async function GET(
 
     // Format item data for the frontend
     const formattedItem = {
-      id: itemData.articleId, // Keep for backwards compatibility
+      id: itemData.articleId,
       articleId: itemData.articleId,
       itemImageLink: itemData.itemImageLink,
+      image: itemData.itemImageLink?.[0] || null,
       isDisplayed: itemData.isDisplayed,
       sellCounter: itemData.sellCounter,
-      createdAt: itemData.createdAt,
-      updatedAt: itemData.updatedAt,
+      categorySlug: itemData.categorySlug,
+      subCategorySlug: itemData.subCategorySlug,
+      category: itemData.category.name,
+      subcategory: itemData.category.subCategories.find(sub => sub.slug === itemData.subCategorySlug)?.name || '',
+      name: itemData.details.itemName,
+      brand: itemData.brand?.name || '',
+      brandSlug: itemData.brandSlug,
+      brandAlias: itemData.brand?.alias || null,
+      brandImage: itemData.brand?.imageLink || null,
+      description: itemData.details.description || '',
+      badge: formattedRecommended?.badge || null,
+      warrantyMonths: itemData.warrantyLength || 0,
+      warrantyType: itemData.warrantyType || null,
 
       // Format warehouses for display
-      prices: itemData.prices.map((price) => ({
-        warehouseSlug: price.warehouseSlug,
+      warehouses: itemData.prices.map((price) => ({
+        warehouseId: price.warehouseSlug,
         warehouseName: price.warehouse.name || '',
         warehouseCountry: price.warehouse.country?.name || '',
         displayedName: price.warehouse.displayedName,
         price: `${price.price} €`,
         specialPrice: price.promotionPrice ? `${price.promotionPrice} €` : null,
-        originalPrice: `${price.price} €`,
         inStock: price.quantity > 0,
         quantity: price.quantity,
         badge: price.badge || null,
@@ -67,24 +78,21 @@ export async function GET(
         promoCode: price.promoCode || null,
       })),
 
-      // Product details
-      name: itemData.details.itemName,
-      brandName: itemData.brand?.name || null,
-      brandImage: itemData.brand?.imageLink || null,
-      brandSlug: itemData.brandSlug,
-      description: itemData.details.description || '',
-      specifications: itemData.details.specifications || '',
-      seller: itemData.details.seller || '',
-      discount: itemData.details.discount || 0,
-      popularity: itemData.details.popularity || 0,
-      badge: formattedRecommended?.badge || null,
-      warrantyMonths: itemData.warrantyLength || 0,
-      warrantyType: itemData.warrantyType || null,
-
-      // Category information
-      categoryName: itemData.category.name,
-      categorySlug: itemData.category.slug,
-      subcategory: itemData.category.subCategories,
+      // Include item details for all locales
+      itemDetails: [
+        {
+          id: itemData.details.locale,
+          locale: itemData.details.locale,
+          itemName: itemData.details.itemName,
+          description: itemData.details.description,
+          specifications: itemData.details.specifications,
+          seller: itemData.details.seller,
+          discount: itemData.details.discount,
+          popularity: itemData.details.popularity,
+          metaKeyWords: itemData.details.metaKeyWords,
+          metaDescription: itemData.details.metaDescription,
+        }
+      ],
 
       // Include the recommended warehouse
       recommendedWarehouse: formattedRecommended,

@@ -229,7 +229,7 @@ export default function Home() {
 
             return hasDiscountBadge || hasActivePromotion;
           })
-          .slice(0, 4);
+          .slice(0, 6);
       case "new":
         return displayedItems
           .filter((item) =>
@@ -254,7 +254,7 @@ export default function Home() {
 
           {/* Features Section */}
           <section className="bg-white w-full">
-            <div className="max-w-[90rem] mx-auto grid grid-cols- sm:grid-cols-1 lg:grid-cols-5 gap-5">
+            <div className="max-w-[90rem] mx-auto px-2 sm:px-4 grid grid-cols- sm:grid-cols-1 lg:grid-cols-5 gap-5">
               {FEATURE_ITEMS.map((feature) => (
                 <div
                   key={feature.id}
@@ -279,7 +279,7 @@ export default function Home() {
           </section>
 
           {/* Products Section with Tabs */}
-          <section className="max-w-[90rem] mx-auto mt-12 mb-12">
+          <section className="max-w-[90rem] mx-auto px-2 sm:px-4 mt-12 mb-12">
             {/* Tab Navigation */}
             <div className="flex justify-center mb-8">
               <button
@@ -331,7 +331,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-6">
                 {getProductsByCategory(activeTab).map((item) => {
                   const details = getItemDetails(item);
                   const { price, originalPrice, inStock, displayedName } =
@@ -443,10 +443,11 @@ export default function Home() {
           </section>
 
           {/* Categories Section */}
-          <section className="max-w-[90rem] mx-auto mb-12">
-            <h2 className="text-3xl font-bold text-center mb-8">
-              {t("sections.categories")}
-            </h2>
+          <section className="bg-white w-full">
+            <div className="max-w-[90rem] mx-auto px-2 sm:px-4 mb-12 py-6">
+              <h2 className="text-tabs-title font-bold text-center text-gray-800 mb-6">
+                {t("sections.categories")}
+              </h2>
             {isDataLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-6 gap-6">
                 {[...Array(6)].map((_, index) => (
@@ -481,7 +482,7 @@ export default function Home() {
                     </div>
 
                     {/* Category Info */}
-                    <div className="p-4 text-center">
+                    <div className="p-4 text-left">
                       <h2 className="font-bold text-lg mb-3 text-gray-800">
                         {category.name}
                       </h2>
@@ -519,6 +520,7 @@ export default function Home() {
                 )}
               </div>
             )}
+            </div>
           </section>
 
           {/* Brands Section */}

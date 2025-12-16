@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
+import 'dotenv/config';
 import pg from 'pg';
 import { eq, and } from 'drizzle-orm';
 import path from 'path';
@@ -20,7 +21,7 @@ import { ParsedItemData } from './excel-parser';
 // Create database connection directly with pg Pool
 const { Pool } = pg;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:admin@localhost:5432/postgres'
+  connectionString: process.env.DATABASE_URL,
 });
 const db = drizzle(pool);
 

@@ -1,6 +1,6 @@
 // Drizzle query helpers for API endpoints
 import { db } from '@/db';
-import { eq, and, like, or, desc, asc, sql } from 'drizzle-orm';
+import { eq, and, like, or, desc, asc, sql, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import type {
   ItemResponse,
@@ -227,10 +227,12 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
 
   // Get warehouses
   const warehouseIds = prices.map((p) => p.warehouseId);
-  const warehouses = await db
-    .select()
-    .from(schema.warehouse)
-    .where(sql`${schema.warehouse.id} = ANY(${warehouseIds})`);
+  const warehouses = warehouseIds.length > 0
+    ? await db
+        .select()
+        .from(schema.warehouse)
+        .where(inArray(schema.warehouse.id, warehouseIds))
+    : [];
 
   // Get countries
   const countries = await db

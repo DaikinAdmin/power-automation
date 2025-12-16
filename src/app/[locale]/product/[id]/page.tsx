@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 
 import PageLayout from '@/components/layout/page-layout';
 import WarehouseSelector from '@/components/warehouse-selector';
-import { ProductImage } from '@/components/product/product-image';
+import { ProductImageViewer } from '@/components/product/product-image-viewer';
 import { ProductInfoTabs } from '@/components/product/product-info-tabs';
 import { ProductHeader } from '@/components/product/product-header';
 import { ProductPriceCard } from '@/components/product/product-price-card';
@@ -318,7 +318,6 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
     );
   }
 
-  const imageSrc = product.itemImageLink || ['/imgs/placeholder-product.jpg'];
   const warehouseLabel = selectedWarehouse ? t('from', { warehouse: selectedWarehouse.displayedName }) : undefined;
   const warehouseExtraLabel = selectedWarehouse && product.warehouses.length > 1
     ? t('moreLocations', { count: product.warehouses.length - 1 })
@@ -333,11 +332,11 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
 
   return (
     <PageLayout>
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-[90rem] mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div className="space-y-6">
-            <ProductImage
-              imageSrc={imageSrc}
+            <ProductImageViewer
+              images={product.itemImageLink || []}
               productName={productName}
               badge={product.badge}
             />

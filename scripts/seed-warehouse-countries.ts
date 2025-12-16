@@ -1,21 +1,26 @@
+import 'dotenv/config';
 import { db } from "../src/db";
 import * as schema from "../src/db/schema";
 import { eq } from "drizzle-orm";
 
 const warehouseCountriesData = [
-  { slug: "ukraine", countryCode: "UA", phoneCode: "+380", name: "Ukraine" },
-  { slug: "poland", countryCode: "PL", phoneCode: "+48", name: "Poland" },
-  { slug: "spain", countryCode: "ES", phoneCode: "+34", name: "Spain" },
-  { slug: "usa", countryCode: "US", phoneCode: "+1", name: "United States" },
-  { slug: "germany", countryCode: "DE", phoneCode: "+49", name: "Germany" },
-  { slug: "france", countryCode: "FR", phoneCode: "+33", name: "France" },
-  { slug: "uk", countryCode: "GB", phoneCode: "+44", name: "United Kingdom" },
+  { slug: "ua", countryCode: "UA", phoneCode: "+380", name: "Ukraine" },
+  { slug: "pl", countryCode: "PL", phoneCode: "+48", name: "Poland" },
+  { slug: "es", countryCode: "ES", phoneCode: "+34", name: "Spain" },
+  { slug: "us", countryCode: "US", phoneCode: "+1", name: "United States" },
+  { slug: "de", countryCode: "DE", phoneCode: "+49", name: "Germany"  },
+  { slug: "fr", countryCode: "FR", phoneCode: "+33", name: "France" },
+  { slug: "gb", countryCode: "GB", phoneCode: "+44", name: "United Kingdom" },
   { slug: "other", countryCode: "XX", phoneCode: null, name: "Other" },
 ];
 
 async function seedWarehouseCountries() {
   try {
-    console.log("Seeding warehouse_countries table...");
+    console.log("=".repeat(60));
+    console.log("DATABASE CONNECTION INFO:");
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+    console.log("=".repeat(60));
+    console.log("\nSeeding warehouse_countries table...");
     
     for (const country of warehouseCountriesData) {
       const existing = await db

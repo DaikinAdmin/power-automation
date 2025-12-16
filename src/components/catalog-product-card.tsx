@@ -77,13 +77,19 @@ const CatalogProductCard = ({
     event.stopPropagation();
   };
 
-  const renderOverlayActions = () => {
+  const renderHoverActions = () => {
     if (isList) return null;
 
     return (
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+      <div 
+        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:flex items-center justify-between shadow-xl z-20"
+        onClick={(e) => {
+          // Дозволяємо кліки на кнопки всередині, але блокуємо клік на самому контейнері
+          e.stopPropagation();
+        }}
+      >
         <button
-          className={`px-4 py-2 rounded transition-colors ${disabled
+          className={`px-4 py-2 rounded transition-colors text-sm ${disabled
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-red-500 text-white hover:bg-red-600'
             }`}
@@ -94,13 +100,13 @@ const CatalogProductCard = ({
         </button>
         <div className="flex gap-2">
           <button
-            className="bg-white p-2 rounded hover:bg-gray-100 transition-colors"
+            className="bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors"
             onClick={handleMutedAction}
           >
             <Heart size={16} className="text-gray-600" />
           </button>
           <button
-            className="bg-white p-2 rounded hover:bg-gray-100 transition-colors"
+            className="bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors"
             onClick={handleMutedAction}
           >
             <GitCompare size={16} className="text-gray-600" />
@@ -150,7 +156,7 @@ const CatalogProductCard = ({
   return (
     <Link
       href={href}
-      className={`bg-white rounded-lg shadow-sm overflow-hidden group relative cursor-pointer hover:shadow-md transition-shadow ${isList ? 'flex' : ''} ${className || ''}`.trim()}
+      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer ${isList ? 'flex' : ''} ${className || ''}`.trim()}
     >
       {badge && (
         <div className="absolute top-2 left-2 z-10">
@@ -167,7 +173,7 @@ const CatalogProductCard = ({
         </div>
       )}
 
-      <div className={`${isList ? 'w-48 h-48 flex-shrink-0' : 'aspect-square'} bg-gray-100 flex items-center justify-center relative`}>
+      <div className={`${isList ? 'w-48 h-48 flex-shrink-0' : 'aspect-square'} bg-gray-100 flex items-center justify-center relative overflow-hidden group-hover:rounded-t-sm`}>
         {imageSrc && imageSrc.length > 0 ? (
           imageSrc.map(
             (src, index) => index === 0 && (
@@ -181,13 +187,11 @@ const CatalogProductCard = ({
             </svg>
           </div>
         )}
-
-        {!isList && renderOverlayActions()}
       </div>
 
       <div className={`p-4 ${isList ? 'flex-1 flex flex-col justify-between' : ''}`}>
         <div>
-          <h3 className="font-semibold mb-2 text-lg">
+          <h3 className="text-product-title mb-2 line-clamp-2">
             {name}
           </h3>
           {brand && (
@@ -219,7 +223,7 @@ const CatalogProductCard = ({
 
         <div className={`${isList ? 'flex items-center justify-between' : ''}`}>
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-red-600 font-bold text-xl">
+            <span className="text-red-600 text-product-price">
               {priceDisplay}
             </span>
             {originalPriceDisplay && (
@@ -231,6 +235,7 @@ const CatalogProductCard = ({
           {renderListActions()}
         </div>
       </div>
+      {!isList && renderHoverActions()}
     </Link>
   );
 };

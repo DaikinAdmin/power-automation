@@ -36,6 +36,8 @@ export default function CategoryPage({
   const [warehouses, setWarehouses] = useState<{ id: string, name: string, country: string, displayedName: string }[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string, name: string, slug: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     viewMode,
@@ -209,11 +211,11 @@ export default function CategoryPage({
       <div className="min-h-screen bg-gray-50">
 
         {/* Main Content */}
-        <main>
-          <div className="container mx-auto py-8">
+        <main className="overflow-x-hidden">
+          <div className="max-w-[90rem] w-full mx-auto px-2 sm:px-4 py-4 sm:py-8">
             {/* Breadcrumb */}
-            <div className="mb-6">
-              <nav className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="mb-6 overflow-x-auto">
+              <nav className="flex items-center space-x-2 text-sm text-gray-600 whitespace-nowrap">
                 <Link href={`/${locale}`} className="hover:text-blue-600 transition-colors">
                   {t('breadcrumb.home')}
                 </Link>
@@ -227,19 +229,19 @@ export default function CategoryPage({
             </div>
 
             {/* Category Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold">{getOriginalCategoryName()}</h1>
-                <p className="text-gray-600 mt-2">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+              <div className="overflow-hidden">
+                <h1 className="text-2xl md:text-3xl font-bold truncate">{getOriginalCategoryName()}</h1>
+                <p className="text-gray-600 mt-2 text-sm md:text-base">
                   {filteredItems.length} {t('productsFound')}
                 </p>
               </div>
 
-              {/* Centered Sort Options with View on Right */}
-              <div className="flex-1 flex items-center justify-center">
+              {/* Desktop Sort Options */}
+              <div className="hidden md:flex flex-1 items-center justify-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-700">{t('sortBy')}</span>
-                  <div className="flex items-center border rounded-lg">
+                  <div className="flex items-center border rounded-md">
                     <Button
                       variant={sortBy === 'popularity' ? 'default' : 'ghost'}
                       size="sm"
@@ -276,8 +278,8 @@ export default function CategoryPage({
                 </div>
               </div>
 
-              {/* View Mode Toggle - Far Right */}
-              <div className="flex items-center gap-2">
+              {/* View Mode Toggle - Desktop Only */}
+              <div className="hidden md:flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">{t('view')}</span>
                 <div className="flex items-center border rounded-lg">
                   <Button
@@ -319,17 +321,17 @@ export default function CategoryPage({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Sidebar */}
                 <div className="space-y-6">
                   {/* Categories List */}
                   <Card className="p-4">
                     <h3 className="font-semibold mb-4">{t('filters.categories')}</h3>
                     <div className="space-y-2">
-                      {categories.map((category) => (
+                      {(showAllCategories ? categories : categories.slice(0, 4)).map((category) => (
                         <Link
                           key={category.id}
-                          href={`/category/${category.slug}`}
+                          href={`/${locale}/category/${category.slug}`}
                           className={`block px-3 py-2 text-sm rounded-md transition-colors ${category.slug === slug
                             ? 'bg-red-500 text-white font-medium'
                             : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
@@ -339,11 +341,53 @@ export default function CategoryPage({
                         </Link>
                       ))}
                     </div>
+                    {categories.length > 4 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAllCategories(!showAllCategories)}
+                        className="w-full mt-3 text-sm"
+                      >
+                        {showAllCategories ? (t('filters.hideCategories') || 'Приховати') : (t('filters.allCategories') || 'Всі категорії')}
+                      </Button>
+                    )}
                   </Card>
 
-                  {/* Brands Filter */}
+                  {/* Mobile Controls: Filter + Sort + View - AFTER Categories */}
+                  <div className="md:hidden flex flex-col gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setShowFilters(true)} 
+                      className="w-full justify-center"
+                    >
+                      {t('filter') || 'Фільтр'}
+                    </Button>
+                    <div className="flex gap-2">
+                      <select
+                        className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                      >
+                        <option value="popularity">{t('popularity')}</option>
+                        <option value="price-low">{t('priceLow')}</option>
+                        <option value="price-high">{t('priceHigh')}</option>
+                        <option value="name">{t('name')}</option>
+                      </select>
+                      <select
+                        className="w-24 rounded-md border border-gray-300 px-2 py-2 text-sm"
+                        value={viewMode}
+                        onChange={(e) => setViewMode(e.target.value as any)}
+                      >
+                        <option value="grid">Сітка</option>
+                        <option value="list">Список</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Brands Filter (Desktop Only) */}
                   {brands.length > 0 && (
-                    <Card className="p-4">
+                    <Card className="hidden md:block p-4">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold">{t('filters.brands')}</h3>
                         <Button
@@ -375,9 +419,9 @@ export default function CategoryPage({
                     </Card>
                   )}
 
-                  {/* Warehouses Filter */}
+                  {/* Warehouses Filter (Desktop Only) */}
                   {warehouses.length > 0 && (
-                    <Card className="p-4">
+                    <Card className="hidden md:block p-4">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold">{t('filters.warehouses')}</h3>
                         <Button
@@ -454,8 +498,8 @@ export default function CategoryPage({
                       <p className="text-gray-500">{t('adjustFilters')}</p>
                     </div>
                   ) : (
-                    <div className={`grid gap-6 ${viewMode === 'grid'
-                      ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                    <div className={`grid gap-3 ${viewMode === 'grid'
+                      ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
                       : 'grid-cols-1'
                       }`}>
                       {filteredItems.map((item) => {
@@ -579,6 +623,102 @@ export default function CategoryPage({
             )}
           </div>
         </main>
+
+        {/* Off-canvas Filter Sidebar (Mobile) */}
+        <div className={`fixed inset-y-0 right-0 z-50 w-80 max-w-[85vw] transform bg-white shadow-2xl transition-transform duration-300 md:hidden ${
+          showFilters ? 'translate-x-0' : 'translate-x-full'
+        }`}>
+          <div className="flex h-full flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b p-4">
+              <h3 className="font-semibold text-lg">{t('filters.title') || 'Фільтри'}</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)}>✕</Button>
+            </div>
+
+            {/* Filters Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Brands */}
+              {brands.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-3">{t('filters.brands')}</h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {brands.map((brand) => (
+                      <div key={brand} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`mobile-brand-${brand}`}
+                          checked={selectedBrands.includes(brand)}
+                          onCheckedChange={(checked) => handleBrandSelection(brand, Boolean(checked))}
+                        />
+                        <label htmlFor={`mobile-brand-${brand}`} className="text-sm cursor-pointer">
+                          {brand}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Warehouses */}
+              {warehouses.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-3">{t('filters.warehouses')}</h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {warehouses
+                      .sort((a, b) => a.displayedName.localeCompare(b.displayedName))
+                      .map((warehouse) => (
+                        <div key={warehouse.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`mobile-warehouse-${warehouse.id}`}
+                            checked={selectedWarehouses.includes(warehouse.id)}
+                            onCheckedChange={(checked) => handleWarehouseSelection(warehouse.id, Boolean(checked))}
+                          />
+                          <label htmlFor={`mobile-warehouse-${warehouse.id}`} className="text-sm cursor-pointer">
+                            {warehouse.displayedName}
+                          </label>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Subcategories */}
+              {subcategories.length > 0 && (
+                <div>
+                  <h4 className="font-medium mb-3">{t('filters.subcategories')}</h4>
+                  <div className="space-y-2">
+                    {subcategories.map((subcategory) => (
+                      <div key={subcategory.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`mobile-subcategory-${subcategory.id}`}
+                          checked={selectedSubcategories.includes(subcategory.id)}
+                          onCheckedChange={(checked) => handleSubcategorySelection(subcategory.id, Boolean(checked))}
+                        />
+                        <label htmlFor={`mobile-subcategory-${subcategory.id}`} className="text-sm cursor-pointer">
+                          {subcategory.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t p-4">
+              <Button className="w-full" onClick={() => setShowFilters(false)}>
+                {t('filters.apply') || 'Застосувати'}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Backdrop */}
+        {showFilters && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setShowFilters(false)}
+          />
+        )}
       </div>
     </PageLayout>
   );

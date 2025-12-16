@@ -4,10 +4,9 @@ import {
   ChevronDown,
   Settings as SettingsIcon,
   LogOut,
-  Search,
-  GitCompare,
   LayoutGrid,
   X,
+  Scale
 } from "lucide-react";
 import { BiSolidCategory } from "react-icons/bi";
 import { FaCircleUser, FaHeart } from "react-icons/fa6";
@@ -19,9 +18,9 @@ import SignOut from "@/components/auth/sign-out";
 import { Category } from "@/helpers/types/item";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from 'next-intl';
+import HeaderSearch from "../searchInput";
 
 export default function SecondaryHeader() {
-  // Check if we're on the client side
   const [sessionData, setSessionData] = useState<any>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const t = useTranslations("header");
@@ -47,7 +46,7 @@ export default function SecondaryHeader() {
     }
   }, []);
 
-  // Fetch categories on component mount
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -58,35 +57,21 @@ export default function SecondaryHeader() {
         console.error("Error fetching categories:", error);
       }
     };
-
     fetchCategories();
   }, [locale]);
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      if (query.trim().length > 0) {
-        router.push(`/categories?search=${encodeURIComponent(query.trim())}`);
-      }
-    }, 500),
-    [router]
-  );
+  // Debounced sear
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    debouncedSearch(value);
-  };
 
-  const clearSearch = () => {
-    setSearchQuery("");
-    router.push("/categories");
-  };
+  // Оптимізація: активна категорія
+  const activeCategory = categories.find(cat => cat.slug === hoveredCategory);
+  const hasSubcategories = activeCategory?.subCategories?.length! > 0;
 
   return (
     <div className="bg-[#404040]">
-      <div className="max-w-[90rem] mx-auto">
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-[90rem] mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+
           {/* Category Dropdown */}
           <div className="relative">
             <button
@@ -95,14 +80,10 @@ export default function SecondaryHeader() {
               className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 hover:bg-red-700 transition-colors h-max"
             >
               <BiSolidCategory size={25} />
-              <span className="hidden sm:inline font-bold">
-                {t("categories")}
-              </span>
+              <span className="hidden sm:inline font-bold">{t("categories")}</span>
               <ChevronDown
                 size={16}
-                className={`transition-transform ${
-                  isCategoriesOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -110,112 +91,64 @@ export default function SecondaryHeader() {
               <>
                 <div
                   className="fixed inset-0 z-10"
-                  onClick={() => {
-                    setIsCategoriesOpen(false);
-                    setHoveredCategory(null);
-                  }}
+                  onClick={() => { setIsCategoriesOpen(false); setHoveredCategory(null); }}
                 />
 
-                {/* Category Dropdown */}
                 <div
                   className="absolute top-full left-0 bg-white rounded-lg shadow-lg border z-20"
                   onMouseLeave={() => setHoveredCategory(null)}
-                  style={{
-                    width: hoveredCategory ? "500px" : "240px", // x width when subcategory
-                  }}
+                  style={{ width: hasSubcategories ? "500px" : "240px" }}
                 >
                   <div className="flex py-2">
-                    {/* category column */}
+
+                    {/* Category column */}
                     <div className="flex-1 border-r">
-                      {categories.map((category) => {
+                      {categories.map(category => {
                         const isHovered = hoveredCategory === category.slug;
                         return (
                           <Link
                             key={category.slug}
                             href={`/category/${category.slug}`}
-                            className={`block px-4 py-2 cursor-pointer transition-colors ${
-                              isHovered
-                                ? "bg-gray-100"
-                                : "text-gray-800 hover:bg-gray-100"
-                            }`}
+                            className={`block px-4 py-2 cursor-pointer transition-colors ${isHovered ? "bg-gray-100" : "text-gray-800 hover:bg-gray-100"}`}
                             onMouseEnter={() => setHoveredCategory(category.slug)}
                             onClick={() => setIsCategoriesOpen(false)}
                           >
-                            <span className="text-dropdown-item">
-                              {category.name}
-                            </span>
+                            <span className="text-dropdown-item">{category.name}</span>
                           </Link>
-                        );
+                        )
                       })}
                     </div>
 
-                    {/* subcategory column */}
-                    {hoveredCategory &&
-                      categories?.find((cat) => cat.slug === hoveredCategory)
-                        ?.subCategories &&
-                      categories?.find((cat) => cat.slug === hoveredCategory)
-                        ?.subCategories?.length && (
-                        <div className="flex-1 px-4 py-2">
-                          {categories
-                            .find((cat) => cat.slug === hoveredCategory)
-                            ?.subCategories?.map(
-                              (
-                                subcategory: { name: string },
-                                index: number
-                              ) => (
-                                <div
-                                  key={`${subcategory.name}-${index}`}
-                                  className="py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
-                                  onClick={() => setIsCategoriesOpen(false)}
-                                >
-                                  {subcategory.name}
-                                </div>
-                              )
-                            )}
-                        </div>
-                      )}
+                    {/* Subcategory column */}
+                    {hasSubcategories && (
+                      <div className="flex-1 px-4 py-2">
+                        {activeCategory!.subCategories!.map((subcategory, index) => (
+                          <div
+                            key={`${subcategory.name}-${index}`}
+                            className="py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
+                            onClick={() => setIsCategoriesOpen(false)}
+                          >
+                            {subcategory.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                   </div>
                 </div>
               </>
             )}
           </div>
-
-          {/* Search Input */}
-          <div className="flex-1 flex justify-start">
-            <div className="relative w-48 sm:w-64">
-              <input
-                type="text"
-                placeholder={t("search")}
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                className={`w-full py-[6px] pr-10 border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm
-        transition-all duration-300
-        ${isFocused ? "pl-2" : "pl-10"}
-      `}
-              />
-              <Search
-                size={20}
-                className={`absolute top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300
-        ${isFocused ? "right-3 left-auto" : "left-3 right-auto"}
-      `}
-              />
-              {searchQuery && (
-                <button
-                  onClick={clearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              )}
-            </div>
+          {/* Search Bar */}
+          <div className="flex-1">
+            <HeaderSearch
+            />
           </div>
 
-          {/*  */}
+          {/* Right buttons */}
           <div className="flex items-center gap-1">
             <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
-              <GitCompare size={20} />
+              <Scale size={22} />
             </button>
             <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
               <FaHeart size={20} />
@@ -230,17 +163,13 @@ export default function SecondaryHeader() {
                 <span className="text-sm">{t("enter")}</span>
                 <ChevronDown
                   size={12}
-                  className={`transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
+                  className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                 />
               </button>
+
               {isDropdownOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
+                  <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-20">
                     <div className="py-2">
                       {sessionData?.user && (

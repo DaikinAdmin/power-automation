@@ -69,6 +69,8 @@ export default {
 				"dropdown-item": ["14px", { lineHeight: "18px", fontWeight: "400" }],
 				"dropdown-sub-item": ["15px", { lineHeight: "20px", fontWeight: "700" }],
 				"contact-phone": ["16px", { lineHeight: "16px", fontWeight: "400" }],
+				"product-title": ["15px", { lineHeight: "18px", fontWeight: "500" }],
+				"product-price": ["15px", { lineHeight: "18px", fontWeight: "700" }],
 			},
 		}
 	},

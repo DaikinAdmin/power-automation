@@ -2,6 +2,7 @@
 
 import MainHeader from "./main-header";
 import SecondaryHeader from "./secondary-header";
+import MobileHeader from "./mobile-header";
 import Footer from "./footer";
 import CartModal from "@/components/cart-modal";
 import { useCart } from "@/components/cart-context";
@@ -15,8 +16,14 @@ export default function PageLayout({ children }: PageLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <MainHeader />
-      <SecondaryHeader />
+      {/* Mobile: unified header; Desktop: existing headers */}
+      <div className="md:hidden">
+        <MobileHeader />
+      </div>
+      <div className="hidden md:block">
+        <MainHeader />
+        <SecondaryHeader />
+      </div>
       
       {children}
       
