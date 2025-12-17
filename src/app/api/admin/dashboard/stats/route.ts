@@ -8,8 +8,12 @@ export async function GET(req: NextRequest) {
   try {
     // Get current date and first day of previous month
     const now = new Date();
-    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    // For string timestamp comparisons
+    const currentMonthStr = currentMonth.toISOString();
+    const previousMonthStr = previousMonth.toISOString();
     
     // Get total counts
     const [totalUsersResult] = await db.select({ count: sql<number>`cast(count(*) as integer)` }).from(schema.user);
@@ -31,31 +35,31 @@ export async function GET(req: NextRequest) {
     const [previousMonthOrdersResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(schema.order)
-      .where(and(lt(schema.order.createdAt, currentMonth), gte(schema.order.createdAt, previousMonth)));
+      .where(and(lt(schema.order.createdAt, currentMonthStr), gte(schema.order.createdAt, previousMonthStr)));
     const previousMonthOrders = previousMonthOrdersResult.count;
     
     const [currentMonthOrdersResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(schema.order)
-      .where(gte(schema.order.createdAt, currentMonth));
+      .where(gte(schema.order.createdAt, currentMonthStr));
     const currentMonthOrders = currentMonthOrdersResult.count;
     
     const [previousMonthItemsResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(schema.item)
-      .where(lt(schema.item.createdAt, currentMonth));
+      .where(lt(schema.item.createdAt, currentMonthStr));
     const previousMonthItems = previousMonthItemsResult.count;
     
     // Calculate revenue
     const [currentMonthRevenueResult] = await db
       .select({ sum: sql<number>`cast(sum(${schema.order.originalTotalPrice}) as double precision)` })
       .from(schema.order)
-      .where(gte(schema.order.createdAt, currentMonth));
+      .where(gte(schema.order.createdAt, currentMonthStr));
     
     const [previousMonthRevenueResult] = await db
       .select({ sum: sql<number>`cast(sum(${schema.order.originalTotalPrice}) as double precision)` })
       .from(schema.order)
-      .where(and(lt(schema.order.createdAt, currentMonth), gte(schema.order.createdAt, previousMonth)));
+      .where(and(lt(schema.order.createdAt, currentMonthStr), gte(schema.order.createdAt, previousMonthStr)));
     
     // Calculate growth percentages
     const userGrowth = previousMonthUsers > 0 

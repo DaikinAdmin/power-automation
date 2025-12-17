@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Drizzle implementation
+    // Drizzle implementation - using junction table
     const discountLevelsData = await db
       .select({
         id: schema.discountLevel.id,
@@ -31,10 +31,10 @@ export async function GET(request: NextRequest) {
         discountPercentage: schema.discountLevel.discountPercentage,
         createdAt: schema.discountLevel.createdAt,
         updatedAt: schema.discountLevel.updatedAt,
-        userCount: sql<number>`cast(count(${schema.user.id}) as integer)`,
+        userCount: sql<number>`cast(count(${schema.discountLevelToUser.b}) as integer)`,
       })
       .from(schema.discountLevel)
-      .leftJoin(schema.user, eq(schema.user.discountLevel, schema.discountLevel.id))
+      .leftJoin(schema.discountLevelToUser, eq(schema.discountLevelToUser.a, schema.discountLevel.id))
       .groupBy(schema.discountLevel.id)
       .orderBy(asc(schema.discountLevel.level));
 

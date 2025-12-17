@@ -38,11 +38,11 @@ export async function GET(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Get user count - discountLevel is stored as a string in the user table
+    // Get user count from junction table
     const [userCount] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
+      .from(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
     const levelWithCount = {
       ...discountLevel,
@@ -163,11 +163,11 @@ export async function PUT(
       .where(eq(schema.discountLevel.id, id))
       .returning();
 
-    // Get user count
+    // Get user count from junction table
     const [userCount] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
+      .from(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
     const levelWithCount = {
       ...updatedDiscountLevel,
@@ -263,19 +263,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Get user count
-    const [userCount] = await db
-      .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
-
-    // Remove discount level from all users first
-    if (userCount && userCount.count > 0) {
-      await db
-        .update(schema.user)
-        .set({ discountLevel: null })
-        .where(sql`${schema.user.discountLevel}::text = ${id}`);
-    }
+    // Remove all user associations from junction table
+    await db
+      .delete(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
     // Delete the discount level
     await db

@@ -1,5 +1,5 @@
 {
-  "id": "9714878c-7a45-4abb-b671-909608b0ae67",
+  "id": "39493afe-54b7-4720-aea2-658ac738d7c5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2367,7 +2367,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "warehouse_countries_slug_unique": {
+          "name": "warehouse_countries_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
