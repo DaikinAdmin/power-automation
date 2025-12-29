@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { GitCompare, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { WarehouseAvailability } from '@/components/warehouse-availability';
+import { useTranslations } from 'next-intl';
 
 type ViewMode = 'grid' | 'list';
 
@@ -60,9 +61,10 @@ const CatalogProductCard = ({
   className,
   extraContent
 }: CatalogProductCardProps) => {
+  const t = useTranslations("product.productCatalogCard");
   const isList = viewMode === 'list';
   const disabled = addToCartDisabled ?? !inStock;
-  const resolvedAddToCartLabel = addToCartLabel || (inStock ? 'Buy' : 'Out of Stock');
+  const resolvedAddToCartLabel = addToCartLabel || (inStock ? t('buy') : t('outOfStock'));
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -84,12 +86,11 @@ const CatalogProductCard = ({
       <div 
         className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:flex items-center justify-between shadow-xl z-20"
         onClick={(e) => {
-          // Дозволяємо кліки на кнопки всередині, але блокуємо клік на самому контейнері
           e.stopPropagation();
         }}
       >
         <button
-          className={`px-4 py-2 rounded transition-colors text-sm ${disabled
+          className={`px-2 py-2 rounded transition-colors text-sm ${disabled
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-red-500 text-white hover:bg-red-600'
             }`}
@@ -222,7 +223,7 @@ const CatalogProductCard = ({
         </div>
 
         <div className={`${isList ? 'flex items-center justify-between' : ''}`}>
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2">
             <span className="text-red-600 text-product-price">
               {priceDisplay}
             </span>

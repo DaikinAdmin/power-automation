@@ -1,7 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import { Thumbs } from 'swiper/modules';
+import { ZoomIn } from 'lucide-react';
+
+import 'swiper/css';
+import 'swiper/css/thumbs';
+import 'swiper/css/navigation';
+import { useEffect, useRef } from 'react';
 
 interface ProductImageViewerProps {
   images: string[];
@@ -9,41 +17,37 @@ interface ProductImageViewerProps {
   badge?: 'bestseller' | 'discount' | 'new' | null;
 }
 
-export const ProductImageViewer = ({ images, productName, badge }: ProductImageViewerProps) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+export const ProductImageViewer = ({
+  images,
+  productName,
+  badge,
+}: ProductImageViewerProps) => {
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const mainSwiperRef = useRef<any>(null);
 
-  // Parse images - handle case where URLs might be separated by ";" or "; "
+  // 👉 твоя логіка парсингу зображень — збережена
   const parsedImages = useMemo(() => {
-    if (!images || images.length === 0) return [];
-    
+    if (!images || images.length === 0) return ['/imgs/placeholder-product.jpg'];
+
     const allImages: string[] = [];
-    images.forEach(imageString => {
-      if (imageString.includes(';')) {
-        // Split by ";" and trim each URL
-        const splitImages = imageString
-          .split(';')
-          .map(url => url.trim())
-          .filter(Boolean);
-        allImages.push(...splitImages);
+    images.forEach((img) => {
+      if (img.includes(';')) {
+        allImages.push(
+          ...img
+            .split(';')
+            .map((u) => u.trim())
+            .filter(Boolean)
+        );
       } else {
-        allImages.push(imageString);
+        allImages.push(img);
       }
     });
-    
-    return allImages.length > 0 ? allImages : ['/imgs/placeholder-product.jpg'];
+
+    return allImages.length ? allImages : ['/imgs/placeholder-product.jpg'];
   }, [images]);
-
-  const currentImage = parsedImages[selectedImageIndex];
-  const hasMultipleImages = parsedImages.length > 1;
-
-  const handlePrevious = () => {
-    setSelectedImageIndex((prev) => (prev === 0 ? parsedImages.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setSelectedImageIndex((prev) => (prev === parsedImages.length - 1 ? 0 : prev + 1));
-  };
 
   const getBadgeStyles = () => {
     switch (badge) {
@@ -71,10 +75,48 @@ export const ProductImageViewer = ({ images, productName, badge }: ProductImageV
     }
   };
 
+  // Responsive: vertical thumbs for md+, horizontal for mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="space-y-4">
-      {/* Main Image */}
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+    <div
+      className="flex gap-1 md:flex-row flex-col md:items-start items-center w-full max-w-full"
+    >
+      {/* Thumbnails */}
+      {parsedImages.length > 1 && (
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          direction={isMobile ? 'horizontal' : 'vertical'}
+          slidesPerView={isMobile ? 4 : 4}
+          spaceBetween={10}
+          className={`md:w-24 md:h-[420px] w-full h-24 order-2 md:order-none`}
+          watchSlidesProgress
+          onClick={(_, e) => e.stopPropagation()}
+        >
+          {parsedImages.map((img, i) => (
+            <SwiperSlide key={i}>
+              <img
+                src={img}
+                alt={`${productName} thumbnail ${i + 1}`}
+                onClick={() => {
+                  setActiveIndex(i);
+                  mainSwiperRef.current?.slideTo(i);
+                }}
+                className={`h-20 w-20 object-cover rounded-md cursor-pointer border-2 transition-all duration-200 ${
+                  activeIndex === i ? 'border-red-500' : 'border-transparent'
+                }`}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      )}
+
+      {/* Main image */}
+      <div
+        className="relative md:w-[420px] w-full aspect-square overflow-hidden rounded-lg bg-gray-100"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {badge && (
           <div className="absolute left-4 top-4 z-10">
             <span className={`rounded-md px-3 py-1 text-sm font-semibold ${getBadgeStyles()}`}>
@@ -83,70 +125,58 @@ export const ProductImageViewer = ({ images, productName, badge }: ProductImageV
           </div>
         )}
 
-        <img
-          src={currentImage}
-          alt={`${productName} - Image ${selectedImageIndex + 1}`}
-          className={`h-full w-full object-cover transition-transform duration-300 ${
-            isZoomed ? 'cursor-zoom-out scale-150' : 'cursor-zoom-in'
-          }`}
-          onClick={() => setIsZoomed(!isZoomed)}
-        />
+        <Swiper
+          modules={[Thumbs, Navigation]}
+          thumbs={{ swiper: thumbsSwiper }}
+          navigation={{
+            nextEl: '.product-swiper-next',
+            prevEl: '.product-swiper-prev',
+            disabledClass: 'opacity-0 pointer-events-none',
+          }}
+          onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+          className="h-full"
+          ref={mainSwiperRef}
+          initialSlide={activeIndex}
+        >
+          {parsedImages.map((img, i) => (
+            <SwiperSlide key={i}>
+              <img
+                src={img}
+                alt={`${productName} image ${i + 1}`}
+                onClick={() => setIsZoomed(!isZoomed)}
+                className={`h-full w-full object-cover transition-transform duration-300 ${
+                  isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
+                }`}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
 
-        {/* Navigation Arrows - Only show if multiple images */}
-        {hasMultipleImages && (
+        {/* Navigation arrows (show on hover for desktop, always on mobile) */}
+        {parsedImages.length > 1 && (
           <>
             <button
-              onClick={handlePrevious}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white hover:scale-110"
+              className={`product-swiper-prev absolute top-1/2 left-2 -translate-y-1/2 z-20 bg-white/80 rounded-full p-2 shadow transition-opacity duration-200 ${
+                isHovered || isMobile ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
               aria-label="Previous image"
+              tabIndex={isHovered || isMobile ? 0 : -1}
             >
-              <ChevronLeft className="h-6 w-6 text-gray-800" />
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <button
-              onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white hover:scale-110"
+              className={`product-swiper-next absolute top-1/2 right-2 -translate-y-1/2 z-20 bg-white/80 rounded-full p-2 shadow transition-opacity duration-200 ${
+                isHovered || isMobile ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
               aria-label="Next image"
+              tabIndex={isHovered || isMobile ? 0 : -1}
             >
-              <ChevronRight className="h-6 w-6 text-gray-800" />
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
             </button>
           </>
         )}
 
-        {/* Zoom Icon */}
-        <div className="absolute bottom-4 right-4 rounded-full bg-white/80 p-2 shadow-lg">
-          <ZoomIn className="h-5 w-5 text-gray-800" />
-        </div>
-
-        {/* Image Counter */}
-        {hasMultipleImages && (
-          <div className="absolute bottom-4 left-4 rounded-md bg-black/60 px-3 py-1 text-sm text-white">
-            {selectedImageIndex + 1} / {parsedImages.length}
-          </div>
-        )}
       </div>
-
-      {/* Thumbnails - Only show if multiple images */}
-      {hasMultipleImages && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {parsedImages.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setSelectedImageIndex(index)}
-              className={`relative flex-shrink-0 overflow-hidden rounded-md border-2 transition-all ${
-                index === selectedImageIndex
-                  ? 'border-blue-500 ring-2 ring-blue-200'
-                  : 'border-gray-200 hover:border-gray-400'
-              }`}
-            >
-              <img
-                src={image}
-                alt={`${productName} thumbnail ${index + 1}`}
-                className="h-20 w-20 object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

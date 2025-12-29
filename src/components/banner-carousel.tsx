@@ -8,22 +8,41 @@ import Fade from "embla-carousel-fade";
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface CarouselSlide {
-  id: string;
+interface BannerData {
+  id?: string;
   src: string;
   alt: string;
   href?: string;
   priority?: boolean;
 }
 
-interface CarouselProps {
-  slides: CarouselSlide[];
+interface BannersConfig {
+  desktop: BannerData[];
+  mobile: BannerData[];
 }
 
-const Carousel: React.FC<CarouselProps> = ({ slides }) => {
+interface CarouselProps {
+  banners: BannersConfig;
+}
+
+const Carousel: React.FC<CarouselProps> = ({ banners }) => {
   const autoplay = Autoplay({ delay: 6000, stopOnInteraction: false });
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Fade(), autoplay]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Get the appropriate banner list
+  const activeBanners = isMobile ? banners.mobile : banners.desktop;
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -52,28 +71,28 @@ const Carousel: React.FC<CarouselProps> = ({ slides }) => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: "10 / 3" }}>
+    <div className="relative w-full h-40 md:h-[560px] overflow-hidden">
       {/* Carousel viewport */}
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
-          {slides.map((slide) => {
+          {activeBanners.map((banner, idx) => {
             const content = (
               <div className="relative w-full h-full cursor-pointer">
                 <Image
-                  src={slide.src}
-                  alt={slide.alt}
+                  src={banner.src}
+                  alt={banner.alt}
                   fill
-                  priority={slide.priority}
-                  className="object-contain"
+                  priority={banner.priority}
+                  className="object-cover"
                   sizes="100vw"
                 />
               </div>
             );
 
             return (
-              <div key={slide.id} className="flex-[0_0_100%] h-full relative">
-                {slide.href ? (
-                  <Link href={slide.href} className="block h-full w-full">
+              <div key={banner.id || `banner-${idx}`} className="flex-[0_0_100%] h-full relative">
+                {banner.href ? (
+                  <Link href={banner.href} className="block h-full w-full">
                     {content}
                   </Link>
                 ) : (
@@ -101,7 +120,7 @@ const Carousel: React.FC<CarouselProps> = ({ slides }) => {
 
       {/* Dots */}
       <div className="flex justify-center gap-2 mt-2 absolute bottom-4 left-1/2 -translate-x-1/2">
-        {slides.map((_, index) => (
+        {activeBanners.map((_, index) => (
           <button
             key={index}
             onClick={() => scrollTo(index)}

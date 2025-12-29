@@ -5,22 +5,29 @@ import Image from "next/image";
 import { Menu, Search, Heart, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/components/cart-context";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import HeaderSearch from "../searchInput";
+import { useCategories } from "@/hooks/useCategories";
+import { motion, AnimatePresence } from "framer-motion";
+import Accordion from "@/components/ui/Accordion";
+import { slideLeft } from "@/lib/animations";
+import { IoIosArrowDown } from "react-icons/io";
 
 export default function MobileHeader() {
   const t = useTranslations("header");
+  const locale = useLocale();
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { categories, isLoading: isCategoriesLoading } = useCategories(locale);
 
   return (
     <div className="md:hidden bg-white border-b">
       <div className="max-w-[90rem] mx-auto px-2 py-2 flex items-center justify-between">
         {/* Left: Hamburger + Search */}
         <div className="flex items-center gap-2">
-          <button aria-label={t("openMenu") || "Menu"} className="p-2" onClick={() => setIsMenuOpen(true)}>
-            <Menu className="w-5 h-5" />
+          <button className="p-2" onClick={() => setIsMenuOpen(true)}>
+            <Menu className="w-7 h-7 stroke-primary-gray" />
           </button>
           <HeaderSearch />
         </div>
@@ -32,11 +39,11 @@ export default function MobileHeader() {
 
         {/* Right: Favorites + Cart */}
         <div className="flex items-center gap-2">
-          <Link href="/favorites" aria-label={t("favorites") || "Favorites"} className="p-2">
-            <Heart className="w-5 h-5" />
+          <Link href="/favorites" className="p-2">
+            <Heart className="w-7 h-7 stroke-primary-gray" />
           </Link>
           <button aria-label={t("cart") || "Cart"} className="relative p-2" onClick={() => setIsCartModalOpen(true)}>
-            <ShoppingCart className="w-5 h-5" />
+            <ShoppingCart className="w-7 h-7 stroke-primary-gray" />
             {getTotalCartItems() > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {getTotalCartItems()}
@@ -47,27 +54,144 @@ export default function MobileHeader() {
       </div>
 
       {/* Hamburger Drawer */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setIsMenuOpen(false)} />
-          <div className="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b">
-              <span className="font-semibold">{t("menu") || "Menu"}</span>
-              <button className="p-2" onClick={() => setIsMenuOpen(false)} aria-label={t("close") || "Close"}>
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <nav className="p-4 space-y-2">
-              {/* Move desktop items into mobile menu */}
-              <Link href="/compare" className="block px-3 py-2 rounded hover:bg-gray-100">{t("compare") || "Compare"}</Link>
-              <Link href="/login" className="block px-3 py-2 rounded hover:bg-gray-100">{t("login") || "Login"}</Link>
-              <Link href="/categories" className="block px-3 py-2 rounded hover:bg-gray-100">{t("categories") || "Categories"}</Link>
-              <Link href="/brands" className="block px-3 py-2 rounded hover:bg-gray-100">{t("brands") || "Brands"}</Link>
-              <Link href="/contacts" className="block px-3 py-2 rounded hover:bg-gray-100">{t("contacts") || "Contacts"}</Link>
-            </nav>
-          </div>
-        </div>
-      )}
+      <div className={`fixed inset-0 z-50 md:hidden ${isMenuOpen ? '' : 'pointer-events-none'}`}>
+        <AnimatePresence mode="wait">
+          {isMenuOpen && (
+            <>
+              {/* Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/40"
+                onClick={() => setIsMenuOpen(false)}
+              />
+
+              {/* Sliding panel */}
+              <motion.div
+                {...slideLeft}
+                exit={{ x: "-100%" }}
+                className="absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl flex flex-col"
+              >
+                <div className="flex items-center justify-between p-4 border-b">
+                  <span className="font-semibold">{t("menu") || "Menu"}</span>
+                  <button className="p-2" onClick={() => setIsMenuOpen(false)} aria-label={t("close") || "Close"}>
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                  {/* Categories Accordion */}
+                  <Accordion
+                    items={[
+                      {
+                        title: (isActive: boolean) => (
+                          <div className="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-100">
+                            <span className="font-semibold">{t("categories") || "Categories"}</span>
+                            <IoIosArrowDown className={`w-4 h-4 transition-transform ${isActive ? "rotate-180" : "rotate-0"}`} />
+                          </div>
+                        ),
+                        content: (
+                          <div className="space-y-1 ml-2">
+                            {isCategoriesLoading ? (
+                              <div className="space-y-2">
+                                {[...Array(5)].map((_, i) => (
+                                  <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+                                ))}
+                              </div>
+                            ) : (
+                              categories.map((category) => {
+                                const hasSubcategories = category.subcategories && category.subcategories.length > 0;
+                                if (!hasSubcategories) {
+                                  return (
+                                    <Link
+                                      key={category.id}
+                                      href={`/category/${category.slug}`}
+                                      className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100"
+                                      onClick={() => setIsMenuOpen(false)}
+                                    >
+                                      <span className="text-sm">{category.name}</span>
+                                    </Link>
+                                  );
+                                }
+
+                                return (
+                                  <Accordion
+                                    key={category.id}
+                                    items={[
+                                      {
+                                        title: (isCatOpen: boolean) => (
+                                          <div className="flex items-center justify-between px-3 py-2 rounded hover:bg-gray-100">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-sm">{category.name}</span>
+                                            </div>
+                                            <IoIosArrowDown className={`w-4 h-4 transition-transform ${isCatOpen ? "rotate-180" : "rotate-0"}`} />
+                                          </div>
+                                        ),
+                                        content: (
+                                          <div className="ml-2 space-y-1">
+                                            {category.subcategories!.map((sub) => (
+                                              <Link
+                                                key={sub.slug}
+                                                href={`/category/${category.slug}?subcategory=${sub.slug}`}
+                                                className="block px-3 py-2 rounded hover:bg-gray-100 text-sm"
+                                                onClick={() => setIsMenuOpen(false)}
+                                              >
+                                                {sub.name}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        ),
+                                      },
+                                    ]}
+                                    multiple={false}
+                                    defaultIndex={-1}
+                                  />
+                                );
+                              })
+                            )}
+                          </div>
+                        ),
+                      },
+                    ]}
+                    multiple={false}
+                    defaultIndex={-1}
+                  />
+
+                  {/* Other menu items */}
+                  <Link
+                    href="/compare"
+                    className="block px-3 py-2 rounded hover:bg-gray-100"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t("compare") || "Compare"}
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2 rounded hover:bg-gray-100"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t("login") || "Login"}
+                  </Link>
+                  <Link
+                    href="/brands"
+                    className="block px-3 py-2 rounded hover:bg-gray-100"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t("brands") || "Brands"}
+                  </Link>
+                  <Link
+                    href="/contacts"
+                    className="block px-3 py-2 rounded hover:bg-gray-100"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t("contacts") || "Contacts"}
+                  </Link>
+                </nav>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Search Overlay */}
       {isSearchOpen && (

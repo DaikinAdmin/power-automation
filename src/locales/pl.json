@@ -186,7 +186,7 @@
       "description": "Produkt, którego szukasz, jest niedostępny lub został usunięty.",
       "backToHome": "Powrót do strony głównej"
     },
-    "articleId": "ID Artykułu",
+    "articleId": "Artykuł",
     "from": "Z {{warehouse}}",
     "moreLocations": "+{{count}} więcej lokalizacji",
     "price": {
@@ -254,7 +254,11 @@
       "submitting": "Wysyłanie...",
       "success": "Zapytanie o cenę zostało wysłane pomyślnie! Wkrótce się z Tobą skontaktujemy.",
       "error": "Nie udało się przesłać zapytania o cenę. Spróbuj ponownie."
-    }
+    },
+    "productCatalogCard":{
+      "buy":"Kup",
+      "outOfStock":"Brak"
+    } 
   },
   "home": {
     "features": {
@@ -283,6 +287,28 @@
       "noCategories": "Brak dostępnych kategorii.",
       "noBrands": "Brak dostępnych marek.",
       "moreSubcategories": "+{{count}} więcej"
+    },
+    "banners": {
+      "desktop": [
+        {
+          "src": "/imgs/main_banner_amm.webp",
+          "alt": "Automation Main Banner",
+          "href": "/categories/siemens-s5",
+          "priority": true
+        },
+        {
+          "src": "/imgs/siemens_main_banner_amm.webp",
+          "alt": "Siemens S5 Product Banner",
+          "href": "/categories/siemens-s5"
+        }
+      ],
+      "mobile": [
+        {
+          "src": "/imgs/mobile_main_banner._amm.webp",
+          "alt": "Mobile Automation Banner",
+          "href": "/product/cmfxo7pxy0001pa9q5ta4kejp"
+        }
+      ]
     }
   },
   "header": {

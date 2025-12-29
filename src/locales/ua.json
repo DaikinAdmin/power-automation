@@ -79,10 +79,12 @@
     "name": "Назва",
     "view": "Вигляд:",
     "filters": {
+      "title": "Фільтри",
       "categories": "Категорії",
       "brands": "Бренди",
       "warehouses": "Склади",
-      "subcategories": "Підкатегорії"
+      "subcategories": "Підкатегорії",
+      "apply": "Застосувати"
     },
     "noResults": "Продукти не знайдено",
     "noResultsSearch": "Результати пошуку не знайдено",
@@ -186,7 +188,7 @@
       "description": "Товар, який ви шукаєте, недоступний або був видалений.",
       "backToHome": "Повернутися на головну"
     },
-    "articleId": "ID артикулу",
+    "articleId": "Артикул",
     "from": "Від {{warehouse}}",
     "moreLocations": "+{{count}} більше локацій",
     "price": {
@@ -254,7 +256,11 @@
       "submitting": "Відправлення...",
       "success": "Запит на ціну успішно відправлено! Ми зв'яжемося з вами найближчим часом.",
       "error": "Не вдалося надіслати запит на ціну. Будь ласка, спробуйте ще раз."
-    }
+    },
+    "productCatalogCard":{
+      "buy":"Купити",
+      "outOfStock":"Немає в наявності"
+    } 
   },
   "home": {
     "features": {
@@ -283,6 +289,28 @@
       "noCategories": "Немає доступних категорій.",
       "noBrands": "Немає доступних брендів.",
       "moreSubcategories": "+{{count}} більше"
+    },
+    "banners": {
+      "desktop": [
+        {
+          "src": "/imgs/main_banner_amm.webp",
+          "alt": "Automation Main Banner",
+          "href": "/categories/siemens-s5",
+          "priority": true
+        },
+        {
+          "src": "/imgs/siemens_main_banner_amm.webp",
+          "alt": "Siemens S5 Product Banner",
+          "href": "/categories/siemens-s5"
+        }
+      ],
+      "mobile": [
+        {
+          "src": "/imgs/mobile_main_banner._amm.webp",
+          "alt": "Mobile Automation Banner",
+          "href": "/product/cmfxo7pxy0001pa9q5ta4kejp"
+        }
+      ]
     }
   },
   "header": {

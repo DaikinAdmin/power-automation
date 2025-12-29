@@ -13,6 +13,7 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				accent: '#e62027',
+				"primary-gray": '#525252',
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
@@ -66,13 +67,38 @@ export default {
 				header: ["14px", { lineHeight: "21px", fontWeight: "400" }],
 				"features-text": ["16px", { lineHeight: "22px", fontWeight: "700" }],
 				"tabs-title": ["20px", { lineHeight: "20px", fontWeight: "700" }],
+				"tabs-title-mobile": ["18px", { lineHeight: "26px", fontWeight: "700" }],
 				"dropdown-item": ["14px", { lineHeight: "18px", fontWeight: "400" }],
 				"dropdown-sub-item": ["15px", { lineHeight: "20px", fontWeight: "700" }],
 				"contact-phone": ["16px", { lineHeight: "16px", fontWeight: "400" }],
 				"product-title": ["15px", { lineHeight: "18px", fontWeight: "500" }],
 				"product-price": ["15px", { lineHeight: "18px", fontWeight: "700" }],
+				"category-title-mobile": ["18px", { lineHeight: "24px", fontWeight: "400" }],
+				"subcategory-title-mobile": ["16px", { lineHeight: "20px", fontWeight: "400" }],
+			},
+			keyframes: {
+				"slide-up": {
+					"0%": { transform: "translateY(100%)" },
+					"100%": { transform: "translateY(0)" },
+				},
+			},
+			animation: {
+				"slide-up": "slide-up 0.3s ease-out",
 			},
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		function({ addUtilities }: any) {
+			addUtilities({
+				'.scrollbar-hide': {
+					'-ms-overflow-style': 'none',
+					'scrollbar-width': 'none',
+					'&::-webkit-scrollbar': {
+						display: 'none'
+					}
+				}
+			});
+		}
+	],
 } satisfies Config;

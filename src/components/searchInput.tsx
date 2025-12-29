@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Search, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 type HeaderSearchProps = {
@@ -12,6 +12,7 @@ type HeaderSearchProps = {
 export default function HeaderSearch({ basePath = "/categories" }: HeaderSearchProps) {
   const t = useTranslations("header");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -20,10 +21,13 @@ export default function HeaderSearch({ basePath = "/categories" }: HeaderSearchP
   const debouncedSearch = useCallback(
     debounce((query: string) => {
       if (query.trim()) {
-        router.push(`${basePath}?search=${encodeURIComponent(query.trim())}`);
+        // Preserve existing URL parameters (like brand, warehouse)
+        const params = new URLSearchParams(searchParams?.toString() || '');
+        params.set('search', query.trim());
+        router.push(`${basePath}?${params.toString()}`);
       }
     }, 500),
-    [router, basePath]
+    [router, basePath, searchParams]
   );
 
   const handleSearchChange = (value: string) => {
@@ -33,7 +37,11 @@ export default function HeaderSearch({ basePath = "/categories" }: HeaderSearchP
 
   const clearSearch = () => {
     setSearchQuery("");
-    router.push(basePath);
+    // Keep other filters, only remove search
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.delete('search');
+    const queryString = params.toString();
+    router.push(`${basePath}${queryString ? `?${queryString}` : ''}`);
   };
 
   return (
@@ -48,7 +56,7 @@ export default function HeaderSearch({ basePath = "/categories" }: HeaderSearchP
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`w-full py-[6px] pr-10 border border-gray-300 rounded-sm
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            focus:outline-none focus:border-transparent
             text-sm transition-all duration-300
             ${isFocused ? "pl-2" : "pl-10"}`}
         />
@@ -76,7 +84,7 @@ export default function HeaderSearch({ basePath = "/categories" }: HeaderSearchP
         className="md:hidden p-2"
         onClick={() => setIsSearchOpen(true)}
       >
-        <Search className="w-5 h-5" />
+        <Search className="w-7 h-7 stroke-primary-gray" />
       </button>
 
       {/* 📱 Mobile overlay */}
