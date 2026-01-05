@@ -286,7 +286,8 @@
       "noProducts": "Brak produktów w tej kategorii.",
       "noCategories": "Brak dostępnych kategorii.",
       "noBrands": "Brak dostępnych marek.",
-      "moreSubcategories": "+{{count}} więcej"
+      "moreSubcategories": "+{{count}} więcej",
+      "showMore": "Pokaż więcej"
     },
     "banners": {
       "desktop": [
@@ -357,6 +358,41 @@
     "workingHours": {
       "weekdays": "Pon-Pt: 9:00-18:00",
       "saturday": "Sob: 9:00-16:00"
+    }
+  },
+  "common": {
+    "breadcrumb": {
+      "home": "Strona główna"
+    }
+  },
+  "info": {
+    "menu": {
+      "title": "Informacje",
+      "about": "O nas",
+      "brands": "Marki",
+      "paymentDelivery": "Płatność i dostawa",
+      "returns": "Zwroty i wymiana",
+      "contacts": "Kontakt"
+    },
+    "about": {
+      "title": "O nas",
+      "content": "<p>Witamy w naszej firmie!</p><p>Jesteśmy wiodącym dostawcą wysokiej jakości produktów i usług. Naszą misją jest zapewnienie doskonałości naszym klientom.</p><h3>Nasza historia</h3><p>Założona w 2020 roku, wyrosliśmy na zaufaną markę w branży.</p><h3>Nasze wartości</h3><ul><li>Jakość przede wszystkim</li><li>Satysfakcja klienta</li><li>Innowacyjność</li><li>Uczciwość</li></ul>"
+    },
+    "brands": {
+      "title": "Nasze marki",
+      "noBrands": "Brak dostępnych marek"
+    },
+    "paymentDelivery": {
+      "title": "Płatność i dostawa",
+      "content": "<h3>Metody płatności</h3><p>Akceptujemy następujące metody płatności:</p><ul><li>Karty kredytowe/debetowe (Visa, MasterCard, American Express)</li><li>PayPal</li><li>Przelew bankowy</li><li>Płatność przy odbiorze</li></ul><h3>Opcje dostawy</h3><p>Oferujemy różne opcje dostawy:</p><ul><li>Dostawa standardowa (3-5 dni roboczych)</li><li>Dostawa ekspresowa (1-2 dni robocze)</li><li>Dostawa tego samego dnia (wybrane obszary)</li></ul><h3>Koszty wysyłki</h3><p>Koszty wysyłki różnią się w zależności od lokalizacji i wybranej metody dostawy. Darmowa wysyłka przy zamówieniach powyżej 400 PLN.</p>"
+    },
+    "returns": {
+      "title": "Zwroty i wymiana",
+      "content": "<h3>Polityka zwrotów</h3><p>Przyjmujemy zwroty w ciągu 30 dni od zakupu. Produkty muszą być w oryginalnym stanie z metkami.</p><h3>Jak zwrócić towar</h3><ol><li>Skontaktuj się z naszym działem obsługi klienta</li><li>Otrzymaj numer autoryzacji zwrotu</li><li>Bezpiecznie zapakuj przedmiot</li><li>Wyślij na nasz adres zwrotów</li></ol><h3>Zwrot pieniędzy</h3><p>Zwrot pieniędzy zostanie przetworzony w ciągu 5-7 dni roboczych od otrzymania zwrotu.</p><h3>Wymiana</h3><p>Chętnie wymienimy produkty na inny rozmiar lub kolor, w zależności od dostępności.</p>"
+    },
+    "contacts": {
+      "title": "Kontakt",
+      "content": "<h3>Skontaktuj się z nami</h3><p>Chętnie Cię wysłuchamy! Skontaktuj się z nami dowolną metodą:</p><h3>Adres</h3><p>ul. Biznesowa 123<br/>Miasto, Województwo 12-345<br/>Polska</p><h3>Telefon</h3><p>Główny: +48 22 123 4567<br/>Wsparcie: +48 22 123 4568</p><h3>Email</h3><p>Ogólne zapytania: info@company.com<br/>Wsparcie: support@company.com<br/>Sprzedaż: sales@company.com</p><h3>Godziny pracy</h3><p>Poniedziałek - Piątek: 9:00 - 18:00<br/>Sobota: 10:00 - 16:00<br/>Niedziela: Nieczynne</p>"
     }
   }
 }

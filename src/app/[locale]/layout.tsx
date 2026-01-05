@@ -10,23 +10,13 @@ import { notFound } from "next/navigation";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
-  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Power Automation",
   description: "Best deals on electronics, fashion, and more!",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
 };
-
-export const dynamic = 'force-dynamic';
-
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -49,9 +39,9 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   return (
-    <html lang={locale} className="overflow-x-hidden">
+    <html lang={locale}>
       <body
-        className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
+        className={`${montserrat.variable} antialiased font-sans`}
       >
         <NextIntlClientProvider>
           <CartProvider>

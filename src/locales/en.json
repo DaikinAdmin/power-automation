@@ -286,7 +286,8 @@
       "noProducts": "No products available in this category.",
       "noCategories": "No categories available.",
       "noBrands": "No brands available.",
-      "moreSubcategories": "+{{count}} more"
+      "moreSubcategories": "+{{count}} more",
+      "showMore": "Show More"
     },
     "banners": {
       "desktop": [
@@ -357,6 +358,41 @@
     "workingHours": {
       "weekdays": "Mon-Fri: 9AM-6PM",
       "saturday": "Sat: 9AM-4PM"
+    }
+  },
+  "common": {
+    "breadcrumb": {
+      "home": "Home"
+    }
+  },
+  "info": {
+    "menu": {
+      "title": "Information",
+      "about": "About Us",
+      "brands": "Brands",
+      "paymentDelivery": "Payment & Delivery",
+      "returns": "Returns & Exchanges",
+      "contacts": "Contacts"
+    },
+    "about": {
+      "title": "About Us",
+      "content": "<p>Welcome to our company!</p><p>We are a leading provider of quality products and services. Our mission is to deliver excellence to our customers.</p><h3>Our History</h3><p>Founded in 2020, we have grown to become a trusted name in the industry.</p><h3>Our Values</h3><ul><li>Quality First</li><li>Customer Satisfaction</li><li>Innovation</li><li>Integrity</li></ul>"
+    },
+    "brands": {
+      "title": "Our Brands",
+      "noBrands": "No brands available at the moment"
+    },
+    "paymentDelivery": {
+      "title": "Payment & Delivery",
+      "content": "<h3>Payment Methods</h3><p>We accept the following payment methods:</p><ul><li>Credit/Debit Cards (Visa, MasterCard, American Express)</li><li>PayPal</li><li>Bank Transfer</li><li>Cash on Delivery</li></ul><h3>Delivery Options</h3><p>We offer various delivery options to suit your needs:</p><ul><li>Standard Delivery (3-5 business days)</li><li>Express Delivery (1-2 business days)</li><li>Same Day Delivery (selected areas)</li></ul><h3>Shipping Costs</h3><p>Shipping costs vary depending on your location and chosen delivery method. Free shipping on orders over $100.</p>"
+    },
+    "returns": {
+      "title": "Returns & Exchanges",
+      "content": "<h3>Return Policy</h3><p>We accept returns within 30 days of purchase. Items must be in original condition with tags attached.</p><h3>How to Return</h3><ol><li>Contact our customer service team</li><li>Receive a return authorization number</li><li>Pack the item securely</li><li>Ship to our returns address</li></ol><h3>Refunds</h3><p>Refunds will be processed within 5-7 business days of receiving your return.</p><h3>Exchanges</h3><p>We're happy to exchange items for a different size or color, subject to availability.</p>"
+    },
+    "contacts": {
+      "title": "Contact Us",
+      "content": "<h3>Get in Touch</h3><p>We'd love to hear from you! Contact us using any of the methods below:</p><h3>Address</h3><p>123 Business Street<br/>City, State 12345<br/>Country</p><h3>Phone</h3><p>Main: +1 234 567 8900<br/>Support: +1 234 567 8901</p><h3>Email</h3><p>General inquiries: info@company.com<br/>Support: support@company.com<br/>Sales: sales@company.com</p><h3>Business Hours</h3><p>Monday - Friday: 9:00 AM - 6:00 PM<br/>Saturday: 10:00 AM - 4:00 PM<br/>Sunday: Closed</p>"
     }
   }
 }

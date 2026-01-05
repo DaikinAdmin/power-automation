@@ -27,6 +27,12 @@ export default function Home() {
 
   // Use the categories hook
   const { categories, isLoading: isCategoriesLoading } = useCategories(locale);
+  
+  useEffect(() => {
+    console.log('🏠 Home page - Categories from hook:', categories);
+    console.log('🏠 Home page - Is loading:', isCategoriesLoading);
+  }, [categories, isCategoriesLoading]);
+  
 
   const fetchData = async () => {
     try {

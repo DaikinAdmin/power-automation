@@ -197,6 +197,7 @@ export const category = pgTable("category", {
 	id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
 	name: text().notNull(),
 	slug: text().notNull().unique(),
+	imageLink: text(),
 	isVisible: boolean().default(true),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
@@ -556,3 +557,17 @@ export type CurrencyExchange = typeof currencyExchange.$inferSelect;
 export type CurrencyExchangeInsert = typeof currencyExchange.$inferInsert;
 export type Messages = typeof messages.$inferSelect;
 export type MessagesInsert = typeof messages.$inferInsert;
+export const infoPages = pgTable("info_pages", {
+id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
+slug: text().notNull(),
+locale: text().notNull(),
+title: text().notNull(),
+content: text().notNull(),
+createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+}, (table) => [
+uniqueIndex("info_pages_slug_locale_key").using("btree", table.slug.asc().nullsLast(), table.locale.asc().nullsLast()),
+]);
+
+export type InfoPages = typeof infoPages.$inferSelect;
+export type InfoPagesInsert = typeof infoPages.$inferInsert;

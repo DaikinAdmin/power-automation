@@ -286,7 +286,8 @@
       "noProducts": "No hay productos disponibles en esta categoría.",
       "noCategories": "No hay categorías disponibles.",
       "noBrands": "No hay marcas disponibles.",
-      "moreSubcategories": "+{{count}} más"
+      "moreSubcategories": "+{{count}} más",
+      "showMore": "Mostrar más"
     },
     "banners": {
       "desktop": [
@@ -357,6 +358,41 @@
     "workingHours": {
       "weekdays": "Lun-Vie: 9:00-18:00",
       "saturday": "Sáb: 9:00-16:00"
+    }
+  },
+  "common": {
+    "breadcrumb": {
+      "home": "Inicio"
+    }
+  },
+  "info": {
+    "menu": {
+      "title": "Información",
+      "about": "Sobre nosotros",
+      "brands": "Marcas",
+      "paymentDelivery": "Pago y entrega",
+      "returns": "Devoluciones y cambios",
+      "contacts": "Contactos"
+    },
+    "about": {
+      "title": "Sobre nosotros",
+      "content": "<p>¡Bienvenido a nuestra empresa!</p><p>Somos un proveedor líder de productos y servicios de calidad. Nuestra misión es ofrecer excelencia a nuestros clientes.</p><h3>Nuestra historia</h3><p>Fundada en 2020, hemos crecido hasta convertirnos en un nombre de confianza en la industria.</p><h3>Nuestros valores</h3><ul><li>Calidad ante todo</li><li>Satisfacción del cliente</li><li>Innovación</li><li>Integridad</li></ul>"
+    },
+    "brands": {
+      "title": "Nuestras marcas",
+      "noBrands": "No hay marcas disponibles en este momento"
+    },
+    "paymentDelivery": {
+      "title": "Pago y entrega",
+      "content": "<h3>Métodos de pago</h3><p>Aceptamos los siguientes métodos de pago:</p><ul><li>Tarjetas de crédito/débito (Visa, MasterCard, American Express)</li><li>PayPal</li><li>Transferencia bancaria</li><li>Pago contra reembolso</li></ul><h3>Opciones de entrega</h3><p>Ofrecemos varias opciones de entrega:</p><ul><li>Entrega estándar (3-5 días hábiles)</li><li>Entrega exprés (1-2 días hábiles)</li><li>Entrega el mismo día (áreas seleccionadas)</li></ul><h3>Costos de envío</h3><p>Los costos de envío varían según su ubicación y el método de entrega elegido. Envío gratuito en pedidos superiores a 100€.</p>"
+    },
+    "returns": {
+      "title": "Devoluciones y cambios",
+      "content": "<h3>Política de devoluciones</h3><p>Aceptamos devoluciones dentro de los 30 días posteriores a la compra. Los artículos deben estar en su estado original con etiquetas.</p><h3>Cómo devolver</h3><ol><li>Contacte con nuestro equipo de atención al cliente</li><li>Reciba un número de autorización de devolución</li><li>Empaque el artículo de forma segura</li><li>Envíe a nuestra dirección de devoluciones</li></ol><h3>Reembolsos</h3><p>Los reembolsos se procesarán dentro de 5-7 días hábiles después de recibir su devolución.</p><h3>Cambios</h3><p>Estaremos encantados de cambiar artículos por una talla o color diferente, sujeto a disponibilidad.</p>"
+    },
+    "contacts": {
+      "title": "Contacto",
+      "content": "<h3>Ponte en contacto</h3><p>¡Nos encantaría saber de ti! Contáctanos usando cualquiera de los métodos a continuación:</p><h3>Dirección</h3><p>Calle Comercial 123<br/>Ciudad, Provincia 12345<br/>España</p><h3>Teléfono</h3><p>Principal: +34 91 123 4567<br/>Soporte: +34 91 123 4568</p><h3>Email</h3><p>Consultas generales: info@company.com<br/>Soporte: support@company.com<br/>Ventas: sales@company.com</p><h3>Horario de atención</h3><p>Lunes - Viernes: 9:00 - 18:00<br/>Sábado: 10:00 - 16:00<br/>Domingo: Cerrado</p>"
     }
   }
 }

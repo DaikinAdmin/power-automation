@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Slider } from "@/components/ui/slider";
 
 interface PriceFilterProps {
   min: number;
@@ -23,18 +24,6 @@ export default function PriceFilter({
     setMaxVal(value[1]);
   }, [value]);
 
-  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newMin = Math.min(Number(e.target.value), maxVal - 1);
-    setMinVal(newMin);
-    onChange([newMin, maxVal]);
-  };
-
-  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newMax = Math.max(Number(e.target.value), minVal + 1);
-    setMaxVal(newMax);
-    onChange([minVal, newMax]);
-  };
-
   const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newMin = Number(e.target.value);
     if (newMin >= min && newMin < maxVal) {
@@ -51,8 +40,12 @@ export default function PriceFilter({
     }
   };
 
-  const getPercent = (value: number) => 
-    ((value - min) / (max - min)) * 100;
+  const handleSliderChange = (values: number[]) => {
+    const [newMin, newMax] = values;
+    setMinVal(newMin);
+    setMaxVal(newMax);
+    onChange([newMin, newMax]);
+  };
 
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -86,38 +79,14 @@ export default function PriceFilter({
       </div>
 
       {/* Dual Range Slider */}
-      <div className="relative h-6 px-1">
-        {/* Background Track */}
-        <div className="absolute top-1/2 h-1.5 w-full -translate-y-1/2 rounded-full bg-gray-200" />
-
-        {/* Active Range */}
-        <div
-          className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-red-500"
-          style={{
-            left: `${getPercent(minVal)}%`,
-            right: `${100 - getPercent(maxVal)}%`,
-          }}
-        />
-
-        {/* Min Slider */}
-        <input
-          type="range"
+      <div className="px-1 py-2">
+        <Slider
           min={min}
           max={max}
-          value={minVal}
-          onChange={handleMinChange}
-          className="range-slider-thumb pointer-events-none absolute z-[3] h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-red-500 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-red-500 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:scale-110"
-          style={{ zIndex: minVal > max - 100 ? 5 : 3 }}
-        />
-
-        {/* Max Slider */}
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={maxVal}
-          onChange={handleMaxChange}
-          className="range-slider-thumb pointer-events-none absolute z-[4] h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-red-500 [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-red-500 [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:scale-110"
+          step={1}
+          value={[minVal, maxVal]}
+          onValueChange={handleSliderChange}
+          className="w-full"
         />
       </div>
 

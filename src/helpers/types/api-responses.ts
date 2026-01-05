@@ -4,6 +4,7 @@
 export interface CategoryResponse {
   slug: string;
   name: string;
+  imageLink: string | null;
   isVisible: boolean;
   createdAt: string;
   updatedAt: string;
