@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { ItemResponse } from "@/helpers/types/api-responses";
 
 export type Category = {
   id: string;
@@ -22,47 +21,27 @@ export function useCategories(locale: string) {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`/api/public/items/${locale}`);
+      const response = await fetch(`/api/public/categories/${locale}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
       }
 
-      const data = (await response.json()) as ItemResponse[];
+      const data = (await response.json()) as any[];
 
-      // Extract categories and subcategories from items
-      const categoryMap = new Map<string, Category>();
+      // Map API response to Category type
+      const mappedCategories: Category[] = data.map((cat) => ({
+        id: cat.slug,
+        name: cat.name,
+        slug: cat.slug,
+        image: cat.imageLink || "/placeholder-category.jpg",
+        subcategories: cat.subCategories?.map((sub: any) => ({
+          name: sub.name,
+          slug: sub.slug,
+        })) || [],
+      }));
 
-      data.forEach((item: ItemResponse) => {
-        if (item.category) {
-          const categorySlug = item.category.slug;
-          const categoryName = item.category.name;
-
-          if (!categoryMap.has(categorySlug)) {
-            categoryMap.set(categorySlug, {
-              id: categorySlug,
-              name: categoryName,
-              slug: categorySlug,
-              image: "/placeholder-category.jpg",
-              subcategories: [],
-            });
-          }
-
-          // Add subcategories from the category object
-          const category = categoryMap.get(categorySlug)!;
-          item.category.subCategories.forEach((sub) => {
-            // Check if subcategory already exists to avoid duplicates
-            if (!category.subcategories.some((s) => s.slug === sub.slug)) {
-              category.subcategories.push({
-                name: sub.name,
-                slug: sub.slug,
-              });
-            }
-          });
-        }
-      });
-
-      setCategories(Array.from(categoryMap.values()));
+      setCategories(mappedCategories);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Unknown error"));
       console.error("Error fetching categories:", err);

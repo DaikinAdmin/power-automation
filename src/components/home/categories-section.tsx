@@ -23,7 +23,7 @@ export default function CategoriesSection({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <AnimatePresence mode="wait">
+    <>
       {/* Mobile: Button to show categories (above tabs, visible only on mobile) */}
       <div className="md:hidden max-w-[90rem] mx-auto px-4 sm:px-4 mt-4">
         <button
@@ -197,9 +197,8 @@ export default function CategoriesSection({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-6 gap-6">
               {categories.map((category) => (
-                <Link
+                <div
                   key={category.id}
-                  href={`/category/${category.slug}`}
                   className="overflow-hidden cursor-pointer"
                 >
                   {/* Category Image */}
@@ -248,7 +247,7 @@ export default function CategoriesSection({
                         </div>
                       )}
                   </div>
-                </Link>
+                </div>
               ))}
               {categories.length === 0 && (
                 <div className="col-span-6 text-center py-8 text-gray-500">
@@ -259,6 +258,6 @@ export default function CategoriesSection({
           )}
         </div>
       </section>
-    </AnimatePresence>
+    </>
   );
 }

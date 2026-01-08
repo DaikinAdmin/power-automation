@@ -31,28 +31,25 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setIsDataLoading(true);
-      const response = await fetch(`/api/public/items/${locale}`);
-      if (response.ok) {
-        const data = (await response.json()) as Item[];
-        setItems(data);
+      const [itemsRes, brandsRes] = await Promise.all([
+        fetch(`/api/public/items/${locale}`),
+        fetch(`/api/public/brands`),
+      ]);
 
-        // Extract brands from items
-        const brandMap = new Map();
+      if (itemsRes.ok) {
+        const itemsData = (await itemsRes.json()) as Item[];
+        setItems(itemsData);
+      }
 
-        data.forEach((item: Item) => {
-          // Process brands
-          const brandName = item.brand?.name || item.brandSlug;
-          if (brandName && !brandMap.has(brandName)) {
-            brandMap.set(brandName, {
-              id: brandName.toLowerCase().replace(/\s+/g, "-"),
-              name: brandName,
-              logo: item.brand?.imageLink || "/placeholder-brand.jpg",
-            });
-          }
-        });
-
-        // Convert brands map to array
-        setBrands(Array.from(brandMap.values()));
+      if (brandsRes.ok) {
+        const brandsData = (await brandsRes.json()) as Array<{
+          alias: string;
+          name: string;
+          imageLink: string;
+        }>;
+        setBrands(
+          brandsData.map((b) => ({ id: b.alias, name: b.name, logo: b.imageLink }))
+        );
       }
     } catch (error) {
       console.error("Error fetching data:", error);

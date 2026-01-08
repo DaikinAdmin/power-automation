@@ -20,6 +20,7 @@ export async function getCategoriesByLocale(locale: string) {
       id: schema.category.id,
       slug: schema.category.slug,
       name: schema.category.name,
+      imageLink: schema.category.imageLink,
       isVisible: schema.category.isVisible,
       createdAt: schema.category.createdAt,
       updatedAt: schema.category.updatedAt,
@@ -53,6 +54,7 @@ export async function getCategoriesByLocale(locale: string) {
     return {
       slug: cat.slug,
       name: translation?.name || cat.name,
+      imageLink: cat.imageLink || '',
       isVisible: cat.isVisible ?? true,
       createdAt: cat.createdAt || '',
       updatedAt: cat.updatedAt || '',
@@ -104,6 +106,7 @@ export async function getCategoryBySlug(slug: string, locale: string) {
   return {
     slug: category.slug,
     name: translation?.name || category.name,
+    imageLink: category.imageLink,
     isVisible: category.isVisible ?? true,
     createdAt: category.createdAt || '',
     updatedAt: category.updatedAt || '',
@@ -354,6 +357,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
     category: {
       slug: category?.slug || '',
       name: categoryTranslation?.name || category?.name || '',
+      imageLink: category?.imageLink || '',
       isVisible: category?.isVisible ?? true,
       createdAt: category?.createdAt || '',
       updatedAt: category?.updatedAt || '',

@@ -198,6 +198,7 @@ export const category = pgTable("category", {
 	name: text().notNull(),
 	slug: text().notNull().unique(),
 	isVisible: boolean().default(true),
+	imageLink: text(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 	updatedAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
 });
@@ -273,6 +274,21 @@ export const messages = pgTable("messages", {
 			foreignColumns: [order.id],
 			name: "messages_orderId_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
+]);
+
+// Static pages table for site informational content
+export const staticPage = pgTable("static_page", {
+  id: text().primaryKey().notNull().default(sql`gen_random_uuid()`),
+  slug: text().notNull(),
+  title: text().notNull(),
+  text: text().notNull(),
+  locale: text().notNull(),
+}, (table) => [
+  uniqueIndex("static_page_slug_locale_key").using(
+    "btree",
+    table.slug.asc().nullsLast().op("text_ops"),
+    table.locale.asc().nullsLast().op("text_ops")
+  ),
 ]);
 
 export const outOfStockRequest = pgTable("out_of_stock_request", {
@@ -556,3 +572,5 @@ export type CurrencyExchange = typeof currencyExchange.$inferSelect;
 export type CurrencyExchangeInsert = typeof currencyExchange.$inferInsert;
 export type Messages = typeof messages.$inferSelect;
 export type MessagesInsert = typeof messages.$inferInsert;
+export type StaticPage = typeof staticPage.$inferSelect;
+export type StaticPageInsert = typeof staticPage.$inferInsert;

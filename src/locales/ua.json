@@ -288,7 +288,7 @@
       "noProducts": "Немає товарів у цій категорії.",
       "noCategories": "Немає доступних категорій.",
       "noBrands": "Немає доступних брендів.",
-      "moreSubcategories": "+{{count}} більше"
+      "moreSubcategories": "+{count} більше"
     },
     "banners": {
       "desktop": [

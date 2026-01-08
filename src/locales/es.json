@@ -286,7 +286,7 @@
       "noProducts": "No hay productos disponibles en esta categoría.",
       "noCategories": "No hay categorías disponibles.",
       "noBrands": "No hay marcas disponibles.",
-      "moreSubcategories": "+{{count}} más"
+      "moreSubcategories": "+{count} más"
     },
     "banners": {
       "desktop": [

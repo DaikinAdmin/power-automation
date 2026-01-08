@@ -5,6 +5,7 @@ export interface CategoryResponse {
   slug: string;
   name: string;
   isVisible: boolean;
+  imageLink: string;
   createdAt: string;
   updatedAt: string;
   subCategories: SubCategoryResponse[];
