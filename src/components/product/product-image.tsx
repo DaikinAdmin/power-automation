@@ -1,4 +1,4 @@
-import { Badge as UiBadge } from '@/components/ui/badge';
+import { Badge as UiBadge } from "@/components/ui/badge";
 
 interface ProductImageProps {
   imageSrc: string[];
@@ -7,35 +7,40 @@ interface ProductImageProps {
 }
 
 const badgeLabels: Record<string, string> = {
-  new: 'NEW',
-  bestseller: 'BESTSELLER',
-  discount: 'DISCOUNT',
+  new: "NEW",
+  bestseller: "BESTSELLER",
+  discount: "DISCOUNT",
 };
 
-export function ProductImage({ imageSrc, productName, badge }: ProductImageProps) {
+export function ProductImage({
+  imageSrc,
+  productName,
+  badge,
+}: ProductImageProps) {
+  const imageUrl =
+    imageSrc && imageSrc.length > 0
+      ? imageSrc[0]
+      : "/imgs/placeholder-product.jpg";
+
   return (
-    <div className="relative mx-auto max-w-md">
-      <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-        {
-          imageSrc.length === 0 ? (
-            imageSrc.map((src, index) => (
-              <img src={src} alt={productName} key={index} className="h-full w-full object-cover" />
-          ))) : (
-            <></>
-          )
-        }
-        
+    <div className="relative mx-auto w-full">
+      <div className="overflow-hidden rounded-lg bg-gray-100 h-64 w-full">
+        <img
+          src={imageUrl}
+          alt={productName}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {badge && (
         <div className="absolute left-4 top-4">
           <span
             className={`rounded px-3 py-1 text-sm font-semibold text-white ${
-              badge === 'bestseller'
-                ? 'bg-yellow-500'
-                : badge === 'discount'
-                ? 'bg-red-500'
-                : 'bg-green-600'
+              badge === "bestseller"
+                ? "bg-yellow-500"
+                : badge === "discount"
+                ? "bg-red-500"
+                : "bg-green-600"
             }`}
           >
             {badgeLabels[badge]}

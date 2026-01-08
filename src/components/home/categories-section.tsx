@@ -203,7 +203,7 @@ export default function CategoriesSection({
                 >
                   {/* Category Image */}
                   <Link
-                    className="aspect-square bg-gray-100 flex items-center justify-center p-4"
+                    className="aspect-square flex items-center justify-center p-4"
                     href={`/category/${category.slug}`}
                   >
                     <img

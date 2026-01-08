@@ -376,6 +376,69 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
   };
 }
 
+// ==================== Page Content Queries ====================
+
+// ---Get All Pages Grouped by Slug ---
+export async function getAllPagesGrouped() {
+  const rows = await db
+    .select()
+    .from(schema.pageContent)
+    .orderBy(schema.pageContent.slug, schema.pageContent.locale);
+
+  // Group by slug
+  const grouped: Record<string, typeof rows> = {};
+  rows.forEach((row) => {
+    if (!grouped[row.slug]) grouped[row.slug] = [];
+    grouped[row.slug].push(row);
+  });
+
+  return grouped;
+}
+
+// ---Get Page by Slug and Locale ---
+export async function getPageBySlugAndLocale(slug: string, locale: string) {
+  const pages = await db
+    .select()
+    .from(schema.pageContent)
+    .where(
+      and(eq(schema.pageContent.slug, slug), eq(schema.pageContent.locale, locale))
+    );
+  return pages[0] || null;
+}
+
+// ---Create New Page ---
+export async function createPage(data: {
+  slug: string;
+  locale: string;
+  title: string;
+  content: any;
+  isPublished?: boolean;
+}) {
+  return await db.insert(schema.pageContent).values({
+    ...data,
+    content: JSON.stringify(data.content),
+  });
+}
+
+// ---Update Existing Page ---
+export async function updatePage(
+  id: number,
+  data: { title?: string; content?: any; isPublished?: boolean }
+) {
+  const updateData: any = { ...data };
+  if (data.content) updateData.content = JSON.stringify(data.content);
+
+  return await db
+    .update(schema.pageContent)
+    .set(updateData)
+    .where(eq(schema.pageContent.id, id));
+}
+
+// ---delete Page ---
+export async function deletePage(id: number) {
+  return await db.delete(schema.pageContent).where(eq(schema.pageContent.id, id));
+}
+
 // ==================== User Queries ====================
 export async function getUserRole(userId: string): Promise<string | null> {
   const [user] = await db

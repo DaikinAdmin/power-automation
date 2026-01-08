@@ -189,6 +189,7 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
             id: product.categorySlug,
             name: product.category,
             slug: product.categorySlug,
+            imageLink: null,
             isVisible: true,
             createdAt: now,
             updatedAt: now,

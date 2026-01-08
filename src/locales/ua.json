@@ -84,7 +84,9 @@
       "brands": "Бренди",
       "warehouses": "Склади",
       "subcategories": "Підкатегорії",
-      "apply": "Застосувати"
+      "apply": "Застосувати",
+      "allCategories": "Всі категорії",
+      "hideCategories": "Приховати"
     },
     "noResults": "Продукти не знайдено",
     "noResultsSearch": "Результати пошуку не знайдено",
@@ -316,12 +318,15 @@
   "header": {
     "nav": {
       "about": "Про нас",
+      "main": "Головна",
       "brands": "Бренди",
       "purchaseDelivery": "Покупка та доставка",
       "refunding": "Повернення",
       "contacts": "Контакти",
       "other": "Інше",
-      "menu": "Меню"
+      "menu": "Меню",
+      "compare": "Порівняти товари",
+      "login": "Увійти"
     },
     "categories": "Категорії",
     "search": "Пошук товарів...",
