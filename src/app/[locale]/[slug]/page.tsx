@@ -56,13 +56,13 @@ export default async function DynamicPage({
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-[90rem] mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <PageSidebarNav />
 
           {/* Content */}
-          <div className="flex-1 max-w-4xl">
+          <div className="flex-1 max-w-5xl">
             <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
               {page.title}
             </h1>

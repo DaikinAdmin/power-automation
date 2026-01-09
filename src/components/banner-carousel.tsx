@@ -7,6 +7,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Fade from "embla-carousel-fade";
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale } from "next-intl";
 
 interface BannerData {
   id?: string;
@@ -22,14 +23,30 @@ interface BannersConfig {
 }
 
 interface CarouselProps {
-  banners: BannersConfig;
+  position?: string;
+  banners?: BannersConfig;
 }
 
-const Carousel: React.FC<CarouselProps> = ({ banners }) => {
+interface ApiBanner {
+  id: number;
+  title: string | null;
+  imageUrl: string;
+  linkUrl: string | null;
+  position: string;
+  device: string;
+  locale: string;
+  sortOrder: number | null;
+  isActive: boolean | null;
+}
+
+const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fallbackBanners }) => {
+  const locale = useLocale();
   const autoplay = Autoplay({ delay: 6000, stopOnInteraction: false });
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Fade(), autoplay]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [apiBanners, setApiBanners] = useState<BannersConfig>({ desktop: [], mobile: [] });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Detect mobile on mount and resize
   useEffect(() => {
@@ -40,6 +57,59 @@ const Carousel: React.FC<CarouselProps> = ({ banners }) => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Fetch banners from API
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        setIsLoading(true);
+        const [desktopRes, mobileRes] = await Promise.all([
+          fetch(`/api/banners?position=${position}&device=desktop&locale=${locale}`),
+          fetch(`/api/banners?position=${position}&device=mobile&locale=${locale}`)
+        ]);
+
+        if (desktopRes.ok && mobileRes.ok) {
+          const desktopData: ApiBanner[] = await desktopRes.json();
+          const mobileData: ApiBanner[] = await mobileRes.json();
+
+          // Transform API data to component format
+          const transformedBanners: BannersConfig = {
+            desktop: desktopData
+              .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+              .map((banner, idx) => ({
+                id: banner.id.toString(),
+                src: banner.imageUrl,
+                alt: banner.title || `Banner ${idx + 1}`,
+                href: banner.linkUrl || undefined,
+                priority: idx === 0,
+              })),
+            mobile: mobileData
+              .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+              .map((banner, idx) => ({
+                id: banner.id.toString(),
+                src: banner.imageUrl,
+                alt: banner.title || `Banner ${idx + 1}`,
+                href: banner.linkUrl || undefined,
+                priority: idx === 0,
+              })),
+          };
+
+          setApiBanners(transformedBanners);
+        }
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, [position, locale]);
+
+  // Use API banners if available, otherwise fallback to prop banners
+  const banners = (apiBanners.desktop.length > 0 || apiBanners.mobile.length > 0) 
+    ? apiBanners 
+    : fallbackBanners || { desktop: [], mobile: [] };
 
   // Get the appropriate banner list
   const activeBanners = isMobile ? banners.mobile : banners.desktop;
@@ -69,6 +139,21 @@ const Carousel: React.FC<CarouselProps> = ({ banners }) => {
     emblaApi.on("select", onSelect);
     onSelect();
   }, [emblaApi, onSelect]);
+
+  // Show loading state or empty state
+  if (isLoading) {
+    return (
+      <div className="relative w-full h-40 md:h-[560px] overflow-hidden bg-gray-200 animate-pulse">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-gray-400">Loading banners...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeBanners.length === 0) {
+    return null;
+  }
 
   return (
     <div className="relative w-full h-40 md:h-[560px] overflow-hidden">

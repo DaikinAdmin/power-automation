@@ -37,7 +37,7 @@ export default async function BrandsPage() {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-[90rem] container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
           <PageSidebarNav />

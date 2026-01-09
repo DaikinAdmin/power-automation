@@ -68,7 +68,7 @@ export default function Home() {
         {/* Main Content */}
         <main>
           {/* Carousel Section */}
-          <Carousel banners={t.raw("banners")} />
+          <Carousel position="home_top" banners={t.raw("banners")} />
 
           <div className="hidden md:block">
             <FeaturesSection />

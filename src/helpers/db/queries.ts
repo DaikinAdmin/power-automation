@@ -454,3 +454,142 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
   const role = await getUserRole(userId);
   return role === 'admin';
 }
+
+// ==================== Banners Queries ====================
+
+// Get all banners
+export async function getAllBanners() {
+  return await db
+    .select()
+    .from(schema.banners)
+    .orderBy(asc(schema.banners.sortOrder), desc(schema.banners.updatedAt));
+}
+
+// Get banners by filters (position, device, locale, isActive)
+export async function getBanners(filters?: {
+  position?: string;
+  device?: string;
+  locale?: string;
+  isActive?: boolean;
+}) {
+  const conditions = [];
+  
+  if (filters?.position) {
+    conditions.push(eq(schema.banners.position, filters.position));
+  }
+  if (filters?.device) {
+    conditions.push(eq(schema.banners.device, filters.device));
+  }
+  if (filters?.locale) {
+    conditions.push(eq(schema.banners.locale, filters.locale));
+  }
+  if (filters?.isActive !== undefined) {
+    conditions.push(eq(schema.banners.isActive, filters.isActive));
+  }
+
+  const query = db
+    .select()
+    .from(schema.banners)
+    .orderBy(asc(schema.banners.sortOrder), desc(schema.banners.updatedAt));
+
+  if (conditions.length > 0) {
+    return await query.where(and(...conditions));
+  }
+
+  return await query;
+}
+
+// Get banner by ID
+export async function getBannerById(id: number) {
+  const [banner] = await db
+    .select()
+    .from(schema.banners)
+    .where(eq(schema.banners.id, id))
+    .limit(1);
+  
+  return banner || null;
+}
+
+// Create new banner
+export async function createBanner(data: {
+  title?: string;
+  imageUrl: string;
+  linkUrl?: string;
+  position: string;
+  device?: string;
+  locale: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}) {
+  const [banner] = await db
+    .insert(schema.banners)
+    .values({
+      title: data.title || null,
+      imageUrl: data.imageUrl,
+      linkUrl: data.linkUrl || null,
+      position: data.position,
+      device: data.device || 'desktop',
+      locale: data.locale,
+      sortOrder: data.sortOrder ?? 0,
+      isActive: data.isActive ?? true,
+    })
+    .returning();
+  
+  return banner;
+}
+
+// Update banner
+export async function updateBanner(
+  id: number,
+  data: {
+    title?: string;
+    imageUrl?: string;
+    linkUrl?: string;
+    position?: string;
+    device?: string;
+    locale?: string;
+    sortOrder?: number;
+    isActive?: boolean;
+  }
+) {
+  const [banner] = await db
+    .update(schema.banners)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.banners.id, id))
+    .returning();
+  
+  return banner;
+}
+
+// Delete banner
+export async function deleteBanner(id: number) {
+  const [deletedBanner] = await db
+    .delete(schema.banners)
+    .where(eq(schema.banners.id, id))
+    .returning();
+  
+  return deletedBanner;
+}
+
+// Get active banners for specific position, device, and locale
+export async function getActiveBanners(
+  position: string,
+  device: string,
+  locale: string
+) {
+  return await db
+    .select()
+    .from(schema.banners)
+    .where(
+      and(
+        eq(schema.banners.position, position),
+        eq(schema.banners.device, device),
+        eq(schema.banners.locale, locale),
+        eq(schema.banners.isActive, true)
+      )
+    )
+    .orderBy(asc(schema.banners.sortOrder));
+}

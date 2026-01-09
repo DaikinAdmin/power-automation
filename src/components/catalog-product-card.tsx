@@ -67,6 +67,15 @@ const CatalogProductCard = ({
   const resolvedAddToCartLabel =
     addToCartLabel || (inStock ? t("buy") : t("outOfStock"));
 
+  const normalizedImages: string[] = (() => {
+    if (!imageSrc) return [];
+    // imageSrc is typed as string[] | null; handle only the array case.
+    return imageSrc
+      .flatMap((item) => item.split(";"))
+      .map((src) => src.trim())
+      .filter(Boolean);
+  })();
+
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -85,7 +94,7 @@ const CatalogProductCard = ({
 
     return (
       <div
-        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-20"
+        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-[1000]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка "додати в кошик" */}
@@ -154,7 +163,7 @@ const CatalogProductCard = ({
   return (
     <Link
       href={href}
-      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer ${
+      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-[999] cursor-pointer ${
         isList ? "flex" : ""
       } ${className || ""}`.trim()}
     >
@@ -186,17 +195,12 @@ const CatalogProductCard = ({
           isList ? "w-48 h-48 flex-shrink-0" : "aspect-square"
         } bg-gray-100 flex items-center justify-center relative overflow-hidden group-hover:rounded-t-sm`}
       >
-        {imageSrc && imageSrc.length > 0 ? (
-          imageSrc.map(
-            (src, index) =>
-              index === 0 && (
-                <img
-                  src={src}
-                  alt={imageAlt || name}
-                  className="w-full h-full object-cover"
-                />
-              )
-          )
+        {normalizedImages.length > 0 ? (
+          <img
+            src={normalizedImages[0]}
+            alt={imageAlt || name}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
             <svg

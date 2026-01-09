@@ -795,6 +795,26 @@ export const pageContent = pgTable(
     ),
   })
 );
+
+export const banners = pgTable(
+  "banners",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title", { length: 255 }),
+    imageUrl: varchar("image_url", { length: 512 }).notNull(),
+    linkUrl: varchar("link_url", { length: 512 }),
+    position: varchar("position", { length: 50 }).notNull(),
+    // home_top | catalog_sidebar | promo
+    device: varchar("device", { length: 20 })
+      .notNull()
+      .default("desktop"),
+    // desktop | mobile
+    locale: varchar("locale", { length: 5 }).notNull(),
+    sortOrder: integer("sort_order").default(0),
+    isActive: boolean("is_active").default(true),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
 // Type exports for use in the application
 export type Badge = (typeof badge.enumValues)[number];
 export type CartStatus = (typeof cartStatus.enumValues)[number];

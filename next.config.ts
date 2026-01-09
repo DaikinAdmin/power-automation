@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   // output: "standalone",
   /* config options here */
   images: {
-    domains: ["powerautomation.pl"],
+    domains: ["powerautomation.pl", "powerautomation.com.ua"],
   },
   serverExternalPackages: ['better-auth'],
   async headers() {

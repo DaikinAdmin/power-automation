@@ -86,7 +86,7 @@ export const ProductImageViewer = ({
   return (
     <>
       <div
-        className="flex gap-1 md:flex-row flex-col md:items-start items-center w-full max-w-full"
+        className="flex gap-1 md:flex-row flex-col md:items-start items-center w-full max-w-full md:justify-end"
       >
       {/* Thumbnails */}
       {parsedImages.length > 1 && (
@@ -119,7 +119,7 @@ export const ProductImageViewer = ({
 
       {/* Main image */}
       <div
-        className="relative md:w-[600px] w-full overflow-hidden rounded-lg bg-white flex justify-center items-center"
+        className={`relative ${parsedImages.length > 1 ? 'md:w-[600px]' : 'md:w-full'} w-full overflow-hidden rounded-lg bg-white flex justify-center items-center`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
