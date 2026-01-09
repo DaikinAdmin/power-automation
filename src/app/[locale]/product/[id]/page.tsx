@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 
 import PageLayout from '@/components/layout/page-layout';
 import WarehouseSelector from '@/components/warehouse-selector';
-import { ProductImage } from '@/components/product/product-image';
+import { ProductImageViewer } from '@/components/product/product-image-viewer';
 import { ProductInfoTabs } from '@/components/product/product-info-tabs';
 import { ProductHeader } from '@/components/product/product-header';
 import { ProductPriceCard } from '@/components/product/product-price-card';
@@ -89,15 +89,15 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
     return product.warehouses.map((warehouse) => {
 
       return {
-      warehouseId: warehouse.warehouseId,
-      warehouseName: warehouse.warehouseName,
-      warehouseCountry: warehouse.warehouseCountry,
-      displayName: warehouse.displayedName,
-      price: parsePriceValue(warehouse.price)!,
-      specialPrice: parsePriceValue(warehouse.specialPrice)!,
-      inStock: warehouse.inStock,
-      quantity: warehouse.quantity,
-    };
+        warehouseId: warehouse.warehouseId,
+        warehouseName: warehouse.warehouseName,
+        warehouseCountry: warehouse.warehouseCountry,
+        displayName: warehouse.displayedName,
+        price: parsePriceValue(warehouse.price)!,
+        specialPrice: parsePriceValue(warehouse.specialPrice)!,
+        inStock: warehouse.inStock,
+        quantity: warehouse.quantity,
+      };
     });
   }, [product]);
 
@@ -170,55 +170,56 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
         const baseSpecialPrice = selectedWarehouse.baseSpecialPrice ?? (selectedWarehouse.specialPrice ? parsePriceValue(selectedWarehouse.specialPrice) ?? undefined : undefined);
         const specialPrice = baseSpecialPrice;
 
-        const now = new Date();
+        const now = new Date().toISOString();
 
         const cartItem: Omit<CartItemType, 'quantity'> = {
           id: product.id,
+          slug: product.articleId,
           articleId: product.articleId,
           isDisplayed: product.isDisplayed,
-          itemImageLink: product.itemImageLink || product.image || '',
-          categoryId: product.categoryId,
-          subCategoryId: product.subCategoryId,
-          brandId: product.brandId ?? null,
-          brandName: product.brand,
+          itemImageLink: product.itemImageLink || [product.image] || [],
+          categorySlug: product.categorySlug,
+          brandSlug: product.brandSlug ?? null,
           warrantyType: product.warrantyType ?? null,
           warrantyLength: product.warrantyMonths ?? null,
           sellCounter: product.sellCounter ?? 0,
           createdAt: now,
           updatedAt: now,
           category: {
-            id: product.categoryId,
+            id: product.categorySlug,
             name: product.category,
             slug: product.categorySlug,
+            imageLink: null,
             isVisible: true,
             createdAt: now,
             updatedAt: now,
             subCategories: [],
+            categoryTranslations: []
           },
           subCategory: {
-            id: product.subCategoryId,
+            id: product.subCategorySlug,
             name: product.subcategory,
             slug: `${product.categorySlug}-${product.subcategory.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-            categoryId: product.categoryId,
+            categorySlug: product.categorySlug,
             isVisible: true,
             createdAt: now,
             updatedAt: now,
           },
-          brand: product.brandId
+          brand: product.brandSlug
             ? {
-                id: product.brandId,
-                name: product.brand,
-                alias: product.brandAlias || '',
-                imageLink: product.brandImage || '',
-                isVisible: true,
-                createdAt: now,
-                updatedAt: now,
-              }
+              id: '',
+              name: product.brand,
+              alias: product.brandAlias || '',
+              imageLink: product.brandImage || '',
+              isVisible: true,
+              createdAt: now,
+              updatedAt: now,
+            }
             : null,
           itemDetails: [
             {
               id: '',
-              itemId: product.id,
+              itemSlug: product.articleId,
               locale: resolvedDetailLocale,
               itemName: productName,
               description: product.description,
@@ -226,6 +227,8 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
               seller: resolvedDetail?.seller ?? '',
               discount: resolvedDetail?.discount ?? null,
               popularity: resolvedDetail?.popularity ?? null,
+              metaKeyWords: resolvedDetail?.metaKeyWords || null,
+              metaDescription: resolvedDetail?.metaDescription || null,
             },
           ],
           itemPrice: [],
@@ -235,6 +238,7 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
           warehouseId: selectedWarehouse.warehouseId,
           displayName: productName,
           availableWarehouses: availableWarehousesForCart,
+          linkedItems: [],
         };
 
         addToCart(cartItem);
@@ -315,7 +319,6 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
     );
   }
 
-  const imageSrc = product.image || product.itemImageLink || '/imgs/placeholder-product.jpg';
   const warehouseLabel = selectedWarehouse ? t('from', { warehouse: selectedWarehouse.displayedName }) : undefined;
   const warehouseExtraLabel = selectedWarehouse && product.warehouses.length > 1
     ? t('moreLocations', { count: product.warehouses.length - 1 })
@@ -330,11 +333,11 @@ export default function ProductPage({ params }: { params: Promise<{ locale: stri
 
   return (
     <PageLayout>
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-[90rem] mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div className="space-y-6">
-            <ProductImage
-              imageSrc={imageSrc}
+            <ProductImageViewer
+              images={product.itemImageLink || []}
               productName={productName}
               badge={product.badge}
             />

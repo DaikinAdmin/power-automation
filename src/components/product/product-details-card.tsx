@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import parse from 'html-react-parser';
 
 interface ProductDetailsCardProps {
   description: string;
@@ -22,7 +23,7 @@ export function ProductDetailsCard({
   return (
     <div className="rounded-lg border p-6">
       <h2 className="mb-4 text-lg font-semibold">{t('details.title')}</h2>
-      <p className="text-sm text-gray-600">{description}</p>
+      <p className="text-sm text-black">{parse(description)}</p>
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-700">
         <div>
           <span className="font-medium">{t('details.brand')}:</span> {brand || t('details.notAvailable')}

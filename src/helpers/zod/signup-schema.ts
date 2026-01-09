@@ -49,6 +49,6 @@ export const SignupSchema = z
       .max(100, { message: "Company role must be at most 100 characters long" })
       .optional(),
     role: z
-      .enum(['USER', 'EMPLOYEE', 'ADMIN']),
+      .enum(['user', 'employee', 'admin']),
     userAgreement: z.boolean()
   })

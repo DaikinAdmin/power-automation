@@ -13,7 +13,9 @@ import {
   Tags,
   BarChart3,
   Warehouse,
-  BadgeCheck
+  BadgeCheck,
+  FileText,
+  Wallpaper
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +67,16 @@ export function AdminSidebar({ className }: SidebarProps) {
       title: 'Users',
       href: '/admin/users',
       icon: <Users className="h-5 w-5" />
+    },
+    {
+      title: 'Pages',
+      href: '/admin/pages',
+      icon: <FileText className="h-5 w-5" />
+    },
+    {
+      title: 'Banners',
+      href: '/admin/banners',
+      icon: <Wallpaper className="h-5 w-5" />
     },
     {
       title: 'Currency Exchange',

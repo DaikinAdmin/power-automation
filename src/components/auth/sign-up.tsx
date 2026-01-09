@@ -36,7 +36,7 @@ const SignUp = () => {
             companyWebpage: '',
             companyRole: '',
             countryCode: '+48',
-            role: 'USER',
+            role: 'user',
             userAgreement: false
         }
     })

@@ -26,7 +26,7 @@ export function DeleteItemModal({
   };
 
   const itemName = item.itemDetails?.[0]?.itemName || 'Unnamed Item';
-  const brandName = item.brand?.name || item.brandName || '';
+  const brandName = item.brand?.name || item.brandSlug || '';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

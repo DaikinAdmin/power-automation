@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Currency } from '@prisma/client';
-import prisma from '@/db';
+// import { Currency } from '@/db/schema';
+// import prisma from '@/db';
+import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
+import { eq, and, desc } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
+import { randomUUID } from 'crypto';
+
+// Currency enum values from schema
+const currencyValues = ['EUR', 'USD', 'PLN', 'UAH'] as const;
+type Currency = typeof currencyValues[number];
 
 // GET - Retrieve all currency exchange rates
 export async function GET() {
@@ -11,24 +20,37 @@ export async function GET() {
       headers: await headers(),
     });
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // if (!session) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // }
 
-    const user = await prisma.user.findUnique({
+    // const isAdmin = await isUserAdmin(session.user.id);
+    // if (!isAdmin) {
+    //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // }
+
+    // Drizzle implementation
+    const exchangeRates = await db
+      .select()
+      .from(schema.currencyExchange)
+      .orderBy(desc(schema.currencyExchange.updatedAt));
+
+    /* Prisma implementation (commented out)
+    const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const exchangeRates = await prisma.currencyExchange.findMany({
+    const exchangeRates = await db.currencyExchange.findMany({
       orderBy: {
         updatedAt: 'desc'
       }
     });
+    */
 
     const response = NextResponse.json(exchangeRates);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
@@ -53,12 +75,8 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role !== 'ADMIN') {
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -80,6 +98,61 @@ export async function PUT(req: NextRequest) {
     }
     
     // Check if both currencies are valid
+    if (!currencyValues.includes(from) || !currencyValues.includes(to)) {
+      return NextResponse.json(
+        { message: 'Invalid currency code' },
+        { status: 400 }
+      );
+    }
+    
+    // Check if exchange rate exists
+    const [existingRate] = await db
+      .select()
+      .from(schema.currencyExchange)
+      .where(
+        and(
+          eq(schema.currencyExchange.from, from as any),
+          eq(schema.currencyExchange.to, to as any)
+        )
+      )
+      .limit(1);
+
+    let exchangeRate;
+    if (existingRate) {
+      // Update existing rate
+      [exchangeRate] = await db
+        .update(schema.currencyExchange)
+        .set({
+          rate,
+          updatedAt: new Date().toISOString(),
+        })
+        .where(eq(schema.currencyExchange.id, existingRate.id))
+        .returning();
+    } else {
+      // Create new rate
+      [exchangeRate] = await db
+        .insert(schema.currencyExchange)
+        .values({
+          id: randomUUID(),
+          from: from as any,
+          to: to as any,
+          rate,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .returning();
+    }
+
+    /* Prisma implementation (commented out)
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    if (user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     if (!Object.values(Currency).includes(from as Currency) || !Object.values(Currency).includes(to as Currency)) {
       return NextResponse.json(
         { message: 'Invalid currency code' },
@@ -87,8 +160,7 @@ export async function PUT(req: NextRequest) {
       );
     }
     
-    // Update or create the exchange rate
-    const exchangeRate = await prisma.currencyExchange.upsert({
+    const exchangeRate = await db.currencyExchange.upsert({
       where: {
         from_to: {
           from: from as Currency,
@@ -105,6 +177,7 @@ export async function PUT(req: NextRequest) {
         rate
       }
     });
+    */
     
     return NextResponse.json(exchangeRate);
   } catch (error) {

@@ -1,5 +1,7 @@
 import type { BetterAuthPlugin } from "better-auth";
-import prisma from "@/db";
+import { db } from "@/db";
+import { user } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Plugin to allow setting role during sign-up
@@ -46,13 +48,13 @@ export const roleSignupPlugin = () => {
             if (requestedRole && ctx.context.returned) {
               const returned = ctx.context.returned as any;
               
-              // Update the user's role in the database using Prisma directly
+              // Update the user's role in the database using Drizzle
               if (returned.user?.id) {
                 try {
-                  await prisma.user.update({
-                    where: { id: returned.user.id },
-                    data: { role: requestedRole },
-                  });
+                  await db
+                    .update(user)
+                    .set({ role: requestedRole })
+                    .where(eq(user.id, returned.user.id));
                   
                   // Update the returned user object
                   returned.user.role = requestedRole;

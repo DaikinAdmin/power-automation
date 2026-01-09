@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { Brand } from '@prisma/client';
+import type { Brand } from '@/db/schema';
 
 interface DeleteBrandModalProps {
   isOpen: boolean;

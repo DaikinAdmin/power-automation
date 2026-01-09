@@ -1,5 +1,3 @@
-import type { Prisma } from '@prisma/client';
-
 export type OrderLineItem = {
   itemId: string;
   articleId: string;
@@ -14,27 +12,6 @@ export type OrderLineItem = {
   unitPrice?: number | null;
   lineTotal?: number | null;
 };
-
-type PrismaOrderWithItems = Prisma.OrderGetPayload<{
-  include: {
-    items: {
-      include: {
-        itemDetails: {
-          select: {
-            itemName: true;
-          };
-          take: 1;
-        };
-        itemPrice: {
-          include: {
-            warehouse: true;
-          };
-          take: 1;
-        };
-      };
-    };
-  };
-}>;
 
 export const parseStoredLineItems = (value: unknown): OrderLineItem[] => {
   if (!Array.isArray(value)) {
