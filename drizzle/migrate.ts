@@ -16,10 +16,14 @@ async function runMigration() {
 	if (!dbUrl) throw new Error('No database url found')
         console.log('Using database URL:', dbUrl);
 
+	// Check if we're connecting to local Docker postgres (hostname contains 'postgres' or 'localhost')
+	const isLocalDocker = dbUrl.includes('@postgres:') || dbUrl.includes('@localhost:');
+	
 	const client = postgres(dbUrl, {
 		max: 1,
 		// SSL must be `require`. `true` or `verify-full` do not work since Railway uses self-signed certificates.
-		ssl: process.env.NODE_ENV === 'production' ? 'require' : undefined
+		// Disable SSL for local Docker postgres container
+		ssl: (process.env.NODE_ENV === 'production' && !isLocalDocker) ? 'require' : undefined
 	})
 
 	const db = drizzle(client)
