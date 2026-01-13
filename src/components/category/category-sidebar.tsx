@@ -16,7 +16,7 @@ interface CategorySidebarProps {
     image: string;
     subcategories: { id: string; name: string; slug: string }[];
   }[];
-  brands: string[];
+  brands: { name: string; slug: string }[];
   warehouses: {
     id: string;
     name: string;
@@ -72,9 +72,9 @@ export function CategorySidebar({
   const t = useTranslations("categories");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Categories List */}
-      <Card className="p-4">
+      <Card className="p-3">
         <h3 className="font-semibold mb-4">{t("filters.categories")}</h3>
         <div className="space-y-2">
           {(showAllCategories ? categories : categories.slice(0, 4)).map(
@@ -82,7 +82,7 @@ export function CategorySidebar({
               <Link
                 key={category.id}
                 href={`/${locale}/category/${category.slug}`}
-                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`block px-3 py-1 text-sm rounded-md transition-colors ${
                   category.slug === currentSlug
                     ? "bg-red-500 text-white font-medium"
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -169,19 +169,19 @@ export function CategorySidebar({
           {sectionsOpen.brands && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {brands.map((brand) => (
-                <div key={brand} className="flex items-center space-x-2">
+                <div key={brand.slug} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`brand-${brand}`}
-                    checked={selectedBrands.includes(brand)}
+                    id={`brand-${brand.slug}`}
+                    checked={selectedBrands.includes(brand.slug)}
                     onCheckedChange={(checked) =>
-                      onBrandSelection(brand, Boolean(checked))
+                      onBrandSelection(brand.slug, Boolean(checked))
                     }
                   />
                   <label
-                    htmlFor={`brand-${brand}`}
+                    htmlFor={`brand-${brand.slug}`}
                     className="text-sm cursor-pointer"
                   >
-                    {brand}
+                    {brand.name}
                   </label>
                 </div>
               ))}

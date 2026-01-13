@@ -204,7 +204,9 @@
       "outOfStock": "Brak w magazynie",
       "askPrice": "Zapytaj o cenę",
       "addToWishlist": "Dodaj do ulubionych",
-      "compare": "Porównaj"
+      "compare": "Porównaj",
+      "addToCompare": "Dodaj do porównania",
+      "inCompare": "W porównaniu"
     },
     "tabs": {
       "delivery": "Dostawa i dostępność",
@@ -257,8 +259,30 @@
     },
     "productCatalogCard":{
       "buy":"Kup",
-      "outOfStock":"Brak"
-    } 
+      "outOfStock":"Brak",
+      "addToCompare": "Dodaj do porównania",
+      "inCompare": "W porównaniu"
+    },
+    "compare": {
+      "alreadyAdded": "Ten produkt jest już na liście porównania",
+      "limitReached": "Możesz porównać maksymalnie 5 produktów"
+    }
+  },
+  "compare": {
+    "title": "Porównanie produktów",
+    "clearAll": "Wyczyść wszystko",
+    "empty": "Brak produktów do porównania",
+    "emptyDescription": "Dodaj produkty do porównania z kart produktów lub stron produktów",
+    "remove": "Usuń",
+    "property": "Właściwość",
+    "photo": "Zdjęcie",
+    "name": "Nazwa",
+    "brand": "Marka",
+    "price": "Cena",
+    "description": "Opis",
+    "noImage": "Brak zdjęcia",
+    "noBrand": "Brak marki",
+    "noDescription": "Brak opisu"
   },
   "home": {
     "features": {

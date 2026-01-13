@@ -5,6 +5,7 @@ import { useCatalogPricing } from "@/hooks/useCatalogPricing";
 import { useCurrency } from "@/hooks/useCurrency";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCart } from "@/components/cart-context";
+import { useCompare } from "@/components/compare-context";
 import useEmblaCarousel from "embla-carousel-react";
 import React, { useEffect, useRef } from "react";
 
@@ -23,6 +24,7 @@ export default function ProductsTabsSection({
 }: ProductsTabsSectionProps) {
   const t = useTranslations("home");
   const { addToCart } = useCart();
+  const { addToCompare, isInCompare } = useCompare();
   const { getItemDetails, getItemPrice, getAvailableWarehouses } =
     useCatalogPricing({
       preferredCountryCode: "PL",
@@ -244,6 +246,22 @@ export default function ProductsTabsSection({
                 });
               };
 
+              const addToCompareHandler = () => {
+                const compareItem = {
+                  id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
+                  articleId: item.articleId,
+                  name: details?.itemName || "Unnamed Product",
+                  brand: item.brand?.name,
+                  brandImage: item.brand?.imageLink,
+                  image: item.itemImageLink?.[0] || null,
+                  price: price,
+                  specialPrice: originalPrice ? price : null,
+                  description: details?.description,
+                  categorySlug: item.categorySlug,
+                };
+                addToCompare(compareItem);
+              };
+
               return (
                 <CatalogProductCard
                   key={item.articleId}
@@ -258,7 +276,10 @@ export default function ProductsTabsSection({
                   badge={badge}
                   warehouseLabel={warehouseLabel}
                   onAddToCart={addToCartHandler}
+                  onAddToCompare={addToCompareHandler}
                   addToCartDisabled={!inStock}
+                  itemId={item.articleId}
+                  isInCompare={isInCompare(item.articleId)}
                 />
               );
             })}
@@ -349,6 +370,22 @@ export default function ProductsTabsSection({
                     });
                   };
 
+                  const addToCompareHandler = () => {
+                    const compareItem = {
+                      id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
+                      articleId: item.articleId,
+                      name: details?.itemName || "Unnamed Product",
+                      brand: item.brand?.name,
+                      brandImage: item.brand?.imageLink,
+                      image: item.itemImageLink?.[0] || null,
+                      price: price,
+                      specialPrice: originalPrice ? price : null,
+                      description: details?.description,
+                      categorySlug: item.categorySlug,
+                    };
+                    addToCompare(compareItem);
+                  };
+
                   return (
                     <div
                       key={item.articleId}
@@ -366,7 +403,10 @@ export default function ProductsTabsSection({
                         badge={badge}
                         warehouseLabel={warehouseLabel}
                         onAddToCart={addToCartHandler}
+                        onAddToCompare={addToCompareHandler}
                         addToCartDisabled={!inStock}
+                        itemId={item.articleId}
+                        isInCompare={isInCompare(item.articleId)}
                       />
                     </div>
                   );

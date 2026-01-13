@@ -204,7 +204,9 @@
       "outOfStock": "Out of Stock",
       "askPrice": "Ask Price",
       "addToWishlist": "Add to Wishlist",
-      "compare": "Compare"
+      "compare": "Compare",
+      "addToCompare": "Add to Compare",
+      "inCompare": "In Comparison"
     },
     "tabs": {
       "delivery": "Delivery & Availability",
@@ -257,8 +259,30 @@
     },
     "productCatalogCard":{
       "buy":"Buy",
-      "outOfStock":"Out of Stock"
-    } 
+      "outOfStock":"Out of Stock",
+      "addToCompare": "Add to Compare",
+      "inCompare": "In Comparison"
+    },
+    "compare": {
+      "alreadyAdded": "This product is already in the comparison list",
+      "limitReached": "You can compare up to 5 products maximum"
+    }
+  },
+  "compare": {
+    "title": "Product Comparison",
+    "clearAll": "Clear All",
+    "empty": "No products to compare",
+    "emptyDescription": "Add products to comparison from product cards or product pages",
+    "remove": "Remove",
+    "property": "Property",
+    "photo": "Photo",
+    "name": "Name",
+    "brand": "Brand",
+    "price": "Price",
+    "description": "Description",
+    "noImage": "No image",
+    "noBrand": "No brand",
+    "noDescription": "No description"
   },
   "home": {
     "features": {

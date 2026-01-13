@@ -41,7 +41,7 @@ export async function GET(
     // Apply brand filter
     if (brandFilters.length > 0) {
       filteredItems = filteredItems.filter((item) =>
-        item.brand?.name && brandFilters.includes(item.brand.name)
+        item.brand?.alias && brandFilters.includes(item.brand.alias)
       );
     }
 

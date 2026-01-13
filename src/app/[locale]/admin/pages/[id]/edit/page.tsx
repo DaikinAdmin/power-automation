@@ -60,7 +60,26 @@ export default function EditPage({ params }: EditPageProps) {
           title: page.title,
           isPublished: page.isPublished,
         });
-        setPageContent(page.content);
+        
+        // Ensure content has the correct EditorJS format
+        console.log('Fetched page content:', page.content);
+        console.log('Content keys:', page.content ? Object.keys(page.content) : 'null');
+        
+        // If content has the wrong structure, fix it
+        let validContent = page.content;
+        if (page.content && !page.content.blocks) {
+          console.error('Invalid content structure detected. Attempting to fix...');
+          // Check if it's double-wrapped
+          if (page.content.content && page.content.content.blocks) {
+            validContent = page.content.content;
+            console.log('Fixed double-wrapped content');
+          } else {
+            validContent = { blocks: [] };
+            console.log('Reset to empty content');
+          }
+        }
+        
+        setPageContent(validContent);
       } else {
         alert('Помилка при завантаженні сторінки');
         router.push('/admin/pages');
@@ -173,7 +192,11 @@ export default function EditPage({ params }: EditPageProps) {
 
     try {
       setIsSaving(true);
-      const content = await editorRef.current.save();
+      const savedData = await editorRef.current.save();
+      
+      // EditorJS save() returns { time, blocks, version }
+      // We need to ensure we're saving the correct format
+      console.log('EditorJS saved data:', savedData);
 
       const response = await fetch(`/api/admin/pages/${pageId}`, {
         method: 'PATCH',
@@ -182,7 +205,7 @@ export default function EditPage({ params }: EditPageProps) {
         },
         body: JSON.stringify({
           title: formData.title,
-          content: content,
+          content: savedData,
           isPublished: formData.isPublished,
         }),
       });

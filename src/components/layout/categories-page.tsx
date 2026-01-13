@@ -34,7 +34,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
 
   // All categories page states
   const [items, setItems] = useState<Item[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
+  const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
   const [warehouses, setWarehouses] = useState<
     { id: string; name: string; country: string; displayedName: string }[]
   >([]);
@@ -161,14 +161,17 @@ export default function CategoriesPage({ locale }: { locale: string }) {
           const categoriesArray = Array.from(categoryMap.values());
           setCategories(categoriesArray);
 
-          // Extract unique brands
-          const uniqueBrands = Array.from(
-            new Set(
-              allItems
-                .map((item) => item.brand?.name)
-                .filter((name): name is string => Boolean(name))
-            )
-          );
+          // Extract unique brands with name and slug
+          const brandMap = new Map();
+          allItems.forEach((item) => {
+            if (item.brand?.alias && item.brand?.name) {
+              brandMap.set(item.brand.alias, {
+                name: item.brand.name,
+                slug: item.brand.alias,
+              });
+            }
+          });
+          const uniqueBrands = Array.from(brandMap.values());
           setBrands(uniqueBrands);
 
           // Extract unique warehouses
@@ -355,19 +358,19 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       {sectionsOpen.brands && (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {brands.map((brand) => (
-                            <div key={brand} className="flex items-center space-x-2">
+                            <div key={brand.slug} className="flex items-center space-x-2">
                               <Checkbox
-                                id={`brand-${brand}`}
-                                checked={urlBrands.includes(brand)}
+                                id={`brand-${brand.slug}`}
+                                checked={urlBrands.includes(brand.slug)}
                                 onCheckedChange={(checked) =>
-                                  handleBrandSelectionWithURL(brand, Boolean(checked))
+                                  handleBrandSelectionWithURL(brand.slug, Boolean(checked))
                                 }
                               />
                               <label
-                                htmlFor={`brand-${brand}`}
+                                htmlFor={`brand-${brand.slug}`}
                                 className="text-sm cursor-pointer"
                               >
-                                {brand}
+                                {brand.name}
                               </label>
                             </div>
                           ))}

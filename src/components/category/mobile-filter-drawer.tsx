@@ -6,7 +6,7 @@ import PriceFilter from "@/components/category/price-filter";
 interface MobileFilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  brands: string[];
+  brands: { name: string; slug: string }[];
   warehouses: {
     id: string;
     name: string;
@@ -74,19 +74,19 @@ export function MobileFilterDrawer({
                 <h4 className="font-medium mb-3">{t("filters.brands")}</h4>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {brands.map((brand) => (
-                    <div key={brand} className="flex items-center space-x-2">
+                    <div key={brand.slug} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`mobile-brand-${brand}`}
-                        checked={selectedBrands.includes(brand)}
+                        id={`mobile-brand-${brand.slug}`}
+                        checked={selectedBrands.includes(brand.slug)}
                         onCheckedChange={(checked) =>
-                          onBrandSelection(brand, Boolean(checked))
+                          onBrandSelection(brand.slug, Boolean(checked))
                         }
                       />
                       <label
-                        htmlFor={`mobile-brand-${brand}`}
+                        htmlFor={`mobile-brand-${brand.slug}`}
                         className="text-sm cursor-pointer"
                       >
-                        {brand}
+                        {brand.name}
                       </label>
                     </div>
                   ))}

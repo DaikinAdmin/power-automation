@@ -187,8 +187,8 @@ export default function MainHeader() {
   const overflowItems = NAV_LINKS.slice(visibleCount);
 
   return (
-    <header className="bg-transparent max-w-[90rem] mx-auto px-2 sm:px-4">
-      <div className="py-3">
+    <header className="bg-white">
+      <div className="py-3 max-w-[90rem] mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex-shrink-0">
             <Link

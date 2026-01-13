@@ -13,6 +13,7 @@ import { FaCircleUser, FaHeart } from "react-icons/fa6";
 import { MdShoppingCart } from "react-icons/md";
 import Link from "next/link";
 import { useCart } from "@/components/cart-context";
+import { useCompare } from "@/components/compare-context";
 import Settings from "@/components/auth/settings";
 import SignOut from "@/components/auth/sign-out";
 import { useCategories } from "@/hooks/useCategories";
@@ -30,6 +31,7 @@ export default function SecondaryHeader() {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
+  const { compareItems, setIsCompareModalOpen } = useCompare();
   const locale = useLocale();
   const { categories, isLoading: isCategoriesLoading } = useCategories(locale);
 
@@ -147,7 +149,9 @@ export default function SecondaryHeader() {
                           {activeCategory!.subcategories!.map(
                             (subcategory, index) => (
                               <Link
-                                href={`/category/${activeCategory!.slug}?subcategory=${subcategory.slug}`}
+                                href={`/category/${
+                                  activeCategory!.slug
+                                }?subcategory=${subcategory.slug}`}
                                 key={`${subcategory.name}-${index}`}
                                 className="block py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
                                 onClick={() => setIsCategoriesOpen(false)}
@@ -171,8 +175,18 @@ export default function SecondaryHeader() {
 
           {/* Right buttons */}
           <div className="flex items-center gap-1">
-            <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
-              <Scale size={22} />
+            <button
+              onClick={() => setIsCompareModalOpen(true)}
+              className="flex items-center gap-2 p-2 hover:text-opacity-60 rounded-lg transition-colors text-white"
+            >
+              <div className="relative">
+                <Scale size={22} />
+                {compareItems.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {compareItems.length}
+                  </span>
+                )}
+              </div>
             </button>
             <button className="p-2 hover:text-opacity-60 rounded-lg transition-colors text-white">
               <FaHeart size={20} />
@@ -236,7 +250,7 @@ export default function SecondaryHeader() {
               <div className="relative">
                 <MdShoppingCart size={20} />
                 {getTotalCartItems() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                     {getTotalCartItems()}
                   </span>
                 )}

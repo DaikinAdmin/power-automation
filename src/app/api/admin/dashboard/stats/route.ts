@@ -8,8 +8,11 @@ export async function GET(req: NextRequest) {
   try {
     // Get current date and first day of previous month
     const now = new Date();
-    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+    const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    // For tables storing timestamps as strings (e.g., order)
+    const currentMonth = currentMonthDate.toISOString();
+    const previousMonth = previousMonthDate.toISOString();
     
     // Get total counts
     const [totalUsersResult] = await db.select({ count: sql<number>`cast(count(*) as integer)` }).from(schema.user);
@@ -25,7 +28,7 @@ export async function GET(req: NextRequest) {
     const [previousMonthUsersResult] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
       .from(schema.user)
-      .where(lt(schema.user.createdAt, currentMonth));
+      .where(lt(schema.user.createdAt, currentMonthDate));
     const previousMonthUsers = previousMonthUsersResult.count;
     
     const [previousMonthOrdersResult] = await db

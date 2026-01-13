@@ -3,6 +3,7 @@
 import React from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import Link from "next/dist/client/link";
 
 interface Brand {
   id: number | string;
@@ -15,7 +16,6 @@ interface BrandsCarouselProps {
   isDataLoading: boolean;
   t: (key: string) => string;
 }
-
 
 const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
   brands,
@@ -69,13 +69,16 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                 key={brand.id}
                 className="bg-white overflow-hidden cursor-pointer"
               >
-                <div className="aspect-square bg-gray-50 flex items-center justify-center p-2">
+                <Link
+                  href={`/ua/categories?brand=${brand.id}`}
+                  className="aspect-square bg-gray-50 flex items-center justify-center p-2 grayscale hover:grayscale-0 transition-all duration-200"
+                >
                   <img
                     src={brand.logo}
                     alt={brand.name}
-                    className="max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-150"
+                    className="max-w-full max-h-full object-contain"
                   />
-                </div>
+                </Link>
               </div>
             ))}
             {brands.length === 0 && (

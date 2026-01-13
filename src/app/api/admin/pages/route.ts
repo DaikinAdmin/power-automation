@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllPagesGrouped, createPage, getPageBySlugAndLocale } from "@/helpers/db/queries";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -73,6 +74,10 @@ export async function POST(request: NextRequest) {
       content,
       isPublished: isPublished ?? true,
     });
+
+    // Revalidate the new page
+    revalidatePath(`/${locale}/${slug}`);
+    console.log(`Revalidated cache for new page /${locale}/${slug}`);
 
     return NextResponse.json(
       { message: 'Page created successfully' },

@@ -24,9 +24,23 @@ export async function GET(
     }
 
     // Parse content if it's a JSON string
+    let parsedContent;
+    try {
+      parsedContent = typeof page.content === 'string' ? JSON.parse(page.content) : page.content;
+      console.log('Public API - Content structure for', slug, ':', Object.keys(parsedContent));
+      
+      // Ensure the content has the correct EditorJS structure
+      if (!parsedContent.blocks && !Array.isArray(parsedContent.blocks)) {
+        console.error('Invalid content structure - missing blocks array:', parsedContent);
+      }
+    } catch (error) {
+      console.error('Error parsing page content:', error);
+      parsedContent = page.content;
+    }
+
     const pageData = {
       ...page,
-      content: typeof page.content === 'string' ? JSON.parse(page.content) : page.content,
+      content: parsedContent,
     };
 
     const response = NextResponse.json(pageData);

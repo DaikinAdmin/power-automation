@@ -70,7 +70,7 @@
   "categories": {
     "pageTitle": "Всі продукти",
     "searchResults": "Результати пошуку",
-    "productsFound": "знайдено продуктів для",
+    "productsFound": "продуктів знайдено для",
     "productsAvailable": "доступних продуктів",
     "sortBy": "Сортувати за:",
     "popularity": "Популярність",
@@ -208,7 +208,9 @@
       "outOfStock": "Немає в наявності",
       "askPrice": "Запитати ціну",
       "addToWishlist": "Додати до обраного",
-      "compare": "Порівняти"
+      "compare": "Порівняти",
+      "addToCompare": "Додати до порівняння",
+      "inCompare": "У порівнянні"
     },
     "tabs": {
       "delivery": "Доставка та наявність",
@@ -261,8 +263,30 @@
     },
     "productCatalogCard":{
       "buy":"Купити",
-      "outOfStock":"Немає в наявності"
-    } 
+      "outOfStock":"Немає в наявності",
+      "addToCompare": "Додати до порівняння",
+      "inCompare": "У порівнянні"
+    },
+    "compare": {
+      "alreadyAdded": "Цей товар вже є у списку порівняння",
+      "limitReached": "Можна порівнювати максимум 5 товарів"
+    }
+  },
+  "compare": {
+    "title": "Порівняння товарів",
+    "clearAll": "Очистити все",
+    "empty": "Немає товарів для порівняння",
+    "emptyDescription": "Додавайте товари до порівняння з карток товарів або сторінок товарів",
+    "remove": "Видалити",
+    "property": "Властивість",
+    "photo": "Фото",
+    "name": "Назва",
+    "brand": "Бренд",
+    "price": "Ціна",
+    "description": "Опис",
+    "noImage": "Без зображення",
+    "noBrand": "Без бренду",
+    "noDescription": "Без опису"
   },
   "home": {
     "features": {

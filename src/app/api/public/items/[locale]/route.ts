@@ -49,8 +49,8 @@ export async function GET(
     // Apply brand filter
     if (brands.length > 0) {
       items = items.filter(item => {
-        const itemBrand = item.brand?.name;
-        return itemBrand && brands.includes(itemBrand);
+        const itemBrandAlias = item.brand?.alias;
+        return itemBrandAlias && brands.includes(itemBrandAlias);
       });
     }
 

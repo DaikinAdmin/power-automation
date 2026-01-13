@@ -32,10 +32,13 @@ interface CatalogProductCardProps {
   viewMode?: ViewMode;
   inStock: boolean;
   onAddToCart?: () => void;
+  onAddToCompare?: () => void;
   addToCartDisabled?: boolean;
   addToCartLabel?: string;
   className?: string;
   extraContent?: ReactNode;
+  itemId?: string;
+  isInCompare?: boolean;
 }
 
 const CatalogProductCard = ({
@@ -56,10 +59,13 @@ const CatalogProductCard = ({
   viewMode = "grid",
   inStock,
   onAddToCart,
+  onAddToCompare,
   addToCartDisabled,
   addToCartLabel,
   className,
   extraContent,
+  itemId,
+  isInCompare = false,
 }: CatalogProductCardProps) => {
   const t = useTranslations("product.productCatalogCard");
   const isList = viewMode === "list";
@@ -89,12 +95,20 @@ const CatalogProductCard = ({
     event.stopPropagation();
   };
 
+  const handleAddToCompare = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (onAddToCompare) {
+      onAddToCompare();
+    }
+  };
+
   const renderHoverActions = () => {
     if (isList) return null;
 
     return (
       <div
-        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-[1000]"
+        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-50"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка "додати в кошик" */}
@@ -119,10 +133,15 @@ const CatalogProductCard = ({
             <Heart size={16} className="text-gray-600" />
           </button>
           <button
-            className="bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors"
-            onClick={handleMutedAction}
+            className={`p-2 rounded transition-colors ${
+              isInCompare
+                ? "bg-blue-500 hover:bg-blue-600"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
+            onClick={handleAddToCompare}
+            title={isInCompare ? t("inCompare") : t("addToCompare")}
           >
-            <GitCompare size={16} className="text-gray-600" />
+            <GitCompare size={16} className={isInCompare ? "text-white" : "text-gray-600"} />
           </button>
         </div>
       </div>
@@ -149,7 +168,13 @@ const CatalogProductCard = ({
         <Button variant="outline" size="sm" onClick={handleMutedAction}>
           <Heart className="h-4 w-4" />
         </Button>
-        <Button variant="outline" size="sm" onClick={handleMutedAction}>
+        <Button 
+          variant={isInCompare ? "default" : "outline"} 
+          size="sm" 
+          onClick={handleAddToCompare}
+          className={isInCompare ? "bg-blue-500 hover:bg-blue-600" : ""}
+          title={isInCompare ? t("inCompare") : t("addToCompare")}
+        >
           <GitCompare className="h-4 w-4" />
         </Button>
       </div>
@@ -163,7 +188,7 @@ const CatalogProductCard = ({
   return (
     <Link
       href={href}
-      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-[999] cursor-pointer ${
+      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer ${
         isList ? "flex" : ""
       } ${className || ""}`.trim()}
     >

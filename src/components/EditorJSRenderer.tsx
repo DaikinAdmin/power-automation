@@ -19,11 +19,33 @@ interface EditorJSRendererProps {
 }
 
 export default function EditorJSRenderer({ data, className = '' }: EditorJSRendererProps) {
-  if (!data || !data.blocks) {
+  // Handle invalid data
+  if (!data) {
+    console.error('EditorJSRenderer: No data provided');
+    return null;
+  }
+
+  // Check if data has the wrong structure (nested content)
+  if (typeof data === 'object' && 'content' in data && !('blocks' in data)) {
+    console.error('EditorJSRenderer: Invalid data structure. Found nested content:', data);
+    return (
+      <div className="text-red-600 p-4 border border-red-300 rounded">
+        Error: Invalid content structure. Please re-edit and save the page.
+      </div>
+    );
+  }
+
+  if (!data.blocks || !Array.isArray(data.blocks)) {
+    console.error('EditorJSRenderer: Missing or invalid blocks array:', data);
     return null;
   }
 
   const renderBlock = (block: EditorBlock, index: number) => {
+    if (!block || !block.type) {
+      console.warn('EditorJSRenderer: Invalid block at index', index, block);
+      return null;
+    }
+    
     const { type, data: blockData } = block;
 
     switch (type) {
@@ -44,17 +66,19 @@ export default function EditorJSRenderer({ data, className = '' }: EditorJSRende
         if (blockData.style === 'ordered') {
           return (
             <ol key={index} className="list-decimal list-inside my-4 space-y-2">
-              {blockData.items.map((item: string, i: number) => (
-                <li key={i} className="text-gray-700">{item}</li>
-              ))}
+              {blockData.items.map((item: any, i: number) => {
+                const text = typeof item === 'string' ? item : (item.content || item.text || '');
+                return <li key={i} className="text-gray-700" dangerouslySetInnerHTML={{ __html: text }} />;
+              })}
             </ol>
           );
         }
         return (
           <ul key={index} className="list-disc list-inside my-4 space-y-2">
-            {blockData.items.map((item: string, i: number) => (
-              <li key={i} className="text-gray-700">{item}</li>
-            ))}
+            {blockData.items.map((item: any, i: number) => {
+              const text = typeof item === 'string' ? item : (item.content || item.text || '');
+              return <li key={i} className="text-gray-700" dangerouslySetInnerHTML={{ __html: text }} />;
+            })}
           </ul>
         );
 

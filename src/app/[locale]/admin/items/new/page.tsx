@@ -30,6 +30,7 @@ const initialFormData: Item = {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     slug: '',
+    imageLink: null,
     isVisible: true,
     subCategories: [],
     categoryTranslations: []

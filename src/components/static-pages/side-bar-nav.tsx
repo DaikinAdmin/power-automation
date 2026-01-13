@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
 const navItems = [
-  { slug: "about-us", label: "About us" },
+  { slug: "about", label: "About us" },
   { slug: "brands", label: "Brands" },
   { slug: "purchase-delivery", label: "Delivery" },
   { slug: "refunding", label: "Refunding" },

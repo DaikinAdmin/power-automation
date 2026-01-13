@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 // GET - Get page by ID
 export async function GET(
@@ -38,9 +39,18 @@ export async function GET(
     }
 
     // Parse content if it's a JSON string
+    let parsedContent;
+    try {
+      parsedContent = typeof page.content === 'string' ? JSON.parse(page.content) : page.content;
+      console.log('GET /api/admin/pages/[id] - Parsed content structure:', Object.keys(parsedContent));
+    } catch (error) {
+      console.error('Error parsing page content:', error);
+      parsedContent = page.content;
+    }
+
     const pageData = {
       ...page,
-      content: typeof page.content === 'string' ? JSON.parse(page.content) : page.content,
+      content: parsedContent,
     };
 
     return NextResponse.json(pageData);
@@ -77,6 +87,9 @@ export async function PATCH(
     const body = await request.json();
     const { title, content, isPublished } = body;
 
+    // Debug: log what we're receiving
+    console.log('Received content for update:', JSON.stringify(content, null, 2));
+
     if (!title && !content && isPublished === undefined) {
       return NextResponse.json(
         { error: 'At least one field (title, content, isPublished) must be provided' },
@@ -84,11 +97,24 @@ export async function PATCH(
       );
     }
 
+    // Get page info to revalidate cache
+    const [page] = await db
+      .select({ slug: schema.pageContent.slug, locale: schema.pageContent.locale })
+      .from(schema.pageContent)
+      .where(eq(schema.pageContent.id, pageId))
+      .limit(1);
+
     await updatePage(pageId, {
       ...(title && { title }),
       ...(content && { content }),
       ...(isPublished !== undefined && { isPublished }),
     });
+
+    // Revalidate the page cache
+    if (page) {
+      revalidatePath(`/${page.locale}/${page.slug}`);
+      console.log(`Revalidated cache for /${page.locale}/${page.slug}`);
+    }
 
     return NextResponse.json({ message: 'Page updated successfully' });
   } catch (error) {
@@ -121,7 +147,20 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid page ID' }, { status: 400 });
     }
 
+    // Get page info to revalidate cache
+    const [page] = await db
+      .select({ slug: schema.pageContent.slug, locale: schema.pageContent.locale })
+      .from(schema.pageContent)
+      .where(eq(schema.pageContent.id, pageId))
+      .limit(1);
+
     await deletePage(pageId);
+
+    // Revalidate the page cache
+    if (page) {
+      revalidatePath(`/${page.locale}/${page.slug}`);
+      console.log(`Revalidated cache for deleted page /${page.locale}/${page.slug}`);
+    }
 
     return NextResponse.json({ message: 'Page deleted successfully' });
   } catch (error) {

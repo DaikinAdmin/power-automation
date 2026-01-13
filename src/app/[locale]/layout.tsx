@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { CartProvider } from "@/components/cart-context";
+import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
@@ -55,9 +56,11 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider>
           <CartProvider>
-            <CurrencyProvider>
-              {children}
-            </CurrencyProvider>
+            <CompareProvider>
+              <CurrencyProvider>
+                {children}
+              </CurrencyProvider>
+            </CompareProvider>
           </CartProvider>
         </NextIntlClientProvider>
       </body>

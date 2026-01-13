@@ -38,11 +38,11 @@ export async function GET(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Get user count - discountLevel is stored as a string in the user table
+    // Get user count via join table _DiscountLevelToUser
     const [userCount] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
+      .from(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
     const levelWithCount = {
       ...discountLevel,
@@ -163,11 +163,11 @@ export async function PUT(
       .where(eq(schema.discountLevel.id, id))
       .returning();
 
-    // Get user count
+    // Get user count via join table _DiscountLevelToUser
     const [userCount] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
+      .from(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
     const levelWithCount = {
       ...updatedDiscountLevel,
@@ -263,18 +263,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Discount level not found' }, { status: 404 });
     }
 
-    // Get user count
+    // Get user count via join table _DiscountLevelToUser
     const [userCount] = await db
       .select({ count: sql<number>`cast(count(*) as integer)` })
-      .from(schema.user)
-      .where(sql`${schema.user.discountLevel}::text = ${id}`);
+      .from(schema.discountLevelToUser)
+      .where(eq(schema.discountLevelToUser.a, id));
 
-    // Remove discount level from all users first
+    // Remove relations from join table first
     if (userCount && userCount.count > 0) {
       await db
-        .update(schema.user)
-        .set({ discountLevel: null })
-        .where(sql`${schema.user.discountLevel}::text = ${id}`);
+        .delete(schema.discountLevelToUser)
+        .where(eq(schema.discountLevelToUser.a, id));
     }
 
     // Delete the discount level

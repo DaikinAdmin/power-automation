@@ -1,4 +1,5 @@
 import CatalogProductCard from "@/components/catalog-product-card";
+import { useCompare } from "@/components/compare-context";
 import { useTranslations } from "next-intl";
 
 interface ProductsGridProps {
@@ -25,6 +26,7 @@ export function ProductsGrid({
   onAddToCart,
 }: ProductsGridProps) {
   const t = useTranslations("categories");
+  const { addToCompare, isInCompare } = useCompare();
 
   if (items.length === 0) {
     return (
@@ -89,6 +91,22 @@ export function ProductsGrid({
           onAddToCart(item, warehouseId, price);
         };
 
+        const addToCompareHandler = () => {
+          const compareItem = {
+            id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
+            articleId: item.articleId,
+            name: details?.itemName || "Unnamed Product",
+            brand: item.brand?.name,
+            brandImage: item.brand?.imageLink,
+            image: item.itemImageLink?.[0] || null,
+            price: price,
+            specialPrice: originalPrice ? price : null,
+            description: details?.description,
+            categorySlug: item.categorySlug,
+          };
+          addToCompare(compareItem);
+        };
+
         return (
           <CatalogProductCard
             key={item.articleId}
@@ -110,8 +128,11 @@ export function ProductsGrid({
               viewMode === "list" ? details?.description || undefined : undefined
             }
             onAddToCart={addToCartHandler}
+            onAddToCompare={addToCompareHandler}
             addToCartDisabled={!inStock}
             addToCartLabel={inStock ? t("buy") : t("outOfStock")}
+            itemId={item.articleId}
+            isInCompare={isInCompare(item.articleId)}
           />
         );
       })}

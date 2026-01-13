@@ -41,7 +41,7 @@ export default function CategoryPage({
 
   // All category page states
   const [items, setItems] = useState<Item[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
+  const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
   const [warehouses, setWarehouses] = useState<
     { id: string; name: string; country: string; displayedName: string }[]
   >([]);
@@ -193,14 +193,17 @@ export default function CategoryPage({
           );
 
           if (categoryItems.length > 0) {
-            // Extract unique brands for this category
-            const uniqueBrands = Array.from(
-              new Set(
-                categoryItems
-                  .map((item) => item.brand?.name)
-                  .filter((name): name is string => Boolean(name))
-              )
-            );
+            // Extract unique brands for this category with name and slug
+            const brandMap = new Map();
+            categoryItems.forEach((item) => {
+              if (item.brand?.alias && item.brand?.name) {
+                brandMap.set(item.brand.alias, {
+                  name: item.brand.name,
+                  slug: item.brand.alias,
+                });
+              }
+            });
+            const uniqueBrands = Array.from(brandMap.values());
             setBrands(uniqueBrands);
 
             // Extract unique warehouses for this category
@@ -334,7 +337,8 @@ export default function CategoryPage({
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+                
                 {/* Left Sidebar */}
                 <CategorySidebar
                   locale={locale}
