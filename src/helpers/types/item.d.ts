@@ -1,27 +1,19 @@
-import {
-  Category as CategoryType,
-  ItemDetails as PrismaItemDetails,
-  ItemPrice as ItemPriceType,
-  Item as ItemType,
-  SubCategories,
-  Warehouse,
-  Brand,
-  ItemPriceHistory as PrismaItemPriceHistory,
-} from '@prisma/client';
+import { Item as ItemType, ItemPrice as ItemPriceType, ItemPriceHistory as ItemPriceHistoryType, ItemDetails as ItemDetailsType, Category as CategoryType, Warehouse, SubCategories, CategoryTranslation, Brand } from '@/db/schema';
 
 export type ItemPrice = ItemPriceType & {
   warehouse: Warehouse;
   history?: ItemPriceHistory[];
 }
 
-export type ItemPriceHistory = PrismaItemPriceHistory & {
+export type ItemPriceHistory = ItemPriceHistoryType & {
   warehouse: Warehouse;
 }
 
-export type ItemDetail = PrismaItemDetails;
+export type ItemDetail = ItemDetailsType;
 
 export type Category = CategoryType & {
   subCategories: SubCategories[]
+  categoryTranslations: CategoryTranslation[]
 }
 
 export type Item = ItemType & {
@@ -63,18 +55,17 @@ export type ProductRecommendedWarehouse = {
 export type ProductDetailsResponse = {
   id: string;
   articleId: string;
-  itemImageLink: string | null;
+  itemImageLink: string[];
   image: string | null;
   isDisplayed: boolean;
   sellCounter: number | null;
-  categoryId: string;
-  subCategoryId: string;
-  category: string;
   categorySlug: string;
+  subCategorySlug: string;
+  category: string;
   subcategory: string;
   name: string;
   brand: string;
-  brandId?: string | null;
+  brandSlug?: string | null;
   brandAlias?: string | null;
   brandImage?: string | null;
   description: string;
@@ -92,6 +83,8 @@ export type ProductDetailsResponse = {
     seller: string | null;
     discount: number | null;
     popularity: number | null;
+    metaKeyWords?: string | null;
+    metaDescription?: string | null;
   }>;
 };
 
@@ -145,3 +138,64 @@ export interface UploadType {
 }
 
 export type BulkUploadItem = Omit<Item, 'itemDetails', 'itemPrice'>;
+
+export interface ItemDetailResponse {
+  id: number;
+  articleId: string;
+  itemImageLink: string | null;
+  isDisplayed: boolean;
+  sellCounter: number;
+  createdAt: Date;
+  updatedAt: Date;
+  prices: Array<{
+    warehouseId: number;
+    warehouseName: string;
+    warehouseCountry: string;
+    displayedName: string;
+    price: string;
+    specialPrice: string | null;
+    originalPrice: string;
+    inStock: boolean;
+    quantity: number;
+    badge: string | null;
+    promoEndDate: Date | null;
+    promoCode: string | null;
+  }>;
+  name: string;
+  brandName: string | null;
+  brandImage: string | null;
+  description: string;
+  specifications: string;
+  seller: string;
+  discount: number;
+  popularity: number;
+  badge: string | null;
+  warrantyMonths: number;
+  warrantyType: string | null;
+  categoryName: string;
+  categorySlug: string;
+  subcategoryName: string[];
+  subcategorySlug: string[];
+  itemDetails: Array<{
+    id: number;
+    locale: string;
+    itemName: string | null;
+    description: string | null;
+    specifications: string | null;
+    seller: string | null;
+    discount: number | null;
+    popularity: number | null;
+  }>;
+  recommendedWarehouse?: {
+    warehouse: {
+      id: number;
+      name: string;
+      country: string;
+      displayedName: string;
+    };
+    price: number;
+    promotionPrice: number | null;
+    quantity: number;
+    badge: string | null;
+  };
+}

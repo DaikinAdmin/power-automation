@@ -1,4 +1,4 @@
-import { OrderStatus } from '@prisma/client';
+type OrderStatus = 'NEW' | 'WAITING_FOR_PAYMENT' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUND' | 'DELIVERY' | 'ASK_FOR_PRICE';
 
 export const formatCurrency = (amount: number): string => {
   return `${amount.toFixed(2)} €`;

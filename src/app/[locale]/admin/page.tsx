@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from '@/db/schema';
 import Link from 'next/link';
 import { 
   ShoppingCart, 

@@ -16,7 +16,9 @@ interface ProductPriceCardProps {
   extraLabel?: string;
   onAddToCart: () => void;
   onAskPrice: () => void;
+  onAddToCompare?: () => void;
   isAddingToCart: boolean;
+  isInCompare?: boolean;
 }
 
 export function ProductPriceCard({
@@ -30,7 +32,9 @@ export function ProductPriceCard({
   extraLabel,
   onAddToCart,
   onAskPrice,
+  onAddToCompare,
   isAddingToCart,
+  isInCompare = false,
 }: ProductPriceCardProps) {
   const t = useTranslations('product');
   
@@ -93,8 +97,16 @@ export function ProductPriceCard({
         <button className="flex h-12 w-12 items-center justify-center rounded-lg border hover:bg-gray-50">
           <Heart className="h-5 w-5" />
         </button>
-        <button className="flex h-12 w-12 items-center justify-center rounded-lg border hover:bg-gray-50">
-          <GitCompare className="h-5 w-5" />
+        <button 
+          onClick={onAddToCompare}
+          className={`flex h-12 w-12 items-center justify-center rounded-lg border transition-colors ${
+            isInCompare 
+              ? 'bg-blue-500 hover:bg-blue-600 border-blue-500' 
+              : 'hover:bg-gray-50'
+          }`}
+          title={isInCompare ? t('actions.inCompare') : t('actions.addToCompare')}
+        >
+          <GitCompare className={`h-5 w-5 ${isInCompare ? 'text-white' : ''}`} />
         </button>
       </div>
     </div>

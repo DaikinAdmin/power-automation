@@ -1,6 +1,7 @@
 import CategoriesPage from '@/components/layout/categories-page'
 import { Suspense, use } from 'react'
 
+export const dynamic = 'force-dynamic';
 
 export default function CategoryPage ({
   params,

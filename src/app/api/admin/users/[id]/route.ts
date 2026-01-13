@@ -1,7 +1,11 @@
-import db from "@/db";
+// import db from "@/db";
+import { db } from '@/db';
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { eq } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function PUT(
     request: NextRequest,
@@ -18,17 +22,39 @@ export async function PUT(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Check if user is admin
+        const isAdmin = await isUserAdmin(session.user.id);
+        if (!isAdmin) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const data = await request.json();
+        
+        // Drizzle implementation
+        const [updatedUser] = await db
+            .update(schema.user)
+            .set({
+                role: data.role,
+                emailVerified: data.emailVerified ? true : false,
+                discountLevel: data.discountLevel,
+                updatedAt: new Date().toISOString(),
+            })
+            .where(eq(schema.user.id, id))
+            .returning();
+
+        if (!updatedUser) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        /* Prisma implementation (commented out)
         const user = await db.user.findUnique({
             where: { id: session.user.id },
             select: { role: true }
         });
 
-        if (user?.role !== 'ADMIN') {
+        if (user?.role !== 'admin') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        const data = await request.json();
         const updatedUser = await db.user.update({
             where: { id },
             data: {
@@ -37,6 +63,7 @@ export async function PUT(
                 discountLevel: data.discountLevel
             }
         });
+        */
 
         return NextResponse.json(updatedUser);
     } catch (error) {
@@ -60,13 +87,8 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Check if user is admin
-        const user = await db.user.findUnique({
-            where: { id: session.user.id },
-            select: { role: true }
-        });
-
-        if (user?.role !== 'ADMIN') {
+        const isAdmin = await isUserAdmin(session.user.id);
+        if (!isAdmin) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
@@ -75,9 +97,23 @@ export async function DELETE(
             return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
         }
 
+        // Drizzle implementation
+        await db.delete(schema.user).where(eq(schema.user.id, id));
+
+        /* Prisma implementation (commented out)
+        const user = await db.user.findUnique({
+            where: { id: session.user.id },
+            select: { role: true }
+        });
+
+        if (user?.role !== 'admin') {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
         await db.user.delete({
             where: { id }
         });
+        */
 
         return NextResponse.json({ message: 'User deleted successfully' });
     } catch (error) {

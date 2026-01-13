@@ -42,7 +42,7 @@ export function ProductOpinionForm({ onSubmit }: ProductOpinionFormProps) {
           rows={3}
           className="w-full rounded border px-3 py-2 text-sm"
         />
-        <button type="submit" className="rounded bg-blue-600 px-5 py-2 text-white hover:bg-blue-700">
+        <button type="submit" className="rounded bg-red-600 px-5 py-2 text-white hover:bg-red-700">
           {t('opinion.submit')}
         </button>
       </form>

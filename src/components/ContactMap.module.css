@@ -1,0 +1,32 @@
+.mapWrapper :global(.leaflet-container) {
+  z-index: 1 !important;
+}
+
+.mapWrapper :global(.leaflet-pane),
+.mapWrapper :global(.leaflet-tile-pane),
+.mapWrapper :global(.leaflet-overlay-pane),
+.mapWrapper :global(.leaflet-shadow-pane) {
+  z-index: 1 !important;
+}
+
+.mapWrapper :global(.leaflet-marker-pane) {
+  z-index: 2 !important;
+}
+
+.mapWrapper :global(.leaflet-tooltip-pane),
+.mapWrapper :global(.leaflet-popup-pane) {
+  z-index: 3 !important;
+}
+
+.mapWrapper :global(.leaflet-map-pane) {
+  z-index: 1 !important;
+}
+
+.mapWrapper :global(.leaflet-top),
+.mapWrapper :global(.leaflet-bottom) {
+  z-index: 4 !important;
+}
+
+.mapWrapper :global(.leaflet-control) {
+  z-index: 5 !important;
+}

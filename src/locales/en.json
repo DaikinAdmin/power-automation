@@ -186,7 +186,7 @@
       "description": "The product you are looking for is unavailable or has been removed.",
       "backToHome": "Back to Home"
     },
-    "articleId": "Article ID",
+    "articleId": "Article",
     "from": "From {{warehouse}}",
     "moreLocations": "+{{count}} more locations",
     "price": {
@@ -204,7 +204,9 @@
       "outOfStock": "Out of Stock",
       "askPrice": "Ask Price",
       "addToWishlist": "Add to Wishlist",
-      "compare": "Compare"
+      "compare": "Compare",
+      "addToCompare": "Add to Compare",
+      "inCompare": "In Comparison"
     },
     "tabs": {
       "delivery": "Delivery & Availability",
@@ -254,7 +256,33 @@
       "submitting": "Submitting...",
       "success": "Price request submitted successfully! We will contact you soon.",
       "error": "Failed to submit price request. Please try again."
+    },
+    "productCatalogCard":{
+      "buy":"Buy",
+      "outOfStock":"Out of Stock",
+      "addToCompare": "Add to Compare",
+      "inCompare": "In Comparison"
+    },
+    "compare": {
+      "alreadyAdded": "This product is already in the comparison list",
+      "limitReached": "You can compare up to 5 products maximum"
     }
+  },
+  "compare": {
+    "title": "Product Comparison",
+    "clearAll": "Clear All",
+    "empty": "No products to compare",
+    "emptyDescription": "Add products to comparison from product cards or product pages",
+    "remove": "Remove",
+    "property": "Property",
+    "photo": "Photo",
+    "name": "Name",
+    "brand": "Brand",
+    "price": "Price",
+    "description": "Description",
+    "noImage": "No image",
+    "noBrand": "No brand",
+    "noDescription": "No description"
   },
   "home": {
     "features": {
@@ -282,7 +310,29 @@
       "noProducts": "No products available in this category.",
       "noCategories": "No categories available.",
       "noBrands": "No brands available.",
-      "moreSubcategories": "+{{count}} more"
+      "moreSubcategories": "+{count} more"
+    },
+    "banners": {
+      "desktop": [
+        {
+          "src": "/imgs/main_banner_amm.webp",
+          "alt": "Automation Main Banner",
+          "href": "/categories/siemens-s5",
+          "priority": true
+        },
+        {
+          "src": "/imgs/siemens_main_banner_amm.webp",
+          "alt": "Siemens S5 Product Banner",
+          "href": "/categories/siemens-s5"
+        }
+      ],
+      "mobile": [
+        {
+          "src": "/imgs/mobile_main_banner._amm.webp",
+          "alt": "Mobile Automation Banner",
+          "href": "/product/cmfxo7pxy0001pa9q5ta4kejp"
+        }
+      ]
     }
   },
   "header": {

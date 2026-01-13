@@ -85,7 +85,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         if (!isMounted) return;
 
         setOrder(data.order);
-        setCanUpdate(data.viewerRole === 'ADMIN' || data.viewerRole === 'EMPLOYER');
+        setCanUpdate(data.viewerRole === 'admin' || data.viewerRole === 'employee');
         setStatus('loaded');
       } catch (error: any) {
         if (!isMounted) return;

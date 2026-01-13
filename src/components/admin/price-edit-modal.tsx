@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ItemPrice } from '@/helpers/types/item';
-import { Warehouse, Badge } from '@prisma/client';
+import type { Warehouse, Badge } from '@/db/schema';
 
 interface PriceEditModalProps {
   isOpen: boolean;
@@ -26,25 +26,25 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [formData, setFormData] = useState<ItemPrice>({
     id: '',
-    itemId: '',
+    itemSlug: '',
     warehouseId: '',
     price: 0,
     quantity: 0,
     promotionPrice: null,
     promoEndDate: null,
     promoCode: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    badge: Badge.ABSENT,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    badge: "ABSENT",
     history: [],
     warehouse: {
       id: '',
       name: '',
       displayedName: '',
       isVisible: true,
-      country: 'Other',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      countrySlug: 'other',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   });
 
@@ -56,7 +56,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
     if (priceEntry && isOpen) {
       setFormData({
         ...priceEntry,
-        badge: priceEntry.badge || Badge.ABSENT,
+        badge: priceEntry.badge || "ABSENT",
       });
     }
   }, [priceEntry, isOpen]);
@@ -167,7 +167,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
             <div>
               <Label>Badge</Label>
               <select
-                value={formData.badge || Badge.ABSENT}
+                value={formData.badge || "ABSENT"}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               >
@@ -214,9 +214,9 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
   );
 }
   const badgeOptions = [
-    { value: Badge.ABSENT, label: 'None' },
-    { value: Badge.NEW_ARRIVALS, label: 'New Arrivals' },
-    { value: Badge.BESTSELLER, label: 'Bestseller' },
-    { value: Badge.HOT_DEALS, label: 'Hot Deals' },
-    { value: Badge.LIMITED_EDITION, label: 'Limited Edition' },
+    { value: "ABSENT", label: 'None' },
+    { value: "NEW_ARRIVALS", label: 'New Arrivals' },
+    { value: "BESTSELLER", label: 'Bestseller' },
+    { value: "HOT_DEALS", label: 'Hot Deals' },
+    { value: "LIMITED_EDITION", label: 'Limited Edition' },
   ];

@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Warehouse } from '@prisma/client';
+import { Warehouse } from '@/db/schema';
 
 interface DeleteWarehouseModalProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ export function DeleteWarehouseModal({
         <DialogHeader>
           <DialogTitle>Delete Warehouse</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the warehouse "{warehouse.name}" in {warehouse.country}? 
+            Are you sure you want to delete the warehouse "{warehouse.name}" in {warehouse.countrySlug}? 
             This action cannot be undone and will affect all associated items and prices.
           </DialogDescription>
         </DialogHeader>

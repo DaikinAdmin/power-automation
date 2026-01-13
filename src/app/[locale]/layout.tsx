@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { CartProvider } from "@/components/cart-context";
+import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
@@ -10,13 +11,23 @@ import { notFound } from "next/navigation";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Power Automation",
   description: "Best deals on electronics, fashion, and more!",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
+
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -39,15 +50,17 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   return (
-    <html lang={locale}>
+    <html lang={locale} className="overflow-x-hidden">
       <body
-        className={`${montserrat.variable} antialiased font-sans`}
+        className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
         <NextIntlClientProvider>
           <CartProvider>
-            <CurrencyProvider>
-              {children}
-            </CurrencyProvider>
+            <CompareProvider>
+              <CurrencyProvider>
+                {children}
+              </CurrencyProvider>
+            </CompareProvider>
           </CartProvider>
         </NextIntlClientProvider>
       </body>

@@ -186,7 +186,7 @@
       "description": "El producto que busca no está disponible o ha sido eliminado.",
       "backToHome": "Volver al inicio"
     },
-    "articleId": "ID del artículo",
+    "articleId": "Artícul",
     "from": "De {{warehouse}}",
     "moreLocations": "+{{count}} ubicaciones más",
     "price": {
@@ -204,7 +204,9 @@
       "outOfStock": "Agotado",
       "askPrice": "Consultar precio",
       "addToWishlist": "Añadir a favoritos",
-      "compare": "Comparar"
+      "compare": "Comparar",
+      "addToCompare": "Añadir a comparación",
+      "inCompare": "En comparación"
     },
     "tabs": {
       "delivery": "Entrega y disponibilidad",
@@ -254,7 +256,33 @@
       "submitting": "Enviando...",
       "success": "Solicitud de precio enviada con éxito! Nos pondremos en contacto con usted pronto.",
       "error": "No se pudo enviar la solicitud de precio. Por favor, inténtelo de nuevo."
+    },
+    "productCatalogCard":{
+      "buy":"Comprar",
+      "outOfStock":"Agotado",
+      "addToCompare": "Añadir a comparación",
+      "inCompare": "En comparación"
+    },
+    "compare": {
+      "alreadyAdded": "Este producto ya está en la lista de comparación",
+      "limitReached": "Puede comparar hasta 5 productos como máximo"
     }
+  },
+  "compare": {
+    "title": "Comparación de productos",
+    "clearAll": "Limpiar todo",
+    "empty": "No hay productos para comparar",
+    "emptyDescription": "Añada productos a la comparación desde las tarjetas de productos o páginas de productos",
+    "remove": "Eliminar",
+    "property": "Propiedad",
+    "photo": "Foto",
+    "name": "Nombre",
+    "brand": "Marca",
+    "price": "Precio",
+    "description": "Descripción",
+    "noImage": "Sin imagen",
+    "noBrand": "Sin marca",
+    "noDescription": "Sin descripción"
   },
   "home": {
     "features": {
@@ -282,7 +310,29 @@
       "noProducts": "No hay productos disponibles en esta categoría.",
       "noCategories": "No hay categorías disponibles.",
       "noBrands": "No hay marcas disponibles.",
-      "moreSubcategories": "+{{count}} más"
+      "moreSubcategories": "+{count} más"
+    },
+    "banners": {
+      "desktop": [
+        {
+          "src": "/imgs/main_banner_amm.webp",
+          "alt": "Automation Main Banner",
+          "href": "/categories/siemens-s5",
+          "priority": true
+        },
+        {
+          "src": "/imgs/siemens_main_banner_amm.webp",
+          "alt": "Siemens S5 Product Banner",
+          "href": "/categories/siemens-s5"
+        }
+      ],
+      "mobile": [
+        {
+          "src": "/imgs/mobile_main_banner._amm.webp",
+          "alt": "Mobile Automation Banner",
+          "href": "/product/cmfxo7pxy0001pa9q5ta4kejp"
+        }
+      ]
     }
   },
   "header": {
