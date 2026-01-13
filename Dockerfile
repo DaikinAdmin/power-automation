@@ -64,9 +64,11 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/drizzle ./drizzle
 COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=build /app/.npmrc ./.npmrc
 
 # Copy complete node_modules from build stage (needed for migrations and runtime)
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
 
 # Create upload directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
