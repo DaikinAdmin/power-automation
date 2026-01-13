@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"  # Changed to 5433 to avoid conflict with local PostgreSQL
+      - "5435:5432"  # Changed to 5435 to avoid conflict with local PostgreSQL
     networks:
       - powerautomation-network
     healthcheck:
@@ -42,17 +42,13 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL}
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
       ADMIN_USER_ID: ${ADMIN_USER_ID}
-      
-      # Base URL
-      BASE_URL: ${BASE_URL}
       
       # Mail
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT}
       MAIL_USER: ${MAIL_USER}
-      MAIL_USER_CONTACT: ${MAIL_USER_CONTACT}
+      MAIL_FROM: ${MAIL_FROM}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       
       # Environment
@@ -64,7 +60,7 @@ services:
     networks:
       - powerautomation-network
     volumes:
-      - ./prisma:/app/prisma
+      # - ./prisma:/app/prisma
       - uploads_data:/app/public/uploads
 
 networks:

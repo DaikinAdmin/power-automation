@@ -33,7 +33,7 @@ const initialFormData: Item = {
     isVisible: true,
     subCategories: [],
     categoryTranslations: [],
-    
+    imageLink: null,
   },
   subCategory: {
     id: '',

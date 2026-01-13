@@ -33,10 +33,11 @@ export async function GET() {
         role: schema.user.role,
         emailVerified: schema.user.emailVerified,
         companyName: schema.user.companyName,
-        discountLevel: schema.user.discountLevel,
+        discountLevel: schema.discountLevelToUser.a,
         createdAt: schema.user.createdAt,
       })
       .from(schema.user)
+      .leftJoin(schema.discountLevelToUser, eq(schema.discountLevelToUser.b, schema.user.id))
       .orderBy(desc(schema.user.createdAt));
 
     // Format response to match interface
@@ -44,11 +45,11 @@ export async function GET() {
       userId: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: user.role || 'user',
       emailVerified: user.emailVerified,
-      companyName: user.companyName,
-      discountLevel: user.discountLevel,
-      createdAt: user.createdAt || '',
+      companyName: user.companyName || '',
+      discountLevel: user.discountLevel || null,
+      createdAt: user.createdAt ? user.createdAt.toISOString() : new Date().toISOString(),
     }));
 
     /* Prisma implementation (commented out)

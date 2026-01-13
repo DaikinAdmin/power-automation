@@ -175,7 +175,7 @@ export interface UserListResponse {
   role: string;
   emailVerified: boolean;
   companyName: string | null;
-  discountLevel: number | null;
+  discountLevel: string | null;  // Changed to string (discount level ID)
   createdAt: string;
 }
 

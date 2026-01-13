@@ -13,7 +13,7 @@ import {
   openAPI,
   twoFactor
 } from "better-auth/plugins";
-import { validator, StandardAdapter } from "validation-better-auth";
+import { validator, parseStandardSchema } from "validation-better-auth";
 import { roleSignupPlugin } from "./role-signup-plugin";
 import { nextCookies } from "better-auth/next-js";
 import { ac, user, employee, admin } from "./permissions";
@@ -149,12 +149,12 @@ export const auth = betterAuth({
       skipVerificationOnEnable: true,
     }),
     validator([
-      { path: "/sign-up/email", adapter: StandardAdapter(SignupSchema) },
-      { path: "/sign-in/email", adapter: StandardAdapter(SignInSchema) },
-      { path: "/two-factor/enable", adapter: StandardAdapter(PasswordSchema) },
-      { path: "/two-factor/disable", adapter: StandardAdapter(PasswordSchema) },
-      { path: "/two-factor/verify-otp", adapter: StandardAdapter(twoFactorSchema) },
-      { path: "/forgot-password", adapter: StandardAdapter(ForgotPasswordSchema) },
+      { path: "/sign-up/email", adapter: { validate: (input) => parseStandardSchema(SignupSchema, input) } },
+      { path: "/sign-in/email", adapter: { validate: (input) => parseStandardSchema(SignInSchema, input) } },
+      { path: "/two-factor/enable", adapter: { validate: (input) => parseStandardSchema(PasswordSchema, input) } },
+      { path: "/two-factor/disable", adapter: { validate: (input) => parseStandardSchema(PasswordSchema, input) } },
+      { path: "/two-factor/verify-otp", adapter: { validate: (input) => parseStandardSchema(twoFactorSchema, input) } },
+      { path: "/forgot-password", adapter: { validate: (input) => parseStandardSchema(ForgotPasswordSchema, input) } },
     ]),
     nextCookies(),
     adminPlugin({

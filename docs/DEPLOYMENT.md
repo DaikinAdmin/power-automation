@@ -211,7 +211,7 @@ Install Nginx as a reverse proxy:
 sudo apt install -y nginx certbot python3-certbot-nginx
 
 # Create Nginx configuration
-sudo nano /etc/nginx/sites-available/daikin
+sudo nano /etc/nginx/sites-available/powerautomation
 ```
 
 Add this configuration:
@@ -219,7 +219,7 @@ Add this configuration:
 ```nginx
 server {
     listen 80;
-    server_name daikinkobierzyce.pl www.daikinkobierzyce.pl;
+    server_name powerautomation.pl www.powerautomation.pl;
 
     location / {
         proxy_pass http://localhost:3030;
@@ -241,7 +241,7 @@ Enable the site and get SSL certificate:
 
 ```bash
 # Enable the site
-sudo ln -s /etc/nginx/sites-available/daikin /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/powerautomation /etc/nginx/sites-enabled/
 sudo rm /etc/nginx/sites-enabled/default
 
 # Test Nginx configuration
@@ -251,7 +251,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 
 # Get SSL certificate (replace with your domain)
-sudo certbot --nginx -d daikinkobierzyce.pl -d www.daikinkobierzyce.pl
+sudo certbot --nginx -d powerautomation.pl -d www.powerautomation.pl
 
 # Certbot will automatically configure SSL and set up auto-renewal
 ```

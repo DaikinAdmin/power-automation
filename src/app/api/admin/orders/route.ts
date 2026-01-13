@@ -24,7 +24,7 @@ async function ensureAuthorized() {
     .where(eq(schema.user.id, session.user.id))
     .limit(1);
 
-  if (!user || !AUTHORIZED_ROLES.has(user.role)) {
+  if (!user || !user.role || !AUTHORIZED_ROLES.has(user.role)) {
     return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
   }
 

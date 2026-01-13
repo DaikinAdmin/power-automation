@@ -1,41 +1,44 @@
+FROM node:24-alpine AS base
+
 # Stage 1: Dependencies
-FROM node:24-alpine AS deps
-RUN apk add --no-cache libc6-compat
+
+
+FROM base AS prod-deps
+# Access PNPM with Corepack
+RUN corepack enable
+# Install apk and curl
+RUN apk update && apk add curl bash
 WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json* ./
-
-# Copy prisma schema for postinstall script
-COPY prisma ./prisma
-
-# Install dependencies (this will run postinstall which needs prisma)
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+# Fetch deps with caching
+RUN --mount=type=cache,id=s/<service-id>-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    pnpm fetch --frozen-lockfile
+# Install prod deps with caching AND add tsx for migrations
+RUN --mount=type=cache,id=s/<service-id>-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod && pnpm add tsx
 
 # Stage 2: Builder
-FROM node:24-alpine AS builder
+FROM base AS build
+
+RUN corepack enable
+RUN apk update && apk add curl bash
 WORKDIR /app
-
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-
-# Copy prisma folder
-COPY prisma ./prisma
-COPY prisma.config.mjs ./prisma.config.mjs
-COPY prisma.config.ts ./prisma.config.ts
-
-# Copy the rest of the application
+COPY package.json pnpm-lock.yaml ./
+# Fetch deps with caching
+RUN --mount=type=cache,id=s/<service-id>-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    pnpm fetch --frozen-lockfile
+# Install all deps with caching
+RUN --mount=type=cache,id=s/<service-id>-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 COPY . .
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Generate Prisma Client for both native and Debian
-RUN npx prisma generate
-
-# Build the application
-RUN npm run build
+# Build the application with caching
+RUN --mount=type=cache,id=s/<service-id>-/root/.cache/pnpm,target=/root/.cache/pnpm \
+    NODE_ENV=production pnpm run build
 
 # Stage 3: Runner (using Alpine for smaller image)
 FROM node:24-alpine AS runner
@@ -56,30 +59,14 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nextjs
 
 # Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/drizzle ./drizzle
+COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
 
-# Copy Prisma files and config (needed for migrations)
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.mjs ./prisma.config.mjs
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# # Copy tsx and all its dependencies (for seed scripts)
-# COPY --from=builder /app/node_modules/tsx ./node_modules/tsx
-# COPY --from=builder /app/node_modules/get-tsconfig ./node_modules/get-tsconfig
-# COPY --from=builder /app/node_modules/resolve-pkg-maps ./node_modules/resolve-pkg-maps
-# COPY --from=builder /app/node_modules/esbuild ./node_modules/esbuild
-# COPY --from=builder /app/node_modules/@esbuild ./node_modules/@esbuild
-
-# Copy Playwright for browser automation
-# COPY --from=builder /app/node_modules/playwright-core ./node_modules/playwright-core
-# COPY --from=builder /app/node_modules/@playwright ./node_modules/@playwright
-
-# Install Playwright browsers as root
-# ENV PLAYWRIGHT_BROWSERS_PATH=/home/nextjs/.cache/ms-playwright
-# RUN npx playwright install --with-deps chromium
+# Copy node_modules needed for migrations (drizzle-orm, postgres, etc)
+COPY --from=prod-deps /app/node_modules ./node_modules
 
 # Create upload directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
@@ -88,6 +75,10 @@ RUN mkdir -p /uploads && \
     chown -R nextjs:nodejs /app && \
     chown -R nextjs:nodejs /uploads
 
+# Copy and set up entrypoint script
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 USER nextjs
 
 EXPOSE 3000
@@ -95,4 +86,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
