@@ -6,8 +6,11 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Copy prisma schema for postinstall script
+# Copy drizzle schema for postinstall script
 COPY drizzle ./drizzle
+
+# Copy scripts folder if postinstall uses it
+COPY scripts ./scripts
 
 # Install dependencies (this will run postinstall which needs prisma)
 RUN npm ci --legacy-peer-deps
@@ -18,6 +21,8 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /scripts§ ./scripts
+COPY --from=deps /drizzle ./drizzle
 
 # Copy the rest of the application
 COPY . .
@@ -56,6 +61,7 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/scripts ./scripts
 
 # Copy node_modules needed for migrations
 COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
