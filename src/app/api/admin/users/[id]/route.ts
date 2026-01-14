@@ -35,11 +35,26 @@ export async function PUT(
             .set({
                 role: data.role,
                 emailVerified: data.emailVerified ? true : false,
-                discountLevel: data.discountLevel,
-                updatedAt: new Date().toISOString(),
+                updatedAt: new Date(),
             })
             .where(eq(schema.user.id, id))
             .returning();
+        
+        // Update discount level via junction table if provided
+        if (data.discountLevel) {
+            // Remove existing discount level associations
+            await db
+                .delete(schema.discountLevelToUser)
+                .where(eq(schema.discountLevelToUser.b, id));
+            
+            // Add new discount level association
+            await db
+                .insert(schema.discountLevelToUser)
+                .values({
+                    a: data.discountLevel,
+                    b: id,
+                });
+        }
 
         if (!updatedUser) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });

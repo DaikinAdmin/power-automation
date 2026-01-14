@@ -184,6 +184,7 @@ Before seeding production data, test with a small sample:
 4. Run the seeding on a test database:
    ```bash
    npm run seed:excel -- ./test-data.xlsx test-warehouse ua
+   npx tsx scripts/seed-from-json src/resources/parsed-data-pl.json warehouse-1 pl
    ```
 
 ## 📁 Example Files

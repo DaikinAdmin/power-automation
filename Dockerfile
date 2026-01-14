@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Copy prisma schema for postinstall script
-COPY prisma ./prisma
+COPY drizzle ./drizzle
 
 # Install dependencies (this will run postinstall which needs prisma)
 RUN npm ci
@@ -19,20 +19,12 @@ WORKDIR /app
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy prisma folder
-COPY prisma ./prisma
-COPY prisma.config.mjs ./prisma.config.mjs
-COPY prisma.config.ts ./prisma.config.ts
-
 # Copy the rest of the application
 COPY . .
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
-# Generate Prisma Client for both native and Debian
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
@@ -59,31 +51,14 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Copy Prisma files and config (needed for migrations)
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.mjs ./prisma.config.mjs
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# # Copy tsx and all its dependencies (for seed scripts)
-# COPY --from=builder /app/node_modules/tsx ./node_modules/tsx
-# COPY --from=builder /app/node_modules/get-tsconfig ./node_modules/get-tsconfig
-# COPY --from=builder /app/node_modules/resolve-pkg-maps ./node_modules/resolve-pkg-maps
-# COPY --from=builder /app/node_modules/esbuild ./node_modules/esbuild
-# COPY --from=builder /app/node_modules/@esbuild ./node_modules/@esbuild
-
-# Copy Playwright for browser automation
-# COPY --from=builder /app/node_modules/playwright-core ./node_modules/playwright-core
-# COPY --from=builder /app/node_modules/@playwright ./node_modules/@playwright
-
-# Install Playwright browsers as root
-# ENV PLAYWRIGHT_BROWSERS_PATH=/home/nextjs/.cache/ms-playwright
-# RUN npx playwright install --with-deps chromium
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Create upload directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
     mkdir -p /home/nextjs/.cache && \
+    chmod +x /app/docker-entrypoint.sh && \
     chown -R nextjs:nodejs /home/nextjs && \
     chown -R nextjs:nodejs /app && \
     chown -R nextjs:nodejs /uploads
