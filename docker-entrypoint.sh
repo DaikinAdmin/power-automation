@@ -2,7 +2,7 @@
 set -e
 
 echo "🔄 Running database migrations..."
-npx drizzle-kit migrate
+./node_modules/.bin/tsx drizzle/migrate.ts
 
 echo "✅ Migrations completed successfully!"
 echo "🚀 Starting application..."

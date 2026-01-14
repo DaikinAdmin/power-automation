@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"  # Changed to 5433 to avoid conflict with local PostgreSQL
+      - "5435:5432"  # Changed to 5435 to avoid conflict with local PostgreSQL
     networks:
       - powerautomation-network
     healthcheck:
@@ -36,7 +36,7 @@ services:
       - "3060:3000"
     environment:
       # Database
-      DATABASE_URL: postgresql://powerautomation:${DB_PASSWORD}@postgres:5432/powerautomation?schema=public&connection_limit=20&pool_timeout=30&connect_timeout=10&socket_timeout=60
+      DATABASE_URL: ${DATABASE_URL}
       
       # Auth
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
