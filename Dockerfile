@@ -65,10 +65,12 @@ COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/src/db ./src/db
 
-# Copy node_modules needed for migrations
+# Copy node_modules needed for migrations and runtime
 COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
 COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/node_modules/better-auth ./node_modules/better-auth
+COPY --from=builder /app/node_modules/next ./node_modules/next
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 

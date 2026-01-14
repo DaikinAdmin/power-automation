@@ -41,20 +41,7 @@ export async function GET() {
       _count: { item_price: w.count },
       count: undefined,
     }));
-
-    /* Prisma implementation (commented out)
-    const warehouses = await db.warehouse.findMany({
-      orderBy: { name: 'asc' },
-      include: {
-        _count: {
-          select: {
-            item_price: true
-          }
-        }
-      }
-    });
-    */
-
+    
     const response = NextResponse.json(warehouses);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
@@ -102,26 +89,6 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date().toISOString(),
       })
       .returning();
-
-    /* Prisma implementation (commented out)
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true }
-    });
-
-    if (user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const warehouse = await db.warehouse.create({
-      data: {
-        name: name,
-        country: country,
-        displayedName: displayedName,
-        isVisible: isVisible
-      }
-    });
-    */
 
     return NextResponse.json(warehouse, { status: 201 });
   } catch (error: any) {
