@@ -15,23 +15,6 @@ import { BannerModal } from '@/components/admin/banner-modal';
 import { DeleteBannerModal } from '@/components/admin/delete-banner-modal';
 import { Eye, EyeOff, Plus, GripVertical, ExternalLink, Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface Banner {
   id: number;
@@ -68,39 +51,40 @@ const LOCALES = [
   { value: 'ua', label: '🇺🇦 Українська' },
 ];
 
-function SortableBannerItem({ banner, onEdit, onDelete, onToggleVisibility }: {
+function SortableBannerItem({ 
+  banner, 
+  onEdit, 
+  onDelete, 
+  onToggleVisibility,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop,
+  isDragging,
+}: {
   banner: Banner;
   onEdit: (banner: Banner) => void;
   onDelete: (banner: Banner) => void;
   onToggleVisibility: (banner: Banner) => void;
+  onDragStart: (e: React.DragEvent, banner: Banner) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, banner: Banner) => void;
+  isDragging: boolean;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: banner.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`flex items-center gap-4 rounded-lg border bg-white p-4 ${
-        isDragging ? 'shadow-lg ring-2 ring-blue-500' : 'shadow-sm hover:shadow-md'
+      draggable
+      onDragStart={(e) => onDragStart(e, banner)}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, banner)}
+      className={`flex items-center gap-4 rounded-lg border bg-white p-4 transition-all ${
+        isDragging ? 'opacity-50 shadow-lg ring-2 ring-blue-500' : 'shadow-sm hover:shadow-md'
       }`}
     >
       {/* Drag Handle */}
       <div
-        {...attributes}
-        {...listeners}
         className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
       >
         <GripVertical className="h-5 w-5" />
@@ -192,13 +176,7 @@ export function BannersClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const [draggedBanner, setDraggedBanner] = useState<Banner | null>(null);
 
   useEffect(() => {
     void fetchBanners();
@@ -224,15 +202,37 @@ export function BannersClient() {
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragStart = (e: React.DragEvent, banner: Banner) => {
+    setDraggedBanner(banner);
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
-    if (!over || active.id === over.id) return;
+  const handleDragEnd = () => {
+    setDraggedBanner(null);
+  };
 
-    const oldIndex = banners.findIndex((b) => b.id === active.id);
-    const newIndex = banners.findIndex((b) => b.id === over.id);
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
 
-    const reorderedBanners = arrayMove(banners, oldIndex, newIndex);
+  const handleDrop = async (e: React.DragEvent, targetBanner: Banner) => {
+    e.preventDefault();
+    
+    if (!draggedBanner || draggedBanner.id === targetBanner.id) {
+      setDraggedBanner(null);
+      return;
+    }
+
+    const oldIndex = banners.findIndex((b) => b.id === draggedBanner.id);
+    const newIndex = banners.findIndex((b) => b.id === targetBanner.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Reorder banners array
+    const reorderedBanners = [...banners];
+    const [removed] = reorderedBanners.splice(oldIndex, 1);
+    reorderedBanners.splice(newIndex, 0, removed);
     
     // Update sortOrder for all banners
     const updatedBanners = reorderedBanners.map((banner, index) => ({
@@ -241,6 +241,7 @@ export function BannersClient() {
     }));
 
     setBanners(updatedBanners);
+    setDraggedBanner(null);
 
     // Save new order to backend
     try {
@@ -486,28 +487,22 @@ export function BannersClient() {
               </Button>
             </div>
           ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={banners.map(b => b.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-3">
-                  {banners.map((banner) => (
-                    <SortableBannerItem
-                      key={banner.id}
-                      banner={banner}
-                      onEdit={handleEditBanner}
-                      onDelete={handleDeleteBanner}
-                      onToggleVisibility={handleToggleVisibility}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            <div className="space-y-3">
+              {banners.map((banner) => (
+                <SortableBannerItem
+                  key={banner.id}
+                  banner={banner}
+                  onEdit={handleEditBanner}
+                  onDelete={handleDeleteBanner}
+                  onToggleVisibility={handleToggleVisibility}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  isDragging={draggedBanner?.id === banner.id}
+                />
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
