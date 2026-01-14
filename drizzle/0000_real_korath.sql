@@ -19,6 +19,19 @@ CREATE TABLE "account" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "banners" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"title" varchar(255),
+	"image_url" varchar(512) NOT NULL,
+	"link_url" varchar(512),
+	"position" varchar(50) NOT NULL,
+	"device" varchar(20) DEFAULT 'desktop' NOT NULL,
+	"locale" varchar(5) NOT NULL,
+	"sort_order" integer DEFAULT 0,
+	"is_active" boolean DEFAULT true,
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "brand" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
@@ -51,6 +64,7 @@ CREATE TABLE "category" (
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"isVisible" boolean DEFAULT true,
+	"imageLink" text,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updatedAt" timestamp(3) NOT NULL,
 	CONSTRAINT "category_slug_unique" UNIQUE("slug")
@@ -208,6 +222,16 @@ CREATE TABLE "out_of_stock_request" (
 	"updatedAt" timestamp(3) NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "page_content" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"slug" varchar(100) NOT NULL,
+	"locale" varchar(5) NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"content" text NOT NULL,
+	"is_published" boolean DEFAULT true,
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"expires_at" timestamp NOT NULL,
@@ -332,9 +356,10 @@ CREATE INDEX "_CartToItem_B_index" ON "_CartToItem" USING btree ("B" text_ops);-
 CREATE UNIQUE INDEX "category_translation_categorySlug_locale_key" ON "category_translation" USING btree ("categorySlug" text_ops,"locale" text_ops);--> statement-breakpoint
 CREATE UNIQUE INDEX "currency_exchange_from_to_key" ON "currency_exchange" USING btree ("from" enum_ops,"to" enum_ops);--> statement-breakpoint
 CREATE INDEX "_DiscountLevelToUser_B_index" ON "_DiscountLevelToUser" USING btree ("B" text_ops);--> statement-breakpoint
-CREATE INDEX "item_price_history_itemId_warehouseId_recordedAt_idx" ON "item_price_history" USING btree ("itemId" timestamp_ops,"warehouseId" text_ops,"recordedAt" timestamp_ops);--> statement-breakpoint
+CREATE INDEX "item_price_history_itemId_warehouseId_recordedAt_idx" ON "item_price_history" USING btree ("itemId" text_ops,"warehouseId" text_ops,"recordedAt" timestamp_ops);--> statement-breakpoint
 CREATE INDEX "_ItemPriceToItemPriceHistory_B_index" ON "_ItemPriceToItemPriceHistory" USING btree ("B" text_ops);--> statement-breakpoint
 CREATE INDEX "_ItemToOrder_B_index" ON "_ItemToOrder" USING btree ("B" text_ops);--> statement-breakpoint
+CREATE UNIQUE INDEX "page_slug_locale_unique" ON "page_content" USING btree ("slug","locale");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "subcategory_translation_subCategorySlug_locale_key" ON "subcategory_translation" USING btree ("subCategorySlug" text_ops,"locale" text_ops);--> statement-breakpoint
 CREATE INDEX "twoFactor_secret_idx" ON "two_factor" USING btree ("secret");--> statement-breakpoint

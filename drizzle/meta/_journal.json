@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1765968150593,
-      "tag": "0000_smooth_jamie_braddock",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767614194026,
-      "tag": "0001_charming_whiplash",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767614264503,
-      "tag": "0002_left_senator_kelly",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767859014233,
-      "tag": "0003_brave_lucky_pierre",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1767859640129,
-      "tag": "0004_dear_synch",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1767945733168,
-      "tag": "0005_common_rhino",
+      "when": 1768417683731,
+      "tag": "0000_real_korath",
       "breakpoints": true
     }
   ]

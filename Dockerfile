@@ -10,7 +10,7 @@ COPY package.json package-lock.json* ./
 COPY drizzle ./drizzle
 
 # Install dependencies (this will run postinstall which needs prisma)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:24-alpine AS builder
@@ -47,12 +47,21 @@ RUN apk add --no-cache \
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nextjs
 
+# Install tsx for running migrations
+RUN npm install -g tsx
+
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+
+# Copy node_modules needed for migrations
+COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Create upload directory and home directory for nextjs user
