@@ -21,8 +21,8 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /scripts§ ./scripts
-COPY --from=deps /drizzle ./drizzle
+COPY --from=deps /app/scripts ./scripts
+COPY --from=deps /app/drizzle ./drizzle
 
 # Copy the rest of the application
 COPY . .
