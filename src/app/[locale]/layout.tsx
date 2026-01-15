@@ -15,16 +15,16 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Power Automation",
-  description: "Best deals on electronics, fashion, and more!",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-};
+// export const metadata: Metadata = {
+//   title: "Power Automation",
+//   description: "Best deals on electronics, fashion, and more!",
+//   viewport: {
+//     width: 'device-width',
+//     initialScale: 1,
+//     maximumScale: 1,
+//     userScalable: false,
+//   },
+// };
 
 export const dynamic = 'force-dynamic';
 
