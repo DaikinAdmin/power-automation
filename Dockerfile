@@ -12,6 +12,7 @@ COPY drizzle ./drizzle
 # Copy scripts folder if postinstall uses it
 COPY scripts ./scripts
 COPY src/db ./src/db
+COPY src/resources ./src/resources
 
 # Install dependencies (this will run postinstall which needs prisma)
 RUN npm ci --legacy-peer-deps
@@ -25,6 +26,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/scripts ./scripts
 COPY --from=deps /app/drizzle ./drizzle
 COPY --from=deps /app/src/db ./src/db
+COPY --from=deps /app/src/resources ./src/resources
 # Copy the rest of the application
 COPY . .
 
@@ -64,6 +66,7 @@ COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/src/db ./src/db
+COPY --from=builder /app/src/resources ./src/resources
 
 # Copy node_modules needed for migrations and runtime
 COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
