@@ -130,13 +130,13 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="country" className="text-right">
+              <Label htmlFor="countrySlug" className="text-right">
                 Country
               </Label>
               <select
-                id="country"
+                id="countrySlug"
                 value={formData.countrySlug}
-                onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, countrySlug: e.target.value }))}
                 className="col-span-3 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 required
               >
