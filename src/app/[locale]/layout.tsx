@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
@@ -15,16 +15,17 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "Power Automation",
-//   description: "Best deals on electronics, fashion, and more!",
-//   viewport: {
-//     width: 'device-width',
-//     initialScale: 1,
-//     maximumScale: 1,
-//     userScalable: false,
-//   },
-// };
+export const metadata: Metadata = {
+  title: "Power Automation",
+  description: "Best deals on electronics, fashion, and more!",
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const dynamic = 'force-dynamic';
 
