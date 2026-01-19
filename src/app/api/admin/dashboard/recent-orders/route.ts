@@ -3,9 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler } from '@/lib/error-handler';
 
 export async function GET(req: NextRequest) {
+  const startTime = Date.now();
   try {
+    logger.info('Fetching recent orders', {
+      endpoint: 'GET /api/admin/dashboard/recent-orders',
+    });
+
     // Get 5 most recent orders with user data
     const recentOrders = await db
       .select({
@@ -56,13 +63,16 @@ export async function GET(req: NextRequest) {
     }));
     */
     
+    const duration = Date.now() - startTime;
+    logger.info('Recent orders fetched successfully', {
+      endpoint: 'GET /api/admin/dashboard/recent-orders',
+      count: formattedOrders.length,
+      duration,
+    });
+
     return NextResponse.json(formattedOrders);
     
   } catch (error) {
-    console.error('Error fetching recent orders:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch recent orders' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, req, { endpoint: 'GET /api/admin/dashboard/recent-orders' });
   }
 }

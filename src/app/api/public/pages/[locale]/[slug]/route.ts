@@ -1,40 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPageBySlugAndLocale } from "@/helpers/db/queries";
+import logger from '@/lib/logger';
+import { apiErrorHandler, BadRequestError, NotFoundError } from '@/lib/error-handler';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ locale: string; slug: string }> }
 ) {
+  const startTime = Date.now();
   try {
     const { locale, slug } = await params;
     
     // Validate locale parameter
     const validLocales = ['pl', 'en', 'ua', 'es'];
     if (!validLocales.includes(locale)) {
-      return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
+      throw new BadRequestError('Invalid locale');
     }
+
+    logger.info('Fetching page', {
+      endpoint: 'GET /api/public/pages/[locale]/[slug]',
+      locale,
+      slug,
+    });
 
     const page = await getPageBySlugAndLocale(slug, locale.toLowerCase());
 
     if (!page) {
-      return NextResponse.json(
-        { error: 'Page not found' },
-        { status: 404 }
-      );
+      throw new NotFoundError('Page not found');
     }
 
     // Parse content if it's a JSON string
     let parsedContent;
     try {
       parsedContent = typeof page.content === 'string' ? JSON.parse(page.content) : page.content;
-      console.log('Public API - Content structure for', slug, ':', Object.keys(parsedContent));
+      logger.info('Page content parsed', {
+        endpoint: 'GET /api/public/pages/[locale]/[slug]',
+        slug,
+        contentStructure: Object.keys(parsedContent),
+      });
       
       // Ensure the content has the correct EditorJS structure
       if (!parsedContent.blocks && !Array.isArray(parsedContent.blocks)) {
-        console.error('Invalid content structure - missing blocks array:', parsedContent);
+        logger.error('Invalid content structure', {
+          endpoint: 'GET /api/public/pages/[locale]/[slug]',
+          slug,
+          content: parsedContent,
+        });
       }
     } catch (error) {
-      console.error('Error parsing page content:', error);
+      logger.error('Error parsing page content', {
+        endpoint: 'GET /api/public/pages/[locale]/[slug]',
+        slug,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       parsedContent = page.content;
     }
 
@@ -43,14 +61,18 @@ export async function GET(
       content: parsedContent,
     };
 
+    const duration = Date.now() - startTime;
+    logger.info('Page fetched successfully', {
+      endpoint: 'GET /api/public/pages/[locale]/[slug]',
+      locale,
+      slug,
+      duration,
+    });
+
     const response = NextResponse.json(pageData);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
   } catch (error) {
-    console.error('Error fetching page:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/public/pages/[locale]/[slug]' });
   }
 }

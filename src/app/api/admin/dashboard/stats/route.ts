@@ -3,9 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { gte, lt, and, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler } from '@/lib/error-handler';
 
 export async function GET(req: NextRequest) {
+  const startTime = Date.now();
   try {
+    logger.info('Fetching dashboard stats', {
+      endpoint: 'GET /api/admin/dashboard/stats',
+    });
+
     // Get current date and first day of previous month
     const now = new Date();
     const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -80,6 +87,16 @@ export async function GET(req: NextRequest) {
       ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 
       : 100;
     
+    const duration = Date.now() - startTime;
+    logger.info('Dashboard stats fetched successfully', {
+      endpoint: 'GET /api/admin/dashboard/stats',
+      totalUsers,
+      totalOrders,
+      totalItems,
+      currentRevenue,
+      duration,
+    });
+
     return NextResponse.json({
       totalUsers,
       totalOrders,
@@ -92,10 +109,6 @@ export async function GET(req: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch dashboard statistics' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, req, { endpoint: 'GET /api/admin/dashboard/stats' });
   }
 }

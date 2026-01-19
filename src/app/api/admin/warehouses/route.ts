@@ -7,17 +7,24 @@ import { eq, asc, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
 
 // GET all warehouses
 export async function GET() {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
+
+    logger.info('Fetching warehouses', {
+      endpoint: 'GET /api/admin/warehouses',
+    });
 
     // Drizzle implementation
     const warehousesData = await db
@@ -42,38 +49,49 @@ export async function GET() {
       count: undefined,
     }));
     
+    const duration = Date.now() - startTime;
+    logger.info('Warehouses fetched successfully', {
+      endpoint: 'GET /api/admin/warehouses',
+      count: warehouses.length,
+      duration,
+    });
+
     const response = NextResponse.json(warehouses);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
   } catch (error) {
-    console.error('Error fetching warehouses:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    const req = new NextRequest('http://localhost/api/admin/warehouses');
+    return apiErrorHandler(error, req, { endpoint: 'GET /api/admin/warehouses' });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers()
     });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
 
     const body = await request.json();
     const { name, countrySlug, isVisible, displayedName } = body;
 
+    logger.info('Creating warehouse', {
+      endpoint: 'POST /api/admin/warehouses',
+      name,
+      countrySlug,
+    });
+
     if (!name || !countrySlug) {
-      return NextResponse.json({ error: 'Name and countrySlug are required' }, { status: 400 });
+      throw new BadRequestError('Name and countrySlug are required');
     }
 
     // Drizzle implementation
@@ -90,9 +108,16 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
+    const duration = Date.now() - startTime;
+    logger.info('Warehouse created successfully', {
+      endpoint: 'POST /api/admin/warehouses',
+      warehouseId: warehouse.id,
+      name,
+      duration,
+    });
+
     return NextResponse.json(warehouse, { status: 201 });
   } catch (error: any) {
-    console.error('Error creating warehouse:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'POST /api/admin/warehouses' });
   }
 }

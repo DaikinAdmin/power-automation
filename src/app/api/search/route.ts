@@ -3,16 +3,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { eq, or, like, and } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q');
+  const startTime = Date.now();
   
-  if (!query || query.trim().length === 0) {
-    return NextResponse.json({ items: [], categories: [], subCategories: [] });
-  }
-
   try {
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q');
+    
+    if (!query || query.trim().length === 0) {
+      logger.info('Empty search query');
+      return NextResponse.json({ items: [], categories: [], subCategories: [] });
+    }
+    
+    logger.info('Searching items', { query });
     const searchTerm = `%${query.trim().toLowerCase()}%`;
     
     // Search items by articleId (case-insensitive)

@@ -1,0 +1,67 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: info
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Docker containers logs
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["com.docker.compose.project=power-automation"]
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'stream'
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+      - source_labels: ['__meta_docker_container_id']
+        target_label: 'container_id'
+    pipeline_stages:
+      - docker: {}
+
+  # Next.js application logs
+  - job_name: nextjs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nextjs
+          __path__: /app/logs/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="nextjs"}'
+          stages:
+            - json:
+                expressions:
+                  timestamp: timestamp
+                  level: level
+                  message: message
+                  service: service
+            - labels:
+                level:
+                service:
+            - timestamp:
+                source: timestamp
+                format: RFC3339
+
+  # System logs (optional, for VPS monitoring)
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          host: powerautomation-vps
+          __path__: /var/log/syslog

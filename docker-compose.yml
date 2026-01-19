@@ -61,6 +61,70 @@ services:
     volumes:
       - ./prisma:/app/prisma
       - uploads_data:/app/public/uploads
+      - ./logs:/app/logs  # Application logs for Promtail
+
+  # Loki - Log aggregation system
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: powerautomation-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config:/etc/loki
+      - loki_data:/loki
+    command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - powerautomation-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Promtail - Log collector
+  promtail:
+    image: grafana/promtail:2.9.3
+    container_name: powerautomation-promtail
+    restart: unless-stopped
+    volumes:
+      - ./loki/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./logs:/app/logs:ro  # Application logs
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - powerautomation-network
+    depends_on:
+      - loki
+
+  # Grafana - Visualization UI
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: powerautomation-grafana
+    restart: unless-stopped
+    ports:
+      - "3030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_SECRET_KEY=${GRAFANA_SECRET_KEY}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_BASIC_ENABLED=true
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./loki/grafana.ini:/etc/grafana/grafana.ini
+      - ./loki/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./loki/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./loki/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - powerautomation-network
+    depends_on:
+      - loki
 
 networks:
   powerautomation-network:
@@ -70,4 +134,8 @@ volumes:
   postgres_data:
     driver: local
   uploads_data:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
     driver: local
