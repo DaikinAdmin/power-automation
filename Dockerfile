@@ -84,19 +84,15 @@ COPY --from=builder /app/node_modules/color ./node_modules/color
 COPY --from=builder /app/node_modules/file-stream-rotator ./node_modules/file-stream-rotator
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 # Create upload directory, logs directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
     mkdir -p /app/logs && \
     mkdir -p /home/nextjs/.cache && \
-    chmod +x /app/docker-entrypoint.sh && \
     chown -R nextjs:nodejs /home/nextjs && \
     chown -R nextjs:nodejs /app && \
-    chown -R nextjs:nodejs /uploads && \
-    chown -R nextjs:nodejs /app/logs
-
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
+    chown -R nextjs:nodejs /uploads
 
 USER nextjs
 
