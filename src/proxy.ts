@@ -56,7 +56,7 @@ export default function middleware(request: NextRequest) {
 
 export const config = {
   // Match all pathnames except for
-  // - … if they start with `/api`, `/trpc`, `/_next` or `/_vercel`
+  // - … if they start with `/api`, `/trpc`, `/_next`, `/_vercel`, or `/grafana`
   // - … the ones containing a dot (e.g. `favicon.ico`)
-  matcher: ['/((?!trpc|_next|_vercel|.*\\..*).*)', '/api/:path*']
+  matcher: ['/((?!trpc|_next|_vercel|grafana|.*\\..*).*)', '/api/:path*']
 };
