@@ -8,17 +8,18 @@ const intlMiddleware = createMiddleware(routing);
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip middleware completely for Grafana routes - let Nginx proxy handle them
+  // This must be BEFORE any other processing to avoid next-intl rewriting
+  if (pathname.startsWith('/grafana')) {
+    return NextResponse.next();
+  }
+
   // Add request ID to all requests
   const requestId = request.headers.get('x-request-id') || 
     `req_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
   // Add logging for all requests
   loggingMiddleware(request);
-
-  // Skip middleware for Grafana routes - let Nginx proxy handle them
-  if (pathname.startsWith('/grafana')) {
-    return NextResponse.next();
-  }
 
   // Handle API routes with CORS
   if (pathname.startsWith('/api')) {
