@@ -15,6 +15,11 @@ export default function middleware(request: NextRequest) {
   // Add logging for all requests
   loggingMiddleware(request);
 
+  // Skip middleware for Grafana routes - let Nginx proxy handle them
+  if (pathname.startsWith('/grafana')) {
+    return NextResponse.next();
+  }
+
   // Handle API routes with CORS
   if (pathname.startsWith('/api')) {
     // Handle preflight requests
