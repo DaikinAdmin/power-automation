@@ -7,6 +7,8 @@ import { eq, asc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
 
 const generateSlug = (value: string) =>
   value
@@ -49,15 +51,19 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
 };
 
 // GET all categories
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
+    
+    logger.info('Fetching all categories (admin)', { userId: session.user?.id });
 
     // Drizzle implementation
     const categories = await db

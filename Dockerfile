@@ -74,16 +74,26 @@ COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 COPY --from=builder /app/node_modules/better-auth ./node_modules/better-auth
 COPY --from=builder /app/node_modules/next ./node_modules/next
+COPY --from=builder /app/node_modules/winston ./node_modules/winston
+COPY --from=builder /app/node_modules/winston-daily-rotate-file ./node_modules/winston-daily-rotate-file
+COPY --from=builder /app/node_modules/logform ./node_modules/logform
+COPY --from=builder /app/node_modules/winston-transport ./node_modules/winston-transport
+COPY --from=builder /app/node_modules/triple-beam ./node_modules/triple-beam
+COPY --from=builder /app/node_modules/@colors ./node_modules/@colors
+COPY --from=builder /app/node_modules/colors ./node_modules/colors
+COPY --from=builder /app/node_modules/file-stream-rotator ./node_modules/file-stream-rotator
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
-# Create upload directory and home directory for nextjs user
+# Create upload directory, logs directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
+    mkdir -p /app/logs && \
     mkdir -p /home/nextjs/.cache && \
     chmod +x /app/docker-entrypoint.sh && \
     chown -R nextjs:nodejs /home/nextjs && \
     chown -R nextjs:nodejs /app && \
-    chown -R nextjs:nodejs /uploads
+    chown -R nextjs:nodejs /uploads && \
+    chown -R nextjs:nodejs /app/logs
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh

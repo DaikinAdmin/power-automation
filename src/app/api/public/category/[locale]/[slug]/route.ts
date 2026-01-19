@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getItemsByLocale } from '@/helpers/db/items-queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import logger from '@/lib/logger';
+import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ locale: string; slug: string }> }
 ) {
+  const startTime = Date.now();
   try {
     const { locale, slug } = await params;
     const { searchParams } = new URL(request.url);
@@ -13,17 +16,22 @@ export async function GET(
     // Validate locale parameter
     const validLocales = ['pl', 'en', 'es', 'ua'];
     if (!validLocales.includes(locale)) {
-      return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
+      throw new BadRequestError('Invalid locale');
     }
-
-    console.log('[API] Fetching items for category:', slug, 'locale:', locale);
 
     // Get filter parameters from URL
     const subcategoryFilters = searchParams.getAll('subcategory');
     const brandFilters = searchParams.getAll('brand');
     const warehouseFilters = searchParams.getAll('warehouse');
 
-    console.log('[API] Filters - subcategories:', subcategoryFilters, 'brands:', brandFilters, 'warehouses:', warehouseFilters);
+    logger.info('Fetching items for category', {
+      endpoint: 'GET /api/public/category/[locale]/[slug]',
+      locale,
+      slug,
+      subcategoryFilters: subcategoryFilters.length > 0 ? subcategoryFilters : undefined,
+      brandFilters: brandFilters.length > 0 ? brandFilters : undefined,
+      warehouseFilters: warehouseFilters.length > 0 ? warehouseFilters : undefined,
+    });
 
     // Fetch all items for locale
     const allItems: ItemResponse[] = await getItemsByLocale(locale);
@@ -52,16 +60,21 @@ export async function GET(
       );
     }
 
-    console.log('[API] Filtered items count:', filteredItems.length);
+    const duration = Date.now() - startTime;
+    logger.info('Category items fetched successfully', {
+      endpoint: 'GET /api/public/category/[locale]/[slug]',
+      locale,
+      slug,
+      totalItems: allItems.length,
+      filteredCount: filteredItems.length,
+      hasFilters: subcategoryFilters.length > 0 || brandFilters.length > 0 || warehouseFilters.length > 0,
+      duration,
+    });
 
     const response = NextResponse.json(filteredItems);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=1800, stale-while-revalidate=300');
     return response;
   } catch (error: any) {
-    console.error('[API] Error fetching category items:', error);
-    return NextResponse.json({ 
-      error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/public/category/[locale]/[slug]' });
   }
 }

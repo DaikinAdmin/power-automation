@@ -6,6 +6,8 @@ import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { eq, desc, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler } from '@/lib/error-handler';
 
 const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
 
@@ -32,11 +34,17 @@ async function ensureAuthorized() {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const authResult = await ensureAuthorized();
     if ('error' in authResult) {
       return authResult.error;
     }
+
+    logger.info('Fetching all orders', {
+      endpoint: 'GET /api/admin/orders',
+      role: authResult.role,
+    });
 
     // Fetch orders with user data
     const ordersWithUser = await db
@@ -154,12 +162,19 @@ export async function GET(request: NextRequest) {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Orders fetched successfully', {
+      endpoint: 'GET /api/admin/orders',
+      count: orders.length,
+      role: authResult.role,
+      duration,
+    });
+
     return NextResponse.json({
       orders,
       viewerRole: authResult.role,
     });
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/admin/orders' });
   }
 }

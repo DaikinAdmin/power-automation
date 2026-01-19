@@ -7,6 +7,8 @@ import { eq, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, NotFoundError, BadRequestError } from '@/lib/error-handler';
 
 const generateSlug = (value: string) =>
   value
@@ -53,6 +55,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const startTime = Date.now();
   const { slug } = await params;
   try {
     const session = await auth.api.getSession({
@@ -60,8 +63,13 @@ export async function GET(
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
+
+    logger.info('Fetching category by slug', {
+      endpoint: 'GET /api/admin/categories/[slug]',
+      slug,
+    });
 
     // Drizzle implementation
     const [category] = await db
@@ -71,7 +79,7 @@ export async function GET(
       .limit(1);
 
     if (!category) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+      throw new NotFoundError('Category not found');
     }
 
     // Get subcategories
@@ -96,15 +104,19 @@ export async function GET(
     }
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Category fetched successfully', {
+      endpoint: 'GET /api/admin/categories/[slug]',
+      slug,
+      subcategoryCount: subCategories.length,
+      duration,
+    });
+
     const response = NextResponse.json(categoryWithSubs);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
   } catch (error) {
-    console.error('Error fetching category:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/admin/categories/[slug]' });
   }
 }
 
@@ -113,6 +125,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const startTime = Date.now();
   const { slug } = await params;
   try {
     const session = await auth.api.getSession({
@@ -120,23 +133,27 @@ export async function PUT(
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
 
     const body = await request.json();
     const { name, slug: newSlug, subcategory, isVisible } = body;
 
+    logger.info('Updating category', {
+      endpoint: 'PUT /api/admin/categories/[slug]',
+      slug,
+      newSlug,
+      name,
+    });
+
     // Validate required fields
     if (!name || !newSlug) {
-      return NextResponse.json(
-        { error: 'Name and slug are required' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Name and slug are required');
     }
 
     const normalizedSubcategories = normalizeSubcategories(subcategory);
@@ -154,7 +171,7 @@ export async function PUT(
       .returning();
 
     if (!category) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+      throw new NotFoundError('Category not found');
     }
 
     // Delete existing subcategories and insert new ones
@@ -218,16 +235,17 @@ export async function PUT(
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Category updated successfully', {
+      endpoint: 'PUT /api/admin/categories/[slug]',
+      slug: newSlug,
+      subcategoryCount: subCategories.length,
+      duration,
+    });
+
     return NextResponse.json(categoryWithSubs);
   } catch (error: any) {
-    console.error('Error updating category:', error);
-    if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'PUT /api/admin/categories/[slug]' });
   }
 }
 
@@ -236,6 +254,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const startTime = Date.now();
   const { slug } = await params;
   try {
     const session = await auth.api.getSession({
@@ -243,13 +262,18 @@ export async function DELETE(
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
+
+    logger.info('Deleting category', {
+      endpoint: 'DELETE /api/admin/categories/[slug]',
+      slug,
+    });
 
     // Check if category exists
     const [category] = await db
@@ -259,7 +283,7 @@ export async function DELETE(
       .limit(1);
 
     if (!category) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+      throw new NotFoundError('Category not found');
     }
 
     // Check if category has items
@@ -269,10 +293,7 @@ export async function DELETE(
       .where(eq(schema.item.categorySlug, slug));
 
     if (itemCount && itemCount.count > 0) {
-      return NextResponse.json(
-        { error: 'Cannot delete category with items. Please move or delete items first.' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Cannot delete category with items. Please move or delete items first.');
     }
 
     // Delete subcategories first
@@ -316,15 +337,15 @@ export async function DELETE(
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Category deleted successfully', {
+      endpoint: 'DELETE /api/admin/categories/[slug]',
+      slug,
+      duration,
+    });
+
     return NextResponse.json({ message: 'Category deleted successfully' });
   } catch (error: any) {
-    console.error('Error deleting category:', error);
-    if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'DELETE /api/admin/categories/[slug]' });
   }
 }

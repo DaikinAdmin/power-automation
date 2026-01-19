@@ -2,25 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { getItemByArticleId } from '@/helpers/db/queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import logger from '@/lib/logger';
+import { apiErrorHandler, BadRequestError, NotFoundError } from '@/lib/error-handler';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ locale: string; slug: string }> }
 ) {
+  const startTime = Date.now();
   try {
     const { locale, slug } = await params;
 
     // Validate locale parameter
     const validLocales = ['pl', 'en', 'ua', 'es'];
     if (!validLocales.includes(locale)) {
-      return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
+      throw new BadRequestError('Invalid locale');
     }
+
+    logger.info('Fetching item by slug', {
+      endpoint: 'GET /api/public/items/[locale]/[slug]',
+      locale,
+      slug,
+    });
 
     // Drizzle implementation
     const itemData: ItemResponse | null = await getItemByArticleId(slug, locale.toLowerCase());
 
     if (!itemData) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+      throw new NotFoundError('Item not found');
     }
 
     // Get the first recommended warehouse that has stock
@@ -98,10 +107,19 @@ export async function GET(
       recommendedWarehouse: formattedRecommended,
     };
 
+    const duration = Date.now() - startTime;
+    logger.info('Item fetched successfully', {
+      endpoint: 'GET /api/public/items/[locale]/[slug]',
+      locale,
+      slug,
+      articleId: formattedItem.articleId,
+      warehouseCount: formattedItem.warehouses.length,
+      duration,
+    });
+
     return NextResponse.json(formattedItem);
   } catch (error) {
-    console.error('Error fetching item:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/public/items/[locale]/[slug]' });
   }
 }
 

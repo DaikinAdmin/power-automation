@@ -7,25 +7,32 @@ import { eq, asc, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError, ConflictError } from '@/lib/error-handler';
 
 const ONE_DAY_CACHE_HEADER = 'public, max-age=0, s-maxage=86400, stale-while-revalidate=600';
 
 export async function GET() {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     // Check if user is admin
     const isAdmin = await isUserAdmin(session.user.id);
 
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
+
+    logger.info('Fetching brands', {
+      endpoint: 'GET /api/admin/brands',
+    });
 
     // Drizzle implementation
     const brands = await db
@@ -74,37 +81,51 @@ export async function GET() {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Brands fetched successfully', {
+      endpoint: 'GET /api/admin/brands',
+      count: brandsWithCounts.length,
+      duration,
+    });
+
     const response = NextResponse.json(brandsWithCounts);
     response.headers.set('Cache-Control', ONE_DAY_CACHE_HEADER);
     return response;
   } catch (error) {
-    console.error('Error fetching brands:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const req = new NextRequest('http://localhost/api/admin/brands');
+    return apiErrorHandler(error, req, { endpoint: 'GET /api/admin/brands' });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     // Check if user is admin
     const isAdmin = await isUserAdmin(session.user.id);
 
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
 
     const body = await request.json();
     const { name, alias, imageLink, isVisible, createdAt } = body;
 
+    logger.info('Creating brand', {
+      endpoint: 'POST /api/admin/brands',
+      name,
+      alias,
+    });
+
     if (!name || !alias || !imageLink) {
-      return NextResponse.json({ error: 'Name, alias, and imageLink are required' }, { status: 400 });
+      throw new BadRequestError('Name, alias, and imageLink are required');
     }
 
     // Check if alias already exists
@@ -115,7 +136,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (aliasExists) {
-      return NextResponse.json({ error: 'Brand with this alias already exists' }, { status: 400 });
+      throw new ConflictError('Brand with this alias already exists');
     }
 
     // Create brand
@@ -162,9 +183,17 @@ export async function POST(request: NextRequest) {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Brand created successfully', {
+      endpoint: 'POST /api/admin/brands',
+      brandId: brand.id,
+      name,
+      alias,
+      duration,
+    });
+
     return NextResponse.json(brand, { status: 201 });
   } catch (error) {
-    console.error('Error creating brand:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'POST /api/admin/brands' });
   }
 }

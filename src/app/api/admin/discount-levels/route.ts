@@ -7,21 +7,28 @@ import { eq, asc, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError, ConflictError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers()
     });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
+
+    logger.info('Fetching discount levels', {
+      endpoint: 'GET /api/admin/discount-levels',
+    });
 
     // Drizzle implementation - using junction table
     const discountLevelsData = await db
@@ -68,46 +75,50 @@ export async function GET(request: NextRequest) {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Discount levels fetched successfully', {
+      endpoint: 'GET /api/admin/discount-levels',
+      count: discountLevels.length,
+      duration,
+    });
+
     return NextResponse.json(discountLevels);
   } catch (error: any) {
-    console.error('Error fetching discount levels:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch discount levels' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/admin/discount-levels' });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
       headers: await headers()
     });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
 
     const body = await request.json();
     const { level, discountPercentage } = body;
 
+    logger.info('Creating discount level', {
+      endpoint: 'POST /api/admin/discount-levels',
+      level,
+      discountPercentage,
+    });
+
     if (!level || level < 1) {
-      return NextResponse.json(
-        { error: 'Level must be a positive number' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Level must be a positive number');
     }
 
     if (discountPercentage === undefined || discountPercentage < 0 || discountPercentage > 100) {
-      return NextResponse.json(
-        { error: 'Discount percentage must be between 0 and 100' },
-        { status: 400 }
-      );
+      throw new BadRequestError('Discount percentage must be between 0 and 100');
     }
 
     // Check if level already exists
@@ -118,10 +129,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingLevel) {
-      return NextResponse.json(
-        { error: 'A discount level with this number already exists' },
-        { status: 409 }
-      );
+      throw new ConflictError('A discount level with this number already exists');
     }
 
     // Create discount level
@@ -177,12 +185,17 @@ export async function POST(request: NextRequest) {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Discount level created successfully', {
+      endpoint: 'POST /api/admin/discount-levels',
+      levelId: discountLevel.id,
+      level: discountLevel.level,
+      discountPercentage: discountLevel.discountPercentage,
+      duration,
+    });
+
     return NextResponse.json(levelWithCount);
   } catch (error: any) {
-    console.error('Error creating discount level:', error);
-    return NextResponse.json(
-      { error: 'Failed to create discount level' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'POST /api/admin/discount-levels' });
   }
 }

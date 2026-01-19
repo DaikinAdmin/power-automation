@@ -7,19 +7,28 @@ import { auth } from '@/lib/auth';
 import { mapOrderForUser } from '../shared';
 import { eq, and, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, NotFoundError, BadRequestError } from '@/lib/error-handler';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
   try {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const { id } = await params;
+
+    logger.info('Fetching order by ID', {
+      endpoint: 'GET /api/orders/[id]',
+      orderId: id,
+      userId: session.user.id,
+    });
 
     // Drizzle implementation
     const [order] = await db
@@ -34,7 +43,7 @@ export async function GET(
       .limit(1);
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      throw new NotFoundError('Order not found');
     }
 
     // Parse lineItems to get itemIds
@@ -128,12 +137,20 @@ export async function GET(
     }
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Order fetched successfully', {
+      endpoint: 'GET /api/orders/[id]',
+      orderId: id,
+      userId: session.user.id,
+      itemCount: items.length,
+      duration,
+    });
+
     return NextResponse.json({
       order: mapOrderForUser(orderWithItems),
     });
   } catch (error) {
-    console.error('Error fetching order:', error);
-    return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/orders/[id]' });
   }
 }
 
@@ -141,17 +158,25 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
   const { id } = await params;
 
   try {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     const body = await request.json();
     const { action } = body;
+
+    logger.info('Updating order', {
+      endpoint: 'PATCH /api/orders/[id]',
+      orderId: id,
+      userId: session.user.id,
+      action,
+    });
 
     // Drizzle implementation
     const [order] = await db
@@ -166,7 +191,7 @@ export async function PATCH(
       .limit(1);
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      throw new NotFoundError('Order not found');
     }
 
     if (action === 'cancel' && order.status === 'NEW') {
@@ -186,15 +211,23 @@ export async function PATCH(
       });
       */
 
+      const duration = Date.now() - startTime;
+      logger.info('Order cancelled successfully', {
+        endpoint: 'PATCH /api/orders/[id]',
+        orderId: id,
+        userId: session.user.id,
+        newStatus: updatedOrder.status,
+        duration,
+      });
+
       return NextResponse.json({
         success: true,
         order: { id: updatedOrder.id, status: updatedOrder.status },
       });
     }
 
-    return NextResponse.json({ error: 'Invalid action or order status' }, { status: 400 });
+    throw new BadRequestError('Invalid action or order status');
   } catch (error) {
-    console.error('Error updating order:', error);
-    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+    return apiErrorHandler(error, request, { endpoint: 'PATCH /api/orders/[id]' });
   }
 }

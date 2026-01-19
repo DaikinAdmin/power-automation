@@ -2,28 +2,34 @@
 import { db } from "@/db"; // Drizzle
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import type { UserListResponse } from '@/helpers/types/api-responses';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError } from '@/lib/error-handler';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({
       headers: await headers()
     });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
 
     // Drizzle implementation - Check if user is admin
     const isAdmin = await isUserAdmin(session.user.id);
 
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
+    
+    logger.info('Fetching all users (admin)', { userId: session.user.id });
 
     const users = await db
       .select({
@@ -79,9 +85,17 @@ export async function GET() {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Users fetched successfully', { 
+      userId: session.user.id,
+      usersCount: response.length,
+      duration: `${duration}ms` 
+    });
+
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+    return apiErrorHandler(error, request, {
+      endpoint: 'GET /api/admin/users',
+    });
   }
 }

@@ -7,21 +7,27 @@ import { Item } from '@/helpers/types/item';
 import { eq, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({
       headers: await headers()
     });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
 
     const isAdmin = await isUserAdmin(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Admin access required');
     }
+    
+    logger.info('Fetching all items (admin)', { userId: session.user.id });
 
     // Drizzle implementation with new category/subcategory logic
     const items = await db

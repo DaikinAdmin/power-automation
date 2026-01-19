@@ -5,14 +5,20 @@ import { auth } from '@/lib/auth';
 import { mapOrderForUser } from './shared';
 import { eq, desc, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({ headers: await headers() });
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
+    
+    logger.info('Fetching user orders', { userId: session.user.id });
 
     // Drizzle implementation
     const orders = await db
@@ -110,24 +116,40 @@ export async function GET(request: NextRequest) {
     });
     */
 
+    const duration = Date.now() - startTime;
+    logger.info('Orders fetched successfully', { 
+      userId: session.user.id,
+      ordersCount: ordersWithItems.length,
+      duration: `${duration}ms` 
+    });
+
     return NextResponse.json({
       orders: ordersWithItems.map(mapOrderForUser),
     });
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+    return apiErrorHandler(error, request, {
+      endpoint: 'GET /api/orders',
+    });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
+    
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
 
     const body = await request.json();
+    
+    logger.info('Creating order', { 
+      userId, 
+      isPriceRequest: body.isPriceRequest 
+    });
 
     if (body.isPriceRequest) {
       return priceRequestHandler(body, userId!);
@@ -135,11 +157,9 @@ export async function POST(request: NextRequest) {
       return orderHandler(body, userId!);
     }
   } catch (error) {
-    console.error('Error creating order:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, {
+      endpoint: 'POST /api/orders',
+    });
   }
 }
 
@@ -148,10 +168,7 @@ async function priceRequestHandler(body: any, userId: string) {
   const { itemId, warehouseId, quantity, comment, price, isPriceRequest, status } = body;
 
   if (!itemId || !warehouseId || !quantity) {
-    return NextResponse.json(
-      { error: 'Missing required fields: itemId, warehouseId, quantity' },
-      { status: 400 }
-    );
+    throw new BadRequestError('Missing required fields: itemId, warehouseId, quantity');
   }
 
   // Drizzle implementation - Verify item exists
