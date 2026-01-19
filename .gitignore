@@ -7,3 +7,5 @@ node_modules/
 pa_*
 # Logging infrastructure
 logs/*.log
+
+logs/*-audit.json
