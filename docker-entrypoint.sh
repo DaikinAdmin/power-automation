@@ -4,11 +4,12 @@ set -e
 # Ensure logs directory exists and has correct permissions
 echo "📁 Setting up logs directory..."
 mkdir -p /app/logs
-chmod 777 /app/logs
+chown -R nextjs:nodejs /app/logs
+chmod -R 755 /app/logs
 
 echo "🔄 Running database migrations..."
-tsx drizzle/migrate.ts
+su-exec nextjs tsx drizzle/migrate.ts
 
 echo "✅ Migrations completed successfully!"
 echo "🚀 Starting application..."
-exec node server.js
+exec su-exec nextjs node server.js

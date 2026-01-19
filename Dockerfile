@@ -49,7 +49,8 @@ RUN apk add --no-cache \
     wget \
     ca-certificates \
     fontconfig \
-    ttf-dejavu
+    ttf-dejavu \
+    su-exec
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -94,7 +95,7 @@ RUN mkdir -p /uploads && \
     chown -R nextjs:nodejs /app && \
     chown -R nextjs:nodejs /uploads
 
-USER nextjs
+# Don't switch to nextjs user yet - entrypoint needs to run as root to fix volume permissions
 
 EXPOSE 3000
 
