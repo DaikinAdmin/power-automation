@@ -49,12 +49,14 @@ scrape_configs:
                   level: level
                   message: message
                   service: service
+                  environment: environment
             - labels:
                 level:
                 service:
+                environment:
             - timestamp:
                 source: timestamp
-                format: RFC3339
+                format: "2006-01-02 15:04:05"  # Winston's format: YYYY-MM-DD HH:mm:ss
 
   # System logs (optional, for VPS monitoring)
   - job_name: system
