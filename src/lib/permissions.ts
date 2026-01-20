@@ -21,3 +21,8 @@ export const employee = ac.newRole({
 export const admin = ac.newRole({ 
     cases: ["create", "read", "update", "delete"],
 });
+
+// Superadmin role: same as admin (highest level permissions)
+export const superadmin = ac.newRole({ 
+    cases: ["create", "read", "update", "delete"],
+});

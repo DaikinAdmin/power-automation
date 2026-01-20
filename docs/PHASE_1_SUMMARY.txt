@@ -1,0 +1,219 @@
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     PHASE 1: INFRASTRUCTURE SETUP                   │
+│                              COMPLETE ✅                             │
+└─────────────────────────────────────────────────────────────────────┘
+
+📊 System Architecture
+═════════════════════════════════════════════════════════════════════
+
+                    ┌───────────────────────┐
+                    │   Browser/User        │
+                    │  http://localhost:3030│
+                    └───────────┬───────────┘
+                                │
+                                │ View Logs, Search, Create Dashboards
+                                ▼
+                    ┌───────────────────────┐
+                    │   Grafana UI          │
+                    │   Port: 3030          │
+                    │   User: admin         │
+                    └───────────┬───────────┘
+                                │
+                                │ Query Logs via LogQL
+                                ▼
+                    ┌───────────────────────┐
+                    │   Loki                │
+                    │   Port: 3100          │
+                    │   Storage: 31 days    │
+                    └───────────▲───────────┘
+                                │
+                                │ Push Logs
+                                │
+                    ┌───────────────────────┐
+                    │   Promtail            │
+                    │   Log Collector       │
+                    └───────────▲───────────┘
+                                │
+                 ┌──────────────┼──────────────┐
+                 │              │              │
+                 │              │              │
+     ┌───────────▼────┐  ┌──────▼──────┐  ┌──▼─────────┐
+     │ Docker         │  │ Application │  │ System     │
+     │ Containers     │  │ Logs        │  │ Logs       │
+     │                │  │             │  │            │
+     │ • app          │  │ ./logs/     │  │ /var/log/  │
+     │ • postgres     │  │ *.log       │  │ syslog     │
+     └────────────────┘  └─────────────┘  └────────────┘
+
+
+📁 File Structure Created
+═════════════════════════════════════════════════════════════════════
+
+power-automation/
+│
+├── 📄 docker-compose.yml         ✅ Updated with Loki stack
+├── 📄 .env                       ✅ Added Grafana credentials
+├── 📄 .gitignore                 ✅ Excluded log files
+│
+├── 📁 loki/
+│   ├── 📁 config/
+│   │   └── 📄 loki-config.yml    ✅ Loki server settings
+│   ├── 📁 dashboards/            ✅ For Grafana dashboards
+│   ├── 📄 promtail-config.yml    ✅ Log collection config
+│   ├── 📄 grafana-datasources.yml✅ Auto-configure datasource
+│   ├── 📄 grafana-dashboards.yml ✅ Dashboard provisioning
+│   └── 📄 README.md              ✅ Documentation
+│
+└── 📁 logs/                      ✅ Application log directory
+    └── .gitkeep
+
+
+🐳 Docker Services
+═════════════════════════════════════════════════════════════════════
+
+┌──────────────┬───────────┬─────────┬──────────────────────────┐
+│ Service      │ Port      │ Volume  │ Purpose                  │
+├──────────────┼───────────┼─────────┼──────────────────────────┤
+│ loki         │ 3100      │ loki_   │ Log aggregation          │
+│              │           │ data    │ & storage                │
+├──────────────┼───────────┼─────────┼──────────────────────────┤
+│ promtail     │ 9080      │ Docker  │ Log collection           │
+│              │           │ socket  │ & shipping               │
+├──────────────┼───────────┼─────────┼──────────────────────────┤
+│ grafana      │ 3030      │ grafana_│ Web UI for               │
+│              │           │ data    │ visualization            │
+└──────────────┴───────────┴─────────┴──────────────────────────┘
+
+
+⚙️ Configuration Summary
+═════════════════════════════════════════════════════════════════════
+
+Loki:
+  • Retention: 31 days (744h)
+  • Storage: Local filesystem
+  • Ingestion rate: 10 MB/s
+  • Max query entries: 5000
+  • Compaction: Every 10 minutes
+
+Promtail:
+  • Docker auto-discovery: ✅
+  • Application logs: ✅ (./logs/*.log)
+  • System logs: ✅ (/var/log/syslog)
+  • Update interval: 5 seconds
+
+Grafana:
+  • Admin user: admin
+  • Password: PowerAutomation2026!
+  • Anonymous access: Disabled
+  • Auto-configured Loki datasource: ✅
+  • Dashboard auto-loading: ✅
+
+
+🚀 Quick Start Commands
+═════════════════════════════════════════════════════════════════════
+
+# 1. Pull Docker images
+docker-compose pull loki promtail grafana
+
+# 2. Start logging stack
+docker-compose up -d loki promtail grafana
+
+# 3. Check status
+docker-compose ps
+
+# 4. View logs
+docker-compose logs -f loki
+
+# 5. Access Grafana
+open http://localhost:3030
+
+
+🔍 Test LogQL Queries
+═════════════════════════════════════════════════════════════════════
+
+In Grafana Explore, try these queries:
+
+1. All Docker logs:
+   {job="docker"}
+
+2. App container only:
+   {container="powerautomation-app"}
+
+3. PostgreSQL logs:
+   {container="powerautomation-postgres"}
+
+4. Filter by log level (once Phase 2 is complete):
+   {job="nextjs", level="error"}
+
+5. Search for specific text:
+   {job="docker"} |= "error"
+
+
+📊 What You Can Do Now
+═════════════════════════════════════════════════════════════════════
+
+✅ View real-time logs from all Docker containers
+✅ Search and filter logs using LogQL
+✅ See container stdout/stderr in one place
+✅ View PostgreSQL database logs
+✅ Create custom Grafana dashboards
+✅ Set up log retention (31 days)
+
+
+⏭️ What's Next - Phase 2
+═════════════════════════════════════════════════════════════════════
+
+To get structured application logging:
+
+1. Install Winston logger
+   npm install winston winston-daily-rotate-file
+
+2. Create src/lib/logger.ts
+   • Configure JSON logging
+   • Set log levels
+   • Add rotation
+
+3. Add logging middleware
+   • HTTP request/response logging
+   • Error tracking
+   • Performance metrics
+
+4. Update API routes
+   • Replace console.log with logger
+   • Add contextual information
+   • Track user actions
+
+
+📈 Resource Usage (Estimated)
+═════════════════════════════════════════════════════════════════════
+
+Service      RAM Usage    Disk Space
+─────────────────────────────────────
+Loki         ~200-400 MB  ~1-5 GB (logs)
+Promtail     ~50-100 MB   Minimal
+Grafana      ~100-200 MB  ~50-100 MB
+─────────────────────────────────────
+Total        ~350-700 MB  ~1-5 GB
+
+Note: Disk space grows with log volume. 31-day retention
+      with moderate logging: ~2-5 GB
+
+
+🎯 Success Criteria - All Met! ✅
+═════════════════════════════════════════════════════════════════════
+
+✅ Docker Compose configuration is valid
+✅ All configuration files created
+✅ Directory structure established
+✅ Loki config with 31-day retention
+✅ Promtail configured for Docker logs
+✅ Grafana auto-configured with Loki
+✅ Environment variables set
+✅ Documentation created
+
+
+═════════════════════════════════════════════════════════════════════
+         Ready to proceed to Phase 2: Application Integration
+═════════════════════════════════════════════════════════════════════
+```

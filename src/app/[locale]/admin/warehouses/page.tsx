@@ -6,19 +6,19 @@ import { Button } from '@/components/ui/button';
 import { WarehouseModal } from '@/components/admin/warehouse-modal';
 import { DeleteWarehouseModal } from '@/components/admin/delete-warehouse-modal';
 import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Warehouse as Warehouses} from '@prisma/client';
+import { Warehouse as Warehouses} from '@/db/schema';
 import { usePagination } from '@/hooks/usePagination';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 
 interface Warehouse extends Warehouses {
   id: string;
   isVisible: any;
-  country: string | null;
   displayedName: string;
   name: string | null;
   _count?: {
     item_price: number;
   };
+  countrySlug: string | null;
 }
 
 export default function WarehousesPage() {
@@ -154,7 +154,7 @@ export default function WarehousesPage() {
   };
 
   const getUniqueCountries = () => {
-    return new Set(warehouses.map(w => w.country)).size;
+    return new Set(warehouses.map(w => w.countrySlug)).size;
   };
 
   if (isLoading) {
@@ -240,7 +240,7 @@ export default function WarehousesPage() {
                   <tr key={warehouse.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4 font-medium">{warehouse.displayedName}</td>
                     <td className="py-3 px-4">{warehouse.name}</td>
-                    <td className="py-3 px-4">{warehouse.country}</td>
+                    <td className="py-3 px-4">{warehouse.countrySlug}</td>
                     <td className="py-3 px-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         {warehouse._count?.item_price || 0} prices

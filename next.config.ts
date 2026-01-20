@@ -6,12 +6,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   output: "standalone",
   /* config options here */
-  outputFileTracingIncludes: {
-    "/api/**/*": ["./node_modules/@prisma/client/libquery_engine-*"],
-  },
   images: {
-    domains: ["powerautomation.pl"],
+    domains: ["powerautomation.pl", "powerautomation.com.ua"],
   },
+  serverExternalPackages: ['better-auth'],
   async headers() {
     return [
       {

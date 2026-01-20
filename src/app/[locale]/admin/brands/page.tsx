@@ -10,16 +10,9 @@ import { DeleteBrandModal } from '@/components/admin/delete-brand-modal';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { usePagination } from '@/hooks/usePagination';
 import { Eye, EyeOff, ImageIcon } from 'lucide-react';
-import type { Brand as BrandType } from '@prisma/client';
+import type { Brand as BrandType } from '@/db/schema';
 
 interface Brand extends BrandType {
-  id: string;
-  isVisible: boolean;
-  imageLink: any;
-  name: string;
-  alias: string;
-  createdAt: Date;
-  updatedAt: Date;
   _count?: {
     items: number;
   };

@@ -1,353 +1,354 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getParser } from '@/lib/file-parsers';
-import { validateAndResolveReferences } from '@/lib/validation/bulk-item-validator';
-import { convertUploadTypeToItems } from '@/helpers/converters/uploadTypeConverter';
-import prisma from '@/db';
-import { BulkUploadItem, Item } from '@/helpers/types/item';
-import { Badge } from '@prisma/client';
+import { headers } from 'next/headers';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { auth } from '@/lib/auth';
+import { eq, and } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 
-async function processBulkItems(items: BulkUploadItem[]): Promise<Item[]> {
-  const processedItems: Item[] = [];
+interface BulkUploadItem {
+  articleId: string;          // Column A
+  itemName: string;           // Column D
+  slug: string;               // Column F
+  brandName?: string;         // Column G
+  categoryName?: string;      // Column H
+  subCategoryName?: string;   // Column I
+  price: number;              // Column J
+  isDisplayed?: boolean;      // Column M
+  quantity: number;           // Column N
+  itemImageLink?: string[];   // Column O
+  seller?: string;            // Column P
+  description?: string;       // Column Q
+  specifications?: string;    // Column R
+  metaKeyWords?: string;      // Column U
+  metaDescription?: string;   // Column V
+  warehouseName: string;      // warehouse.name
+  locale: string;             // locale
+}
 
-  for (const item of items) {
-    try {
-      // Check if item exists
-      const existingItem = await prisma.item.findUnique({
-        where: { articleId: item.articleId },
-        include: {
-          itemDetails: true,
-          itemPrice: {
-            include: {
-              warehouse: true,
-            }
-          },
-          category: true,
-          subCategory: true,
-          brand: true,
-        }
-      });
+async function ensureAuthorized() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-      let processedItem: Item;
-
-      if (!existingItem) {
-        // Create new item
-        processedItem = await prisma.item.create({
-          data: {
-            articleId: item.articleId,
-            isDisplayed: item.isDisplayed ?? false,
-            itemImageLink: item.itemImageLink || null,
-            sellCounter: item.sellCounter || 0,
-            category: { connect: { id: item.categoryId } },
-            subCategory: { connect: { id: item.subCategoryId } },
-            brand: item.brandId ? { connect: { id: item.brandId } } : undefined,
-            brandName: item.brandName || undefined,
-            warrantyType: item.warrantyType || undefined,
-            warrantyLength: item.warrantyLength || undefined,
-            itemDetails: item.item_details ? {
-              create: {
-                locale: item.item_details.locale,
-                itemName: item.item_details.itemName,
-                description: item.item_details.description,
-                specifications: item.item_details.specifications || null,
-                seller: item.item_details.seller || null,
-                discount: item.item_details.discount || null,
-                popularity: item.item_details.popularity || null,
-              }
-            } : undefined,
-            itemPrice: item.item_price ? {
-              create: {
-                warehouse: { connect: { id: item.item_price.warehouseId } },
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            } : undefined,
-          },
-          include: {
-            category: {
-              include: {
-                subCategories: true
-              }
-            },
-            subCategory: true,
-            brand: true,
-            itemDetails: true,
-            itemPrice: {
-              include: {
-                warehouse: true,
-              }
-            }
-          }
-        });
-
-          // Create price history record if price was created
-          if (item.item_price) {
-            await prisma.itemPriceHistory.create({
-              data: {
-                itemId: processedItem.id,
-                warehouseId: item.item_price.warehouseId,
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            });
-          }
-        } else {
-          // Update existing item
-          processedItem = await prisma.item.update({
-            where: { id: existingItem.id },
-            data: {
-              isDisplayed: item.isDisplayed ?? existingItem.isDisplayed,
-              itemImageLink: item.itemImageLink || existingItem.itemImageLink,
-              sellCounter: item.sellCounter ?? existingItem.sellCounter,
-              brandName: item.brandName || existingItem.brandName,
-              warrantyType: item.warrantyType || existingItem.warrantyType,
-              warrantyLength: item.warrantyLength ?? existingItem.warrantyLength,
-              subCategoryId: item.subCategoryId || existingItem.subCategoryId,
-              categoryId: item.categoryId || existingItem.categoryId,
-              brandId: item.brandId || existingItem.brandId,
-            },
-            include: {
-              category: {
-                include: {
-                  subCategories: true
-                }
-              },
-              subCategory: true,
-              brand: true,
-              itemDetails: true,
-              itemPrice: {
-                include: {
-                  warehouse: true,
-                }
-              }
-            }
-          });
-
-        // Handle item price
-        if (item.item_price) {
-          const existingPrice = existingItem.itemPrice.find(
-            (price: { warehouseId: string }) => price.warehouseId === item.item_price!.warehouseId
-          );
-
-          if (existingPrice) {
-            // Update existing price
-            await prisma.itemPrice.update({
-              where: { id: existingPrice.id },
-              data: {
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            });
-
-            // Create price history record
-            await prisma.itemPriceHistory.create({
-              data: {
-                itemId: existingItem.id,
-                warehouseId: item.item_price.warehouseId,
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            });
-          } else {
-            // Create new price
-            await prisma.itemPrice.create({
-              data: {
-                itemId: existingItem.id,
-                warehouseId: item.item_price.warehouseId,
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            });
-
-            // Create price history record
-            await prisma.itemPriceHistory.create({
-              data: {
-                itemId: existingItem.id,
-                warehouseId: item.item_price.warehouseId,
-                price: item.item_price.price,
-                quantity: item.item_price.quantity,
-                promotionPrice: item.item_price.promotionPrice || null,
-                promoEndDate: item.item_price.promoEndDate || null,
-                promoCode: item.item_price.promoCode || null,
-                badge: (item.item_price.badge as Badge) || Badge.ABSENT,
-              }
-            });
-          }
-        }
-
-        // Handle item details
-        if (item.item_details) {
-          const existingDetail = existingItem.itemDetails.find(
-            (detail: { locale: string }) => detail.locale === item.item_details!.locale
-          );
-
-          if (existingDetail) {
-            // Update existing detail
-            await prisma.itemDetails.update({
-              where: { id: existingDetail.id },
-              data: {
-                itemName: item.item_details.itemName,
-                description: item.item_details.description,
-                specifications: item.item_details.specifications || null,
-                seller: item.item_details.seller || null,
-                discount: item.item_details.discount || null,
-                popularity: item.item_details.popularity || null,
-              }
-            });
-          } else {
-            // Create new detail
-            await prisma.itemDetails.create({
-              data: {
-                itemId: existingItem.id,
-                locale: item.item_details.locale,
-                itemName: item.item_details.itemName,
-                description: item.item_details.description,
-                specifications: item.item_details.specifications || null,
-                seller: item.item_details.seller || null,
-                discount: item.item_details.discount || null,
-                popularity: item.item_details.popularity || null,
-              }
-            });
-          }
-        }
-
-        // Fetch updated item with all relations
-        processedItem = await prisma.item.findUnique({
-          where: { id: existingItem.id },
-          include: {
-            category: {
-              include: {
-                subCategories: true
-              }
-            },
-            subCategory: true,
-            brand: true,
-            itemDetails: true,
-            itemPrice: {
-              include: {
-                warehouse: true,
-              }
-            }
-          }
-        }) as Item;
-      }
-
-      processedItems.push(processedItem);
-    } catch (error) {
-      console.error(`Error processing item ${item.articleId}:`, error);
-      // Continue with next item instead of failing the entire batch
-      continue;
-    }
+  if (!session?.user) {
+    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
   }
 
-  return processedItems;
+  const [user] = await db
+    .select({ role: schema.user.role })
+    .from(schema.user)
+    .where(eq(schema.user.id, session.user.id))
+    .limit(1);
+
+  if (!user || user.role !== 'admin') {
+    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  }
+
+  return { session };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const authResult = await ensureAuthorized();
+    if ('error' in authResult) {
+      return authResult.error;
     }
 
-    // Validate file type
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.split('.').pop();
+    const body = await request.json();
+    const { items } = body as { items: BulkUploadItem[] };
 
-    if (!fileExtension || !['csv', 'xlsx', 'xls', 'json'].includes(fileExtension)) {
-      return NextResponse.json({
-        error: 'Invalid file type. Only CSV, XLSX, XLS, and JSON files are supported.'
-      }, { status: 400 });
+    if (!items || !Array.isArray(items)) {
+      return NextResponse.json(
+        { error: 'Invalid request body. Expected items array.' },
+        { status: 400 }
+      );
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({
-        error: 'File too large. Maximum file size is 10MB.'
-      }, { status: 400 });
-    }
+    const results = {
+      created: 0,
+      updated: 0,
+      errors: [] as string[],
+    };
 
-    // Parse file
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const parser = getParser(fileExtension);
+    const now = new Date().toISOString();
 
-    let parsedData;
-    try {
-      parsedData = await (fileExtension === 'csv'
-        ? await parser(buffer)
-        : parser(buffer));
-    } catch (error: any) {
-      return NextResponse.json({
-        error: `Failed to parse file: ${error.message}`
-      }, { status: 400 });
-    }
+    for (const item of items) {
+      try {
+        // Validate required fields
+        if (!item.articleId || !item.itemName || !item.slug || !item.warehouseName || !item.locale) {
+          results.errors.push(
+            `Item skipped: missing required fields (articleId, itemName, slug, warehouseName, or locale)`
+          );
+          continue;
+        }
 
-    if (!parsedData || parsedData.length === 0) {
-      return NextResponse.json({
-        error: 'No valid data found in file'
-      }, { status: 400 });
-    }
+        // Find warehouse by name
+        const [warehouse] = await db
+          .select()
+          .from(schema.warehouse)
+          .where(eq(schema.warehouse.name, item.warehouseName))
+          .limit(1);
 
-    // Validate and resolve database references
-    const referenceValidation = await validateAndResolveReferences(parsedData);
-    if (!referenceValidation.isValid) {
-      return NextResponse.json({
-        error: 'Reference validation failed',
-        details: referenceValidation.errors,
-        invalidItems: referenceValidation.invalidItems
-      }, { status: 400 });
-    }
+        if (!warehouse) {
+          results.errors.push(
+            `Item ${item.articleId}: Warehouse '${item.warehouseName}' not found`
+          );
+          continue;
+        }
 
-    // Process the items
-    const parsedItems: BulkUploadItem[] = await convertUploadTypeToItems(parsedData);
-    if (parsedItems.length === 0) {
-      return NextResponse.json({
-        error: 'No valid items to process after conversion'
-      }, { status: 400 });
-    }
+        // Determine categorySlug
+        let categorySlug = '';
+        
+        if (item.subCategoryName && item.subCategoryName.trim() !== '') {
+          // Find subcategory by name
+          const [subcategory] = await db
+            .select()
+            .from(schema.subcategories)
+            .where(eq(schema.subcategories.name, item.subCategoryName))
+            .limit(1);
 
-    // Process bulk items using the new method
-    const createdItems = await processBulkItems(parsedItems);
+          if (subcategory) {
+            categorySlug = subcategory.slug;
+          } else if (item.categoryName) {
+            // Fallback to category if subcategory not found
+            const [category] = await db
+              .select()
+              .from(schema.category)
+              .where(eq(schema.category.name, item.categoryName))
+              .limit(1);
+            
+            if (category) {
+              categorySlug = category.slug;
+            }
+          }
+        } else if (item.categoryName) {
+          // Use category if no subcategory specified
+          const [category] = await db
+            .select()
+            .from(schema.category)
+            .where(eq(schema.category.name, item.categoryName))
+            .limit(1);
+          
+          if (category) {
+            categorySlug = category.slug;
+          }
+        }
 
-    if (createdItems.length === 0) {
-      return NextResponse.json({
-        error: 'No items were processed successfully'
-      }, { status: 400 });
+        // Find brand if specified
+        let brandSlug: string | null = null;
+        if (item.brandName && item.brandName.trim() !== '') {
+          const [brand] = await db
+            .select()
+            .from(schema.brand)
+            .where(eq(schema.brand.name, item.brandName))
+            .limit(1);
+          
+          if (brand) {
+            brandSlug = brand.alias;
+          }
+        }
+
+        // Check if item exists
+        const [existingItem] = await db
+          .select()
+          .from(schema.item)
+          .where(eq(schema.item.articleId, item.articleId))
+          .limit(1);
+
+        let itemId: string;
+
+        if (existingItem) {
+          // UPDATE EXISTING ITEM
+          itemId = existingItem.id;
+
+          // Update item record
+          await db
+            .update(schema.item)
+            .set({
+              slug: item.slug,
+              isDisplayed: item.isDisplayed ?? existingItem.isDisplayed,
+              itemImageLink: item.itemImageLink ?? existingItem.itemImageLink,
+              categorySlug: categorySlug || existingItem.categorySlug,
+              brandSlug: brandSlug ?? existingItem.brandSlug,
+              updatedAt: now,
+            })
+            .where(eq(schema.item.id, itemId));
+
+          // Handle itemDetails
+          const [existingDetail] = await db
+            .select()
+            .from(schema.itemDetails)
+            .where(
+              and(
+                eq(schema.itemDetails.itemSlug, item.articleId),
+                eq(schema.itemDetails.locale, item.locale)
+              )
+            )
+            .limit(1);
+
+          if (existingDetail) {
+            // Update existing itemDetails
+            await db
+              .update(schema.itemDetails)
+              .set({
+                itemName: item.itemName,
+                description: item.description ?? existingDetail.description,
+                specifications: item.specifications ?? existingDetail.specifications,
+                seller: item.seller ?? existingDetail.seller,
+                metaKeyWords: item.metaKeyWords ?? existingDetail.metaKeyWords,
+                metaDescription: item.metaDescription ?? existingDetail.metaDescription,
+              })
+              .where(eq(schema.itemDetails.id, existingDetail.id));
+          } else {
+            // Create new itemDetails for this locale
+            await db
+              .insert(schema.itemDetails)
+              .values({
+                id: randomUUID(),
+                itemSlug: item.articleId,
+                locale: item.locale,
+                itemName: item.itemName,
+                description: item.description || '',
+                specifications: item.specifications || null,
+                seller: item.seller || null,
+                metaKeyWords: item.metaKeyWords || null,
+                metaDescription: item.metaDescription || null,
+              });
+          }
+
+          // Handle itemPrice
+          const [existingPrice] = await db
+            .select()
+            .from(schema.itemPrice)
+            .where(
+              and(
+                eq(schema.itemPrice.itemSlug, item.articleId),
+                eq(schema.itemPrice.warehouseId, warehouse.id)
+              )
+            )
+            .limit(1);
+
+          if (existingPrice) {
+            // Create price history record before updating
+            await db
+              .insert(schema.itemPriceHistory)
+              .values({
+                id: randomUUID(),
+                itemId: itemId,
+                warehouseId: warehouse.id,
+                price: existingPrice.price,
+                quantity: existingPrice.quantity,
+                promotionPrice: existingPrice.promotionPrice,
+                promoCode: existingPrice.promoCode,
+                promoEndDate: existingPrice.promoEndDate,
+                badge: existingPrice.badge,
+                recordedAt: now,
+              });
+
+            // Update existing itemPrice
+            await db
+              .update(schema.itemPrice)
+              .set({
+                price: item.price,
+                quantity: item.quantity,
+                updatedAt: now,
+              })
+              .where(eq(schema.itemPrice.id, existingPrice.id));
+          } else {
+            // Create new itemPrice for this warehouse
+            await db
+              .insert(schema.itemPrice)
+              .values({
+                id: randomUUID(),
+                itemSlug: item.articleId,
+                warehouseId: warehouse.id,
+                price: item.price,
+                quantity: item.quantity,
+                promotionPrice: null,
+                promoCode: null,
+                promoEndDate: null,
+                badge: 'ABSENT',
+                createdAt: now,
+                updatedAt: now,
+              });
+          }
+
+          results.updated++;
+        } else {
+          // CREATE NEW ITEM
+          itemId = randomUUID();
+
+          // Create item record
+          await db
+            .insert(schema.item)
+            .values({
+              id: itemId,
+              articleId: item.articleId,
+              slug: item.slug,
+              isDisplayed: item.isDisplayed ?? false,
+              itemImageLink: item.itemImageLink ?? null,
+              categorySlug: categorySlug || '',
+              brandSlug: brandSlug,
+              warrantyType: null,
+              warrantyLength: null,
+              sellCounter: 0,
+              createdAt: now,
+              updatedAt: now,
+            });
+
+          // Create itemDetails record
+          await db
+            .insert(schema.itemDetails)
+            .values({
+              id: randomUUID(),
+              itemSlug: item.articleId,
+              locale: item.locale,
+              itemName: item.itemName,
+              description: item.description || '',
+              specifications: item.specifications || null,
+              seller: item.seller || null,
+              metaKeyWords: item.metaKeyWords || null,
+              metaDescription: item.metaDescription || null,
+            });
+
+          // Create itemPrice record
+          await db
+            .insert(schema.itemPrice)
+            .values({
+              id: randomUUID(),
+              itemSlug: item.articleId,
+              warehouseId: warehouse.id,
+              price: item.price,
+              quantity: item.quantity,
+              promotionPrice: null,
+              promoCode: null,
+              promoEndDate: null,
+              badge: 'ABSENT',
+              createdAt: now,
+              updatedAt: now,
+            });
+
+          results.created++;
+        }
+      } catch (itemError) {
+        console.error(`Error processing item ${item.articleId}:`, itemError);
+        results.errors.push(
+          `Item ${item.articleId}: ${itemError instanceof Error ? itemError.message : 'Unknown error'}`
+        );
+      }
     }
 
     return NextResponse.json({
       success: true,
-      processedCount: createdItems.length,
-      totalCount: parsedItems.length,
-      createdItems
+      message: `Bulk upload completed. Created: ${results.created}, Updated: ${results.updated}`,
+      results,
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Bulk upload error:', error);
-    return NextResponse.json({
-      error: 'Internal server error',
-      details: error.message
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }

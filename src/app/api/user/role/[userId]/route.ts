@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import prisma from '@/db';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, NotFoundError } from '@/lib/error-handler';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
+  const startTime = Date.now();
   const { userId } = await params;
   try {
     // Verify the user is authenticated
@@ -15,30 +20,40 @@ export async function GET(
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('Authentication required');
     }
 
     // Only allow users to get their own role (for security)
     if (session.user.id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      throw new ForbiddenError('Access denied');
     }
 
-    // Get user role from database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true },
+    logger.info('Fetching user role', {
+      endpoint: 'GET /api/user/role/[userId]',
+      userId,
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    // Get user role from database
+    const [userData] = await db
+      .select({ role: schema.user.role })
+      .from(schema.user)
+      .where(eq(schema.user.id, userId))
+      .limit(1);
+
+    if (!userData) {
+      throw new NotFoundError('User not found');
     }
 
-    return NextResponse.json({ role: user.role });
+    const duration = Date.now() - startTime;
+    logger.info('User role fetched successfully', {
+      endpoint: 'GET /api/user/role/[userId]',
+      userId,
+      role: userData.role,
+      duration,
+    });
+
+    return NextResponse.json({ role: userData.role });
   } catch (error) {
-    console.error('Error fetching user role:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return apiErrorHandler(error, request, { endpoint: 'GET /api/user/role/[userId]' });
   }
 }

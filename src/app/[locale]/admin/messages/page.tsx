@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import prisma from '@/db';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
 import { format } from 'date-fns';
+import { desc, gte, count, sql } from 'drizzle-orm';
 
 type MessageWithRelations = {
   id: string;
@@ -16,45 +18,53 @@ type MessageWithRelations = {
 };
 
 export default async function MessagesPage() {
-  const messages: MessageWithRelations[] = await prisma.messages.findMany({
-    select: {
-      id: true,
-      content: true,
-      createdAt: true,
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      order: {
-        select: {
-          id: true,
-        },
-      },
+  // Fetch messages with user and order data
+  const messagesData = await db
+    .select({
+      id: schema.messages.id,
+      content: schema.messages.content,
+      createdAt: schema.messages.createdAt,
+      userName: schema.user.name,
+      userEmail: schema.user.email,
+      orderId: schema.order.id,
+    })
+    .from(schema.messages)
+    .leftJoin(schema.user, sql`${schema.messages.userId} = ${schema.user.id}`)
+    .leftJoin(schema.order, sql`${schema.messages.orderId} = ${schema.order.id}`)
+    .orderBy(desc(schema.messages.createdAt))
+    .limit(50);
+
+  const messages: MessageWithRelations[] = messagesData.map(m => ({
+    id: m.id,
+    content: m.content,
+    createdAt: new Date(m.createdAt),
+    user: {
+      name: m.userName,
+      email: m.userEmail || '',
     },
-    orderBy: {
-      createdAt: 'desc',
+    order: {
+      id: m.orderId || '',
     },
-    take: 50,
-  });
+  }));
+
+  // Count queries
+  const [totalResult] = await db.select({ count: count() }).from(schema.messages);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [todayResult] = await db
+    .select({ count: count() })
+    .from(schema.messages)
+    .where(gte(schema.messages.createdAt, today.toISOString()));
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [weekResult] = await db
+    .select({ count: count() })
+    .from(schema.messages)
+    .where(gte(schema.messages.createdAt, weekAgo.toISOString()));
 
   const messageStats = {
-    total: await prisma.messages.count(),
-    today: await prisma.messages.count({
-      where: {
-        createdAt: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        },
-      },
-    }),
-    thisWeek: await prisma.messages.count({
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        },
-      },
-    }),
+    total: totalResult?.count || 0,
+    today: todayResult?.count || 0,
+    thisWeek: weekResult?.count || 0,
   };
 
   return (

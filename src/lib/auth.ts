@@ -1,5 +1,4 @@
 // auth.ts
-import prisma from "@/db";
 import { countryCodes } from "@/helpers/country-codes";
 import { email } from "@/helpers/email/resend";
 import { ForgotPasswordSchema } from "@/helpers/zod/forgot-password-schema";
@@ -7,7 +6,7 @@ import SignInSchema from "@/helpers/zod/login-schema";
 import { PasswordSchema, SignupSchema } from "@/helpers/zod/signup-schema";
 import { twoFactorSchema } from "@/helpers/zod/two-factor-schema";
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   admin as adminPlugin,
   customSession,
@@ -18,6 +17,15 @@ import { validator, StandardAdapter } from "validation-better-auth";
 import { roleSignupPlugin } from "./role-signup-plugin";
 import { nextCookies } from "better-auth/next-js";
 import { ac, user, employee, admin } from "./permissions";
+import { db } from "@/db";
+import { 
+  user as userTable, 
+  session as sessionTable, 
+  account as accountTable, 
+  verification as verificationTable,
+  twoFactor as twoFactorTable 
+} from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const auth = betterAuth({
   user: {
@@ -77,8 +85,15 @@ export const auth = betterAuth({
       return crypto.randomUUID();
     },
   },
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: userTable,
+      session: sessionTable,
+      account: accountTable,
+      verification: verificationTable,
+      twoFactor: twoFactorTable,
+    },
   }),
   emailAndPassword: {
     enabled: true,
@@ -158,12 +173,17 @@ export const auth = betterAuth({
     }),
     openAPI(),
     customSession(async ({ user, session }) => {
-      const response = await prisma.user.findUnique({
-        where: { id: session.userId },
-        select: { role: true, twoFactorEnabled: true }
-      });
+      const [response] = await db
+        .select({
+          role: userTable.role,
+          twoFactorEnabled: userTable.twoFactorEnabled
+        })
+        .from(userTable)
+        .where(eq(userTable.id, session.userId));
+
       const role = response?.role || "user";
       const twoFactorEnabled = response?.twoFactorEnabled || false;
+      
       return {
         user: {
           ...user,

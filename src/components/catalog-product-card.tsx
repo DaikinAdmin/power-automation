@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import { MouseEvent, ReactNode } from 'react';
-import Link from 'next/link';
-import { GitCompare, Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { WarehouseAvailability } from '@/components/warehouse-availability';
+import { MouseEvent, ReactNode } from "react";
+import Link from "next/link";
+import { GitCompare, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { WarehouseAvailability } from "@/components/warehouse-availability";
+import { useTranslations } from "next-intl";
 
-type ViewMode = 'grid' | 'list';
+type ViewMode = "grid" | "list";
 
 type BadgeConfig = {
   text: string;
@@ -15,7 +16,7 @@ type BadgeConfig = {
 
 interface CatalogProductCardProps {
   href: string;
-  imageSrc?: string | null;
+  imageSrc?: string[] | null;
   imageAlt?: string;
   name: string;
   price: number;
@@ -31,10 +32,13 @@ interface CatalogProductCardProps {
   viewMode?: ViewMode;
   inStock: boolean;
   onAddToCart?: () => void;
+  onAddToCompare?: () => void;
   addToCartDisabled?: boolean;
   addToCartLabel?: string;
   className?: string;
   extraContent?: ReactNode;
+  itemId?: string;
+  isInCompare?: boolean;
 }
 
 const CatalogProductCard = ({
@@ -44,7 +48,7 @@ const CatalogProductCard = ({
   name,
   price,
   originalPrice,
-  currency = '€',
+  currency = "€",
   badge,
   stockBadge,
   brand,
@@ -52,17 +56,31 @@ const CatalogProductCard = ({
   warehouseLabel,
   warehouseExtraLabel,
   description,
-  viewMode = 'grid',
+  viewMode = "grid",
   inStock,
   onAddToCart,
+  onAddToCompare,
   addToCartDisabled,
   addToCartLabel,
   className,
-  extraContent
+  extraContent,
+  itemId,
+  isInCompare = false,
 }: CatalogProductCardProps) => {
-  const isList = viewMode === 'list';
+  const t = useTranslations("product.productCatalogCard");
+  const isList = viewMode === "list";
   const disabled = addToCartDisabled ?? !inStock;
-  const resolvedAddToCartLabel = addToCartLabel || (inStock ? 'Buy' : 'Out of Stock');
+  const resolvedAddToCartLabel =
+    addToCartLabel || (inStock ? t("buy") : t("outOfStock"));
+
+  const normalizedImages: string[] = (() => {
+    if (!imageSrc) return [];
+    // imageSrc is typed as string[] | null; handle only the array case.
+    return imageSrc
+      .flatMap((item) => item.split(";"))
+      .map((src) => src.trim())
+      .filter(Boolean);
+  })();
 
   const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -77,33 +95,53 @@ const CatalogProductCard = ({
     event.stopPropagation();
   };
 
-  const renderOverlayActions = () => {
+  const handleAddToCompare = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (onAddToCompare) {
+      onAddToCompare();
+    }
+  };
+
+  const renderHoverActions = () => {
     if (isList) return null;
 
     return (
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+      <div
+        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-50"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Кнопка "додати в кошик" */}
         <button
-          className={`px-4 py-2 rounded transition-colors ${disabled
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-red-500 text-white hover:bg-red-600'
+          className={`px-4 py-2 rounded transition-colors text-sm ${
+            disabled
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-red-500 text-white hover:bg-red-600"
           }`}
           disabled={disabled}
           onClick={handleAddToCart}
         >
           {resolvedAddToCartLabel}
         </button>
-        <div className="flex gap-2">
+
+        {/* Дві маленькі кнопки справа */}
+        <div className="flex gap-2 justify-end">
           <button
-            className="bg-white p-2 rounded hover:bg-gray-100 transition-colors"
+            className="bg-gray-100 p-2 rounded hover:bg-gray-200 transition-colors"
             onClick={handleMutedAction}
           >
             <Heart size={16} className="text-gray-600" />
           </button>
           <button
-            className="bg-white p-2 rounded hover:bg-gray-100 transition-colors"
-            onClick={handleMutedAction}
+            className={`p-2 rounded transition-colors ${
+              isInCompare
+                ? "bg-blue-500 hover:bg-blue-600"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
+            onClick={handleAddToCompare}
+            title={isInCompare ? t("inCompare") : t("addToCompare")}
           >
-            <GitCompare size={16} className="text-gray-600" />
+            <GitCompare size={16} className={isInCompare ? "text-white" : "text-gray-600"} />
           </button>
         </div>
       </div>
@@ -119,24 +157,23 @@ const CatalogProductCard = ({
           size="sm"
           disabled={disabled}
           onClick={handleAddToCart}
-          className={`${disabled
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-red-500 hover:bg-red-600 text-white'
+          className={`${
+            disabled
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-red-500 hover:bg-red-600 text-white"
           }`}
         >
           {resolvedAddToCartLabel}
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleMutedAction}
-        >
+        <Button variant="outline" size="sm" onClick={handleMutedAction}>
           <Heart className="h-4 w-4" />
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleMutedAction}
+        <Button 
+          variant={isInCompare ? "default" : "outline"} 
+          size="sm" 
+          onClick={handleAddToCompare}
+          className={isInCompare ? "bg-blue-500 hover:bg-blue-600" : ""}
+          title={isInCompare ? t("inCompare") : t("addToCompare")}
         >
           <GitCompare className="h-4 w-4" />
         </Button>
@@ -145,51 +182,78 @@ const CatalogProductCard = ({
   };
 
   const priceDisplay = `${price} ${currency}`.trim();
-  const originalPriceDisplay = originalPrice != null ? `${originalPrice} ${currency}`.trim() : null;
+  const originalPriceDisplay =
+    originalPrice != null ? `${originalPrice} ${currency}`.trim() : null;
 
   return (
     <Link
       href={href}
-      className={`bg-white rounded-lg shadow-sm overflow-hidden group relative cursor-pointer hover:shadow-md transition-shadow ${isList ? 'flex' : ''} ${className || ''}`.trim()}
+      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer ${
+        isList ? "flex" : ""
+      } ${className || ""}`.trim()}
     >
       {badge && (
         <div className="absolute top-2 left-2 z-10">
-          <span className={`px-2 py-1 text-xs font-semibold rounded ${badge.className || ''}`.trim()}>
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded ${
+              badge.className || ""
+            }`.trim()}
+          >
             {badge.text}
           </span>
         </div>
       )}
       {stockBadge && (
         <div className="absolute top-2 right-2 z-10">
-          <span className={`px-2 py-1 text-xs font-semibold rounded ${stockBadge.className || ''}`.trim()}>
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded ${
+              stockBadge.className || ""
+            }`.trim()}
+          >
             {stockBadge.text}
           </span>
         </div>
       )}
 
-      <div className={`${isList ? 'w-48 h-48 flex-shrink-0' : 'aspect-square'} bg-gray-100 flex items-center justify-center relative`}>
-        {imageSrc ? (
-          <img src={imageSrc} alt={imageAlt || name} className="w-full h-full object-cover" />
+      <div
+        className={`${
+          isList ? "w-48 h-48 flex-shrink-0" : "aspect-square"
+        } bg-gray-100 flex items-center justify-center relative overflow-hidden group-hover:rounded-t-sm`}
+      >
+        {normalizedImages.length > 0 ? (
+          <img
+            src={normalizedImages[0]}
+            alt={imageAlt || name}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
         )}
-
-        {!isList && renderOverlayActions()}
       </div>
 
-      <div className={`p-4 ${isList ? 'flex-1 flex flex-col justify-between' : ''}`}>
+      <div
+        className={`p-4 ${
+          isList ? "flex-1 flex flex-col justify-between" : ""
+        }`}
+      >
         <div>
-          <h3 className="font-semibold mb-2 text-lg">
-            {name}
-          </h3>
+          <h3 className="text-product-title mb-2 line-clamp-2">{name}</h3>
           {brand && (
-            <p className="text-sm text-gray-600 mb-1">
-              Brand: {brand}
-            </p>
+            <p className="text-sm text-gray-600 mb-1">Brand: {brand}</p>
           )}
           {categoryName && (
             <p className="text-sm text-gray-600 mb-1">
@@ -213,9 +277,9 @@ const CatalogProductCard = ({
           )}
         </div>
 
-        <div className={`${isList ? 'flex items-center justify-between' : ''}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-red-600 font-bold text-xl">
+        <div className={`${isList ? "flex items-center justify-between" : ""}`}>
+          <div className="flex items-center gap-2">
+            <span className="text-red-600 text-product-price">
               {priceDisplay}
             </span>
             {originalPriceDisplay && (
@@ -227,6 +291,7 @@ const CatalogProductCard = ({
           {renderListActions()}
         </div>
       </div>
+      {!isList && renderHoverActions()}
     </Link>
   );
 };

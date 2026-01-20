@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Warehouse } from '@prisma/client';
+import { Warehouse } from '@/db/schema';
 
 interface WarehouseModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface WarehouseModalProps {
 export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: WarehouseModalProps) {
   const [formData, setFormData] = useState({
     name: warehouse?.name || '',
-    country: warehouse?.country || 'Other',
+    countrySlug: warehouse?.countrySlug || 'other',
     displayedName: warehouse?.displayedName || '',
     isVisible: warehouse?.isVisible ?? true,
     createdAt: warehouse?.createdAt || new Date(),
@@ -27,10 +27,10 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
   const [isLoading, setIsLoading] = useState(false);
 
   const countryOptions = [
-    { value: 'Ukraine', label: 'Ukraine' },
-    { value: 'Spain', label: 'Spain' },
-    { value: 'Poland', label: 'Poland' },
-    { value: 'Other', label: 'Other' }
+    { value: 'ua', label: 'Ukraine' },
+    { value: 'es', label: 'Spain' },
+    { value: 'pl', label: 'Poland' },
+    { value: 'other', label: 'Other' }
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,20 +40,29 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
     try {
       if (warehouse) {
         // Edit existing warehouse
-        await onSave({ ...warehouse, ...formData });
+        onSave({ 
+          ...warehouse, 
+          ...formData,
+          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
+          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+        });
       } else {
         // Create new warehouse
-        await onSave(formData);
+        onSave({
+          ...formData,
+          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
+          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+        });
       }
       
       // Reset form
       setFormData({
         name: '',
-        country: 'Other',
+        countrySlug: 'other',
         displayedName: '',
         isVisible: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
       onClose();
     } catch (error) {
@@ -121,13 +130,13 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
             </div>
             
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="country" className="text-right">
+              <Label htmlFor="countrySlug" className="text-right">
                 Country
               </Label>
               <select
-                id="country"
-                value={formData.country}
-                onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                id="countrySlug"
+                value={formData.countrySlug}
+                onChange={(e) => setFormData(prev => ({ ...prev, countrySlug: e.target.value }))}
                 className="col-span-3 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 required
               >

@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, ChevronDown, Menu, X } from "lucide-react";
+import {ChevronDown, Menu, X } from "lucide-react";
+import { FaFacebook, FaLinkedin } from "react-icons/fa";
+import { FaPhone } from "react-icons/fa6";
 import LanguageSwitcher from "@/components/languge-switcher";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 const NAV_LINKS = [
   { href: "/about", labelKey: "about" },
@@ -15,18 +17,35 @@ const NAV_LINKS = [
   { href: "/contacts", labelKey: "contacts" },
 ];
 
-const navLinkClass = "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors whitespace-nowrap";
-const otherTriggerClass = "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors whitespace-nowrap";
+const SOCIAL_LINKS = [
+  {
+    href: "https://www.facebook.com/Powerautomation.eu",
+    icon: <FaFacebook size={18} />,
+    label: "Facebook",
+  },
+  {
+    href: "https://www.linkedin.com/company/encontradeukraine/",
+    icon: <FaLinkedin size={18} />,
+    label: "LinkedIn",
+  },
+];
+
+const navLinkClass =
+  "inline-flex items-center text-header text-[#474747] hover:text-opacity-60 transition-colors whitespace-nowrap";
+const otherTriggerClass =
+  "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors whitespace-nowrap";
 
 export default function MainHeader() {
-  const t = useTranslations('header');
+  const t = useTranslations("header");
   const [visibleCount, setVisibleCount] = useState<number>(NAV_LINKS.length);
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navContainerRef = useRef<HTMLElement | null>(null);
   const overflowMenuRef = useRef<HTMLDivElement | null>(null);
-  const measurementRefs = useRef<(HTMLSpanElement | null)[]>(NAV_LINKS.map(() => null));
+  const measurementRefs = useRef<(HTMLSpanElement | null)[]>(
+    NAV_LINKS.map(() => null)
+  );
   const otherMeasurementRef = useRef<HTMLSpanElement | null>(null);
 
   const computeVisibleItems = useCallback(() => {
@@ -44,7 +63,9 @@ export default function MainHeader() {
 
     const styles = getComputedStyle(container);
     const gap = parseFloat(styles.columnGap || styles.gap || "0");
-    const linkWidths = measurementRefs.current.map((el) => el?.offsetWidth ?? 0);
+    const linkWidths = measurementRefs.current.map(
+      (el) => el?.offsetWidth ?? 0
+    );
     const otherWidth = otherMeasurementRef.current?.offsetWidth ?? 0;
 
     const calculateRequiredWidth = (count: number) => {
@@ -86,9 +107,10 @@ export default function MainHeader() {
     handleResize();
 
     const container = navContainerRef.current;
-    const resizeObserver = container && typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(handleResize)
-      : null;
+    const resizeObserver =
+      container && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(handleResize)
+        : null;
     if (container && resizeObserver) {
       resizeObserver.observe(container);
     }
@@ -165,11 +187,15 @@ export default function MainHeader() {
   const overflowItems = NAV_LINKS.slice(visibleCount);
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="mx-2 px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
+    <header className="bg-white">
+      <div className="py-3 max-w-[90rem] mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex-shrink-0">
-            <Link href="/" className="inline-flex items-center" aria-label="Go to homepage">
+            <Link
+              href="/"
+              className="inline-flex items-center"
+              aria-label="Go to homepage"
+            >
               <Image
                 src="/imgs/Logo.webp"
                 alt="Shop logo"
@@ -191,6 +217,20 @@ export default function MainHeader() {
                 {t(`nav.${item.labelKey}`)}
               </Link>
             ))}
+            <div className="flex items-center gap-2">
+              {SOCIAL_LINKS.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-opacity-75 duration-200 text-[#474747] transition-colors"
+                  aria-label={item.label}
+                >
+                  {item.icon}
+                </a>
+              ))}
+            </div>
 
             {overflowItems.length > 0 && (
               <div className="relative" ref={overflowMenuRef}>
@@ -201,10 +241,12 @@ export default function MainHeader() {
                   aria-haspopup="menu"
                   aria-expanded={isOverflowOpen}
                 >
-                  {t('nav.other')}
+                  {t("nav.other")}
                   <ChevronDown
                     size={16}
-                    className={`transition-transform ${isOverflowOpen ? "rotate-180" : ""}`}
+                    className={`transition-transform ${
+                      isOverflowOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
                 {isOverflowOpen && (
@@ -231,9 +273,10 @@ export default function MainHeader() {
             </div>
             <a
               href="tel:+1234567890"
-              className="hidden items-center gap-2 text-lg font-semibold text-gray-800 transition-colors hover:text-blue-600 sm:flex"
+              className="hidden items-center gap-2 text-contact-phone text-[#474747] transition-colors hover:text-blue-600 sm:flex"
             >
-              <Phone size={20} />+1 (234) 567-890
+              <FaPhone size={23} className="text-white bg-[#474747] rounded-full p-[5px]" />
+              +1 (234) 567-890
             </a>
             <button
               type="button"
@@ -261,7 +304,9 @@ export default function MainHeader() {
             className="relative ml-auto flex h-full w-72 flex-col bg-white shadow-xl"
           >
             <div className="flex items-center justify-between border-b px-4 py-4">
-              <span className="text-lg font-semibold text-gray-900">{t('nav.menu')}</span>
+              <span className="text-lg font-semibold text-gray-900">
+                {t("nav.menu")}
+              </span>
               <button
                 type="button"
                 className="rounded-md p-2 text-gray-600 transition-colors hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -271,7 +316,10 @@ export default function MainHeader() {
                 <X size={20} />
               </button>
             </div>
-            <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4" aria-label="Mobile navigation">
+            <nav
+              className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4"
+              aria-label="Mobile navigation"
+            >
               {NAV_LINKS.map((item) => (
                 <Link
                   key={`mobile-${item.href}`}
@@ -291,7 +339,8 @@ export default function MainHeader() {
                 href="tel:+1234567890"
                 className="flex items-center gap-2 text-base font-semibold text-gray-800 transition-colors hover:text-blue-600"
               >
-                <Phone size={20} />+1 (234) 567-890
+                <FaPhone size={20} />
+                +1 (234) 567-890
               </a>
             </div>
           </div>
@@ -315,7 +364,7 @@ export default function MainHeader() {
             </span>
           ))}
           <span ref={otherMeasurementRef} className={otherTriggerClass}>
-            {t('nav.other')}
+            {t("nav.other")}
           </span>
         </div>
       </div>

@@ -64,7 +64,7 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
 
     const detailToAdd: ItemDetail = {
       id: `temp-${Date.now()}`,
-      itemId: formData.id || '',
+      itemSlug: formData.articleId || '',
       locale: selectedLocale,
       itemName: newDetailEntry.itemName,
       description: newDetailEntry.description,

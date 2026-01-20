@@ -3,7 +3,9 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { AdminHeader } from '@/components/admin/admin-header';
 import { AdminSidebar } from '@/components/admin/sidebar';
-import prisma from '@/db';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export default async function AdminLayout({
   children,
@@ -20,13 +22,14 @@ export default async function AdminLayout({
   }
 
   // Get user role from database
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true, name: true, email: true },
-  });
+  const [user] = await db
+    .select({ role: schema.user.role, name: schema.user.name, email: schema.user.email })
+    .from(schema.user)
+    .where(eq(schema.user.id, session.user.id))
+    .limit(1);
 
   // Redirect if not admin
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYER')) {
+  if (!user || (user.role !== 'admin' && user.role !== 'employee')) {
     redirect('/');
   }
 

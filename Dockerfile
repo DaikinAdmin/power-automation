@@ -6,11 +6,16 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Copy prisma schema for postinstall script
-COPY prisma ./prisma
+# Copy drizzle schema for postinstall script
+COPY drizzle ./drizzle
+
+# Copy scripts folder if postinstall uses it
+COPY scripts ./scripts
+COPY src/db ./src/db
+COPY src/resources ./src/resources
 
 # Install dependencies (this will run postinstall which needs prisma)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:24-alpine AS builder
@@ -18,21 +23,16 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy prisma folder
-COPY prisma ./prisma
-COPY prisma.config.mjs ./prisma.config.mjs
-COPY prisma.config.ts ./prisma.config.ts
-
+COPY --from=deps /app/scripts ./scripts
+COPY --from=deps /app/drizzle ./drizzle
+COPY --from=deps /app/src/db ./src/db
+COPY --from=deps /app/src/resources ./src/resources
 # Copy the rest of the application
 COPY . .
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
-# Generate Prisma Client for both native and Debian
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
@@ -49,50 +49,57 @@ RUN apk add --no-cache \
     wget \
     ca-certificates \
     fontconfig \
-    ttf-dejavu
+    ttf-dejavu \
+    su-exec
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nextjs
 
+# Install tsx for running migrations
+RUN npm install -g tsx
+
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/db ./src/db
+COPY --from=builder /app/src/resources ./src/resources
 
-# Copy Prisma files and config (needed for migrations)
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.mjs ./prisma.config.mjs
-COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Copy node_modules needed for migrations and runtime
+COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/node_modules/better-auth ./node_modules/better-auth
+COPY --from=builder /app/node_modules/next ./node_modules/next
+COPY --from=builder /app/node_modules/winston ./node_modules/winston
+COPY --from=builder /app/node_modules/winston-daily-rotate-file ./node_modules/winston-daily-rotate-file
+COPY --from=builder /app/node_modules/logform ./node_modules/logform
+COPY --from=builder /app/node_modules/winston-transport ./node_modules/winston-transport
+COPY --from=builder /app/node_modules/triple-beam ./node_modules/triple-beam
+COPY --from=builder /app/node_modules/@colors ./node_modules/@colors
+COPY --from=builder /app/node_modules/color ./node_modules/color
+COPY --from=builder /app/node_modules/file-stream-rotator ./node_modules/file-stream-rotator
 
-# # Copy tsx and all its dependencies (for seed scripts)
-# COPY --from=builder /app/node_modules/tsx ./node_modules/tsx
-# COPY --from=builder /app/node_modules/get-tsconfig ./node_modules/get-tsconfig
-# COPY --from=builder /app/node_modules/resolve-pkg-maps ./node_modules/resolve-pkg-maps
-# COPY --from=builder /app/node_modules/esbuild ./node_modules/esbuild
-# COPY --from=builder /app/node_modules/@esbuild ./node_modules/@esbuild
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
-# Copy Playwright for browser automation
-# COPY --from=builder /app/node_modules/playwright-core ./node_modules/playwright-core
-# COPY --from=builder /app/node_modules/@playwright ./node_modules/@playwright
-
-# Install Playwright browsers as root
-# ENV PLAYWRIGHT_BROWSERS_PATH=/home/nextjs/.cache/ms-playwright
-# RUN npx playwright install --with-deps chromium
-
-# Create upload directory and home directory for nextjs user
+# Create upload directory, logs directory and home directory for nextjs user
 RUN mkdir -p /uploads && \
+    mkdir -p /app/logs && \
     mkdir -p /home/nextjs/.cache && \
     chown -R nextjs:nodejs /home/nextjs && \
     chown -R nextjs:nodejs /app && \
     chown -R nextjs:nodejs /uploads
 
-USER nextjs
+# Don't switch to nextjs user yet - entrypoint needs to run as root to fix volume permissions
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

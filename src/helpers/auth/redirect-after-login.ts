@@ -5,7 +5,7 @@ export const redirectAfterLogin = async (userId: string | undefined, router: any
     const response = await fetch(`/api/user/role/${userId}`);
     if (response.ok) {
       const resp = await response.json();
-      if (resp?.role === 'ADMIN') {
+      if (resp?.role === 'admin') {
         router.replace("/admin");
         return;
       } else {

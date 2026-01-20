@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import prisma from '@/db';
+// import prisma from '@/db';
+import { db } from '@/db';
+import { eq, asc } from 'drizzle-orm';
+import * as schema from '@/db/schema';
+import { isUserAdmin } from '@/helpers/db/queries';
+import { randomUUID } from 'crypto';
+import logger from '@/lib/logger';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
 
 const generateSlug = (value: string) =>
   value
@@ -44,21 +51,45 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
 };
 
 // GET all categories
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      throw new UnauthorizedError('User not authenticated');
     }
+    
+    logger.info('Fetching all categories (admin)', { userId: session.user?.id });
 
-    const categories = await prisma.category.findMany({
+    // Drizzle implementation
+    const categories = await db
+      .select()
+      .from(schema.category)
+      .orderBy(asc(schema.category.name));
+
+    // Fetch subcategories for all categories
+    const subcategories = await db
+      .select()
+      .from(schema.subcategories);
+
+    // Map subcategories to categories
+    const categoriesWithSubs = categories.map((cat) => ({
+      ...cat,
+      subCategories: subcategories.filter((sub) => sub.categorySlug === cat.slug),
+    }));
+
+    /* Prisma implementation (commented out)
+    const categories = await db.category.findMany({
       orderBy: { name: 'asc' },
       include: { subCategories: true },
     });
-    const response = NextResponse.json(categories);
+    */
+
+    const response = NextResponse.json(categoriesWithSubs);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
   } catch (error) {
@@ -81,13 +112,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Drizzle implementation - Check if user is admin
+    const isAdmin = await isUserAdmin(session.user.id);
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -103,9 +131,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if slug already exists
-    const existingCategory = await prisma.category.findFirst({
-      where: { slug },
-    });
+    const [existingCategory] = await db
+      .select()
+      .from(schema.category)
+      .where(eq(schema.category.slug, slug))
+      .limit(1);
 
     if (existingCategory) {
       return NextResponse.json(
@@ -116,7 +146,59 @@ export async function POST(request: NextRequest) {
 
     const normalizedSubcategories = normalizeSubcategories(subcategory);
 
-    const category = await prisma.category.create({
+    // Create category
+    const now = new Date().toISOString();
+    const categoryId = randomUUID();
+    
+    const [category] = await db
+      .insert(schema.category)
+      .values({
+        id: categoryId,
+        name,
+        slug,
+        isVisible: isVisible ?? true,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+
+    // Create subcategories if any
+    if (normalizedSubcategories.length > 0) {
+      await db.insert(schema.subcategories).values(
+        normalizedSubcategories.map((sub) => ({
+          id: randomUUID(),
+          name: sub.name,
+          slug: sub.slug,
+          categorySlug: category.id,
+          isVisible: sub.isVisible,
+          createdAt: now,
+          updatedAt: now,
+        }))
+      );
+    }
+
+    /* Prisma implementation (commented out)
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    if (!user || user.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const existingCategory = await db.category.findFirst({
+      where: { slug },
+    });
+
+    if (existingCategory) {
+      return NextResponse.json(
+        { error: 'Category with this slug already exists' },
+        { status: 400 }
+      );
+    }
+
+    const category = await db.category.create({
       data: {
         name,
         slug,
@@ -130,6 +212,7 @@ export async function POST(request: NextRequest) {
         isVisible: isVisible ?? true,
       },
     });
+    */
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {

@@ -4,3 +4,8 @@
 node_modules/
 *.pem
 *.log
+pa_*
+# Logging infrastructure
+logs/*.log
+
+logs/*-audit.json

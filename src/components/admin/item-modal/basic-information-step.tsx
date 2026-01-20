@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
-import { Warehouse, Brand as PrismaBrand, Badge } from '@prisma/client';
+import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
 
 interface BasicInformationStepProps {
@@ -18,31 +18,31 @@ interface BasicInformationStepProps {
 export function BasicInformationStep({ formData, setFormData }: BasicInformationStepProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [brands, setBrands] = useState<PrismaBrand[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null);
   const [newPriceEntry, setNewPriceEntry] = useState<ItemPrice>({
     id: '',
-    itemId: '',
+    itemSlug: '',
     warehouseId: '',
     price: 0,
     quantity: 0,
     promotionPrice: null,
     promoEndDate: null,
     promoCode: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    badge: Badge.ABSENT,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    badge: 'ABSENT',
     history: [],
     warehouse: {
       id: '',
       name: '',
       displayedName: '',
       isVisible: true,
-      country: 'Other',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      countrySlug: 'other',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,11 +53,11 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   ];
 
   const badgeOptions = [
-    { value: Badge.ABSENT, label: 'None' },
-    { value: Badge.NEW_ARRIVALS, label: 'New Arrivals' },
-    { value: Badge.BESTSELLER, label: 'Bestseller' },
-    { value: Badge.HOT_DEALS, label: 'Hot Deals' },
-    { value: Badge.LIMITED_EDITION, label: 'Limited Edition' },
+    { value: 'ABSENT', label: 'None' },
+    { value: 'NEW_ARRIVALS', label: 'New Arrivals' },
+    { value: 'BESTSELLER', label: 'Bestseller' },
+    { value: 'HOT_DEALS', label: 'Hot Deals' },
+    { value: 'LIMITED_EDITION', label: 'Limited Edition' },
   ];
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   };
 
   const getSelectedCategory = () => {
-    return categories.find(cat => cat.id === formData.categoryId);
+    return categories.find(cat => cat.slug === formData.categorySlug);
   };
 
   const addPriceEntry = () => {
@@ -141,7 +141,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     
     const priceEntryToAdd = {
       id: `temp-${Date.now()}`,
-      itemId: formData.id || '',
+      itemSlug: formData.articleId || '',
       warehouseId: newPriceEntry.warehouseId,
       price: newPriceEntry.price,
       quantity: newPriceEntry.quantity,
@@ -149,18 +149,18 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promoStartDate: null,
       promoEndDate: newPriceEntry.promoEndDate || null,
       promoCode: newPriceEntry.promoCode || '',
-      badge: newPriceEntry.badge || Badge.ABSENT,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      badge: newPriceEntry.badge || 'ABSENT',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       history: [],
       warehouse: warehouse || {
         id: newPriceEntry.warehouseId,
         name: 'Unknown',
         displayedName: 'Unknown',
         isVisible: true,
-        country: 'Other',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        countrySlug: 'other',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
     };
 
@@ -172,25 +172,25 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     // Reset form
     setNewPriceEntry({
       id: '',
-      itemId: '',
+      itemSlug: '',
       warehouseId: '',
       price: 0,
       quantity: 0,
       promotionPrice: null,
       promoEndDate: null,
       promoCode: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      badge: Badge.ABSENT,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      badge: 'ABSENT',
       history: [],
       warehouse: {
         id: '',
         name: '',
         displayedName: '',
         isVisible: true,
-        country: 'Other',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        countrySlug: 'other',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
     });
     setIsAddingPrice(false);
@@ -272,13 +272,13 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Brand *</Label>
             <select
-              value={formData.brandId || ''}
+              value={formData.brandSlug || ''}
               onChange={(e) => {
-                const brandId = e.target.value;
-                const brand = brands.find((b) => b.id === brandId) || null;
+                const brandSlug = e.target.value;
+                const brand = brands.find((b) => b.alias === brandSlug) || null;
                 setFormData((prev: any) => ({
                   ...prev,
-                  brandId: brandId ? brandId : null,
+                  brandSlug: brandSlug ? brandSlug : null,
                   brandName: brand?.name || '',
                   brand,
                 }));
@@ -288,7 +288,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             >
               <option value="">Select Brand</option>
               {brands.map((brand) => (
-                <option key={brand.id} value={brand.id}>
+                <option key={brand.id} value={brand.alias}>
                   {brand.name}
                 </option>
               ))}
@@ -325,45 +325,19 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Category *</Label>
             <select
-              value={formData.categoryId}
+              value={formData.categorySlug}
               onChange={(e) => setFormData((prev: Item) => ({ 
                 ...prev, 
-                categoryId: e.target.value,
-                subCategoryId: '', // Reset subcategory when category changes
-                category: categories.find(cat => cat.id === e.target.value) || prev.category
+                categorySlug: e.target.value,
+                category: categories.find(cat => cat.slug === e.target.value) || prev.category
               }))}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               required
             >
               <option value="">Select Category</option>
               {categories.map(category => (
-                <option key={category.id} value={category.id}>
+                <option key={category.id} value={category.slug}>
                   {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sub Category */}
-          <div>
-            <Label>Sub Category</Label>
-            <select
-              value={formData.subCategoryId}
-              onChange={(e) => {
-                const selectedSubCategory = getSelectedCategory()?.subCategories.find((sub: { id: string; }) => sub.id === e.target.value);
-                setFormData((prev: Item) => ({ 
-                  ...prev, 
-                  subCategoryId: e.target.value,
-                  subCategory: selectedSubCategory || prev.subCategory
-                }));
-              }}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
-              disabled={!formData.categoryId}
-            >
-              <option value="">Select Sub Category</option>
-              {getSelectedCategory()?.subCategories.map((sub: { id: Key | readonly string[] | null | undefined; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }) => (
-                <option key={sub.id as string} value={sub.id as string}>
-                  {sub.name}
                 </option>
               ))}
             </select>
@@ -438,7 +412,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   // console.log(`Rendering price row ${index}:`, price);
                   const isPromoActive = isPromotionActive(new Date(), price.promoEndDate as Date);
                   const effectivePrice = getEffectivePrice(price.price, price.promotionPrice, new Date(), price.promoEndDate as Date);
-                  const badgeLabel = badgeOptions.find(option => option.value === (price.badge || Badge.ABSENT))?.label || 'None';
+                  const badgeLabel = badgeOptions.find(option => option.value === (price.badge || 'ABSENT'))?.label || 'None';
 
                   return (
                     <tr key={price.id || `price-${index}`}>
@@ -573,7 +547,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               <div>
                 <Label>Badge</Label>
                 <select
-                  value={newPriceEntry.badge || Badge.ABSENT}
+                  value={newPriceEntry.badge || 'ABSENT'}
                   onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
                   className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 >

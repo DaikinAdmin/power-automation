@@ -1,22 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 
-const getConnectionString = () => {
-  if (!process.env.DATABASE_URL) return undefined;
-  
-  const url = new URL(process.env.DATABASE_URL);
-  url.searchParams.set('sslmode', 'no-verify');
-  return url.toString();
-};
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-const connectionString = getConnectionString();
+pool.on('error', (err) => {
+  console.error('Unexpected database error:', err);
+});
 
-const prisma = connectionString
-  ? new PrismaClient({
-      adapter: new PrismaPg({
-        connectionString,
-      }),
-    })
-  : new PrismaClient();
-
-export default prisma;
+export const db = drizzle(pool, { logger: true });
