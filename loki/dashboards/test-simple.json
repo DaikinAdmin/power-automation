@@ -215,14 +215,14 @@
           "datasource": {
             "type": "loki",
             "uid": "loki"
-          }, by (level) (rate({job=\"nextjs\"}[1m]))",
+          },
+          "editorMode": "code",
+          "expr": "sum by (level) (rate({job=\"nextjs\"}[1m]))",
           "instant": false,
           "legendFormat": "{{level}}",
           "queryType": "range",
           "refId": "A",
-          "resolution": 1(rate({job=\"nextjs\"}[1m])) by (level)",
-          "queryType": "range",
-          "refId": "A"
+          "resolution": 1
         }
       ],
       "title": "Log Rate by Level",
