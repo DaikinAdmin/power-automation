@@ -61,11 +61,10 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "count_over_time({job=\"nextjs\"}[$__interval])",
-          "instant": false,
-          "queryType": "range",
-          "refId": "A",
-          "resolution": 1
+          "expr": "sum(count_over_time({job=\"nextjs\"}[5m]))",
+          "instant": true,
+          "queryType": "instant",
+          "refId": "A"
         }
       ],
       "title": "Total Logs (Last 5m)",
