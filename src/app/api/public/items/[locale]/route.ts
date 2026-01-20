@@ -72,7 +72,7 @@ export async function GET(
     logger.info('Public items fetched successfully', { 
       locale, 
       totalItems: items.length,
-      duration: `${duration}ms` 
+      duration: duration
     });
 
     const response = NextResponse.json(items);

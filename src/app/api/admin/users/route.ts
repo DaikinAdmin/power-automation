@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     logger.info('Users fetched successfully', { 
       userId: session.user.id,
       usersCount: response.length,
-      duration: `${duration}ms` 
+      duration: duration
     });
 
     return NextResponse.json(response);

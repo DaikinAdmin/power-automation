@@ -35,7 +35,7 @@ export async function GET(
     logger.info('Categories fetched successfully', {
       locale,
       count: categories.length,
-      duration: `${duration}ms`,
+      duration: duration,
     });
 
     // Prisma implementation (commented out)

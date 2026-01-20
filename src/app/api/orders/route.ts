@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     logger.info('Orders fetched successfully', { 
       userId: session.user.id,
       ordersCount: ordersWithItems.length,
-      duration: `${duration}ms` 
+      duration: duration
     });
 
     return NextResponse.json({

@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     logger.info('Pages fetched successfully', { 
       userId: session.user.id,
       pagesCount: pages.length,
-      duration: `${duration}ms` 
+      duration: duration
     });
 
     return NextResponse.json(pages);
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       slug, 
       locale,
       userId: session.user.id,
-      duration: `${duration}ms` 
+      duration: duration
     });
 
     return NextResponse.json(

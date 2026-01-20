@@ -173,7 +173,8 @@ export function logHttpRequest(req: {
   };
 
   if (duration !== undefined) {
-    logData.duration = `${duration}ms`;
+    logData.duration = duration; // Store as number (milliseconds)
+    logData.durationMs = duration; // Also add explicit field for clarity
   }
 
   logger.http('HTTP Request', logData);

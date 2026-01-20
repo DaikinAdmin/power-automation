@@ -217,12 +217,12 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "count(count_over_time({container=~\"powerautomation.*\"}[1m]))",
+          "expr": "count(count_over_time({job=~\"nextjs|varlogs\"}[1m]))",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Active Containers",
+      "title": "Active Log Sources",
       "type": "stat"
     },
     {
@@ -484,12 +484,12 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "sum(count_over_time({job=\"docker\"}[1h])) by (service)",
+          "expr": "sum(count_over_time({job=\"nextjs\"}[1h])) by (level)",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Log Distribution by Container",
+      "title": "Log Distribution by Level",
       "type": "piechart"
     },
     {
@@ -560,12 +560,12 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{job=\"docker\", service=~\"app|postgres\"} |= \"\"",
+          "expr": "{job=\"nextjs\"} | json",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Container Logs (App & Database)",
+      "title": "Application Logs",
       "type": "logs"
     }
   ],

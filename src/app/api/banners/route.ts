@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const duration = Date.now() - startTime;
     logger.info('Banners fetched successfully', { 
       count: banners.length, 
-      duration: `${duration}ms`,
+      duration: duration,
       filters 
     });
 

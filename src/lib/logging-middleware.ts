@@ -40,7 +40,7 @@ export function loggingMiddleware(request: NextRequest) {
     logger.http('Request processed', {
       method: request.method,
       url,
-      duration: `${duration}ms`,
+      duration: duration, // Store as number (milliseconds)
     });
   }
 
@@ -98,7 +98,7 @@ export function withLogging<T extends any[]>(
         logger.http('API route completed', {
           ...logContext,
           status: response.status,
-          duration: `${duration}ms`,
+          duration: duration, // Store as number (milliseconds)
         });
       }
 
@@ -108,7 +108,7 @@ export function withLogging<T extends any[]>(
       
       logger.error('API route error', {
         ...logContext,
-        duration: `${duration}ms`,
+        duration: duration, // Store as number (milliseconds)
         error: error instanceof Error ? {
           name: error.name,
           message: error.message,
@@ -137,8 +137,8 @@ export function performanceMonitoring(
       logger.warn('Slow request detected', {
         method: request.method,
         url: request.url,
-        duration: `${duration}ms`,
-        threshold: `${threshold}ms`,
+        duration: duration, // Store as number (milliseconds)
+        threshold: threshold,
       });
     }
 
