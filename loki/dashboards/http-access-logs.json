@@ -304,13 +304,13 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "avg_over_time({job=\"nextjs\", level=\"info\"} | json | unwrap duration [5m])",
-          "legendFormat": "Avg Response Time",
+          "expr": "sum(rate({job=\"nextjs\", level=\"http\"} | json [1m]))",
+          "legendFormat": "HTTP Requests/sec",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Average Response Time",
+      "title": "HTTP Request Rate",
       "type": "timeseries"
     },
     {
