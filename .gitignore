@@ -6,6 +6,4 @@ node_modules/
 *.log
 pa_*
 # Logging infrastructure
-logs/*.log
-
-logs/*-audit.json
+logs/

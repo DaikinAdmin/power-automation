@@ -59,7 +59,6 @@ services:
     networks:
       - powerautomation-network
     volumes:
-      - ./prisma:/app/prisma
       - uploads_data:/app/public/uploads
       - ./logs:/app/logs  # Application logs for Promtail
 

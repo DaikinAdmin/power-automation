@@ -59,7 +59,7 @@ export default function ItemsPage() {
   };
 
   const handleEditItem = (item: Item) => {
-    router.push(`/admin/items/${item.id}/edit`);
+    router.push(`/admin/items/${item.articleId}/edit`);
   }; 
   
   const handleDeleteItem = (item: Item) => {
