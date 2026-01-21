@@ -10,9 +10,9 @@ export default function middleware(request: NextRequest) {
 
   // Skip middleware completely for Grafana routes - let Nginx proxy handle them
   // This must be BEFORE any other processing to avoid next-intl rewriting
-  if (pathname.startsWith('/grafana')) {
-    return NextResponse.next();
-  }
+  // if (pathname.startsWith('/grafana')) {
+  //   return NextResponse.next();
+  // }
 
   // Add request ID to all requests
   const requestId = request.headers.get('x-request-id') || 
