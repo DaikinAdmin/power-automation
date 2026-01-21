@@ -91,9 +91,9 @@
     "viewAllProducts": "View All Products",
     "inStock": "in stock",
     "outOfStock": "Out of stock",
-    "from": "From",
-    "moreLocations": "more locations",
-    "moreLocation": "more location",
+    "from": "From {warehouse}",
+    "moreLocations": "+{count} more locations",
+    "moreLocation": "+1 more location",
     "buy": "Buy",
     "askForPrice": "Ask for Price",
     "searching": "Searching...",
@@ -159,7 +159,7 @@
   "dashboard": {
     "welcomeBack": "Welcome back",
     "statsOverview": "Stats overview",
-    "greeting": "Hi {{name}}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
+    "greeting": "Hi {name}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
     "stats": {
       "ordersPlaced": "Orders placed",
       "itemsPurchased": "Items purchased",
@@ -179,18 +179,17 @@
       "loyaltyRewards": "Keep an eye on loyalty rewards and upcoming renewals."
     }
   },
-  "product": {
+    "product": {
     "loading": "Loading product…",
     "notFound": {
-      "title": "Product Not Found",
+      "title": "Product not found",
       "description": "The product you are looking for is unavailable or has been removed.",
       "backToHome": "Back to Home"
     },
-    "articleId": "Article",
-    "from": "From {{warehouse}}",
-    "moreLocations": "+{{count}} more locations",
+    "articleId": "Article ID",
+    "warehouseFrom": "From warehouse ",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Hot Deal",
@@ -202,11 +201,15 @@
     "actions": {
       "addToCart": "Add to Cart",
       "outOfStock": "Out of Stock",
-      "askPrice": "Ask Price",
+      "askPrice": "Ask for Price",
       "addToWishlist": "Add to Wishlist",
       "compare": "Compare",
       "addToCompare": "Add to Compare",
-      "inCompare": "In Comparison"
+      "inCompare": "In Compare"
+    },
+    "warehouse-availability": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
     },
     "tabs": {
       "delivery": "Delivery & Availability",
@@ -216,10 +219,10 @@
     "tabContent": {
       "deliveryAvailable": "Delivery available within 3-5 business days from the selected warehouse.",
       "fasterShipping": "Need faster shipping? Contact our logistics team for express options.",
-      "manufacturerWarranty": "Manufacturer warranty: {{months}} months.",
-      "warrantyNotSpecified": "Manufacturer warranty: Not specified.",
+      "manufacturerWarranty": "Manufacturer's warranty: {months} months.",
+      "warrantyNotSpecified": "Manufacturer's warranty: Not specified.",
       "additionalContracts": "Additional service contracts available upon request.",
-      "datasheets": "Datasheets and certificates are available upon request. Contact support for more information."
+      "datasheets": "Technical datasheets and certificates available upon request. Contact support for more information."
     },
     "details": {
       "title": "Product Details",
@@ -227,24 +230,48 @@
       "warranty": "Warranty",
       "category": "Category",
       "subcategory": "Subcategory",
-      "months": "{{count}} months",
-      "warrantyMonths": "{{count}} months",
+      "months": "{count} months",
+      "warrantyMonths": "{count} months warranty",
       "notSpecified": "—",
       "notAvailable": "—"
     },
     "opinion": {
-      "title": "Leave Your Opinion",
+      "title": "Leave your opinion",
       "namePlaceholder": "Your name",
-      "emailPlaceholder": "Email",
+      "emailPlaceholder": "E-mail",
       "opinionPlaceholder": "Share your experience",
-      "submit": "Submit Opinion"
+      "submit": "Submit review"
+    },
+    "warehouseSelector": {
+      "title": "Select Warehouse",
+      "inStock": "{count} in stock",
+      "outOfStock": "Out of stock",
+      "notAvailable": {
+        "title": "Product not available",
+        "description": "This product is currently unavailable at the selected warehouse.",
+        "switchButton": "Switch to available warehouse",
+        "noStockButton": "Out of stock",
+        "requestButton": "Notify me when available"
+      },
+      "requestForm": {
+        "title": "Request {itemName} When Available",
+        "nameLabel": "Your name",
+        "emailLabel": "E-mail",
+        "messageLabel": "Message (optional)",
+        "messagePlaceholder": "Any specific requirements or questions...",
+        "submitButton": "Submit request",
+        "submittingButton": "Submitting...",
+        "cancelButton": "Cancel",
+        "successMessage": "Your request has been sent! We will contact you when the product becomes available.",
+        "errorMessage": "Failed to send the request. Please try again."
+      }
     },
     "askPriceModal": {
       "title": "Ask for Price",
       "product": "Product",
       "warehouse": "Warehouse",
-      "selectWarehouse": "Select warehouse",
-      "selectWarehousePlaceholder": "Choose a warehouse...",
+      "selectWarehouse": "Select Warehouse",
+      "selectWarehousePlaceholder": "Select Warehouse...",
       "quantity": "Quantity",
       "quantityPlaceholder": "Enter quantity",
       "comment": "Comment (optional)",
@@ -254,18 +281,18 @@
       "cancel": "Cancel",
       "submit": "Ask for Price",
       "submitting": "Submitting...",
-      "success": "Price request submitted successfully! We will contact you soon.",
-      "error": "Failed to submit price request. Please try again."
+      "success": "Price request sent successfully! We will contact you shortly.",
+      "error": "Failed to send the price request. Please try again."
     },
-    "productCatalogCard":{
-      "buy":"Buy",
-      "outOfStock":"Out of Stock",
+    "productCatalogCard": {
+      "buy": "Buy",
+      "outOfStock": "Out of Stock",
       "addToCompare": "Add to Compare",
-      "inCompare": "In Comparison"
+      "inCompare": "In Compare"
     },
     "compare": {
       "alreadyAdded": "This product is already in the comparison list",
-      "limitReached": "You can compare up to 5 products maximum"
+      "limitReached": "You can compare up to 5 products"
     }
   },
   "compare": {
@@ -305,8 +332,7 @@
       "bestseller": "BESTSELLER",
       "discount": "DISCOUNT",
       "new": "NEW"
-    },
-    "messages": {
+    },    "warehouseFrom": "From {warehouse}",    "messages": {
       "noProducts": "No products available in this category.",
       "noCategories": "No categories available.",
       "noBrands": "No brands available.",
@@ -354,8 +380,7 @@
   "footer": {
     "copyright": "© 2024 All rights reserved",
     "weAccept": "We accept:",
-    "categories": "Categories",
-    "moreCategories": "More Categories",
+    "categories": "Catalog",
     "forClients": "For Clients",
     "contactInfo": "Contact Information",
     "links": {
@@ -366,21 +391,16 @@
       "refunding": "Refunding",
       "contacts": "Contacts"
     },
-    "categories1": {
-      "electronics": "Electronics",
-      "fashion": "Fashion",
-      "homeGarden": "Home & Garden",
-      "sports": "Sports"
-    },
-    "categories2": {
-      "books": "Books",
-      "healthBeauty": "Health & Beauty",
-      "automotive": "Automotive",
-      "toysGames": "Toys & Games"
-    },
     "workingHours": {
       "weekdays": "Mon-Fri: 9AM-6PM",
       "saturday": "Sat: 9AM-4PM"
     }
+  },
+  "contactMap": {
+    "loading": "Loading map...",
+    "error": "Failed to load the map. Please try again later.",
+    "ourLocation": "Our location",
+    "openMaps": "Open in maps"
   }
 }
+

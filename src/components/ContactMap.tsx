@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ContactMap.module.css';
+import { useTranslations } from 'next-intl';
 
 // Динамічне завантаження карти без SSR
 const MapContainer = dynamic(
@@ -26,6 +27,7 @@ const Popup = dynamic(
 );
 
 export default function ContactMap() {
+  const t = useTranslations("contactMap");
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function ContactMap() {
   if (!isMounted) {
     return (
       <div className="h-[400px] w-full bg-gray-100 rounded-lg flex items-center justify-center">
-        <p className="text-gray-500">Завантаження карти...</p>
+        <p className="text-gray-500">{t("loading")}</p>
       </div>
     );
   }
@@ -73,12 +75,12 @@ export default function ContactMap() {
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Ми на карті</h2>
+        <h2 className="text-xl font-semibold">{t("ourLocation")}</h2>
         <button
           onClick={handleOpenMaps}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
         >
-          Відкрити в картах
+          {t("openMaps")}
         </button>
       </div>
       <div className={`rounded-lg overflow-hidden shadow-md ${styles.mapWrapper}`}>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { requestOutOfStockItem } from '@/lib/actions/products';
 import { Badge as UiBadge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
 
 interface WarehousePrice {
   id: string;
@@ -34,6 +35,7 @@ export default function WarehouseSelector({
   itemId,
   itemName
 }: WarehouseSelectorProps) {
+  const t = useTranslations('product');
   const [showOutOfStockForm, setShowOutOfStockForm] = useState(false);
   const [outOfStockForm, setOutOfStockForm] = useState({
     email: '',
@@ -56,31 +58,34 @@ export default function WarehouseSelector({
       );
 
       if (result.success) {
-        alert('Your request has been submitted! We will contact you when the item becomes available.');
+        alert(t('warehouseSelector.requestForm.successMessage'));
         setShowOutOfStockForm(false);
         setOutOfStockForm({ email: '', name: '', message: '' });
       } else {
-        alert('Failed to submit request. Please try again.');
+        alert(t('warehouseSelector.requestForm.errorMessage'));
       }
     } catch (error) {
       console.error('Error submitting out of stock request:', error);
-      alert('Failed to submit request. Please try again.');
+      alert(t('warehouseSelector.requestForm.errorMessage'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const badgeLabels: Record<string, string> = {
-    BESTSELLER: 'Bestseller',
-    HOT_DEALS: 'Hot Deal',
-    NEW_ARRIVALS: 'New',
-    LIMITED_EDITION: 'Limited',
-    ABSENT: 'Standard',
+  const getBadgeText = (badge: string) => {
+    const badgeMap: Record<string, string> = {
+      'BESTSELLER': t('price.badges.bestseller'),
+      'HOT_DEALS': t('price.badges.hotDeal'),
+      'NEW_ARRIVALS': t('price.badges.new'),
+      'LIMITED_EDITION': t('price.badges.limited'),
+      'ABSENT': t('price.badges.standard'),
+    };
+    return badgeMap[badge] || badge;
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Select Warehouse</h3>
+      <h3 className="text-lg font-semibold">{t('warehouseSelector.title')}</h3>
       
       <div className="grid gap-3">
         {warehouses.map((warehouse) => (
@@ -125,13 +130,13 @@ export default function WarehouseSelector({
                     warehouse.inStock ? 'text-green-600' : 'text-red-600'
                   }`}>
                     {warehouse.inStock 
-                      ? `${warehouse.quantity} in stock`
-                      : 'Out of stock'
+                      ? t('warehouseSelector.inStock', { count: warehouse.quantity })
+                      : t('warehouseSelector.outOfStock')
                     }
                   </span>
                   {warehouse.badge && (
                     <UiBadge variant="secondary">
-                      {badgeLabels[warehouse.badge] || warehouse.badge}
+                      {getBadgeText(warehouse.badge)}
                     </UiBadge>
                   )}
                 </div>
@@ -146,9 +151,9 @@ export default function WarehouseSelector({
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-medium text-yellow-800">Item Not Available</h4>
+              <h4 className="font-medium text-yellow-800">{t('warehouseSelector.notAvailable.title')}</h4>
               <p className="text-sm text-yellow-700 mt-1">
-                This item is currently out of stock at the selected warehouse.
+                {t('warehouseSelector.notAvailable.description')}
               </p>
               
               <div className="mt-3 space-y-2">
@@ -165,8 +170,8 @@ export default function WarehouseSelector({
                   disabled={!warehouses.some(w => w.inStock)}
                 >
                   {warehouses.some(w => w.inStock) 
-                    ? 'Switch to Available Warehouse'
-                    : 'No Stock Available'
+                    ? t('warehouseSelector.notAvailable.switchButton')
+                    : t('warehouseSelector.notAvailable.noStockButton')
                   }
                 </Button>
                 
@@ -176,7 +181,7 @@ export default function WarehouseSelector({
                   onClick={() => setShowOutOfStockForm(true)}
                 >
                   <Mail className="h-4 w-4 mr-2" />
-                  Request When Available
+                  {t('warehouseSelector.notAvailable.requestButton')}
                 </Button>
               </div>
             </div>
@@ -186,11 +191,11 @@ export default function WarehouseSelector({
 
       {showOutOfStockForm && (
         <Card className="p-6 border-blue-200">
-          <h4 className="font-semibold mb-4">Request "{itemName}" When Available</h4>
+          <h4 className="font-semibold mb-4">{t('warehouseSelector.requestForm.title', { itemName })}</h4>
           <form onSubmit={handleOutOfStockSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name
+                {t('warehouseSelector.requestForm.nameLabel')}
               </label>
               <input
                 type="text"
@@ -203,7 +208,7 @@ export default function WarehouseSelector({
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                {t('warehouseSelector.requestForm.emailLabel')}
               </label>
               <input
                 type="email"
@@ -216,12 +221,12 @@ export default function WarehouseSelector({
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message (Optional)
+                {t('warehouseSelector.requestForm.messageLabel')}
               </label>
               <textarea
                 value={outOfStockForm.message}
                 onChange={(e) => setOutOfStockForm({...outOfStockForm, message: e.target.value})}
-                placeholder="Any specific requirements or questions..."
+                placeholder={t('warehouseSelector.requestForm.messagePlaceholder')}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
@@ -233,14 +238,14 @@ export default function WarehouseSelector({
                 disabled={submitting}
                 className="bg-red-500 hover:bg-red-600"
               >
-                {submitting ? 'Submitting...' : 'Submit Request'}
+                {submitting ? t('warehouseSelector.requestForm.submittingButton') : t('warehouseSelector.requestForm.submitButton')}
               </Button>
               <Button 
                 type="button" 
                 variant="outline"
                 onClick={() => setShowOutOfStockForm(false)}
               >
-                Cancel
+                {t('warehouseSelector.requestForm.cancelButton')}
               </Button>
             </div>
           </form>

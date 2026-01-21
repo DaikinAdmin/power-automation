@@ -133,7 +133,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
     try {
       const url = mode === 'create' 
         ? '/api/admin/categories'
-        : `/api/admin/categories/${category?.id}`;
+        : `/api/admin/categories/${category?.slug}`;
       
       const method = mode === 'create' ? 'POST' : 'PUT';
 

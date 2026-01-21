@@ -264,7 +264,6 @@ const CatalogProductCard = ({
             <WarehouseAvailability
               inStock={inStock}
               locationLabel={warehouseLabel}
-              extraLabel={warehouseExtraLabel}
               variant="catalog"
               className="mb-2"
             />

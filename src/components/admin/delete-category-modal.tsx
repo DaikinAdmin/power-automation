@@ -19,6 +19,7 @@ interface DeleteCategoryModalProps {
   category: {
     id: string;
     name: string;
+    slug: string;
   } | null;
 }
 
@@ -33,7 +34,7 @@ export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: De
     setError('');
 
     try {
-      const response = await fetch(`/api/admin/categories/${category.id}`, {
+      const response = await fetch(`/api/admin/categories/${category.slug}`, {
         method: 'DELETE',
       });
 

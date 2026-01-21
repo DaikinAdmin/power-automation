@@ -91,9 +91,9 @@
     "viewAllProducts": "Zobacz wszystkie produkty",
     "inStock": "w magazynie",
     "outOfStock": "Brak w magazynie",
-    "from": "Od",
-    "moreLocations": "więcej lokalizacji",
-    "moreLocation": "więcej lokalizacja",
+    "from": "Z {warehouse}",
+    "moreLocations": "+{count} więcej lokalizacji",
+    "moreLocation": "+1 więcej lokalizacja",
     "buy": "Kup",
     "askForPrice": "Zapytaj o cenę",
     "searching": "Szukam...",
@@ -159,7 +159,7 @@
   "dashboard": {
     "welcomeBack": "Witaj ponownie",
     "statsOverview": "Przegląd statystyk",
-    "greeting": "Cześć {{name}}, oto szybki przegląd Twojej ostatniej aktywności. Szczegółowe raporty są w drodze.",
+    "greeting": "Cześć {name}, oto szybki przegląd Twojej ostatniej aktywności. Szczegółowe raporty są w drodze.",
     "stats": {
       "ordersPlaced": "Złożone zamówienia",
       "itemsPurchased": "Zakupione przedmioty",
@@ -180,22 +180,21 @@
     }
   },
   "product": {
-    "loading": "Ładowanie produktu…",
+    "loading": "Ładowanie informacji o produkcie...",
     "notFound": {
-      "title": "Produkt nie został znaleziony",
+      "title": "Produkt nie znaleziony",
       "description": "Produkt, którego szukasz, jest niedostępny lub został usunięty.",
       "backToHome": "Powrót do strony głównej"
     },
-    "articleId": "Artykuł",
-    "from": "Z {{warehouse}}",
-    "moreLocations": "+{{count}} więcej lokalizacji",
+    "articleId": "Numer artykułu",
+    "warehouseFrom": "Ze magazynu ",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Bestseller",
-        "hotDeal": "Gorąca oferta",
+        "hotDeal": "Okazja",
         "new": "Nowość",
-        "limited": "Limitowana",
+        "limited": "Ograniczona",
         "standard": "Standard"
       }
     },
@@ -208,6 +207,10 @@
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu"
     },
+    "warehouse-availability": {
+      "inStock": "W magazynie",
+      "outOfStock": "Brak w magazynie"
+    },
     "tabs": {
       "delivery": "Dostawa i dostępność",
       "warranty": "Gwarancja",
@@ -215,11 +218,11 @@
     },
     "tabContent": {
       "deliveryAvailable": "Dostawa dostępna w ciągu 3-5 dni roboczych z wybranego magazynu.",
-      "fasterShipping": "Potrzebujesz szybszej wysyłki? Skontaktuj się z naszym zespołem logistycznym w sprawie opcji ekspresowych.",
-      "manufacturerWarranty": "Gwarancja producenta: {{months}} miesięcy.",
+      "fasterShipping": "Potrzebujesz szybszej dostawy? Skontaktuj się z naszym zespołem logistycznym w celu uzyskania opcji ekspresowych.",
+      "manufacturerWarranty": "Gwarancja producenta: {months} miesięcy.",
       "warrantyNotSpecified": "Gwarancja producenta: Nie określono.",
-      "additionalContracts": "Dodatkowe umowy serwisowe dostępne na żądanie.",
-      "datasheets": "Karty katalogowe i certyfikaty dostępne na żądanie. Skontaktuj się ze wsparciem, aby uzyskać więcej informacji."
+      "additionalContracts": "Dodatkowe umowy serwisowe dostępne na życzenie.",
+      "datasheets": "Karty techniczne i certyfikaty dostępne na życzenie. Skontaktuj się z działem wsparcia, aby uzyskać więcej informacji."
     },
     "details": {
       "title": "Szczegóły produktu",
@@ -227,8 +230,8 @@
       "warranty": "Gwarancja",
       "category": "Kategoria",
       "subcategory": "Podkategoria",
-      "months": "{{count}} miesięcy",
-      "warrantyMonths": "{{count}} miesięcy",
+      "months": "{count} miesięcy",
+      "warrantyMonths": "{count} miesięcy",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -238,6 +241,30 @@
       "emailPlaceholder": "E-mail",
       "opinionPlaceholder": "Podziel się swoim doświadczeniem",
       "submit": "Wyślij opinię"
+    },
+    "warehouseSelector": {
+      "title": "Wybierz magazyn",
+      "inStock": "{count} w magazynie",
+      "outOfStock": "Brak w magazynie",
+      "notAvailable": {
+        "title": "Produkt niedostępny",
+        "description": "Ten produkt jest obecnie niedostępny w wybranym magazynie.",
+        "switchButton": "Przejdź do dostępnego magazynu",
+        "noStockButton": "Brak w magazynie",
+        "requestButton": "Powiadom o dostępności"
+      },
+      "requestForm": {
+        "title": "Zapytaj o {itemName} kiedy będzie dostępny",
+        "nameLabel": "Twoje imię",
+        "emailLabel": "E-mail",
+        "messageLabel": "Wiadomość (opcjonalnie)",
+        "messagePlaceholder": "Jakieś konkretne wymagania lub pytania...",
+        "submitButton": "Wyślij zapytanie",
+        "submittingButton": "Wysyłanie...",
+        "cancelButton": "Anuluj",
+        "successMessage": "Twój zapytanie zostało wysłane! Skontaktujemy się z Tobą, gdy produkt będzie dostępny.",
+        "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie."
+      }
     },
     "askPriceModal": {
       "title": "Zapytaj o cenę",
@@ -254,18 +281,18 @@
       "cancel": "Anuluj",
       "submit": "Zapytaj o cenę",
       "submitting": "Wysyłanie...",
-      "success": "Zapytanie o cenę zostało wysłane pomyślnie! Wkrótce się z Tobą skontaktujemy.",
-      "error": "Nie udało się przesłać zapytania o cenę. Spróbuj ponownie."
+      "success": "Zapytanie o cenę zostało pomyślnie wysłane! Skontaktujemy się z Tobą wkrótce.",
+      "error": "Nie udało się wysłać zapytania o cenę. Proszę spróbuj ponownie."
     },
-    "productCatalogCard":{
-      "buy":"Kup",
-      "outOfStock":"Brak",
+    "productCatalogCard": {
+      "buy": "Kup",
+      "outOfStock": "Brak w magazynie",
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu"
     },
     "compare": {
-      "alreadyAdded": "Ten produkt jest już na liście porównania",
-      "limitReached": "Możesz porównać maksymalnie 5 produktów"
+      "alreadyAdded": "Ten produkt jest już na liście porównań",
+      "limitReached": "Można porównać maksymalnie 5 produktów"
     }
   },
   "compare": {
@@ -306,6 +333,7 @@
       "discount": "PROMOCJA",
       "new": "NOWOŚĆ"
     },
+    "warehouseFrom": "Z {warehouse}",
     "messages": {
       "noProducts": "Brak produktów w tej kategorii.",
       "noCategories": "Brak dostępnych kategorii.",
@@ -354,8 +382,7 @@
   "footer": {
     "copyright": "© 2024 Wszelkie prawa zastrzeżone",
     "weAccept": "Akceptujemy:",
-    "categories": "Kategorie",
-    "moreCategories": "Więcej kategorii",
+    "categories": "Katalog",
     "forClients": "Dla klientów",
     "contactInfo": "Informacje kontaktowe",
     "links": {
@@ -366,21 +393,16 @@
       "refunding": "Zwroty",
       "contacts": "Kontakt"
     },
-    "categories1": {
-      "electronics": "Elektronika",
-      "fashion": "Moda",
-      "homeGarden": "Dom i ogród",
-      "sports": "Sport"
-    },
-    "categories2": {
-      "books": "Książki",
-      "healthBeauty": "Zdrowie i uroda",
-      "automotive": "Motoryzacja",
-      "toysGames": "Zabawki i gry"
-    },
     "workingHours": {
       "weekdays": "Pon-Pt: 9:00-18:00",
       "saturday": "Sob: 9:00-16:00"
     }
+  },
+  "contactMap": {
+    "loading": "Ładowanie mapy...",
+    "error": "Nie udało się załadować mapy. Spróbuj ponownie później.",
+    "ourLocation": "Nasza lokalizacja",
+    "openMaps": "Otwórz w mapach"
   }
 }
+

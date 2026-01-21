@@ -52,6 +52,12 @@ export default function middleware(request: NextRequest) {
   // For non-API routes, use the intl middleware
   const response = intlMiddleware(request);
   response.headers.set('x-request-id', requestId);
+  
+  // Prevent aggressive caching in production to ensure locale changes work
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+  
   return response;
 }
 

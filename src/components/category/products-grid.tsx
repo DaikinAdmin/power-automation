@@ -77,13 +77,11 @@ export function ProductsGrid({
             : "bg-red-500 text-white",
         };
 
-        const warehouseLabel = `${t("from")} ${
-          displayedName || warehouseName || "Unknown Warehouse"
-        }`;
+        const warehouseLabel = t("from", {
+          warehouse: displayedName || warehouseName || "Unknown Warehouse",
+        });
         const warehouseExtraLabel = hasMultipleWarehouses
-          ? `+${item.prices.length - 1} ${
-              item.prices.length > 2 ? t("moreLocations") : t("moreLocation")
-            }`
+          ? t("moreLocations", { count: item.prices.length - 1 })
           : undefined;
 
         const addToCartHandler = () => {
