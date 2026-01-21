@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import { useCategories } from '@/hooks/useCategories';
+import { useLocale } from 'next-intl';
 
 const ACCEPTED_CARDS = [
   {
@@ -12,6 +14,12 @@ const ACCEPTED_CARDS = [
 
 export default function Footer() {
   const t = useTranslations('footer');
+  const locale = useLocale();
+  const { categories, isLoading } = useCategories(locale);
+  
+  // Split categories into two columns if first column has 6 items
+  const firstColumnCategories = categories.slice(0, 9);
+  const secondColumnCategories = categories.slice(9);
   
   return (
     <footer style={{ backgroundColor: '#404040' }} className="text-white py-12 z-20">
@@ -50,30 +58,44 @@ export default function Footer() {
           {/* Column 2: Categories 1 */}
           <div>
             <h3 className="text-red-500 font-semibold text-lg mb-4">{t('categories')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.electronics')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.fashion')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.homeGarden')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.sports')}</a></li>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              {!isLoading && firstColumnCategories.map((category) => (
+                <li key={category.id}>
+                  <Link 
+                    href={`/categories/${category.slug}`} 
+                    className="hover:text-white transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Column 3: Categories 2 */}
-          <div>
-            <h3 className="text-red-500 font-semibold text-lg mb-4">{t('moreCategories')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.books')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.healthBeauty')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.automotive')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.toysGames')}</a></li>
-            </ul>
-          </div>
+          {/* Column 3: Categories 2 (if more than 9) */}
+          {secondColumnCategories.length > 0 && (
+            <div>
+              <h3 className="text-red-500 font-semibold text-lg mb-4">&nbsp;</h3>
+              <ul className="space-y-2 text-gray-300 text-sm">
+                {secondColumnCategories.map((category) => (
+                  <li key={category.id}>
+                    <Link 
+                      href={`/categories/${category.slug}`} 
+                      className="hover:text-white transition-colors"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Column 4: For Clients */}
           <div>
             <h3 className="text-red-500 font-semibold text-lg mb-4">{t('forClients')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="/sign-in" className="hover:text-white transition-colors">{t('links.enterShop')}</a></li>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              <li><a href="/signin" className="hover:text-white transition-colors">{t('links.enterShop')}</a></li>
               <li><Link href="/about" className="hover:text-white transition-colors">{t('links.about')}</Link></li>
               <li><Link href="/brands" className="hover:text-white transition-colors">{t('links.brands')}</Link></li>
               <li><Link href="/purchase-delivery" className="hover:text-white transition-colors">{t('links.purchaseDelivery')}</Link></li>

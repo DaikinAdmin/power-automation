@@ -174,6 +174,14 @@ export async function PUT(
       throw new NotFoundError('Category not found');
     }
 
+    // If slug changed, update all items that reference this category
+    if (slug !== newSlug) {
+      await db
+        .update(schema.item)
+        .set({ categorySlug: newSlug })
+        .where(eq(schema.item.categorySlug, slug));
+    }
+
     // Delete existing subcategories and insert new ones
     await db
       .delete(schema.subcategories)
@@ -294,6 +302,23 @@ export async function DELETE(
 
     if (itemCount && itemCount.count > 0) {
       throw new BadRequestError('Cannot delete category with items. Please move or delete items first.');
+    }
+
+    // Check if subcategories have items
+    const subcategories = await db
+      .select()
+      .from(schema.subcategories)
+      .where(eq(schema.subcategories.categorySlug, slug));
+
+    for (const subcategory of subcategories) {
+      const [subItemCount] = await db
+        .select({ count: sql<number>`cast(count(*) as integer)` })
+        .from(schema.item)
+        .where(eq(schema.item.categorySlug, subcategory.slug));
+
+      if (subItemCount && subItemCount.count > 0) {
+        throw new BadRequestError(`Cannot delete category. Subcategory "${subcategory.name}" has items. Please move or delete items first.`);
+      }
     }
 
     // Delete subcategories first

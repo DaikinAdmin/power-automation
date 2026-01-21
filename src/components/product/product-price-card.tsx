@@ -13,7 +13,6 @@ interface ProductPriceCardProps {
   inStock: boolean;
   quantity: number;
   warehouseLabel?: string;
-  extraLabel?: string;
   onAddToCart: () => void;
   onAskPrice: () => void;
   onAddToCompare?: () => void;
@@ -29,7 +28,6 @@ export function ProductPriceCard({
   inStock,
   quantity,
   warehouseLabel,
-  extraLabel,
   onAddToCart,
   onAskPrice,
   onAddToCompare,
@@ -71,7 +69,6 @@ export function ProductPriceCard({
         inStock={inStock}
         quantity={quantity}
         locationLabel={warehouseLabel}
-        extraLabel={extraLabel}
         className="mt-4"
       />
 

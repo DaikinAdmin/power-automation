@@ -4,20 +4,23 @@ import { useLocale } from "next-intl"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { usePathname, useRouter } from "@/i18n/navigation"
-import { FlagIcon, FlagIconCode } from "react-flag-kit"
+import PL from "country-flag-icons/react/3x2/PL"
+import GB from "country-flag-icons/react/3x2/GB"
+import UA from "country-flag-icons/react/3x2/UA"
+import ES from "country-flag-icons/react/3x2/ES"
 
 interface Language {
   code: string
   name: string
-  countryCode: FlagIconCode // тепер строго під тип прапора
+  Flag: React.ComponentType<{ className?: string }>
 }
 
-// Список мов з кодами країн для прапорів
+// Список мов з компонентами прапорів
 const languages: Language[] = [
-  { code: "pl", name: "Polski", countryCode: "PL" },
-  { code: "en", name: "English", countryCode: "GB" },
-  { code: "ua", name: "Українська", countryCode: "UA" },
-  { code: "es", name: "Español", countryCode: "ES" },
+  { code: "pl", name: "Polski", Flag: PL },
+  { code: "en", name: "English", Flag: GB },
+  { code: "ua", name: "Українська", Flag: UA },
+  { code: "es", name: "Español", Flag: ES },
 ]
 
 export default function LanguageSwitcher() {
@@ -27,7 +30,14 @@ export default function LanguageSwitcher() {
 
   const handleLanguageChange = (newLocale: string) => {
     if (newLocale === locale) return
+    
+    // Use replace with startTransition to ensure proper navigation
     router.replace(pathname, { locale: newLocale })
+    
+    // Force refresh to clear Next.js router cache
+    setTimeout(() => {
+      router.refresh()
+    }, 100)
   }
 
   const currentLang = languages.find((lang) => lang.code === locale) || languages[0]
@@ -37,7 +47,7 @@ export default function LanguageSwitcher() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2">
-            <FlagIcon code={currentLang.countryCode} size={20} />
+            <currentLang.Flag className="w-5 h-auto" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -47,7 +57,7 @@ export default function LanguageSwitcher() {
               onClick={() => handleLanguageChange(language.code)}
               className={`flex items-center gap-2 ${language.code === locale ? "bg-accent font-medium" : ""}`}
             >
-              <FlagIcon code={language.countryCode} size={20} />
+              <language.Flag className="w-5 h-auto" />
               <span>{language.name}</span>
             </DropdownMenuItem>
           ))}

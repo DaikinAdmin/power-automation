@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
           id: randomUUID(),
           name: sub.name,
           slug: sub.slug,
-          categorySlug: category.id,
+          categorySlug: category.slug,
           isVisible: sub.isVisible,
           createdAt: now,
           updatedAt: now,

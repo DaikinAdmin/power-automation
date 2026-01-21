@@ -1,10 +1,11 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface WarehouseAvailabilityProps {
   inStock: boolean;
   quantity?: number;
   locationLabel?: string;
-  extraLabel?: string;
   variant?: 'detail' | 'catalog';
   className?: string;
 }
@@ -13,15 +14,15 @@ export const WarehouseAvailability = ({
   inStock,
   quantity,
   locationLabel,
-  extraLabel,
   variant = 'catalog',
   className
 }: WarehouseAvailabilityProps) => {
+  const t = useTranslations('product.warehouse-availability');
   const stockLabel = inStock
     ? quantity != null
-      ? `${quantity} in stock`
-      : 'In stock'
-    : 'Out of stock';
+      ? `${quantity} ${t('inStock')}`
+      : t('inStock')
+    : t('outOfStock');
 
   if (variant === 'detail') {
     return (
@@ -36,9 +37,6 @@ export const WarehouseAvailability = ({
         {locationLabel && (
           <span className="ml-2 text-sm text-gray-600">{locationLabel}</span>
         )}
-        {extraLabel && (
-          <span className="ml-2 text-xs text-blue-600">{extraLabel}</span>
-        )}
       </div>
     );
   }
@@ -46,9 +44,6 @@ export const WarehouseAvailability = ({
   return (
     <div className={`text-xs text-gray-500 ${className || ''}`.trim()}>
       {locationLabel}
-      {extraLabel && (
-        <span className="ml-1 text-blue-600">{extraLabel}</span>
-      )}
     </div>
   );
 };

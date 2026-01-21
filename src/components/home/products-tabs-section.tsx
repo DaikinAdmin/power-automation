@@ -179,7 +179,7 @@ export default function ProductsTabsSection({
               const convertedOriginalPrice =
                 originalPrice != null ? convertPrice(originalPrice) : null;
               const warehouseLabel = displayedName
-                ? `From ${displayedName}`
+                ? t("warehouseFrom", { warehouse: displayedName })
                 : undefined;
 
               const badge = (() => {
@@ -301,7 +301,7 @@ export default function ProductsTabsSection({
                   const convertedOriginalPrice =
                     originalPrice != null ? convertPrice(originalPrice) : null;
                   const warehouseLabel = displayedName
-                    ? `From ${displayedName}`
+                    ? t("warehouseFrom", { warehouse: displayedName })
                     : undefined;
 
                   const badge = (() => {

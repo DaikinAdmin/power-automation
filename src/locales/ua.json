@@ -95,9 +95,9 @@
     "viewAllProducts": "Переглянути всі продукти",
     "inStock": "в наявності",
     "outOfStock": "Немає в наявності",
-    "from": "Від",
-    "moreLocations": "більше локацій",
-    "moreLocation": "більше локація",
+    "from": "З {warehouse}",
+    "moreLocations": "+{count} більше локацій",
+    "moreLocation": "+1 більше локація",
     "buy": "Купити",
     "askForPrice": "Запитати ціну",
     "searching": "Пошук...",
@@ -163,7 +163,7 @@
   "dashboard": {
     "welcomeBack": "Ласкаво просимо",
     "statsOverview": "Огляд статистики",
-    "greeting": "Привіт {{name}}, ось швидкий огляд вашої останньої активності. Детальні звіти в дорозі.",
+    "greeting": "Привіт {name}, ось швидкий огляд вашої останньої активності. Детальні звіти в дорозі.",
     "stats": {
       "ordersPlaced": "Розміщені замовлення",
       "itemsPurchased": "Куплені товари",
@@ -191,10 +191,10 @@
       "backToHome": "Повернутися на головну"
     },
     "articleId": "Артикул",
-    "from": "Від {{warehouse}}",
-    "moreLocations": "+{{count}} більше локацій",
+    "warehouseFrom": "Зі складу ",
+    "moreLocations": "+{count} більше локацій",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Бестселер",
         "hotDeal": "Гаряча пропозиція",
@@ -212,6 +212,10 @@
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні"
     },
+    "warehouse-availability": {
+      "inStock": "В наявності",
+      "outOfStock": "Немає в наявності"
+    },
     "tabs": {
       "delivery": "Доставка та наявність",
       "warranty": "Гарантія",
@@ -220,7 +224,7 @@
     "tabContent": {
       "deliveryAvailable": "Доставка доступна протягом 3-5 робочих днів з обраного складу.",
       "fasterShipping": "Потрібна швидша доставка? Зв'яжіться з нашою логістичною командою для експрес-варіантів.",
-      "manufacturerWarranty": "Гарантія виробника: {{months}} місяців.",
+      "manufacturerWarranty": "Гарантія виробника: {months} місяців.",
       "warrantyNotSpecified": "Гарантія виробника: Не вказано.",
       "additionalContracts": "Додаткові сервісні контракти доступні за запитом.",
       "datasheets": "Технічні паспорти та сертифікати доступні за запитом. Зв'яжіться з підтримкою для отримання додаткової інформації."
@@ -231,8 +235,8 @@
       "warranty": "Гарантія",
       "category": "Категорія",
       "subcategory": "Підкатегорія",
-      "months": "{{count}} місяців",
-      "warrantyMonths": "{{count}} місяців",
+      "months": "{count} місяців",
+      "warrantyMonths": "{count} місяців",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -242,6 +246,30 @@
       "emailPlaceholder": "E-mail",
       "opinionPlaceholder": "Поділіться своїм досвідом",
       "submit": "Відправити відгук"
+    },
+    "warehouseSelector": {
+      "title": "Виберіть склад",
+      "inStock": "{count} в наявності",
+      "outOfStock": "Немає в наявності",
+      "notAvailable": {
+        "title": "Товар недоступний",
+        "description": "Цей товар наразі відсутній на вибраному складі.",
+        "switchButton": "Перейти до доступного складу",
+        "noStockButton": "Немає в наявності",
+        "requestButton": "Повідомити про наявність"
+      },
+      "requestForm": {
+        "title": "Запитати про {itemName} коли буде доступний",
+        "nameLabel": "Ваше ім'я",
+        "emailLabel": "Електронна пошта",
+        "messageLabel": "Повідомлення (необов'язково)",
+        "messagePlaceholder": "Будь-які конкретні вимоги або питання...",
+        "submitButton": "Відправити запит",
+        "submittingButton": "Відправлення...",
+        "cancelButton": "Скасувати",
+        "successMessage": "Ваш запит відправлено! Ми зв'яжемося з вами, коли товар з'явиться в наявності.",
+        "errorMessage": "Не вдалося відправити запит. Спробуйте ще раз."
+      }
     },
     "askPriceModal": {
       "title": "Запитати ціну",
@@ -261,9 +289,9 @@
       "success": "Запит на ціну успішно відправлено! Ми зв'яжемося з вами найближчим часом.",
       "error": "Не вдалося надіслати запит на ціну. Будь ласка, спробуйте ще раз."
     },
-    "productCatalogCard":{
-      "buy":"Купити",
-      "outOfStock":"Немає в наявності",
+    "productCatalogCard": {
+      "buy": "Купити",
+      "outOfStock": "Немає в наявності",
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні"
     },
@@ -361,8 +389,7 @@
   "footer": {
     "copyright": "© 2024 Всі права захищені",
     "weAccept": "Ми приймаємо:",
-    "categories": "Категорії",
-    "moreCategories": "Більше категорій",
+    "categories": "Каталог",
     "forClients": "Для клієнтів",
     "contactInfo": "Контактна інформація",
     "links": {
@@ -373,21 +400,16 @@
       "refunding": "Повернення",
       "contacts": "Контакти"
     },
-    "categories1": {
-      "electronics": "Електроніка",
-      "fashion": "Мода",
-      "homeGarden": "Дім і сад",
-      "sports": "Спорт"
-    },
-    "categories2": {
-      "books": "Книги",
-      "healthBeauty": "Здоров'я та краса",
-      "automotive": "Автомобілі",
-      "toysGames": "Іграшки та ігри"
-    },
     "workingHours": {
       "weekdays": "Пн-Пт: 9:00-18:00",
       "saturday": "Сб: 9:00-16:00"
     }
+  },
+  "contactMap": {
+    "loading": "Завантаження карти...",
+    "error": "Не вдалося завантажити карту. Спробуйте ще раз пізніше.",
+    "ourLocation": "Наше розташування",
+    "openMaps": "Відкрити в картах"
   }
 }
+

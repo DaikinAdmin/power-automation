@@ -399,12 +399,10 @@ export default function ProductPage({
   }
 
   const warehouseLabel = selectedWarehouse
-    ? t("from", { warehouse: selectedWarehouse.displayedName })
+    ? t("warehouseFrom") + selectedWarehouse.displayedName
     : undefined;
-  const warehouseExtraLabel =
-    selectedWarehouse && product.warehouses.length > 1
-      ? t("moreLocations", { count: product.warehouses.length - 1 })
-      : undefined;
+
+  console.log(warehouseLabel)
 
   const basePriceNumber = selectedWarehouse?.basePrice ?? 0;
   const specialPriceNumber = selectedWarehouse?.baseSpecialPrice;
@@ -460,7 +458,6 @@ export default function ProductPage({
                 inStock={selectedWarehouse.inStock}
                 quantity={selectedWarehouse.quantity}
                 warehouseLabel={warehouseLabel}
-                extraLabel={warehouseExtraLabel}
                 onAddToCart={handleAddToCart}
                 onAskPrice={() => setShowAskPriceModal(true)}
                 onAddToCompare={handleAddToCompare}

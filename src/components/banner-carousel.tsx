@@ -156,7 +156,7 @@ const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fal
   }
 
   return (
-    <div className="relative w-full h-40 md:h-[560px] overflow-hidden">
+    <div className="relative w-full overflow-hidden aspect-[16/9] md:aspect-[1920/560]">
       {/* Carousel viewport */}
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">

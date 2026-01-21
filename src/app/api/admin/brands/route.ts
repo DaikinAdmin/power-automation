@@ -41,14 +41,12 @@ export async function GET() {
       .orderBy(asc(schema.brand.name));
 
     // Get item counts for each brand
-    const brandAliases = brands.map((b) => b.alias);
     const itemCounts = await db
       .select({
         brandSlug: schema.item.brandSlug,
         count: sql<number>`cast(count(*) as integer)`,
       })
       .from(schema.item)
-      .where(sql`${schema.item.brandSlug} = ANY(${brandAliases})`)
       .groupBy(schema.item.brandSlug);
 
     const brandsWithCounts = brands.map((brand) => {
