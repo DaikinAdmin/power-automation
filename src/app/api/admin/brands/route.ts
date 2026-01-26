@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, asc, sql } from 'drizzle-orm';
+import { eq, asc, sql, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
@@ -12,11 +11,11 @@ import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError, Co
 
 const ONE_DAY_CACHE_HEADER = 'public, max-age=0, s-maxage=86400, stale-while-revalidate=600';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {
@@ -42,14 +41,30 @@ export async function GET() {
 
     // Get item counts for each brand
     const brandAliases = brands.map((b) => b.alias);
-    const itemCounts = await db
-      .select({
-        brandSlug: schema.item.brandSlug,
-        count: sql<number>`cast(count(*) as integer)`,
-      })
-      .from(schema.item)
-      .where(sql`${schema.item.brandSlug} = ANY(${brandAliases})`)
-      .groupBy(schema.item.brandSlug);
+    
+    let itemCounts: Array<{ brandSlug: string | null; count: number }> = [];
+    if (brandAliases.length > 0) {
+      if (brandAliases.length === 1) {
+        // For single brand, use eq instead of inArray to avoid SQL syntax issues
+        itemCounts = await db
+          .select({
+            brandSlug: schema.item.brandSlug,
+            count: sql<number>`cast(count(*) as integer)`,
+          })
+          .from(schema.item)
+          .where(eq(schema.item.brandSlug, brandAliases[0]))
+          .groupBy(schema.item.brandSlug);
+      } else {
+        itemCounts = await db
+          .select({
+            brandSlug: schema.item.brandSlug,
+            count: sql<number>`cast(count(*) as integer)`,
+          })
+          .from(schema.item)
+          .where(inArray(schema.item.brandSlug, brandAliases))
+          .groupBy(schema.item.brandSlug);
+      }
+    }
 
     const brandsWithCounts = brands.map((brand) => {
       const countObj = itemCounts.find((c) => c.brandSlug === brand.alias);
@@ -101,7 +116,7 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {

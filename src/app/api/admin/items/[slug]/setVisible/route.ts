@@ -9,13 +9,13 @@ import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: Promise<{ articleId: string }> }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const { articleId } = await params;
+        const { slug } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {
@@ -36,7 +36,7 @@ export async function PUT(
                 isDisplayed: data.isDisplayed,
                 updatedAt: new Date().toISOString(),
             })
-            .where(eq(schema.item.articleId, articleId))
+            .where(eq(schema.item.slug, slug))
             .returning();
 
         if (!updatedItem) {
@@ -54,7 +54,7 @@ export async function PUT(
         }
 
         const updatedItem = await db.item.update({
-            where: { articleId },
+            where: { slug },
             data: { isDisplayed: data.isDisplayed }
         });
         */

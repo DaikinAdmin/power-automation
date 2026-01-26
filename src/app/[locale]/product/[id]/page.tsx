@@ -215,14 +215,15 @@ export default function ProductPage({
 
         const cartItem: Omit<CartItemType, "quantity"> = {
           id: product.id,
-          slug: product.articleId,
+          slug: product.slug,
           articleId: product.articleId,
+          alias: product.alias ? product.alias : "",
           isDisplayed: product.isDisplayed,
           itemImageLink: product.itemImageLink || [product.image] || [],
           categorySlug: product.categorySlug,
           brandSlug: product.brandSlug ?? null,
-          warrantyType: product.warrantyType ?? null,
-          warrantyLength: product.warrantyMonths ?? null,
+          warrantyType: product.warrantyType ?? '',
+          warrantyLength: product.warrantyMonths ?? 12,
           sellCounter: product.sellCounter ?? 0,
           createdAt: now,
           updatedAt: now,
@@ -262,7 +263,7 @@ export default function ProductPage({
           itemDetails: [
             {
               id: "",
-              itemSlug: product.articleId,
+              itemSlug: product.slug,
               locale: resolvedDetailLocale,
               itemName: productName,
               description: product.description,
@@ -342,7 +343,7 @@ export default function ProductPage({
     const specialPriceNumber = selectedWarehouse.baseSpecialPrice;
 
     const compareItem = {
-      id: product.articleId, // використовуємо articleId як унікальний ідентифікатор
+      id: product.slug, // використовуємо slug як унікальний ідентифікатор
       articleId: product.articleId,
       name: productName,
       brand: product.brand,
@@ -356,7 +357,7 @@ export default function ProductPage({
 
     const success = addToCompare(compareItem);
     if (!success) {
-      if (isInCompare(product.articleId)) {
+      if (isInCompare(product.slug)) {
         alert(t("compare.alreadyAdded"));
       } else {
         alert(t("compare.limitReached"));
@@ -465,7 +466,7 @@ export default function ProductPage({
                 onAskPrice={() => setShowAskPriceModal(true)}
                 onAddToCompare={handleAddToCompare}
                 isAddingToCart={isAddingToCart}
-                isInCompare={product ? isInCompare(product.articleId) : false}
+                isInCompare={product ? isInCompare(product.slug) : false}
               />
             )}
 

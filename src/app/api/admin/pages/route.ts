@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user || session.user.role !== 'admin') {

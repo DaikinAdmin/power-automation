@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import type { OrderStatus } from '@/db/schema';
 
 // import prisma from '@/db';
@@ -39,9 +38,9 @@ const parseLineItems = (value: JsonValue | null): OrderLineItem[] => {
   return [];
 };
 
-async function ensureAuthorized() {
+async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: request.headers,
   });
 
   if (!session?.user) {
@@ -82,7 +81,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await ensureAuthorized();
+    const authResult = await ensureAuthorized(request);
     if ('error' in authResult) {
       return authResult.error;
     }
@@ -231,7 +230,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await ensureAuthorized();
+    const authResult = await ensureAuthorized(request);
     if ('error' in authResult) {
       return authResult.error;
     }

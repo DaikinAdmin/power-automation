@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { eq, asc } from 'drizzle-orm';
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {
@@ -105,7 +104,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {

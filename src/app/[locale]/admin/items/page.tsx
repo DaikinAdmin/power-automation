@@ -22,6 +22,47 @@ export default function ItemsPage() {
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [cachedEtag, setCachedEtag] = useState<string | null>(null);
+
+  // Filter items based on search term and filters
+  const filteredItems = items.filter(item => {
+    // Search term filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const itemName = item.itemDetails[0]?.itemName?.toLowerCase() || '';
+      const articleId = item.articleId?.toLowerCase() || '';
+      const alias = item.alias?.toLowerCase() || '';
+      const brandAlias = item.brandSlug?.toLowerCase() || '';
+      
+      const matchesSearch = (
+        itemName.includes(searchLower) ||
+        articleId.includes(searchLower) ||
+        alias.includes(searchLower) ||
+        brandAlias.includes(searchLower)
+      );
+      
+      if (!matchesSearch) return false;
+    }
+    
+    // Brand filter
+    if (selectedBrand && item.brandSlug !== selectedBrand) {
+      return false;
+    }
+    
+    // Category filter
+    if (selectedCategory && item.categorySlug !== selectedCategory) {
+      return false;
+    }
+    
+    return true;
+  });
+
+  // Get unique brands and categories for filter dropdowns (filter out nulls)
+  const uniqueBrands = Array.from(new Set(items.map(item => item.brandSlug).filter((value): value is string => Boolean(value)))).sort();
+  const uniqueCategories = Array.from(new Set(items.map(item => item.categorySlug).filter((value): value is string => Boolean(value)))).sort();
 
   const {
     currentPage,
@@ -31,7 +72,7 @@ export default function ItemsPage() {
     goToNextPage,
     goToPreviousPage,
     pageSize
-  } = usePagination<Item>({ data: items, pageSize: 5 });
+  } = usePagination<Item>({ data: filteredItems, pageSize: 5 });
 
   useEffect(() => {
     fetchItems();
@@ -40,10 +81,31 @@ export default function ItemsPage() {
   const fetchItems = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/items');
+      
+      // Include ETag in request headers if we have one
+      const headers: HeadersInit = {};
+      if (cachedEtag) {
+        headers['If-None-Match'] = cachedEtag;
+      }
+      
+      const response = await fetch('/api/admin/items', { headers });
+      
+      if (response.status === 304) {
+        // Not Modified - use cached data
+        console.log('Using cached items data');
+        setIsLoading(false);
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setItems(data);
+        
+        // Store the ETag for future requests
+        const newEtag = response.headers.get('ETag');
+        if (newEtag) {
+          setCachedEtag(newEtag);
+        }
       } else {
         console.error('Failed to fetch items');
       }
@@ -59,7 +121,7 @@ export default function ItemsPage() {
   };
 
   const handleEditItem = (item: Item) => {
-    router.push(`/admin/items/${item.articleId}/edit`);
+    router.push(`/admin/items/${item.slug}/edit`);
   }; 
   
   const handleDeleteItem = (item: Item) => {
@@ -71,7 +133,7 @@ export default function ItemsPage() {
     try {
       if (selectedItem) {
         // Update existing item
-        const response = await fetch(`/api/admin/items/${selectedItem.articleId}`, {
+        const response = await fetch(`/api/admin/items/${selectedItem.slug}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -107,7 +169,7 @@ export default function ItemsPage() {
 
   const handleConfirmDelete = async (item: any) => {
     try {
-      const response = await fetch(`/api/admin/items/${item.articleId}`, {
+      const response = await fetch(`/api/admin/items/${item.slug}`, {
         method: 'DELETE',
       });
 
@@ -124,7 +186,7 @@ export default function ItemsPage() {
 
   const handleToggleDisplay = async (item: Item) => {
     try {
-      const response = await fetch(`/api/admin/items/${item.articleId}/setVisible`, {
+      const response = await fetch(`/api/admin/items/${item.slug}/setVisible`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -176,9 +238,10 @@ export default function ItemsPage() {
   };
 
   const itemStats = {
-    total: items.length,
-    displayed: items.filter(item => item.isDisplayed).length,
-    hidden: items.filter(item => !item.isDisplayed).length,
+    total: items.length, // All items in database
+    selected: filteredItems.length, // Filtered/selected items
+    displayed: filteredItems.filter(item => item.isDisplayed).length, // Displayed in filtered items
+    hidden: filteredItems.filter(item => !item.isDisplayed).length, // Hidden in filtered items
   };
 
   if (isLoading) {
@@ -256,13 +319,26 @@ export default function ItemsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Items</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{itemStats.total}</div>
+            <p className="text-xs text-gray-600">All items in database</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Selected Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{itemStats.selected}</div>
+            <p className="text-xs text-gray-600">
+              {itemStats.total > 0 ? Math.round((itemStats.selected / itemStats.total) * 100) : 0}% of total
+            </p>
           </CardContent>
         </Card>
 
@@ -273,7 +349,7 @@ export default function ItemsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{itemStats.displayed}</div>
             <p className="text-xs text-gray-600">
-              {itemStats.total > 0 ? Math.round((itemStats.displayed / itemStats.total) * 100) : 0}% of total
+              {itemStats.selected > 0 ? Math.round((itemStats.displayed / itemStats.selected) * 100) : 0}% of selected
             </p>
           </CardContent>
         </Card>
@@ -284,6 +360,9 @@ export default function ItemsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{itemStats.hidden}</div>
+            <p className="text-xs text-gray-600">
+              {itemStats.selected > 0 ? Math.round((itemStats.hidden / itemStats.selected) * 100) : 0}% of selected
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -297,12 +376,81 @@ export default function ItemsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 space-y-3">
+            <input
+              type="text"
+              placeholder="Search by article ID, alias, brand, or item name..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page on search
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => {
+                    setSelectedBrand(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Brands</option>
+                  {uniqueBrands.map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {uniqueCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {(searchTerm || selectedBrand || selectedCategory) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedBrand('');
+                  setSelectedCategory('');
+                  setCurrentPage(1);
+                }}
+                className="text-gray-600"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-semibold text-sm">Image</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Article ID</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Brand</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Category</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
@@ -330,6 +478,11 @@ export default function ItemsPage() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-gray-600 font-mono text-sm">{item.articleId}</td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          {item.brandSlug || 'N/A'}
+                        </span>
+                      </td>
                       <td className="py-3 px-4">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {item.category.name || 'Uncategorized'}
@@ -364,10 +517,10 @@ export default function ItemsPage() {
                     </tr>
                   );
                 })}
-                {items.length === 0 && (
+                {currentItems.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-gray-500">
-                      No items found. Add your first item to get started.
+                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                      {searchTerm ? 'No items match your search.' : 'No items found. Add your first item to get started.'}
                     </td>
                   </tr>
                 )}
@@ -379,7 +532,8 @@ export default function ItemsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, items.length)} of {items.length} items
+                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredItems.length)} of {filteredItems.length} items
+                {searchTerm && ` (filtered from ${items.length} total)`}
               </div>
               <div className="flex items-center gap-2">
                 <Button

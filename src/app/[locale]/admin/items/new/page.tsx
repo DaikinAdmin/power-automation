@@ -14,6 +14,7 @@ const initialFormData: Item = {
   id: '',
   slug: '',
   articleId: '',
+  alias: '',
   isDisplayed: false,
   itemImageLink: [],
   createdAt: new Date().toISOString(),
@@ -22,7 +23,7 @@ const initialFormData: Item = {
   brandSlug: '',
   brand: null,
   warrantyType: '',
-  warrantyLength: null,
+  warrantyLength: 12,
   sellCounter: 0,
   category: {
     id: '',

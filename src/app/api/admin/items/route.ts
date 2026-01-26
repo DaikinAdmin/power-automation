@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { createHash } from 'crypto';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { Item } from '@/helpers/types/item';
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -102,6 +102,8 @@ export async function GET(request: NextRequest) {
         return {
           id: item.id,
           articleId: item.articleId,
+          slug: item.slug,
+          alias: item.alias,
           isDisplayed: item.isDisplayed,
           sellCounter: item.sellCounter,
           itemImageLink: item.itemImageLink,
@@ -199,8 +201,26 @@ export async function GET(request: NextRequest) {
     });
     */
 
+    // Calculate ETag based on data
+    const dataString = JSON.stringify(itemsWithRelations);
+    const etag = createHash('md5').update(dataString).digest('hex');
+    
+    // Check if client has cached version
+    const clientEtag = request.headers.get('if-none-match');
+    if (clientEtag === etag) {
+      // Data hasn't changed, return 304 Not Modified
+      return new NextResponse(null, { 
+        status: 304,
+        headers: {
+          'ETag': etag,
+          'Cache-Control': 'private, max-age=0, must-revalidate',
+        }
+      });
+    }
+
     const response = NextResponse.json(itemsWithRelations);
-    response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
+    response.headers.set('ETag', etag);
+    response.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
     return response;
   } catch (error) {
     console.error('Error fetching items:', error);
@@ -211,7 +231,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -226,6 +246,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as Item;
     const {
       articleId,
+      alias,
+      slug,
       isDisplayed,
       itemImageLink,
       itemPrice,
@@ -236,8 +258,8 @@ export async function POST(request: NextRequest) {
       warrantyLength,
     } = body;
 
-    if (!articleId) {
-      return NextResponse.json({ error: 'Article ID is required' }, { status: 400 });
+    if (!slug || !articleId) {
+      return NextResponse.json({ error: 'Slug and Article ID are required' }, { status: 400 });
     }
 
     // Drizzle implementation with new category/subcategory logic
@@ -274,7 +296,8 @@ export async function POST(request: NextRequest) {
       .insert(schema.item)
       .values({
         articleId: articleId,
-        slug: articleId, // Add the required slug field
+        slug: slug, // Add the required slug field,
+        alias: alias || '',
         isDisplayed: isDisplayed ?? false,
         itemImageLink: itemImageLink || null,
         categorySlug: finalCategorySlug || "",
@@ -294,7 +317,7 @@ export async function POST(request: NextRequest) {
         .map((price: any) => ({
           id: crypto.randomUUID(),
           itemId: newItem.id,
-          itemSlug: newItem.articleId,
+          itemSlug: newItem.slug,
           warehouseId: price.warehouseId,
           price: price.price,
           quantity: price.quantity,
@@ -330,7 +353,7 @@ export async function POST(request: NextRequest) {
     if (itemDetails && itemDetails.length > 0) {
       const detailRecords = itemDetails.map((detail: any) => ({
         id: crypto.randomUUID(),
-        itemSlug: newItem.articleId,
+        itemSlug: newItem.slug,
         locale: detail.locale,
         itemName: detail.itemName,
         description: detail.description,
@@ -355,7 +378,7 @@ export async function POST(request: NextRequest) {
     const createdItemDetails = await db
       .select()
       .from(schema.itemDetails)
-      .where(eq(schema.itemDetails.itemSlug, createdItem.articleId));
+      .where(eq(schema.itemDetails.itemSlug, createdItem.slug));
 
     const createdItemPrices = await db
       .select({
@@ -374,7 +397,7 @@ export async function POST(request: NextRequest) {
       })
       .from(schema.itemPrice)
       .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-      .where(eq(schema.itemPrice.itemSlug, createdItem.articleId));
+      .where(eq(schema.itemPrice.itemSlug, createdItem.slug));
 
     /* Prisma implementation (commented out)
     const user = await db.user.findUnique({

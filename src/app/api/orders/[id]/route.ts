@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 
 // import prisma from '@/db';
 import { db } from '@/db';
@@ -16,7 +15,7 @@ export async function GET(
 ) {
   const startTime = Date.now();
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session?.user) {
       throw new UnauthorizedError('Authentication required');
@@ -162,7 +161,7 @@ export async function PATCH(
   const { id } = await params;
 
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session?.user) {
       throw new UnauthorizedError('Authentication required');

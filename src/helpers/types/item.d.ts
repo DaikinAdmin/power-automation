@@ -54,6 +54,8 @@ export type ProductRecommendedWarehouse = {
 
 export type ProductDetailsResponse = {
   id: string;
+  slug: string;
+  alias?: string;
   articleId: string;
   itemImageLink: string[];
   image: string | null;

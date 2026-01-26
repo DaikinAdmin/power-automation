@@ -4,6 +4,7 @@ import * as path from 'path';
 
 export interface ParsedItemData {
   articleId: string;
+  alias?: string;
   itemName: string;
   slug: string;
   brandName: string;
@@ -72,6 +73,7 @@ export function parseExcelToJson(
     const articleId = String(row[0] || '').trim();
     const itemName = String(row[3] || '').trim();
     const slug = String(row[5] || '').trim();
+    const alias = "";
     const brandName = String(row[6] || '').trim();
     const categoryName = String(row[7] || '').trim();
     const subcategoryName = row[8] ? String(row[8]).trim() : null;
@@ -102,6 +104,7 @@ export function parseExcelToJson(
     
     items.push({
       articleId,
+      alias,
       itemName,
       slug,
       brandName,

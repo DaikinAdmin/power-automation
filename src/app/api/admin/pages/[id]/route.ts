@@ -14,7 +14,7 @@ export async function GET(
 ) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user || session.user.role !== 'admin') {
@@ -70,7 +70,7 @@ export async function PATCH(
 ) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user || session.user.role !== 'admin') {
@@ -133,7 +133,7 @@ export async function DELETE(
 ) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user || session.user.role !== 'admin') {

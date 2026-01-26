@@ -394,8 +394,9 @@ export default function CategoryPage({
 
                       const cartItem: Omit<CartItemType, "quantity"> = {
                         id: `${item.articleId}-${warehouseId}`,
-                        slug: item.articleId,
+                        slug: item.slug,
                         articleId: item.articleId,
+                        alias: item.alias,
                         itemImageLink: item.itemImageLink,
                         categorySlug: item.categorySlug,
                         isDisplayed: item.isDisplayed,
@@ -439,7 +440,7 @@ export default function CategoryPage({
                           {
                             ...item.details,
                             id: item.articleId,
-                            itemSlug: item.articleId,
+                            itemSlug: item.slug,
                           },
                         ] as any,
                         itemPrice: item.prices as any,

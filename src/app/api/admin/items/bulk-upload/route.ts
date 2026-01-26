@@ -1,34 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
-import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import * as XLSX from 'xlsx';
 
-interface BulkUploadItem {
-  articleId: string;          // Column A
-  itemName: string;           // Column D
-  slug: string;               // Column F
-  brandName?: string;         // Column G
-  categoryName?: string;      // Column H
-  subCategoryName?: string;   // Column I
-  price: number;              // Column J
-  isDisplayed?: boolean;      // Column M
-  quantity: number;           // Column N
-  itemImageLink?: string[];   // Column O
-  seller?: string;            // Column P
-  description?: string;       // Column Q
-  specifications?: string;    // Column R
-  metaKeyWords?: string;      // Column U
-  metaDescription?: string;   // Column V
-  warehouseName: string;      // warehouse.name
-  locale: string;             // locale
-}
+type FileType = 'ARA' | 'Omron' | 'Pilz' | 'Schneider' | 'Encon';
 
-async function ensureAuthorized() {
+async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: request.headers,
   });
 
   if (!session?.user) {
@@ -48,295 +30,681 @@ async function ensureAuthorized() {
   return { session };
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const authResult = await ensureAuthorized();
-    if ('error' in authResult) {
-      return authResult.error;
+function createSlug(brand: string, articleId: string): string {
+  const processedArticleId = articleId
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  return `${brand}_${processedArticleId}`;
+}
+
+function getCellValue(row: any, col: string): any {
+  return row[col] !== undefined && row[col] !== null && row[col] !== '' ? row[col] : null;
+}
+
+async function getOrCreateWarehouse(warehouseName: string) {
+  const [warehouse] = await db
+    .select()
+    .from(schema.warehouse)
+    .where(eq(schema.warehouse.name, warehouseName))
+    .limit(1);
+
+  if (!warehouse) {
+    throw new Error(`Warehouse '${warehouseName}' not found`);
+  }
+
+  return warehouse;
+}
+
+async function processARAFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  const results = { created: 0, updated: 0, errors: [] as string[] };
+  const now = new Date().toISOString();
+  const defaultCategorySlug = 'low-voltage-components'; // Default category
+
+  const sheetsToProcess = ['Siemens', 'Phoenix', 'MURRELEKTRONIC', 'SICK', 'HARTING'];
+  
+  for (const sheetName of sheetsToProcess) {
+    if (!workbook.SheetNames.includes(sheetName)) {
+      results.errors.push(`Sheet '${sheetName}' not found in workbook`);
+      continue;
     }
 
-    const body = await request.json();
-    const { items } = body as { items: BulkUploadItem[] };
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
 
-    if (!items || !Array.isArray(items)) {
-      return NextResponse.json(
-        { error: 'Invalid request body. Expected items array.' },
-        { status: 400 }
-      );
-    }
+    const brandSlug = sheetName.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
 
-    const results = {
-      created: 0,
-      updated: 0,
-      errors: [] as string[],
-    };
-
-    const now = new Date().toISOString();
-
-    for (const item of items) {
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i] as any;
+      
       try {
-        // Validate required fields
-        if (!item.articleId || !item.itemName || !item.slug || !item.warehouseName || !item.locale) {
-          results.errors.push(
-            `Item skipped: missing required fields (articleId, itemName, slug, warehouseName, or locale)`
-          );
-          continue;
-        }
+        const articleId = getCellValue(row, 'A');
+        if (!articleId) continue;
 
-        // Find warehouse by name
-        const [warehouse] = await db
-          .select()
-          .from(schema.warehouse)
-          .where(eq(schema.warehouse.name, item.warehouseName))
-          .limit(1);
-
-        if (!warehouse) {
-          results.errors.push(
-            `Item ${item.articleId}: Warehouse '${item.warehouseName}' not found`
-          );
-          continue;
-        }
-
-        // Determine categorySlug
-        let categorySlug = '';
+        const isHarting = sheetName === 'HARTING';
         
-        if (item.subCategoryName && item.subCategoryName.trim() !== '') {
-          // Find subcategory by name
-          const [subcategory] = await db
-            .select()
-            .from(schema.subcategories)
-            .where(eq(schema.subcategories.name, item.subCategoryName))
-            .limit(1);
+        const quantity = isHarting ? getCellValue(row, 'C') : getCellValue(row, 'B');
+        const price = isHarting ? getCellValue(row, 'E') : getCellValue(row, 'D');
+        const itemNameES = isHarting ? getCellValue(row, 'B') : getCellValue(row, 'A');
+        const itemNameDefault = getCellValue(row, 'A');
 
-          if (subcategory) {
-            categorySlug = subcategory.slug;
-          } else if (item.categoryName) {
-            // Fallback to category if subcategory not found
-            const [category] = await db
-              .select()
-              .from(schema.category)
-              .where(eq(schema.category.name, item.categoryName))
-              .limit(1);
-            
-            if (category) {
-              categorySlug = category.slug;
-            }
-          }
-        } else if (item.categoryName) {
-          // Use category if no subcategory specified
-          const [category] = await db
-            .select()
-            .from(schema.category)
-            .where(eq(schema.category.name, item.categoryName))
-            .limit(1);
-          
-          if (category) {
-            categorySlug = category.slug;
-          }
-        }
+        if (!price) continue;
 
-        // Find brand if specified
-        let brandSlug: string | null = null;
-        if (item.brandName && item.brandName.trim() !== '') {
-          const [brand] = await db
-            .select()
-            .from(schema.brand)
-            .where(eq(schema.brand.name, item.brandName))
-            .limit(1);
-          
-          if (brand) {
-            brandSlug = brand.alias;
-          }
-        }
+        const slug = createSlug(brandSlug, articleId);
 
         // Check if item exists
         const [existingItem] = await db
           .select()
           .from(schema.item)
-          .where(eq(schema.item.articleId, item.articleId))
+          .where(eq(schema.item.slug, slug))
           .limit(1);
 
         let itemId: string;
 
         if (existingItem) {
-          // UPDATE EXISTING ITEM
           itemId = existingItem.id;
-
-          // Update item record
           await db
             .update(schema.item)
             .set({
-              slug: item.slug,
-              isDisplayed: item.isDisplayed ?? existingItem.isDisplayed,
-              itemImageLink: item.itemImageLink ?? existingItem.itemImageLink,
-              categorySlug: categorySlug || existingItem.categorySlug,
-              brandSlug: brandSlug ?? existingItem.brandSlug,
+              brandSlug,
+              categorySlug: defaultCategorySlug,
               updatedAt: now,
             })
             .where(eq(schema.item.id, itemId));
 
-          // Handle itemDetails
+          results.updated++;
+        } else {
+          [{ id: itemId }] = await db
+            .insert(schema.item)
+            .values({
+              articleId,
+              slug,
+              isDisplayed: false,
+              brandSlug,
+              categorySlug: defaultCategorySlug,
+              updatedAt: now,
+            })
+            .returning({ id: schema.item.id });
+
+          results.created++;
+        }
+
+        // Handle item details for different locales
+        const locales = isHarting ? ['es', 'pl', 'en', 'ua'] : ['pl', 'en', 'ua', 'es'];
+        
+        for (const locale of locales) {
+          const itemName = (isHarting && locale === 'es') ? itemNameES : itemNameDefault;
+          
           const [existingDetail] = await db
             .select()
             .from(schema.itemDetails)
             .where(
               and(
-                eq(schema.itemDetails.itemSlug, item.articleId),
-                eq(schema.itemDetails.locale, item.locale)
+                eq(schema.itemDetails.itemSlug, slug),
+                eq(schema.itemDetails.locale, locale)
               )
             )
             .limit(1);
 
           if (existingDetail) {
-            // Update existing itemDetails
             await db
               .update(schema.itemDetails)
-              .set({
-                itemName: item.itemName,
-                description: item.description ?? existingDetail.description,
-                specifications: item.specifications ?? existingDetail.specifications,
-                seller: item.seller ?? existingDetail.seller,
-                metaKeyWords: item.metaKeyWords ?? existingDetail.metaKeyWords,
-                metaDescription: item.metaDescription ?? existingDetail.metaDescription,
-              })
+              .set({ itemName })
               .where(eq(schema.itemDetails.id, existingDetail.id));
           } else {
-            // Create new itemDetails for this locale
             await db
               .insert(schema.itemDetails)
               .values({
                 id: randomUUID(),
-                itemSlug: item.articleId,
-                locale: item.locale,
-                itemName: item.itemName,
-                description: item.description || '',
-                specifications: item.specifications || null,
-                seller: item.seller || null,
-                metaKeyWords: item.metaKeyWords || null,
-                metaDescription: item.metaDescription || null,
+                itemSlug: slug,
+                locale,
+                itemName,
+                description: '',
               });
           }
+        }
 
-          // Handle itemPrice
-          const [existingPrice] = await db
-            .select()
-            .from(schema.itemPrice)
-            .where(
-              and(
-                eq(schema.itemPrice.itemSlug, item.articleId),
-                eq(schema.itemPrice.warehouseId, warehouse.id)
-              )
+        // Handle item price
+        const [existingPrice] = await db
+          .select()
+          .from(schema.itemPrice)
+          .where(
+            and(
+              eq(schema.itemPrice.itemSlug, slug),
+              eq(schema.itemPrice.warehouseId, warehouseId)
             )
-            .limit(1);
+          )
+          .limit(1);
 
-          if (existingPrice) {
-            // Create price history record before updating
-            await db
-              .insert(schema.itemPriceHistory)
-              .values({
-                id: randomUUID(),
-                itemId: itemId,
-                warehouseId: warehouse.id,
-                price: existingPrice.price,
-                quantity: existingPrice.quantity,
-                promotionPrice: existingPrice.promotionPrice,
-                promoCode: existingPrice.promoCode,
-                promoEndDate: existingPrice.promoEndDate,
-                badge: existingPrice.badge,
-                recordedAt: now,
-              });
-
-            // Update existing itemPrice
-            await db
-              .update(schema.itemPrice)
-              .set({
-                price: item.price,
-                quantity: item.quantity,
-                updatedAt: now,
-              })
-              .where(eq(schema.itemPrice.id, existingPrice.id));
-          } else {
-            // Create new itemPrice for this warehouse
-            await db
-              .insert(schema.itemPrice)
-              .values({
-                id: randomUUID(),
-                itemSlug: item.articleId,
-                warehouseId: warehouse.id,
-                price: item.price,
-                quantity: item.quantity,
-                promotionPrice: null,
-                promoCode: null,
-                promoEndDate: null,
-                badge: 'ABSENT',
-                createdAt: now,
-                updatedAt: now,
-              });
-          }
-
-          results.updated++;
-        } else {
-          // CREATE NEW ITEM
-          itemId = randomUUID();
-
-          // Create item record
+        if (existingPrice) {
           await db
-            .insert(schema.item)
-            .values({
-              id: itemId,
-              articleId: item.articleId,
-              slug: item.slug,
-              isDisplayed: item.isDisplayed ?? false,
-              itemImageLink: item.itemImageLink ?? null,
-              categorySlug: categorySlug || '',
-              brandSlug: brandSlug,
-              warrantyType: null,
-              warrantyLength: null,
-              sellCounter: 0,
-              createdAt: now,
+            .update(schema.itemPrice)
+            .set({
+              price: Number(price),
+              quantity: Number(quantity) || 0,
               updatedAt: now,
-            });
-
-          // Create itemDetails record
-          await db
-            .insert(schema.itemDetails)
-            .values({
-              id: randomUUID(),
-              itemSlug: item.articleId,
-              locale: item.locale,
-              itemName: item.itemName,
-              description: item.description || '',
-              specifications: item.specifications || null,
-              seller: item.seller || null,
-              metaKeyWords: item.metaKeyWords || null,
-              metaDescription: item.metaDescription || null,
-            });
-
-          // Create itemPrice record
+            })
+            .where(eq(schema.itemPrice.id, existingPrice.id));
+        } else {
           await db
             .insert(schema.itemPrice)
             .values({
               id: randomUUID(),
-              itemSlug: item.articleId,
-              warehouseId: warehouse.id,
-              price: item.price,
-              quantity: item.quantity,
-              promotionPrice: null,
-              promoCode: null,
-              promoEndDate: null,
+              itemSlug: slug,
+              warehouseId,
+              price: Number(price),
+              quantity: Number(quantity) || 0,
               badge: 'ABSENT',
               createdAt: now,
               updatedAt: now,
             });
-
-          results.created++;
         }
-      } catch (itemError) {
-        console.error(`Error processing item ${item.articleId}:`, itemError);
+      } catch (error) {
         results.errors.push(
-          `Item ${item.articleId}: ${itemError instanceof Error ? itemError.message : 'Unknown error'}`
+          `Sheet ${sheetName}, Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
+    }
+  }
+
+  return results;
+}
+
+async function processOmronFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  const results = { created: 0, updated: 0, errors: [] as string[] };
+  const now = new Date().toISOString();
+  const defaultCategorySlug = 'low-voltage-components';
+  const brandSlug = 'omron';
+
+  const sheetName = 'Hoja1';
+  if (!workbook.SheetNames.includes(sheetName)) {
+    throw new Error(`Sheet '${sheetName}' not found`);
+  }
+
+  const worksheet = workbook.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i] as any;
+    
+    try {
+      const articleId = getCellValue(row, 'A');
+      const alias = getCellValue(row, 'E');
+      const itemName = getCellValue(row, 'B');
+      const specifications = getCellValue(row, 'E');
+      const price = getCellValue(row, 'J');
+
+      if (!articleId || !price) continue;
+
+      const slug = createSlug(brandSlug, articleId);
+
+      const [existingItem] = await db
+        .select()
+        .from(schema.item)
+        .where(eq(schema.item.slug, slug))
+        .limit(1);
+
+      let itemId: string;
+
+      if (existingItem) {
+        itemId = existingItem.id;
+        await db
+          .update(schema.item)
+          .set({
+            alias: alias || null,
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .where(eq(schema.item.id, itemId));
+
+        results.updated++;
+      } else {
+        [{ id: itemId }] = await db
+          .insert(schema.item)
+          .values({
+            articleId,
+            slug,
+            alias: alias || null,
+            isDisplayed: false,
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .returning({ id: schema.item.id });
+
+        results.created++;
+      }
+
+      // Handle item details for all locales
+      const locales = ['pl', 'en', 'ua', 'es'];
+      
+      for (const locale of locales) {
+        const [existingDetail] = await db
+          .select()
+          .from(schema.itemDetails)
+          .where(
+            and(
+              eq(schema.itemDetails.itemSlug, slug),
+              eq(schema.itemDetails.locale, locale)
+            )
+          )
+          .limit(1);
+
+        if (existingDetail) {
+          await db
+            .update(schema.itemDetails)
+            .set({
+              itemName,
+              specifications: specifications || null,
+            })
+            .where(eq(schema.itemDetails.id, existingDetail.id));
+        } else {
+          await db
+            .insert(schema.itemDetails)
+            .values({
+              id: randomUUID(),
+              itemSlug: slug,
+              locale,
+              itemName,
+              description: '',
+              specifications: specifications || null,
+            });
+        }
+      }
+
+      // Handle item price
+      const [existingPrice] = await db
+        .select()
+        .from(schema.itemPrice)
+        .where(
+          and(
+            eq(schema.itemPrice.itemSlug, slug),
+            eq(schema.itemPrice.warehouseId, warehouseId)
+          )
+        )
+        .limit(1);
+
+      if (existingPrice) {
+        await db
+          .update(schema.itemPrice)
+          .set({
+            price: Number(price),
+            quantity: 0,
+            updatedAt: now,
+          })
+          .where(eq(schema.itemPrice.id, existingPrice.id));
+      } else {
+        await db
+          .insert(schema.itemPrice)
+          .values({
+            id: randomUUID(),
+            itemSlug: slug,
+            warehouseId,
+            price: Number(price),
+            quantity: 0,
+            badge: 'ABSENT',
+            createdAt: now,
+            updatedAt: now,
+          });
+      }
+    } catch (error) {
+      results.errors.push(
+        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  return results;
+}
+
+async function processPilzFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  const results = { created: 0, updated: 0, errors: [] as string[] };
+  const now = new Date().toISOString();
+  const defaultCategorySlug = 'low-voltage-components';
+  const brandSlug = 'pilz';
+
+  const sheetName = 'Price List SE';
+  if (!workbook.SheetNames.includes(sheetName)) {
+    throw new Error(`Sheet '${sheetName}' not found`);
+  }
+
+  const worksheet = workbook.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i] as any;
+    
+    try {
+      const articleId = getCellValue(row, 'A');
+      const itemName = getCellValue(row, 'B');
+      const price = getCellValue(row, 'C');
+
+      if (!articleId || !price) continue;
+
+      const slug = createSlug(brandSlug, articleId);
+
+      const [existingItem] = await db
+        .select()
+        .from(schema.item)
+        .where(eq(schema.item.slug, slug))
+        .limit(1);
+
+      let itemId: string;
+
+      if (existingItem) {
+        itemId = existingItem.id;
+        await db
+          .update(schema.item)
+          .set({
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .where(eq(schema.item.id, itemId));
+
+        results.updated++;
+      } else {
+        [{ id: itemId }] = await db
+          .insert(schema.item)
+          .values({
+            articleId,
+            slug,
+            isDisplayed: false,
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .returning({ id: schema.item.id });
+
+        results.created++;
+      }
+
+      // Handle item details for all locales
+      const locales = ['pl', 'en', 'ua', 'es'];
+      
+      for (const locale of locales) {
+        const [existingDetail] = await db
+          .select()
+          .from(schema.itemDetails)
+          .where(
+            and(
+              eq(schema.itemDetails.itemSlug, slug),
+              eq(schema.itemDetails.locale, locale)
+            )
+          )
+          .limit(1);
+
+        if (existingDetail) {
+          await db
+            .update(schema.itemDetails)
+            .set({ itemName })
+            .where(eq(schema.itemDetails.id, existingDetail.id));
+        } else {
+          await db
+            .insert(schema.itemDetails)
+            .values({
+              id: randomUUID(),
+              itemSlug: slug,
+              locale,
+              itemName,
+              description: '',
+            });
+        }
+      }
+
+      // Handle item price
+      const [existingPrice] = await db
+        .select()
+        .from(schema.itemPrice)
+        .where(
+          and(
+            eq(schema.itemPrice.itemSlug, slug),
+            eq(schema.itemPrice.warehouseId, warehouseId)
+          )
+        )
+        .limit(1);
+
+      if (existingPrice) {
+        await db
+          .update(schema.itemPrice)
+          .set({
+            price: Number(price),
+            quantity: 0,
+            updatedAt: now,
+          })
+          .where(eq(schema.itemPrice.id, existingPrice.id));
+      } else {
+        await db
+          .insert(schema.itemPrice)
+          .values({
+            id: randomUUID(),
+            itemSlug: slug,
+            warehouseId,
+            price: Number(price),
+            quantity: 0,
+            badge: 'ABSENT',
+            createdAt: now,
+            updatedAt: now,
+          });
+      }
+    } catch (error) {
+      results.errors.push(
+        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  return results;
+}
+
+async function processSchneiderFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  const results = { created: 0, updated: 0, errors: [] as string[] };
+  const now = new Date().toISOString();
+  const defaultCategorySlug = 'low-voltage-components';
+  const brandSlug = 'schneider-electric';
+
+  const sheetName = 'Hoja1';
+  if (!workbook.SheetNames.includes(sheetName)) {
+    throw new Error(`Sheet '${sheetName}' not found`);
+  }
+
+  const worksheet = workbook.Sheets[sheetName];
+  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
+
+  // Start from row 3 (index 2)
+  for (let i = 2; i < data.length; i++) {
+    const row = data[i] as any;
+    
+    try {
+      const articleId = getCellValue(row, 'A');
+      const price = getCellValue(row, 'F');
+      const itemName = getCellValue(row, 'A'); // Use articleId as itemName
+
+      if (!articleId || !price) continue;
+
+      const slug = createSlug(brandSlug, articleId);
+
+      const [existingItem] = await db
+        .select()
+        .from(schema.item)
+        .where(eq(schema.item.slug, slug))
+        .limit(1);
+
+      let itemId: string;
+
+      if (existingItem) {
+        itemId = existingItem.id;
+        await db
+          .update(schema.item)
+          .set({
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .where(eq(schema.item.id, itemId));
+
+        results.updated++;
+      } else {
+        [{ id: itemId }] = await db
+          .insert(schema.item)
+          .values({
+            articleId,
+            slug,
+            isDisplayed: false,
+            brandSlug,
+            categorySlug: defaultCategorySlug,
+            updatedAt: now,
+          })
+          .returning({ id: schema.item.id });
+
+        results.created++;
+      }
+
+      // Handle item details for all locales
+      const locales = ['pl', 'en', 'ua', 'es'];
+      
+      for (const locale of locales) {
+        const [existingDetail] = await db
+          .select()
+          .from(schema.itemDetails)
+          .where(
+            and(
+              eq(schema.itemDetails.itemSlug, slug),
+              eq(schema.itemDetails.locale, locale)
+            )
+          )
+          .limit(1);
+
+        if (existingDetail) {
+          await db
+            .update(schema.itemDetails)
+            .set({ itemName })
+            .where(eq(schema.itemDetails.id, existingDetail.id));
+        } else {
+          await db
+            .insert(schema.itemDetails)
+            .values({
+              id: randomUUID(),
+              itemSlug: slug,
+              locale,
+              itemName,
+              description: '',
+            });
+        }
+      }
+
+      // Handle item price
+      const [existingPrice] = await db
+        .select()
+        .from(schema.itemPrice)
+        .where(
+          and(
+            eq(schema.itemPrice.itemSlug, slug),
+            eq(schema.itemPrice.warehouseId, warehouseId)
+          )
+        )
+        .limit(1);
+
+      if (existingPrice) {
+        await db
+          .update(schema.itemPrice)
+          .set({
+            price: Number(price),
+            quantity: 0,
+            updatedAt: now,
+          })
+          .where(eq(schema.itemPrice.id, existingPrice.id));
+      } else {
+        await db
+          .insert(schema.itemPrice)
+          .values({
+            id: randomUUID(),
+            itemSlug: slug,
+            warehouseId,
+            price: Number(price),
+            quantity: 0,
+            badge: 'ABSENT',
+            createdAt: now,
+            updatedAt: now,
+          });
+      }
+    } catch (error) {
+      results.errors.push(
+        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  return results;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const authResult = await ensureAuthorized(request);
+    if ('error' in authResult) {
+      return authResult.error;
+    }
+
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const fileType = (formData.get('fileType') as FileType) || 'Encon';
+
+    if (!file) {
+      return NextResponse.json(
+        { error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Parse Excel file
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+
+    let results;
+
+    // Determine warehouse based on file type
+    let warehouseName: string;
+    if (fileType === 'ARA') {
+      warehouseName = 'warehouse-3';
+    } else if (['Omron', 'Pilz', 'Schneider'].includes(fileType)) {
+      warehouseName = 'warehouse-4';
+    } else {
+      warehouseName = 'warehouse-1'; // Default for Encon
+    }
+
+    const warehouse = await getOrCreateWarehouse(warehouseName);
+
+    // Process file based on type
+    switch (fileType) {
+      case 'ARA':
+        results = await processARAFile(workbook, warehouse.id);
+        break;
+      case 'Omron':
+        results = await processOmronFile(workbook, warehouse.id);
+        break;
+      case 'Pilz':
+        results = await processPilzFile(workbook, warehouse.id);
+        break;
+      case 'Schneider':
+        results = await processSchneiderFile(workbook, warehouse.id);
+        break;
+      case 'Encon':
+        return NextResponse.json(
+          { error: 'Encon format not yet implemented' },
+          { status: 501 }
+        );
+      default:
+        return NextResponse.json(
+          { error: 'Invalid file type' },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json({

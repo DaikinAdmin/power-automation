@@ -18,6 +18,7 @@ const initialFormData: Item = {
   id: '',
   articleId: '',
   slug: '',
+  alias: null,
   isDisplayed: false,
   itemImageLink: [],
   createdAt: new Date().toISOString(),
@@ -48,8 +49,8 @@ const initialFormData: Item = {
   itemDetails: [],
   linkedItems: [],
   brandSlug: null,
-  warrantyLength: null,
-  warrantyType: '',
+  warrantyLength: 12,
+  warrantyType: 'manufacturer',
 };
 
 export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
@@ -65,6 +66,7 @@ export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
         id: item.id,
         articleId: item.articleId,
         slug: item.slug || item.articleId,
+        alias: item.alias || null,
         isDisplayed: item.isDisplayed,
         itemImageLink: item.itemImageLink || [],
         categorySlug: item.categorySlug || '',
@@ -77,8 +79,8 @@ export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
         updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : new Date(item.updatedAt).toISOString(),
         sellCounter: item.sellCounter || 0,
         brandSlug: item.brandSlug || null,
-        warrantyLength: item.warrantyLength || null,
-        warrantyType: item.warrantyType || '',
+        warrantyLength: item.warrantyLength || 12,
+        warrantyType: item.warrantyType || 'manufacturer',
       };
       setFormData(populatedData);
       setOriginalFormData(populatedData);

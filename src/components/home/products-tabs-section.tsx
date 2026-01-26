@@ -218,6 +218,7 @@ export default function ProductsTabsSection({
                 addToCart({
                   id: `${item.articleId}-${warehouseId}`,
                   slug: item.articleId,
+                  alias: null,
                   availableWarehouses: getAvailableWarehouses(item),
                   articleId: item.articleId,
                   isDisplayed: item.isDisplayed,
@@ -236,8 +237,8 @@ export default function ProductsTabsSection({
                   subCategory: subCategory
                     ? ({ ...subCategory, id: subCategory.slug } as any)
                     : null,
-                  warrantyType: item.warrantyType,
-                  warrantyLength: item.warrantyLength,
+                  warrantyType: item.warrantyType || 'manufacturer',
+                  warrantyLength: item.warrantyLength || 12,
                   brandSlug: item.brandSlug,
                   brand: item.brand
                     ? ({ ...item.brand, id: item.brand.alias } as any)
@@ -342,6 +343,7 @@ export default function ProductsTabsSection({
                     addToCart({
                       id: `${item.articleId}-${warehouseId}`,
                       slug: item.articleId,
+                      alias: null,
                       availableWarehouses: getAvailableWarehouses(item),
                       articleId: item.articleId,
                       isDisplayed: item.isDisplayed,
@@ -360,8 +362,8 @@ export default function ProductsTabsSection({
                       subCategory: subCategory
                         ? ({ ...subCategory, id: subCategory.slug } as any)
                         : null,
-                      warrantyType: item.warrantyType,
-                      warrantyLength: item.warrantyLength,
+                      warrantyType: item.warrantyType || 'manufacturer',
+                      warrantyLength: item.warrantyLength || 12,
                       brandSlug: item.brandSlug,
                       brand: item.brand
                         ? ({ ...item.brand, id: item.brand.alias } as any)

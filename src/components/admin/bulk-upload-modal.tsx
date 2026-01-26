@@ -5,6 +5,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, AlertCircle, CheckCircle, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -19,6 +26,8 @@ interface UploadState {
   details?: string[];
 }
 
+type FileType = 'ARA' | 'Omron' | 'Pilz' | 'Schneider' | 'Encon';
+
 export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalProps) {
   const [uploadState, setUploadState] = useState<UploadState>({
     status: 'idle',
@@ -26,6 +35,7 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
     message: ''
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileType, setFileType] = useState<FileType>('Encon');
   const [isDragActive, setIsDragActive] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -104,6 +114,7 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
+      formData.append('fileType', fileType);
 
       setUploadState({ status: 'uploading', progress: 30, message: 'Processing file...' });
 
@@ -169,6 +180,30 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* File Type Selection */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Select File Type</h3>
+            <Select value={fileType} onValueChange={(value) => setFileType(value as FileType)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select file type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ARA">ARA (Siemens, Phoenix, Harting, etc.)</SelectItem>
+                <SelectItem value="Omron">Omron-2025</SelectItem>
+                <SelectItem value="Pilz">Pilz</SelectItem>
+                <SelectItem value="Schneider">Schneider-2024-25</SelectItem>
+                <SelectItem value="Encon">Encon (Default Format)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              {fileType === 'ARA' && 'Multiple sheets: Siemens, Phoenix, MURRELEKTRONIC, SICK, HARTING'}
+              {fileType === 'Omron' && 'Sheet: Hoja1'}
+              {fileType === 'Pilz' && 'Sheet: Price List SE'}
+              {fileType === 'Schneider' && 'Sheet: Hoja1 (starts from row 3)'}
+              {fileType === 'Encon' && 'Default format with all columns'}
+            </p>
+          </div>
+
           {/* Sample Files */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Download Sample Files</h3>

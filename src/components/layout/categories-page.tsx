@@ -451,6 +451,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       const cartItem: Omit<CartItemType, "quantity"> = {
                         id: `${item.articleId}-${warehouseId}`,
                         slug: item.articleId,
+                        alias: null,
                         articleId: item.articleId,
                         itemImageLink: item.itemImageLink,
                         categorySlug: item.categorySlug,
@@ -489,8 +490,8 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                               updatedAt: item.brand.updatedAt || now,
                             } as any)
                           : null,
-                        warrantyType: item.warrantyType ?? null,
-                        warrantyLength: item.warrantyLength ?? null,
+                        warrantyType: item.warrantyType ?? 'manufacturer',
+                        warrantyLength: item.warrantyLength ?? 12,
                         itemDetails: [
                           {
                             ...item.details,

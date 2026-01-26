@@ -104,17 +104,17 @@ CREATE TABLE "item" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"articleId" text NOT NULL,
 	"slug" text NOT NULL,
+	"alias" text,
 	"isDisplayed" boolean DEFAULT false NOT NULL,
 	"sellCounter" integer DEFAULT 0,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updatedAt" timestamp(3) NOT NULL,
-	"warrantyLength" integer,
-	"warrantyType" text,
+	"warrantyLength" integer DEFAULT 12 NOT NULL,
+	"warrantyType" text DEFAULT 'manufacturer' NOT NULL,
 	"brandSlug" text,
 	"categorySlug" text NOT NULL,
 	"itemImageLink" text[],
 	"linkedItems" text[],
-	CONSTRAINT "item_articleId_unique" UNIQUE("articleId"),
 	CONSTRAINT "item_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -329,18 +329,18 @@ ALTER TABLE "category_translation" ADD CONSTRAINT "category_translation_category
 ALTER TABLE "_DiscountLevelToUser" ADD CONSTRAINT "_DiscountLevelToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."discount_level"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "_DiscountLevelToUser" ADD CONSTRAINT "_DiscountLevelToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item" ADD CONSTRAINT "item_brandSlug_fkey" FOREIGN KEY ("brandSlug") REFERENCES "public"."brand"("alias") ON DELETE set null ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "item_details" ADD CONSTRAINT "item_details_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("articleId") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "item_details" ADD CONSTRAINT "item_details_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("slug") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item_opinion" ADD CONSTRAINT "item_opinion_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item_opinion" ADD CONSTRAINT "item_opinion_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "public"."item"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item_price" ADD CONSTRAINT "item_price_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "public"."warehouse"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "item_price" ADD CONSTRAINT "item_price_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("articleId") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "item_price" ADD CONSTRAINT "item_price_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("slug") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item_price_history" ADD CONSTRAINT "item_price_history_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "public"."item"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "item_price_history" ADD CONSTRAINT "item_price_history_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "public"."warehouse"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "_ItemPriceToItemPriceHistory" ADD CONSTRAINT "_ItemPriceToItemPriceHistory_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."item_price"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "_ItemPriceToItemPriceHistory" ADD CONSTRAINT "_ItemPriceToItemPriceHistory_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."item_price_history"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "_ItemToOrder" ADD CONSTRAINT "_ItemToOrder_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."item"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "_ItemToOrder" ADD CONSTRAINT "_ItemToOrder_B_fkey" FOREIGN KEY ("B") REFERENCES "public"."order"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "linked_items" ADD CONSTRAINT "linked_items_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("articleId") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "linked_items" ADD CONSTRAINT "linked_items_itemSlug_fkey" FOREIGN KEY ("itemSlug") REFERENCES "public"."item"("slug") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "public"."order"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "order" ADD CONSTRAINT "order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint

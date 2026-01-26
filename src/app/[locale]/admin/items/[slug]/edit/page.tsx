@@ -10,10 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Item } from '@/helpers/types/item';
 import { useItemFormState } from '@/hooks/useItemFormState';
 
-export default function EditItemPage({ params }: { params: Promise<{ articleId: string }> }) {
+export default function EditItemPage({ params }: { params: Promise<{ slug: string }> }) {
   const router = useRouter();
-  const { articleId } = use(params);
-  const itemId = articleId as string;
+  const { slug } = use(params);
+  const itemId = slug as string;
   
   const [activeTab, setActiveTab] = useState('basic');
   const {
@@ -42,6 +42,7 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
           id: item.id || '',
           slug: item.slug || item.articleId || '',
           articleId: item.articleId || '',
+          alias: item.alias || '',
           isDisplayed: Boolean(item.isDisplayed),
           itemImageLink: item.itemImageLink || '',
           createdAt: item.createdAt || new Date().toISOString(),
@@ -49,8 +50,8 @@ export default function EditItemPage({ params }: { params: Promise<{ articleId: 
           categorySlug: item.categorySlug || '',
           brandSlug: item.brandSlug || '',
           brand: item.brand || null,
-          warrantyType: item.warrantyType || '',
-          warrantyLength: typeof item.warrantyLength === 'number' ? item.warrantyLength : undefined,
+          warrantyType: item.warrantyType || 'manufacturer',
+          warrantyLength: typeof item.warrantyLength === 'number' ? item.warrantyLength : 12,
           sellCounter: item.sellCounter || 0,
           category: item.category || {
             id: '',

@@ -127,7 +127,7 @@ export const itemPrice = pgTable(
       .onDelete("cascade"),
     foreignKey({
       columns: [table.itemSlug],
-      foreignColumns: [item.articleId],
+      foreignColumns: [item.slug],
       name: "item_price_itemSlug_fkey",
     })
       .onUpdate("cascade")
@@ -253,16 +253,17 @@ export const item = pgTable(
       .primaryKey()
       .notNull()
       .default(sql`gen_random_uuid()`),
-    articleId: text().notNull().unique(),
+    articleId: text().notNull(),
     slug: text().notNull().unique(),
+    alias: text(),
     isDisplayed: boolean().default(false).notNull(),
     sellCounter: integer().default(0),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
-    warrantyLength: integer(),
-    warrantyType: text(),
+    warrantyLength: integer().default(12).notNull(),
+    warrantyType: text().default("manufacturer").notNull(),
     brandSlug: text(),
     // categorySlug can reference either subcategories.slug (if item has subcategory) or category.slug (if not)
     categorySlug: text().notNull(),
@@ -486,7 +487,7 @@ export const itemDetails = pgTable(
   (table) => [
     foreignKey({
       columns: [table.itemSlug],
-      foreignColumns: [item.articleId],
+      foreignColumns: [item.slug],
       name: "item_details_itemSlug_fkey",
     })
       .onUpdate("cascade")
@@ -596,7 +597,7 @@ export const linkedItems = pgTable(
   (table) => [
     foreignKey({
       columns: [table.itemSlug],
-      foreignColumns: [item.articleId],
+      foreignColumns: [item.slug],
       name: "linked_items_itemSlug_fkey",
     })
       .onUpdate("cascade")

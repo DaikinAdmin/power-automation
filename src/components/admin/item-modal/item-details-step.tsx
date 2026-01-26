@@ -273,12 +273,14 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
         </div>
       )}
 
-      <ItemDetailEditModal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        itemDetail={editingItemDetail || formData.itemDetails[editingDetailIndex ?? 0]}
-        onSave={handleSaveEditedDetail}
-      />
+      {editingItemDetail && (
+        <ItemDetailEditModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          itemDetail={editingItemDetail}
+          onSave={handleSaveEditedDetail}
+        />
+      )}
     </div>
   );
 }

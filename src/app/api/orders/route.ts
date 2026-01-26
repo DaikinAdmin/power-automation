@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { mapOrderForUser } from './shared';
@@ -12,7 +11,7 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session?.user) {
       throw new UnauthorizedError('User not authenticated');
@@ -137,7 +136,7 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    const session = await auth.api.getSession({ headers: request.headers });
     const userId = session?.user?.id;
     
     if (!session?.user) {

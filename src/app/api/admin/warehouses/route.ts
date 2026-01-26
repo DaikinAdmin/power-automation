@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 // import db from '@/db';
 import { db } from '@/db';
 import { eq, asc, sql } from 'drizzle-orm';
@@ -11,11 +10,11 @@ import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
 
 // GET all warehouses
-export async function GET() {
+export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {

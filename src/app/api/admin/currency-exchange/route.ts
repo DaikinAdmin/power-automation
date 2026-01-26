@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import { eq, and, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
@@ -16,11 +15,11 @@ const currencyValues = ['EUR', 'USD', 'PLN', 'UAH'] as const;
 type Currency = typeof currencyValues[number];
 
 // GET - Retrieve all currency exchange rates
-export async function GET() {
+export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     // if (!session) {
@@ -76,11 +75,11 @@ export async function GET() {
 }
 
 // PUT - Update currency exchange rate
-export async function PUT(req: NextRequest) {
+export async function PUT(request: NextRequest) {
   const startTime = Date.now();
   try {
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session) {
@@ -92,7 +91,7 @@ export async function PUT(req: NextRequest) {
       throw new ForbiddenError('Admin access required');
     }
 
-    const { from, to, rate } = await req.json();
+    const { from, to, rate } = await request.json();
     
     logger.info('Updating currency exchange rate', {
       endpoint: 'PUT /api/admin/currency-exchange',
@@ -201,6 +200,6 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(exchangeRate);
   } catch (error) {
-    return apiErrorHandler(error, req, { endpoint: 'PUT /api/admin/currency-exchange' });
+    return apiErrorHandler(error, request, { endpoint: 'PUT /api/admin/currency-exchange' });
   }
 }

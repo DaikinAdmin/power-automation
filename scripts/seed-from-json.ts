@@ -260,7 +260,7 @@ async function createOrUpdateItem(
   const existingItems = await db
     .select()
     .from(item)
-    .where(eq(item.articleId, itemData.articleId));
+    .where(eq(item.slug, itemData.slug));
 
   let currentItemId: string;
   if (existingItems.length > 0) {
@@ -269,6 +269,7 @@ async function createOrUpdateItem(
       .update(item)
       .set({
         slug: itemData.slug,
+        alias: itemData.alias || null,
         isDisplayed: itemData.isDisplayed,
         brandSlug: brandAlias,
         categorySlug,
@@ -284,6 +285,7 @@ async function createOrUpdateItem(
         id: currentItemId,
         articleId: itemData.articleId,
         slug: itemData.slug,
+        alias: itemData.alias || null,
         isDisplayed: itemData.isDisplayed,
         brandSlug: brandAlias,
         categorySlug,
@@ -299,7 +301,7 @@ async function createOrUpdateItem(
     .from(itemDetails)
     .where(
       and(
-        eq(itemDetails.itemSlug, itemData.articleId),
+        eq(itemDetails.itemSlug, itemData.slug),
         eq(itemDetails.locale, itemData.locale)
       )
     );
@@ -328,7 +330,7 @@ async function createOrUpdateItem(
         seller: itemData.seller,
         metaDescription: itemData.metaDescription,
         metaKeyWords: itemData.metaKeywords,
-        itemSlug: itemData.articleId
+        itemSlug: itemData.slug
       });
   }
 
@@ -337,7 +339,7 @@ async function createOrUpdateItem(
     .from(itemPrice)
     .where(
       and(
-        eq(itemPrice.itemSlug, itemData.articleId),
+        eq(itemPrice.itemSlug, itemData.slug),
         eq(itemPrice.warehouseId, warehouseId)
       )
     );
@@ -356,7 +358,7 @@ async function createOrUpdateItem(
       .insert(itemPrice)
       .values({
         id: generateId(),
-        itemSlug: itemData.articleId,
+        itemSlug: itemData.slug,
         warehouseId,
         price: itemData.price,
         quantity: itemData.quantity || 0,
@@ -523,7 +525,7 @@ export async function seedFromJson(
       let categorySlug = categorySlugByLocalized.get(trimmedCategory) ?? categorySlugByCanonical.get(trimmedCategory);
 
       if (!categorySlug) {
-        console.warn(`  ⚠️ Unable to resolve category for ${itemData.articleId} (${itemData.categoryName})`);
+        console.warn(`  ⚠️ Unable to resolve category for ${itemData.slug} (${itemData.categoryName})`);
         continue;
       }
 
@@ -557,7 +559,7 @@ export async function seedFromJson(
       await createOrUpdateItem(itemData, brandAlias, categorySlug, warehouseId);
       processedCount++;
     } catch (error) {
-      console.error(`  ✗ Error processing item ${itemData.articleId}:`, error);
+      console.error(`  ✗ Error processing item ${itemData.slug}:`, error);
     }
   }
 

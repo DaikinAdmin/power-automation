@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 // import db from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
-import type { Badge } from '@/db/schema';
 import { Item } from '@/helpers/types/item';
 import { eq, asc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
@@ -11,13 +9,13 @@ import { isUserAdmin } from '@/helpers/db/queries';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ articleId: string }> }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const { articleId } = await params;
+        const { slug } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {
@@ -28,7 +26,7 @@ export async function GET(
         const [item] = await db
             .select()
             .from(schema.item)
-            .where(eq(schema.item.articleId, articleId))
+            .where(eq(schema.item.slug, slug))
             .limit(1);
 
         if (!item) {
@@ -103,9 +101,9 @@ export async function GET(
             })
                 .from(schema.itemPrice)
                 .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-                .where(eq(schema.itemPrice.itemSlug, articleId))
+                .where(eq(schema.itemPrice.itemSlug, slug))
                 .orderBy(asc(schema.itemPrice.createdAt)),
-            db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, articleId)).orderBy(asc(schema.itemDetails.locale)),
+            db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, slug)).orderBy(asc(schema.itemDetails.locale)),
         ]);
 
         const itemWithRelations = {
@@ -170,13 +168,13 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: Promise<{ articleId: string }> }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const { articleId } = await params;
+        const { slug } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {
@@ -196,7 +194,7 @@ export async function PUT(
         const [existingItem] = await db
             .select()
             .from(schema.item)
-            .where(eq(schema.item.articleId, articleId))
+            .where(eq(schema.item.slug, slug))
             .limit(1);
 
         if (!existingItem) {
@@ -231,12 +229,11 @@ export async function PUT(
         // Delete existing prices and details
         await db
             .delete(schema.itemPrice)
-            .where(eq(schema.itemPrice.itemSlug, articleId));
+            .where(eq(schema.itemPrice.itemSlug, slug));
 
         await db
             .delete(schema.itemDetails)
-            .where(eq(schema.itemDetails.itemSlug, articleId));
-
+            .where(eq(schema.itemDetails.itemSlug, slug));
         // Update the item
         const [updatedItem] = await db
             .update(schema.item)
@@ -246,11 +243,11 @@ export async function PUT(
                 itemImageLink: data.itemImageLink || null,
                 categorySlug: finalCategorySlug || '',
                 brandSlug: data.brandSlug || null,
-                warrantyType: data.warrantyType || null,
-                warrantyLength: data.warrantyLength || null,
+                warrantyType: data.warrantyType || '',
+                warrantyLength: data.warrantyLength || 12,
                 updatedAt: now,
             })
-            .where(eq(schema.item.articleId, articleId))
+            .where(eq(schema.item.slug, slug))
             .returning();
 
         // Create new item prices
@@ -260,7 +257,7 @@ export async function PUT(
                 .map((price: any) => ({
                     id: crypto.randomUUID(),
                     itemId: updatedItem.id,
-                    itemSlug: updatedItem.articleId,
+                    itemSlug: updatedItem.slug,
                     warehouseId: price.warehouseId,
                     price: price.price,
                     quantity: price.quantity,
@@ -296,7 +293,7 @@ export async function PUT(
         if (data.itemDetails && data.itemDetails.length > 0) {
             const detailRecords = data.itemDetails.map((detail: any) => ({
                 id: crypto.randomUUID(),
-                itemSlug: updatedItem.articleId,
+                itemSlug: updatedItem.slug,
                 locale: detail.locale,
                 itemName: detail.itemName,
                 description: detail.description,
@@ -426,13 +423,13 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: Promise<{ articleId: string }> }
+    { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
-        const { articleId } = await params;
+        const { slug } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {
@@ -448,7 +445,7 @@ export async function DELETE(
         const [itemToDelete] = await db
             .select({ id: schema.item.id })
             .from(schema.item)
-            .where(eq(schema.item.articleId, articleId))
+            .where(eq(schema.item.slug, slug))
             .limit(1);
 
         if (!itemToDelete) {
@@ -456,12 +453,12 @@ export async function DELETE(
         }
 
         // Delete related records first (manually handle cascade)
-        await db.delete(schema.itemPrice).where(eq(schema.itemPrice.itemSlug, articleId));
-        await db.delete(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, articleId));
+        await db.delete(schema.itemPrice).where(eq(schema.itemPrice.itemSlug, slug));
+        await db.delete(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, slug));
         await db.delete(schema.itemPriceHistory).where(eq(schema.itemPriceHistory.itemId, itemToDelete.id));
         
         // Delete the item
-        await db.delete(schema.item).where(eq(schema.item.articleId, articleId));
+        await db.delete(schema.item).where(eq(schema.item.slug, slug));
 
         /* Prisma implementation (commented out)
         const user = await db.user.findUnique({

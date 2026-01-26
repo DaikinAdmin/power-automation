@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 
 // import prisma from '@/db';
 import { db } from '@/db';
@@ -11,9 +10,9 @@ import { apiErrorHandler } from '@/lib/error-handler';
 
 const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
 
-async function ensureAuthorized() {
+async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: request.headers,
   });
 
   if (!session?.user) {
@@ -36,7 +35,7 @@ async function ensureAuthorized() {
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
-    const authResult = await ensureAuthorized();
+    const authResult = await ensureAuthorized(request);
     if ('error' in authResult) {
       return authResult.error;
     }
