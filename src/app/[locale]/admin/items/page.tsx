@@ -22,65 +22,60 @@ export default function ItemsPage() {
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchInput, setSearchInput] = useState(''); // User's input
+  const [searchTerm, setSearchTerm] = useState(''); // Actual search term sent to API
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [cachedEtag, setCachedEtag] = useState<string | null>(null);
-
-  // Filter items based on search term and filters
-  const filteredItems = items.filter(item => {
-    // Search term filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const itemName = item.itemDetails[0]?.itemName?.toLowerCase() || '';
-      const articleId = item.articleId?.toLowerCase() || '';
-      const alias = item.alias?.toLowerCase() || '';
-      const brandAlias = item.brandSlug?.toLowerCase() || '';
-      
-      const matchesSearch = (
-        itemName.includes(searchLower) ||
-        articleId.includes(searchLower) ||
-        alias.includes(searchLower) ||
-        brandAlias.includes(searchLower)
-      );
-      
-      if (!matchesSearch) return false;
-    }
-    
-    // Brand filter
-    if (selectedBrand && item.brandSlug !== selectedBrand) {
-      return false;
-    }
-    
-    // Category filter
-    if (selectedCategory && item.categorySlug !== selectedCategory) {
-      return false;
-    }
-    
-    return true;
+  
+  // Server-side pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  
+  // Stats from server
+  const [stats, setStats] = useState({
+    total: 0,
+    selected: 0,
+    displayed: 0,
+    hidden: 0,
   });
+  
+  // Filter options from server
+  const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
 
-  // Get unique brands and categories for filter dropdowns (filter out nulls)
-  const uniqueBrands = Array.from(new Set(items.map(item => item.brandSlug).filter((value): value is string => Boolean(value)))).sort();
-  const uniqueCategories = Array.from(new Set(items.map(item => item.categorySlug).filter((value): value is string => Boolean(value)))).sort();
+  // Debounce search input - only search after user stops typing for 500ms and has 3+ chars
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only trigger search if input is empty (clear search) or has 3+ characters
+      if (searchInput === '' || searchInput.length >= 3) {
+        setSearchTerm(searchInput);
+        setCurrentPage(1); // Reset to first page on search
+      }
+    }, 500);
 
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    currentItems,
-    goToNextPage,
-    goToPreviousPage,
-    pageSize
-  } = usePagination<Item>({ data: filteredItems, pageSize: 5 });
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [currentPage, pageSize, searchTerm, selectedBrand, selectedCategory]);
 
   const fetchItems = async () => {
     try {
       setIsLoading(true);
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        pageSize: pageSize.toString(),
+      });
+      
+      if (searchTerm) params.set('search', searchTerm);
+      if (selectedBrand) params.set('brand', selectedBrand);
+      if (selectedCategory) params.set('category', selectedCategory);
       
       // Include ETag in request headers if we have one
       const headers: HeadersInit = {};
@@ -88,7 +83,7 @@ export default function ItemsPage() {
         headers['If-None-Match'] = cachedEtag;
       }
       
-      const response = await fetch('/api/admin/items', { headers });
+      const response = await fetch(`/api/admin/items?${params.toString()}`, { headers });
       
       if (response.status === 304) {
         // Not Modified - use cached data
@@ -99,7 +94,12 @@ export default function ItemsPage() {
       
       if (response.ok) {
         const data = await response.json();
-        setItems(data);
+        setItems(data.items);
+        setTotalPages(data.pagination.totalPages);
+        setTotalItems(data.pagination.totalItems);
+        setStats(data.stats);
+        setUniqueBrands(data.filters.brands);
+        setUniqueCategories(data.filters.categories);
         
         // Store the ETag for future requests
         const newEtag = response.headers.get('ETag');
@@ -237,11 +237,16 @@ export default function ItemsPage() {
     }
   };
 
-  const itemStats = {
-    total: items.length, // All items in database
-    selected: filteredItems.length, // Filtered/selected items
-    displayed: filteredItems.filter(item => item.isDisplayed).length, // Displayed in filtered items
-    hidden: filteredItems.filter(item => !item.isDisplayed).length, // Hidden in filtered items
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   if (isLoading) {
@@ -325,7 +330,7 @@ export default function ItemsPage() {
             <CardTitle className="text-sm font-medium">Total Items</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{itemStats.total}</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
             <p className="text-xs text-gray-600">All items in database</p>
           </CardContent>
         </Card>
@@ -335,9 +340,9 @@ export default function ItemsPage() {
             <CardTitle className="text-sm font-medium">Selected Items</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{itemStats.selected}</div>
+            <div className="text-2xl font-bold">{stats.selected}</div>
             <p className="text-xs text-gray-600">
-              {itemStats.total > 0 ? Math.round((itemStats.selected / itemStats.total) * 100) : 0}% of total
+              {stats.total > 0 ? Math.round((stats.selected / stats.total) * 100) : 0}% of total
             </p>
           </CardContent>
         </Card>
@@ -347,9 +352,9 @@ export default function ItemsPage() {
             <CardTitle className="text-sm font-medium">Displayed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{itemStats.displayed}</div>
+            <div className="text-2xl font-bold">{stats.displayed}</div>
             <p className="text-xs text-gray-600">
-              {itemStats.selected > 0 ? Math.round((itemStats.displayed / itemStats.selected) * 100) : 0}% of selected
+              {stats.selected > 0 ? Math.round((stats.displayed / stats.selected) * 100) : 0}% of selected
             </p>
           </CardContent>
         </Card>
@@ -359,9 +364,9 @@ export default function ItemsPage() {
             <CardTitle className="text-sm font-medium">Hidden</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{itemStats.hidden}</div>
+            <div className="text-2xl font-bold">{stats.hidden}</div>
             <p className="text-xs text-gray-600">
-              {itemStats.selected > 0 ? Math.round((itemStats.hidden / itemStats.selected) * 100) : 0}% of selected
+              {stats.selected > 0 ? Math.round((stats.hidden / stats.selected) * 100) : 0}% of selected
             </p>
           </CardContent>
         </Card>
@@ -377,18 +382,23 @@ export default function ItemsPage() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 space-y-3">
-            <input
-              type="text"
-              placeholder="Search by article ID, alias, brand, or item name..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page on search
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div>
+              <input
+                type="text"
+                placeholder="Search by article ID, alias, or brand (min 3 characters)..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {searchInput.length > 0 && searchInput.length < 3 && (
+                <p className="text-xs text-gray-500 mt-1">Type at least 3 characters to search</p>
+              )}
+              {searchInput.length >= 3 && searchInput !== searchTerm && (
+                <p className="text-xs text-blue-500 mt-1">Searching...</p>
+              )}
+            </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
                 <select
@@ -426,6 +436,24 @@ export default function ItemsPage() {
                   ))}
                 </select>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Items per page</label>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="5">5 items</option>
+                  <option value="10">10 items</option>
+                  <option value="20">20 items</option>
+                  <option value="50">50 items</option>
+                  <option value="100">100 items</option>
+                </select>
+              </div>
             </div>
             
             {(searchTerm || selectedBrand || selectedCategory) && (
@@ -433,6 +461,7 @@ export default function ItemsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  setSearchInput('');
                   setSearchTerm('');
                   setSelectedBrand('');
                   setSelectedCategory('');
@@ -457,7 +486,7 @@ export default function ItemsPage() {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((item) => {
+                {items.map((item) => {
                   const details = item.itemDetails[0];
 
                   return (
@@ -517,10 +546,10 @@ export default function ItemsPage() {
                     </tr>
                   );
                 })}
-                {currentItems.length === 0 && (
+                {items.length === 0 && (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-gray-500">
-                      {searchTerm ? 'No items match your search.' : 'No items found. Add your first item to get started.'}
+                      {searchTerm || selectedBrand || selectedCategory ? 'No items match your filters.' : 'No items found. Add your first item to get started.'}
                     </td>
                   </tr>
                 )}
@@ -532,8 +561,7 @@ export default function ItemsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredItems.length)} of {filteredItems.length} items
-                {searchTerm && ` (filtered from ${items.length} total)`}
+                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
               </div>
               <div className="flex items-center gap-2">
                 <Button
