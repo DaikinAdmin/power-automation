@@ -268,15 +268,47 @@ function CurrencyExchangeCard({
                 </div>
               </div>
               
-              <div className="p-3 bg-gray-50 rounded-md">
-                <p className="text-sm font-medium">Current Rate: <span className="font-bold">{exchangeRate.rate}</span></p>
-                <p className="text-sm text-gray-600">1 {fromCurrency} = {exchangeRate.rate} {toCurrency}</p>
-              </div>
+              {exchangeRate.rate ? (
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <p className="text-sm font-medium">Current Rate: <span className="font-bold">{exchangeRate.rate}</span></p>
+                  <p className="text-sm text-gray-600">1 {fromCurrency} = {exchangeRate.rate} {toCurrency}</p>
+                </div>
+              ) : (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm font-medium text-blue-900">No rate set yet</p>
+                  <p className="text-sm text-blue-700">Enter a rate above and click Save to create it</p>
+                </div>
+              )}
             </>
           ) : isLoading ? (
             <div className="py-4 text-center text-gray-500">Loading...</div>
           ) : (
-            <div className="py-4 text-center text-gray-500">Exchange rate not found</div>
+            <div className="space-y-3">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm font-medium text-blue-900">No rate set yet</p>
+                <p className="text-sm text-blue-700">Enter a rate below and click Save to create it</p>
+              </div>
+              
+              <div className="grid gap-3">
+                <Label htmlFor={`rate-${fromCurrency}-${toCurrency}`}>Exchange Rate</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id={`rate-${fromCurrency}-${toCurrency}`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={editRate !== undefined ? editRate : ''}
+                    onChange={(e) => onRateChange(e.target.value)}
+                    placeholder="Enter exchange rate (e.g., 4.30)"
+                    disabled={isLoading}
+                  />
+                  <Button onClick={onSave} disabled={isLoading || !editRate || editRate <= 0}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Create
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </CardContent>

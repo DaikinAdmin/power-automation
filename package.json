@@ -2,11 +2,16 @@
   "name": "powerautomation",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.9.2",
+  "overrides": {
+    "next": "^16.0.10"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "node scripts/patch-better-auth.js",
     "create-sample-files": "node scripts/create-sample-xlsx.js",
     "seed:excel": "tsx scripts/run-seed.ts",
     "excel:to-json": "tsx scripts/excel-to-json.ts",
@@ -41,7 +46,7 @@
     "@radix-ui/react-switch": "^1.1.3",
     "@radix-ui/react-tabs": "^1.1.13",
     "@types/nodemailer": "^6.4.17",
-    "better-auth": "^1.4.6",
+    "better-auth": "^1.4.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csv-parse": "^6.1.0",
