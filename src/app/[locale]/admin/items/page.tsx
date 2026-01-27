@@ -9,14 +9,12 @@ import { DeleteItemModal } from '@/components/admin/delete-item-modal';
 import { BulkUploadModal } from '@/components/admin/bulk-upload-modal';
 import { Eye, EyeOff, ChevronLeft, ChevronRight, Upload, Download } from 'lucide-react';
 import { Item } from '@/helpers/types/item';
-import { usePagination } from '@/hooks/usePagination';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
-
+import { useAdminItems } from '@/hooks/useAdminItems';
+import { useAdminBrands } from '@/hooks/useAdminBrands';
 
 export default function ItemsPage() {
   const router = useRouter();
-  const [items, setItems] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
@@ -26,25 +24,27 @@ export default function ItemsPage() {
   const [searchTerm, setSearchTerm] = useState(''); // Actual search term sent to API
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [cachedEtag, setCachedEtag] = useState<string | null>(null);
   
   // Server-side pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   
-  // Stats from server
-  const [stats, setStats] = useState({
-    total: 0,
-    selected: 0,
-    displayed: 0,
-    hidden: 0,
+  // Custom hooks for data fetching
+  const { brands: allBrands } = useAdminBrands();
+  const {
+    items,
+    isLoading,
+    stats,
+    pagination,
+    filters,
+    refetch: refetchItems,
+  } = useAdminItems({
+    currentPage,
+    pageSize,
+    searchTerm,
+    selectedBrand,
+    selectedCategory,
   });
-  
-  // Filter options from server
-  const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
 
   // Debounce search input - only search after user stops typing for 500ms and has 3+ chars
   useEffect(() => {
@@ -58,63 +58,6 @@ export default function ItemsPage() {
 
     return () => clearTimeout(timer);
   }, [searchInput]);
-
-  useEffect(() => {
-    fetchItems();
-  }, [currentPage, pageSize, searchTerm, selectedBrand, selectedCategory]);
-
-  const fetchItems = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Build query parameters
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        pageSize: pageSize.toString(),
-      });
-      
-      if (searchTerm) params.set('search', searchTerm);
-      if (selectedBrand) params.set('brand', selectedBrand);
-      if (selectedCategory) params.set('category', selectedCategory);
-      
-      // Include ETag in request headers if we have one
-      const headers: HeadersInit = {};
-      if (cachedEtag) {
-        headers['If-None-Match'] = cachedEtag;
-      }
-      
-      const response = await fetch(`/api/admin/items?${params.toString()}`, { headers });
-      
-      if (response.status === 304) {
-        // Not Modified - use cached data
-        console.log('Using cached items data');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (response.ok) {
-        const data = await response.json();
-        setItems(data.items);
-        setTotalPages(data.pagination.totalPages);
-        setTotalItems(data.pagination.totalItems);
-        setStats(data.stats);
-        setUniqueBrands(data.filters.brands);
-        setUniqueCategories(data.filters.categories);
-        
-        // Store the ETag for future requests
-        const newEtag = response.headers.get('ETag');
-        if (newEtag) {
-          setCachedEtag(newEtag);
-        }
-      } else {
-        console.error('Failed to fetch items');
-      }
-    } catch (error) {
-      console.error('Error fetching items:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateItem = () => {
     router.push('/admin/items/new');
@@ -142,7 +85,7 @@ export default function ItemsPage() {
         });
 
         if (response.ok) {
-          await fetchItems();
+          await refetchItems();
         } else {
           console.error('Failed to update item');
         }
@@ -157,7 +100,7 @@ export default function ItemsPage() {
         });
 
         if (response.ok) {
-          await fetchItems();
+          await refetchItems();
         } else {
           console.error('Failed to create item');
         }
@@ -174,7 +117,7 @@ export default function ItemsPage() {
       });
 
       if (response.ok) {
-        await fetchItems();
+        await refetchItems();
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to delete item');
@@ -198,7 +141,7 @@ export default function ItemsPage() {
       });
 
       if (response.ok) {
-        await fetchItems();
+        await refetchItems();
       } else {
         console.error('Failed to update item display status');
       }
@@ -208,7 +151,7 @@ export default function ItemsPage() {
   };
 
   const handleBulkUploadSuccess = () => {
-    fetchItems(); // Refresh the items list
+    refetchItems(); // Refresh the items list
   };
 
   const handleDownloadItems = async (format: 'json' | 'csv') => {
@@ -238,7 +181,7 @@ export default function ItemsPage() {
   };
 
   const goToNextPage = () => {
-    if (currentPage < totalPages) {
+    if (currentPage < pagination.totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -410,9 +353,9 @@ export default function ItemsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Brands</option>
-                  {uniqueBrands.map((brand) => (
-                    <option key={brand} value={brand}>
-                      {brand}
+                  {allBrands.map((brand) => (
+                    <option key={brand.alias} value={brand.alias}>
+                      {brand.name}
                     </option>
                   ))}
                 </select>
@@ -429,7 +372,7 @@ export default function ItemsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Categories</option>
-                  {uniqueCategories.map((category) => (
+                  {filters.categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>
@@ -558,10 +501,10 @@ export default function ItemsPage() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} items
+                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, pagination.totalItems)} of {pagination.totalItems} items
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -574,13 +517,13 @@ export default function ItemsPage() {
                   Previous
                 </Button>
                 <span className="text-sm">
-                  Page {currentPage} of {totalPages}
+                  Page {currentPage} of {pagination.totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={goToNextPage}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === pagination.totalPages}
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />

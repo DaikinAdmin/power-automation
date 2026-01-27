@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from "@/components/cart-context";
 import PageLayout from '@/components/layout/page-layout';
 import { CartItemType } from '@/helpers/types/item';
-import { ItemResponse } from '@/helpers/types/api-responses';
 import { useCatalogPricing } from '@/hooks/useCatalogPricing';
+import { useCategoryData } from '@/hooks/useCategoryData';
 import { calculateDiscountPercentage } from '@/helpers/pricing';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -22,8 +22,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown } from 'lucide-react';
 
-type Item = ItemResponse;
-
 export default function CategoriesPage({ locale }: { locale: string }) {
   const t = useTranslations('categories');
   const router = useRouter();
@@ -32,13 +30,6 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     addToCart,
   } = useCart();
 
-  // All categories page states
-  const [items, setItems] = useState<Item[]>([]);
-  const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
-  const [warehouses, setWarehouses] = useState<
-    { id: string; name: string; country: string; displayedName: string }[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
@@ -58,16 +49,21 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const urlWarehouses = searchParams?.getAll('warehouse') || [];
   const searchQuery = searchParams?.get('search') || '';
 
-  // Categories data
-  const [categories, setCategories] = useState<
-    {
-      id: string;
-      name: string;
-      slug: string;
-      image: string;
-      subcategories: { id: string; name: string; slug: string }[];
-    }[]
-  >([]);
+  // Use custom hook for fetching all category data
+  const {
+    items,
+    categories,
+    brands,
+    warehouses,
+    isLoading,
+  } = useCategoryData({
+    locale,
+    filters: {
+      brand: urlBrands,
+      warehouse: urlWarehouses,
+      ...(searchQuery && { search: searchQuery }),
+    },
+  });
 
   const { getItemDetails, getItemPrice, getAvailableWarehouses } =
     useCatalogPricing({
@@ -109,97 +105,6 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlWarehouses.filter(w => w !== warehouseId);
     
     updateURLParams('warehouse', currentSelected);
-  };
-
-  useEffect(() => {
-    fetchAllData();
-  }, [searchParams]);
-
-  const fetchAllData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Build query string from URL parameters
-      const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
-      urlBrands.forEach(brand => params.append('brand', brand));
-      urlWarehouses.forEach(wh => params.append('warehouse', wh));
-      
-      const queryString = params.toString();
-      const apiUrl = `/api/public/items/${locale}${queryString ? `?${queryString}` : ''}`;
-      
-      console.log('[Categories Page] Fetching from:', apiUrl);
-      const response = await fetch(apiUrl);
-      
-      if (response.ok) {
-        const data = (await response.json()) as Item[];
-        setItems(data);
-        
-        // Also fetch all items to get full category info (for sidebar)
-        const allItemsResponse = await fetch(`/api/public/items/${locale}`);
-        if (allItemsResponse.ok) {
-          const allItems = (await allItemsResponse.json()) as Item[];
-          
-          // Build categories map from all items
-          const categoryMap = new Map();
-          allItems.forEach((item) => {
-            if (item.category && !categoryMap.has(item.category.slug)) {
-              categoryMap.set(item.category.slug, {
-                id: item.category.slug,
-                name: item.category.name,
-                slug: item.category.slug,
-                image: "/placeholder-category.jpg",
-                subcategories: item.category.subCategories.map((sub) => ({
-                  id: sub.slug,
-                  name: sub.name,
-                  slug: sub.slug,
-                })),
-              });
-            }
-          });
-
-          const categoriesArray = Array.from(categoryMap.values());
-          setCategories(categoriesArray);
-
-          // Extract unique brands with name and slug
-          const brandMap = new Map();
-          allItems.forEach((item) => {
-            if (item.brand?.alias && item.brand?.name) {
-              brandMap.set(item.brand.alias, {
-                name: item.brand.name,
-                slug: item.brand.alias,
-              });
-            }
-          });
-          const uniqueBrands = Array.from(brandMap.values());
-          setBrands(uniqueBrands);
-
-          // Extract unique warehouses
-          const warehouseMap = new Map();
-          allItems.forEach((item) => {
-            item.prices.forEach((price) => {
-              if (price.warehouse) {
-                warehouseMap.set(price.warehouse.slug, {
-                  id: price.warehouse.slug,
-                  name: price.warehouse.name || price.warehouse.slug,
-                  country: price.warehouse.country?.name || "Unknown",
-                  displayedName:
-                    price.warehouse.displayedName ||
-                    price.warehouse.name ||
-                    price.warehouse.slug,
-                });
-              }
-            });
-          });
-          const uniqueWarehouses = Array.from(warehouseMap.values());
-          setWarehouses(uniqueWarehouses);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching all data:", error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
