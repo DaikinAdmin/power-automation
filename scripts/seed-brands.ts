@@ -10,9 +10,9 @@ const brandsData = [
   "Schneider Electric",
   "Danfoss",
   "Daikin",
-  "Phoenix",
+  "PHOENIX",
   "Harting",
-  "MURRELETRONIK",
+  "MURRELEKTRONIK",
   "SICK",
   "Omron",
 ];

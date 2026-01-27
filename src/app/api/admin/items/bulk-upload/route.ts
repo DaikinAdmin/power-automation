@@ -64,7 +64,7 @@ async function processARAFile(workbook: XLSX.WorkBook, warehouseId: string) {
   const now = new Date().toISOString();
   const defaultCategorySlug = 'low-voltage-components'; // Default category
 
-  const sheetsToProcess = ['Siemens', 'Phoenix', 'MURRELEKTRONIC', 'SICK', 'HARTING'];
+  const sheetsToProcess = ['SIEMENS', 'PHOENIX', 'MURRELEKTRONIK', 'SICK', 'HARTING'];
   
   for (const sheetName of sheetsToProcess) {
     if (!workbook.SheetNames.includes(sheetName)) {
