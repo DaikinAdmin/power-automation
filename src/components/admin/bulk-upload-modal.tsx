@@ -109,44 +109,83 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
   const handleUpload = async () => {
     if (!selectedFile) return;
 
-    setUploadState({ status: 'uploading', progress: 10, message: 'Uploading file...' });
+    setUploadState({ status: 'uploading', progress: 0, message: 'Preparing upload...' });
 
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('fileType', fileType);
 
-      setUploadState({ status: 'uploading', progress: 30, message: 'Processing file...' });
+      // Use XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
 
-      const response = await fetch('/api/admin/items/bulk-upload', {
-        method: 'POST',
-        body: formData,
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 70); // 0-70% for upload
+          setUploadState({ 
+            status: 'uploading', 
+            progress: percentComplete, 
+            message: `Uploading file... ${percentComplete}%` 
+          });
+        }
       });
 
-      const result = await response.json();
+      // Handle response
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadState({ status: 'uploading', progress: 85, message: 'Processing data...' });
+          
+          const result = JSON.parse(xhr.responseText);
+          
+          setUploadState({
+            status: 'success',
+            progress: 100,
+            message: result.message,
+            details: result.duplicates?.length > 0 
+              ? [`Skipped ${result.duplicates.length} duplicate items: ${result.duplicates.join(', ')}`]
+              : undefined
+          });
+          
+          setTimeout(() => {
+            onSuccess();
+            handleClose();
+          }, 2000);
+        } else {
+          const result = JSON.parse(xhr.responseText);
+          setUploadState({
+            status: 'error',
+            progress: 0,
+            message: result.error || 'Upload failed',
+            details: result.details || []
+          });
+        }
+      });
 
-      if (response.ok) {
-        setUploadState({
-          status: 'success',
-          progress: 100,
-          message: result.message,
-          details: result.duplicates?.length > 0 
-            ? [`Skipped ${result.duplicates.length} duplicate items: ${result.duplicates.join(', ')}`]
-            : undefined
-        });
-        console.log("UploadState: ", uploadState);
-        setTimeout(() => {
-          onSuccess();
-          handleClose();
-        }, 2000);
-      } else {
+      // Handle network errors
+      xhr.addEventListener('error', () => {
         setUploadState({
           status: 'error',
           progress: 0,
-          message: result.error || 'Upload failed',
-          details: result.details || []
+          message: 'Network error occurred',
+          details: ['Failed to connect to server']
         });
-      }
+      });
+
+      // Handle abort
+      xhr.addEventListener('abort', () => {
+        setUploadState({
+          status: 'error',
+          progress: 0,
+          message: 'Upload cancelled',
+          details: []
+        });
+      });
+
+      // Send the request
+      xhr.open('POST', '/api/admin/items/bulk-upload');
+      xhr.send(formData);
+
     } catch (error: any) {
       setUploadState({
         status: 'error',
