@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import * as XLSX from 'xlsx';
 
@@ -287,17 +287,54 @@ async function processGenericFile(
 
   if (uniqueDetails.length > 0) {
     const CHUNK_SIZE = 2000;
-    for (let i = 0; i < uniqueDetails.length; i += CHUNK_SIZE) {
-      const chunk = uniqueDetails.slice(i, i + CHUNK_SIZE);
-      await db.insert(schema.itemDetails)
-        .values(chunk)
-        .onConflictDoUpdate({
-          target: [schema.itemDetails.itemSlug, schema.itemDetails.locale],
-          set: {
-            itemName: chunk[0].itemName,
-            specifications: chunk[0].specifications,
-          },
-        });
+    
+    // First, fetch existing item details to avoid duplicates
+    const existingSlugs = [...new Set(uniqueDetails.map(d => d.itemSlug))];
+    const existingDetails = await db
+      .select()
+      .from(schema.itemDetails)
+      .where(
+        sql`${schema.itemDetails.itemSlug} = ANY(${existingSlugs})`
+      );
+    
+    // Create a map of existing details by slug_locale
+    const existingMap = new Map(
+      existingDetails.map(d => [`${d.itemSlug}_${d.locale}`, d])
+    );
+    
+    // Separate into inserts and updates
+    const toInsert: any[] = [];
+    const toUpdate: any[] = [];
+    
+    for (const detail of uniqueDetails) {
+      const key = `${detail.itemSlug}_${detail.locale}`;
+      const existing = existingMap.get(key);
+      
+      if (existing) {
+        toUpdate.push({ ...detail, id: existing.id });
+      } else {
+        toInsert.push(detail);
+      }
+    }
+    
+    // Batch insert new details
+    if (toInsert.length > 0) {
+      for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
+        const chunk = toInsert.slice(i, i + CHUNK_SIZE);
+        await db.insert(schema.itemDetails).values(chunk);
+      }
+    }
+    
+    // Batch update existing details
+    if (toUpdate.length > 0) {
+      for (const detail of toUpdate) {
+        await db.update(schema.itemDetails)
+          .set({
+            itemName: detail.itemName,
+            specifications: detail.specifications,
+          })
+          .where(eq(schema.itemDetails.id, detail.id));
+      }
     }
   }
 
@@ -305,16 +342,63 @@ async function processGenericFile(
     const CHUNK_SIZE = 1000;
     for (let i = 0; i < uniquePrices.length; i += CHUNK_SIZE) {
       const chunk = uniquePrices.slice(i, i + CHUNK_SIZE);
-      await db.insert(schema.itemPrice)
-        .values(chunk)
-        .onConflictDoUpdate({
-          target: [schema.itemPrice.itemSlug, schema.itemPrice.warehouseId],
-          set: {
-            price: chunk[0].price,
-            quantity: chunk[0].quantity,
-            updatedAt: now,
-          },
-        });
+      
+      // Check if there's a unique constraint on itemSlug + warehouseId
+      // If not, we need to handle this differently
+      try {
+        await db.insert(schema.itemPrice)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: [schema.itemPrice.itemSlug, schema.itemPrice.warehouseId],
+            set: {
+              price: chunk[0].price,
+              quantity: chunk[0].quantity,
+              updatedAt: now,
+            },
+          });
+      } catch (error) {
+        // Fallback: fetch existing and separate insert/update
+        const existingSlugs = [...new Set(chunk.map(p => p.itemSlug))];
+        const existingPrices = await db
+          .select()
+          .from(schema.itemPrice)
+          .where(
+            sql`${schema.itemPrice.itemSlug} = ANY(${existingSlugs}) 
+                AND ${schema.itemPrice.warehouseId} = ${warehouseId}`
+          );
+        
+        const existingMap = new Map(
+          existingPrices.map(p => [`${p.itemSlug}_${p.warehouseId}`, p])
+        );
+        
+        const toInsert: any[] = [];
+        const toUpdate: any[] = [];
+        
+        for (const price of chunk) {
+          const key = `${price.itemSlug}_${price.warehouseId}`;
+          const existing = existingMap.get(key);
+          
+          if (existing) {
+            toUpdate.push({ ...price, id: existing.id });
+          } else {
+            toInsert.push(price);
+          }
+        }
+        
+        if (toInsert.length > 0) {
+          await db.insert(schema.itemPrice).values(toInsert);
+        }
+        
+        for (const price of toUpdate) {
+          await db.update(schema.itemPrice)
+            .set({
+              price: price.price,
+              quantity: price.quantity,
+              updatedAt: now,
+            })
+            .where(eq(schema.itemPrice.id, price.id));
+        }
+      }
     }
   }
 
