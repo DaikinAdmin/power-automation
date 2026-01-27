@@ -266,10 +266,10 @@ async function processGenericFile(
   }
 
   // Batch inserts with optimized chunk sizes
-  // PostgreSQL limit: ROW expressions can have at most 1664 entries
-  // For tables with many columns, we need smaller chunks
+  // PostgreSQL limit: ROW expressions can have at most 1664 entries (total parameters)
+  // Formula: max_rows = 1664 / number_of_columns
   if (uniqueItems.length > 0) {
-    const CHUNK_SIZE = 500; // ~7 columns = 3500 entries (safe)
+    const CHUNK_SIZE = 200; // 7-8 columns = 1400-1600 parameters (safe)
     for (let i = 0; i < uniqueItems.length; i += CHUNK_SIZE) {
       const chunk = uniqueItems.slice(i, i + CHUNK_SIZE);
       await db.insert(schema.item)
@@ -288,16 +288,22 @@ async function processGenericFile(
   }
 
   if (uniqueDetails.length > 0) {
-    const CHUNK_SIZE = 150; // 11 columns = 1650 entries (within limit)
+    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
     
     // First, fetch existing item details to avoid duplicates
     const existingSlugs = [...new Set(uniqueDetails.map(d => d.itemSlug))];
-    const existingDetails = await db
-      .select()
-      .from(schema.itemDetails)
-      .where(
-        sql`${schema.itemDetails.itemSlug} = ANY(${existingSlugs})`
-      );
+    
+    // Process in batches to avoid "too many parameters" error
+    const existingDetails: any[] = [];
+    const FETCH_BATCH = 500;
+    for (let i = 0; i < existingSlugs.length; i += FETCH_BATCH) {
+      const batch = existingSlugs.slice(i, i + FETCH_BATCH);
+      const batchResults = await db
+        .select()
+        .from(schema.itemDetails)
+        .where(sql`${schema.itemDetails.itemSlug} = ANY(${batch})`);
+      existingDetails.push(...batchResults);
+    }
     
     // Create a map of existing details by slug_locale
     const existingMap = new Map(
@@ -327,9 +333,9 @@ async function processGenericFile(
       }
     }
     
-    // Batch update existing details (use smaller batches for updates)
+    // Batch update existing details
     if (toUpdate.length > 0) {
-      const UPDATE_CHUNK = 100;
+      const UPDATE_CHUNK = 50;
       for (let i = 0; i < toUpdate.length; i += UPDATE_CHUNK) {
         const chunk = toUpdate.slice(i, i + UPDATE_CHUNK);
         for (const detail of chunk) {
@@ -345,7 +351,7 @@ async function processGenericFile(
   }
 
   if (uniquePrices.length > 0) {
-    const CHUNK_SIZE = 200; // ~10 columns = 2000 entries (safe)
+    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
     for (let i = 0; i < uniquePrices.length; i += CHUNK_SIZE) {
       const chunk = uniquePrices.slice(i, i + CHUNK_SIZE);
       
