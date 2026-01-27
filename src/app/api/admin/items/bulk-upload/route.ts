@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import * as XLSX from 'xlsx';
 
@@ -301,7 +301,7 @@ async function processGenericFile(
       const batchResults = await db
         .select()
         .from(schema.itemDetails)
-        .where(sql`${schema.itemDetails.itemSlug} = ANY(${batch})`);
+        .where(inArray(schema.itemDetails.itemSlug, batch));
       existingDetails.push(...batchResults);
     }
     
@@ -375,8 +375,10 @@ async function processGenericFile(
           .select()
           .from(schema.itemPrice)
           .where(
-            sql`${schema.itemPrice.itemSlug} = ANY(${existingSlugs}) 
-                AND ${schema.itemPrice.warehouseId} = ${warehouseId}`
+            and(
+              inArray(schema.itemPrice.itemSlug, existingSlugs),
+              eq(schema.itemPrice.warehouseId, warehouseId)
+            )
           );
         
         const existingMap = new Map(
