@@ -118,7 +118,7 @@ export function useAdminItems({
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize, searchTerm, selectedBrand, selectedCategory, cachedEtag]);
+  }, [currentPage, pageSize, searchTerm, selectedBrand, selectedCategory]);
 
   useEffect(() => {
     fetchItems();
