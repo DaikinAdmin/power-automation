@@ -8,6 +8,84 @@ import * as XLSX from 'xlsx';
 
 type FileType = 'ARA' | 'Omron' | 'Pilz' | 'Schneider' | 'Encon';
 
+interface FileTypeConfig {
+  sheets?: string[]; // For multi-sheet files like ARA
+  sheetName?: string; // For single-sheet files
+  startRow?: number; // Starting row index (0-based)
+  brandSlug?: string; // For single-brand files
+  columnMappings: {
+    articleId: string;
+    price: string;
+    quantity?: string;
+    itemName?: string;
+    alias?: string;
+    specifications?: string;
+  };
+  // Dynamic brand slug from sheet name (for ARA)
+  brandFromSheet?: boolean;
+  // Special handling for different locales
+  localeMapping?: {
+    locale: string;
+    itemNameColumn: string;
+  }[];
+}
+
+const FILE_CONFIGS: Record<FileType, FileTypeConfig> = {
+  ARA: {
+    sheets: ['SIEMENS', 'PHOENIX', 'MURRELEKTRONIK', 'SICK', 'HARTING'],
+    startRow: 1,
+    brandFromSheet: true,
+    columnMappings: {
+      articleId: 'A',
+      price: 'D', // Default, will be overridden for HARTING
+      quantity: 'B',
+      itemName: 'A',
+    },
+  },
+  Omron: {
+    sheetName: 'Hoja1',
+    startRow: 1,
+    brandSlug: 'omron',
+    columnMappings: {
+      articleId: 'A',
+      price: 'J',
+      itemName: 'B',
+      alias: 'E',
+      specifications: 'E',
+    },
+  },
+  Pilz: {
+    sheetName: 'Price List SE',
+    startRow: 1,
+    brandSlug: 'pilz',
+    columnMappings: {
+      articleId: 'A',
+      price: 'C',
+      itemName: 'B',
+    },
+  },
+  Schneider: {
+    sheetName: 'Hoja1',
+    startRow: 2, // Starts from row 3
+    brandSlug: 'schneider-electric',
+    columnMappings: {
+      articleId: 'A',
+      price: 'F',
+      itemName: 'A',
+    },
+  },
+  Encon: {
+    sheetName: 'Sheet1',
+    startRow: 0,
+    brandSlug: 'encon',
+    columnMappings: {
+      articleId: 'A',
+      price: 'B',
+      itemName: 'C',
+    },
+  },
+};
+
 async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -59,587 +137,184 @@ async function getOrCreateWarehouse(warehouseName: string) {
   return warehouse;
 }
 
-async function processARAFile(workbook: XLSX.WorkBook, warehouseId: string) {
+async function processGenericFile(
+  workbook: XLSX.WorkBook,
+  warehouseId: string,
+  fileType: FileType,
+  config: FileTypeConfig
+) {
   const results = { created: 0, updated: 0, errors: [] as string[] };
   const now = new Date().toISOString();
-  const defaultCategorySlug = 'low-voltage-components'; // Default category
+  const defaultCategorySlug = 'low-voltage-components';
 
-  const sheetsToProcess = ['SIEMENS', 'PHOENIX', 'MURRELEKTRONIK', 'SICK', 'HARTING'];
-  
+  const items: any[] = [];
+  const itemDetails: any[] = [];
+  const itemPrices: any[] = [];
+
+  // Determine sheets to process
+  const sheetsToProcess = config.sheets || [config.sheetName!];
+
   for (const sheetName of sheetsToProcess) {
     if (!workbook.SheetNames.includes(sheetName)) {
-      results.errors.push(`Sheet '${sheetName}' not found in workbook`);
-      continue;
+      if (config.sheets) {
+        results.errors.push(`Sheet '${sheetName}' not found in workbook`);
+        continue;
+      } else {
+        throw new Error(`Sheet '${sheetName}' not found`);
+      }
     }
 
     const worksheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
 
-    const brandSlug = sheetName.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+    // Determine brand slug
+    const brandSlug = config.brandFromSheet
+      ? sheetName.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-')
+      : config.brandSlug!;
 
-    for (let i = 1; i < data.length; i++) {
+    // Special handling for ARA HARTING
+    const isHarting = fileType === 'ARA' && sheetName === 'HARTING';
+    const priceColumn = isHarting ? 'E' : config.columnMappings.price;
+    const quantityColumn = isHarting ? 'C' : config.columnMappings.quantity || 'B';
+
+    for (let i = config.startRow || 0; i < data.length; i++) {
       const row = data[i] as any;
-      
+
       try {
-        const articleId = getCellValue(row, 'A');
+        const articleId = getCellValue(row, config.columnMappings.articleId);
         if (!articleId) continue;
 
-        const isHarting = sheetName === 'HARTING';
-        
-        const quantity = isHarting ? getCellValue(row, 'C') : getCellValue(row, 'B');
-        const price = isHarting ? getCellValue(row, 'E') : getCellValue(row, 'D');
-        const itemNameES = isHarting ? getCellValue(row, 'B') : getCellValue(row, 'A');
-        const itemNameDefault = getCellValue(row, 'A');
-
+        const price = getCellValue(row, priceColumn);
         if (!price) continue;
+
+        const quantity = getCellValue(row, quantityColumn);
+        const itemName = getCellValue(row, config.columnMappings.itemName || 'A');
+        const alias = config.columnMappings.alias ? getCellValue(row, config.columnMappings.alias) : null;
+        const specifications = config.columnMappings.specifications
+          ? getCellValue(row, config.columnMappings.specifications)
+          : null;
 
         const slug = createSlug(brandSlug, articleId);
 
-        // Check if item exists
-        const [existingItem] = await db
-          .select()
-          .from(schema.item)
-          .where(eq(schema.item.slug, slug))
-          .limit(1);
+        // Prepare item data
+        items.push({
+          articleId,
+          slug,
+          alias: alias || null,
+          isDisplayed: false,
+          brandSlug,
+          categorySlug: defaultCategorySlug,
+          updatedAt: now,
+        });
 
-        let itemId: string;
-
-        if (existingItem) {
-          itemId = existingItem.id;
-          await db
-            .update(schema.item)
-            .set({
-              brandSlug,
-              categorySlug: defaultCategorySlug,
-              updatedAt: now,
-            })
-            .where(eq(schema.item.id, itemId));
-
-          results.updated++;
-        } else {
-          [{ id: itemId }] = await db
-            .insert(schema.item)
-            .values({
-              articleId,
-              slug,
-              isDisplayed: false,
-              brandSlug,
-              categorySlug: defaultCategorySlug,
-              updatedAt: now,
-            })
-            .returning({ id: schema.item.id });
-
-          results.created++;
-        }
-
-        // Handle item details for different locales
+        // Prepare item details for all locales
         const locales = isHarting ? ['es', 'pl', 'en', 'ua'] : ['pl', 'en', 'ua', 'es'];
-        
         for (const locale of locales) {
-          const itemName = (isHarting && locale === 'es') ? itemNameES : itemNameDefault;
-          
-          const [existingDetail] = await db
-            .select()
-            .from(schema.itemDetails)
-            .where(
-              and(
-                eq(schema.itemDetails.itemSlug, slug),
-                eq(schema.itemDetails.locale, locale)
-              )
-            )
-            .limit(1);
+          // Special handling for HARTING Spanish locale
+          const localizedItemName = isHarting && locale === 'es'
+            ? getCellValue(row, 'B')
+            : itemName;
 
-          if (existingDetail) {
-            await db
-              .update(schema.itemDetails)
-              .set({ itemName })
-              .where(eq(schema.itemDetails.id, existingDetail.id));
-          } else {
-            await db
-              .insert(schema.itemDetails)
-              .values({
-                id: randomUUID(),
-                itemSlug: slug,
-                locale,
-                itemName,
-                description: '',
-              });
-          }
+          itemDetails.push({
+            id: randomUUID(),
+            itemSlug: slug,
+            locale,
+            itemName: localizedItemName,
+            description: '',
+            specifications: specifications || null,
+          });
         }
 
-        // Handle item price
-        const [existingPrice] = await db
-          .select()
-          .from(schema.itemPrice)
-          .where(
-            and(
-              eq(schema.itemPrice.itemSlug, slug),
-              eq(schema.itemPrice.warehouseId, warehouseId)
-            )
-          )
-          .limit(1);
-
-        if (existingPrice) {
-          await db
-            .update(schema.itemPrice)
-            .set({
-              price: Number(price),
-              quantity: Number(quantity) || 0,
-              updatedAt: now,
-            })
-            .where(eq(schema.itemPrice.id, existingPrice.id));
-        } else {
-          await db
-            .insert(schema.itemPrice)
-            .values({
-              id: randomUUID(),
-              itemSlug: slug,
-              warehouseId,
-              price: Number(price),
-              quantity: Number(quantity) || 0,
-              badge: 'ABSENT',
-              createdAt: now,
-              updatedAt: now,
-            });
-        }
+        // Prepare item price
+        itemPrices.push({
+          id: randomUUID(),
+          itemSlug: slug,
+          warehouseId,
+          price: Number(price),
+          quantity: Number(quantity) || 0,
+          badge: 'ABSENT',
+          createdAt: now,
+          updatedAt: now,
+        });
       } catch (error) {
+        const errorPrefix = config.sheets ? `Sheet ${sheetName}, ` : '';
         results.errors.push(
-          `Sheet ${sheetName}, Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+          `${errorPrefix}Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
     }
   }
 
+  // Batch inserts with optimized chunk sizes
+  if (items.length > 0) {
+    const CHUNK_SIZE = 1000;
+    for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+      const chunk = items.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.item)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: schema.item.slug,
+          set: {
+            alias: chunk[0].alias,
+            brandSlug: chunk[0].brandSlug,
+            categorySlug: chunk[0].categorySlug,
+            updatedAt: now,
+          },
+        });
+    }
+    results.created = items.length;
+  }
+
+  if (itemDetails.length > 0) {
+    const CHUNK_SIZE = 2000;
+    for (let i = 0; i < itemDetails.length; i += CHUNK_SIZE) {
+      const chunk = itemDetails.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemDetails)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [schema.itemDetails.itemSlug, schema.itemDetails.locale],
+          set: {
+            itemName: chunk[0].itemName,
+            specifications: chunk[0].specifications,
+          },
+        });
+    }
+  }
+
+  if (itemPrices.length > 0) {
+    const CHUNK_SIZE = 1000;
+    for (let i = 0; i < itemPrices.length; i += CHUNK_SIZE) {
+      const chunk = itemPrices.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemPrice)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [schema.itemPrice.itemSlug, schema.itemPrice.warehouseId],
+          set: {
+            price: chunk[0].price,
+            quantity: chunk[0].quantity,
+            updatedAt: now,
+          },
+        });
+    }
+  }
+
   return results;
+}
+
+async function processARAFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  return processGenericFile(workbook, warehouseId, 'ARA', FILE_CONFIGS.ARA);
 }
 
 async function processOmronFile(workbook: XLSX.WorkBook, warehouseId: string) {
-  const results = { created: 0, updated: 0, errors: [] as string[] };
-  const now = new Date().toISOString();
-  const defaultCategorySlug = 'low-voltage-components';
-  const brandSlug = 'omron';
-
-  const sheetName = 'Hoja1';
-  if (!workbook.SheetNames.includes(sheetName)) {
-    throw new Error(`Sheet '${sheetName}' not found`);
-  }
-
-  const worksheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
-
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i] as any;
-    
-    try {
-      const articleId = getCellValue(row, 'A');
-      const alias = getCellValue(row, 'E');
-      const itemName = getCellValue(row, 'B');
-      const specifications = getCellValue(row, 'E');
-      const price = getCellValue(row, 'J');
-
-      if (!articleId || !price) continue;
-
-      const slug = createSlug(brandSlug, articleId);
-
-      const [existingItem] = await db
-        .select()
-        .from(schema.item)
-        .where(eq(schema.item.slug, slug))
-        .limit(1);
-
-      let itemId: string;
-
-      if (existingItem) {
-        itemId = existingItem.id;
-        await db
-          .update(schema.item)
-          .set({
-            alias: alias || null,
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .where(eq(schema.item.id, itemId));
-
-        results.updated++;
-      } else {
-        [{ id: itemId }] = await db
-          .insert(schema.item)
-          .values({
-            articleId,
-            slug,
-            alias: alias || null,
-            isDisplayed: false,
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .returning({ id: schema.item.id });
-
-        results.created++;
-      }
-
-      // Handle item details for all locales
-      const locales = ['pl', 'en', 'ua', 'es'];
-      
-      for (const locale of locales) {
-        const [existingDetail] = await db
-          .select()
-          .from(schema.itemDetails)
-          .where(
-            and(
-              eq(schema.itemDetails.itemSlug, slug),
-              eq(schema.itemDetails.locale, locale)
-            )
-          )
-          .limit(1);
-
-        if (existingDetail) {
-          await db
-            .update(schema.itemDetails)
-            .set({
-              itemName,
-              specifications: specifications || null,
-            })
-            .where(eq(schema.itemDetails.id, existingDetail.id));
-        } else {
-          await db
-            .insert(schema.itemDetails)
-            .values({
-              id: randomUUID(),
-              itemSlug: slug,
-              locale,
-              itemName,
-              description: '',
-              specifications: specifications || null,
-            });
-        }
-      }
-
-      // Handle item price
-      const [existingPrice] = await db
-        .select()
-        .from(schema.itemPrice)
-        .where(
-          and(
-            eq(schema.itemPrice.itemSlug, slug),
-            eq(schema.itemPrice.warehouseId, warehouseId)
-          )
-        )
-        .limit(1);
-
-      if (existingPrice) {
-        await db
-          .update(schema.itemPrice)
-          .set({
-            price: Number(price),
-            quantity: 0,
-            updatedAt: now,
-          })
-          .where(eq(schema.itemPrice.id, existingPrice.id));
-      } else {
-        await db
-          .insert(schema.itemPrice)
-          .values({
-            id: randomUUID(),
-            itemSlug: slug,
-            warehouseId,
-            price: Number(price),
-            quantity: 0,
-            badge: 'ABSENT',
-            createdAt: now,
-            updatedAt: now,
-          });
-      }
-    } catch (error) {
-      results.errors.push(
-        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  return results;
+  return processGenericFile(workbook, warehouseId, 'Omron', FILE_CONFIGS.Omron);
 }
 
 async function processPilzFile(workbook: XLSX.WorkBook, warehouseId: string) {
-  const results = { created: 0, updated: 0, errors: [] as string[] };
-  const now = new Date().toISOString();
-  const defaultCategorySlug = 'low-voltage-components';
-  const brandSlug = 'pilz';
-
-  const sheetName = 'Price List SE';
-  if (!workbook.SheetNames.includes(sheetName)) {
-    throw new Error(`Sheet '${sheetName}' not found`);
-  }
-
-  const worksheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
-
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i] as any;
-    
-    try {
-      const articleId = getCellValue(row, 'A');
-      const itemName = getCellValue(row, 'B');
-      const price = getCellValue(row, 'C');
-
-      if (!articleId || !price) continue;
-
-      const slug = createSlug(brandSlug, articleId);
-
-      const [existingItem] = await db
-        .select()
-        .from(schema.item)
-        .where(eq(schema.item.slug, slug))
-        .limit(1);
-
-      let itemId: string;
-
-      if (existingItem) {
-        itemId = existingItem.id;
-        await db
-          .update(schema.item)
-          .set({
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .where(eq(schema.item.id, itemId));
-
-        results.updated++;
-      } else {
-        [{ id: itemId }] = await db
-          .insert(schema.item)
-          .values({
-            articleId,
-            slug,
-            isDisplayed: false,
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .returning({ id: schema.item.id });
-
-        results.created++;
-      }
-
-      // Handle item details for all locales
-      const locales = ['pl', 'en', 'ua', 'es'];
-      
-      for (const locale of locales) {
-        const [existingDetail] = await db
-          .select()
-          .from(schema.itemDetails)
-          .where(
-            and(
-              eq(schema.itemDetails.itemSlug, slug),
-              eq(schema.itemDetails.locale, locale)
-            )
-          )
-          .limit(1);
-
-        if (existingDetail) {
-          await db
-            .update(schema.itemDetails)
-            .set({ itemName })
-            .where(eq(schema.itemDetails.id, existingDetail.id));
-        } else {
-          await db
-            .insert(schema.itemDetails)
-            .values({
-              id: randomUUID(),
-              itemSlug: slug,
-              locale,
-              itemName,
-              description: '',
-            });
-        }
-      }
-
-      // Handle item price
-      const [existingPrice] = await db
-        .select()
-        .from(schema.itemPrice)
-        .where(
-          and(
-            eq(schema.itemPrice.itemSlug, slug),
-            eq(schema.itemPrice.warehouseId, warehouseId)
-          )
-        )
-        .limit(1);
-
-      if (existingPrice) {
-        await db
-          .update(schema.itemPrice)
-          .set({
-            price: Number(price),
-            quantity: 0,
-            updatedAt: now,
-          })
-          .where(eq(schema.itemPrice.id, existingPrice.id));
-      } else {
-        await db
-          .insert(schema.itemPrice)
-          .values({
-            id: randomUUID(),
-            itemSlug: slug,
-            warehouseId,
-            price: Number(price),
-            quantity: 0,
-            badge: 'ABSENT',
-            createdAt: now,
-            updatedAt: now,
-          });
-      }
-    } catch (error) {
-      results.errors.push(
-        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  return results;
+  return processGenericFile(workbook, warehouseId, 'Pilz', FILE_CONFIGS.Pilz);
 }
 
 async function processSchneiderFile(workbook: XLSX.WorkBook, warehouseId: string) {
-  const results = { created: 0, updated: 0, errors: [] as string[] };
-  const now = new Date().toISOString();
-  const defaultCategorySlug = 'low-voltage-components';
-  const brandSlug = 'schneider-electric';
-
-  const sheetName = 'Hoja1';
-  if (!workbook.SheetNames.includes(sheetName)) {
-    throw new Error(`Sheet '${sheetName}' not found`);
-  }
-
-  const worksheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
-
-  // Start from row 3 (index 2)
-  for (let i = 2; i < data.length; i++) {
-    const row = data[i] as any;
-    
-    try {
-      const articleId = getCellValue(row, 'A');
-      const price = getCellValue(row, 'F');
-      const itemName = getCellValue(row, 'A'); // Use articleId as itemName
-
-      if (!articleId || !price) continue;
-
-      const slug = createSlug(brandSlug, articleId);
-
-      const [existingItem] = await db
-        .select()
-        .from(schema.item)
-        .where(eq(schema.item.slug, slug))
-        .limit(1);
-
-      let itemId: string;
-
-      if (existingItem) {
-        itemId = existingItem.id;
-        await db
-          .update(schema.item)
-          .set({
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .where(eq(schema.item.id, itemId));
-
-        results.updated++;
-      } else {
-        [{ id: itemId }] = await db
-          .insert(schema.item)
-          .values({
-            articleId,
-            slug,
-            isDisplayed: false,
-            brandSlug,
-            categorySlug: defaultCategorySlug,
-            updatedAt: now,
-          })
-          .returning({ id: schema.item.id });
-
-        results.created++;
-      }
-
-      // Handle item details for all locales
-      const locales = ['pl', 'en', 'ua', 'es'];
-      
-      for (const locale of locales) {
-        const [existingDetail] = await db
-          .select()
-          .from(schema.itemDetails)
-          .where(
-            and(
-              eq(schema.itemDetails.itemSlug, slug),
-              eq(schema.itemDetails.locale, locale)
-            )
-          )
-          .limit(1);
-
-        if (existingDetail) {
-          await db
-            .update(schema.itemDetails)
-            .set({ itemName })
-            .where(eq(schema.itemDetails.id, existingDetail.id));
-        } else {
-          await db
-            .insert(schema.itemDetails)
-            .values({
-              id: randomUUID(),
-              itemSlug: slug,
-              locale,
-              itemName,
-              description: '',
-            });
-        }
-      }
-
-      // Handle item price
-      const [existingPrice] = await db
-        .select()
-        .from(schema.itemPrice)
-        .where(
-          and(
-            eq(schema.itemPrice.itemSlug, slug),
-            eq(schema.itemPrice.warehouseId, warehouseId)
-          )
-        )
-        .limit(1);
-
-      if (existingPrice) {
-        await db
-          .update(schema.itemPrice)
-          .set({
-            price: Number(price),
-            quantity: 0,
-            updatedAt: now,
-          })
-          .where(eq(schema.itemPrice.id, existingPrice.id));
-      } else {
-        await db
-          .insert(schema.itemPrice)
-          .values({
-            id: randomUUID(),
-            itemSlug: slug,
-            warehouseId,
-            price: Number(price),
-            quantity: 0,
-            badge: 'ABSENT',
-            createdAt: now,
-            updatedAt: now,
-          });
-      }
-    } catch (error) {
-      results.errors.push(
-        `Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  return results;
+  return processGenericFile(workbook, warehouseId, 'Schneider', FILE_CONFIGS.Schneider);
 }
 
 export async function POST(request: NextRequest) {
