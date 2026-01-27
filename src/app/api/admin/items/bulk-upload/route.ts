@@ -266,8 +266,10 @@ async function processGenericFile(
   }
 
   // Batch inserts with optimized chunk sizes
+  // PostgreSQL limit: ROW expressions can have at most 1664 entries
+  // For tables with many columns, we need smaller chunks
   if (uniqueItems.length > 0) {
-    const CHUNK_SIZE = 1000;
+    const CHUNK_SIZE = 500; // ~7 columns = 3500 entries (safe)
     for (let i = 0; i < uniqueItems.length; i += CHUNK_SIZE) {
       const chunk = uniqueItems.slice(i, i + CHUNK_SIZE);
       await db.insert(schema.item)
@@ -286,7 +288,7 @@ async function processGenericFile(
   }
 
   if (uniqueDetails.length > 0) {
-    const CHUNK_SIZE = 2000;
+    const CHUNK_SIZE = 150; // 11 columns = 1650 entries (within limit)
     
     // First, fetch existing item details to avoid duplicates
     const existingSlugs = [...new Set(uniqueDetails.map(d => d.itemSlug))];
@@ -325,21 +327,25 @@ async function processGenericFile(
       }
     }
     
-    // Batch update existing details
+    // Batch update existing details (use smaller batches for updates)
     if (toUpdate.length > 0) {
-      for (const detail of toUpdate) {
-        await db.update(schema.itemDetails)
-          .set({
-            itemName: detail.itemName,
-            specifications: detail.specifications,
-          })
-          .where(eq(schema.itemDetails.id, detail.id));
+      const UPDATE_CHUNK = 100;
+      for (let i = 0; i < toUpdate.length; i += UPDATE_CHUNK) {
+        const chunk = toUpdate.slice(i, i + UPDATE_CHUNK);
+        for (const detail of chunk) {
+          await db.update(schema.itemDetails)
+            .set({
+              itemName: detail.itemName,
+              specifications: detail.specifications,
+            })
+            .where(eq(schema.itemDetails.id, detail.id));
+        }
       }
     }
   }
 
   if (uniquePrices.length > 0) {
-    const CHUNK_SIZE = 1000;
+    const CHUNK_SIZE = 200; // ~10 columns = 2000 entries (safe)
     for (let i = 0; i < uniquePrices.length; i += CHUNK_SIZE) {
       const chunk = uniquePrices.slice(i, i + CHUNK_SIZE);
       
