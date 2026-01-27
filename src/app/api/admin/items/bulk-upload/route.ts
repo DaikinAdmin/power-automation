@@ -245,11 +245,31 @@ async function processGenericFile(
     }
   }
 
+  // Deduplicate by slug - keep last occurrence (most recent data)
+  const uniqueItems = Array.from(
+    new Map(items.map(item => [item.slug, item])).values()
+  );
+
+  // Deduplicate item details by slug + locale
+  const uniqueDetails = Array.from(
+    new Map(itemDetails.map(detail => [`${detail.itemSlug}_${detail.locale}`, detail])).values()
+  );
+
+  // Deduplicate item prices by slug + warehouse
+  const uniquePrices = Array.from(
+    new Map(itemPrices.map(price => [`${price.itemSlug}_${price.warehouseId}`, price])).values()
+  );
+
+  // Log deduplication stats
+  if (items.length !== uniqueItems.length) {
+    results.errors.push(`Deduplicated ${items.length - uniqueItems.length} duplicate items`);
+  }
+
   // Batch inserts with optimized chunk sizes
-  if (items.length > 0) {
+  if (uniqueItems.length > 0) {
     const CHUNK_SIZE = 1000;
-    for (let i = 0; i < items.length; i += CHUNK_SIZE) {
-      const chunk = items.slice(i, i + CHUNK_SIZE);
+    for (let i = 0; i < uniqueItems.length; i += CHUNK_SIZE) {
+      const chunk = uniqueItems.slice(i, i + CHUNK_SIZE);
       await db.insert(schema.item)
         .values(chunk)
         .onConflictDoUpdate({
@@ -262,13 +282,13 @@ async function processGenericFile(
           },
         });
     }
-    results.created = items.length;
+    results.created = uniqueItems.length;
   }
 
-  if (itemDetails.length > 0) {
+  if (uniqueDetails.length > 0) {
     const CHUNK_SIZE = 2000;
-    for (let i = 0; i < itemDetails.length; i += CHUNK_SIZE) {
-      const chunk = itemDetails.slice(i, i + CHUNK_SIZE);
+    for (let i = 0; i < uniqueDetails.length; i += CHUNK_SIZE) {
+      const chunk = uniqueDetails.slice(i, i + CHUNK_SIZE);
       await db.insert(schema.itemDetails)
         .values(chunk)
         .onConflictDoUpdate({
@@ -281,10 +301,10 @@ async function processGenericFile(
     }
   }
 
-  if (itemPrices.length > 0) {
+  if (uniquePrices.length > 0) {
     const CHUNK_SIZE = 1000;
-    for (let i = 0; i < itemPrices.length; i += CHUNK_SIZE) {
-      const chunk = itemPrices.slice(i, i + CHUNK_SIZE);
+    for (let i = 0; i < uniquePrices.length; i += CHUNK_SIZE) {
+      const chunk = uniquePrices.slice(i, i + CHUNK_SIZE);
       await db.insert(schema.itemPrice)
         .values(chunk)
         .onConflictDoUpdate({
