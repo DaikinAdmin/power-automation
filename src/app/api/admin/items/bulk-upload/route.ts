@@ -710,12 +710,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Bulk upload completed. Created: ${results.created}, Updated: ${results.updated}`,
+      details: results.errors.length > 0 ? results.errors : undefined,
       results,
     });
   } catch (error) {
     console.error('Bulk upload error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Internal server error', 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? [error.message] : ['Unknown error']
+      },
       { status: 500 }
     );
   }

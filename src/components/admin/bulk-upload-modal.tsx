@@ -304,11 +304,15 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 {uploadState.message}
-                {uploadState.details?.map((detail, index) => (
-                  <div key={index} className="mt-1 text-xs text-gray-600">
-                    {detail}
-                  </div>
-                ))}
+                {uploadState.details && uploadState.details.length > 0 && (
+                  uploadState.details
+                    .filter((detail): detail is string => Boolean(detail))
+                    .map((detail, index) => (
+                      <div key={index} className="mt-1 text-xs text-gray-600">
+                        {detail}
+                      </div>
+                    ))
+                )}
               </AlertDescription>
             </Alert>
           )}
@@ -320,11 +324,13 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                 {uploadState.message}
                 {uploadState.details && uploadState.details.length > 0 && (
                   <div className="mt-2 max-h-32 overflow-y-auto">
-                    {uploadState.details.map((error, index) => (
-                      <div key={index} className="text-xs mt-1">
-                        • {error}
-                      </div>
-                    ))}
+                    {uploadState.details
+                      .filter((error): error is string => Boolean(error))
+                      .map((error, index) => (
+                        <div key={index} className="text-xs mt-1">
+                          • {error}
+                        </div>
+                      ))}
                   </div>
                 )}
               </AlertDescription>
