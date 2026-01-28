@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 export interface CompareItem {
   id: string;
   articleId: string;
+  slug: string;
   name: string;
   brand?: string | null;
   brandImage?: string | null;
@@ -53,7 +54,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   const addToCompare = (item: CompareItem): boolean => {
     // Check if item already exists
-    if (compareItems.some((i) => i.id === item.id)) {
+    if (compareItems.some((i) => i.slug === item.slug)) {
       return false;
     }
 
@@ -66,16 +67,16 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const removeFromCompare = (id: string) => {
-    setCompareItems((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCompare = (slug: string) => {
+    setCompareItems((prev) => prev.filter((item) => item.slug !== slug));
   };
 
   const clearCompare = () => {
     setCompareItems([]);
   };
 
-  const isInCompare = (id: string): boolean => {
-    return compareItems.some((item) => item.id === id);
+  const isInCompare = (slug: string): boolean => {
+    return compareItems.some((item) => item.slug === slug);
   };
 
   return (

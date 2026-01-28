@@ -95,6 +95,7 @@ export function ProductsGrid({
           const compareItem = {
             id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
             articleId: item.articleId,
+            slug: item.slug,
             name: details?.itemName || "Unnamed Product",
             brand: item.brand?.name,
             brandImage: item.brand?.imageLink,
@@ -109,8 +110,8 @@ export function ProductsGrid({
 
         return (
           <CatalogProductCard
-            key={item.articleId}
-            href={`/product/${item.articleId}`}
+            key={item.slug}
+            href={`/product/${item.slug}`}
             imageSrc={item.itemImageLink}
             imageAlt={details?.itemName || "Product"}
             name={details?.itemName || "Unnamed Product"}
@@ -131,8 +132,8 @@ export function ProductsGrid({
             onAddToCompare={addToCompareHandler}
             addToCartDisabled={!inStock}
             addToCartLabel={inStock ? t("buy") : t("outOfStock")}
-            itemId={item.articleId}
-            isInCompare={isInCompare(item.articleId)}
+            itemId={item.slug}
+            isInCompare={isInCompare(item.slug)}
           />
         );
       })}
