@@ -343,7 +343,8 @@ export default function ProductPage({
     const specialPriceNumber = selectedWarehouse.baseSpecialPrice;
 
     const compareItem = {
-      id: product.slug, // використовуємо slug як унікальний ідентифікатор
+      id: product.id,
+      slug: product.slug,
       articleId: product.articleId,
       name: productName,
       brand: product.brand,
