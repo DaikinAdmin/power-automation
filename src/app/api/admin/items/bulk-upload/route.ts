@@ -265,153 +265,117 @@ async function processGenericFile(
     results.errors.push(`Deduplicated ${items.length - uniqueItems.length} duplicate items`);
   }
 
+  // Check which items already exist in the database
+  const itemSlugs = uniqueItems.map(item => item.slug);
+  const existingItems = await db
+    .select({ slug: schema.item.slug, id: schema.item.id })
+    .from(schema.item)
+    .where(inArray(schema.item.slug, itemSlugs));
+  
+  const existingItemSlugs = new Set(existingItems.map(item => item.slug));
+  const existingItemMap = new Map(existingItems.map(item => [item.slug, item]));
+  
+  // Separate new and existing items
+  const newItems = uniqueItems.filter(item => !existingItemSlugs.has(item.slug));
+  const existingItemsToUpdate = uniqueItems.filter(item => existingItemSlugs.has(item.slug));
+  
+  // Get item details and prices for new items only
+  const newItemSlugs = new Set(newItems.map(item => item.slug));
+  const newItemDetails = uniqueDetails.filter(detail => newItemSlugs.has(detail.itemSlug));
+  const newItemPrices = uniquePrices.filter(price => newItemSlugs.has(price.itemSlug));
+  
+  // Get prices for existing items (we'll only update prices for these)
+  const existingItemPrices = uniquePrices.filter(price => existingItemSlugs.has(price.itemSlug));
+
   // Batch inserts with optimized chunk sizes
   // PostgreSQL limit: ROW expressions can have at most 1664 entries (total parameters)
   // Formula: max_rows = 1664 / number_of_columns
-  if (uniqueItems.length > 0) {
+  
+  // Insert NEW items only
+  if (newItems.length > 0) {
     const CHUNK_SIZE = 200; // 7-8 columns = 1400-1600 parameters (safe)
-    for (let i = 0; i < uniqueItems.length; i += CHUNK_SIZE) {
-      const chunk = uniqueItems.slice(i, i + CHUNK_SIZE);
-      await db.insert(schema.item)
-        .values(chunk)
-        .onConflictDoUpdate({
-          target: schema.item.slug,
-          set: {
-            alias: chunk[0].alias,
-            brandSlug: chunk[0].brandSlug,
-            categorySlug: chunk[0].categorySlug,
-            updatedAt: now,
-          },
-        });
+    for (let i = 0; i < newItems.length; i += CHUNK_SIZE) {
+      const chunk = newItems.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.item).values(chunk);
     }
-    results.created = uniqueItems.length;
+    results.created = newItems.length;
   }
 
-  if (uniqueDetails.length > 0) {
+  // Insert item details for NEW items only
+  if (newItemDetails.length > 0) {
     const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
-    
-    // First, fetch existing item details to avoid duplicates
-    const existingSlugs = [...new Set(uniqueDetails.map(d => d.itemSlug))];
-    
-    // Process in batches to avoid "too many parameters" error
-    const existingDetails: any[] = [];
-    const FETCH_BATCH = 500;
-    for (let i = 0; i < existingSlugs.length; i += FETCH_BATCH) {
-      const batch = existingSlugs.slice(i, i + FETCH_BATCH);
-      const batchResults = await db
-        .select()
-        .from(schema.itemDetails)
-        .where(inArray(schema.itemDetails.itemSlug, batch));
-      existingDetails.push(...batchResults);
+    for (let i = 0; i < newItemDetails.length; i += CHUNK_SIZE) {
+      const chunk = newItemDetails.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemDetails).values(chunk);
     }
+  }
+
+  // Insert item prices for NEW items only
+  if (newItemPrices.length > 0) {
+    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
+    for (let i = 0; i < newItemPrices.length; i += CHUNK_SIZE) {
+      const chunk = newItemPrices.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemPrice).values(chunk);
+    }
+  }
+
+  // Handle EXISTING items - only update prices
+  if (existingItemPrices.length > 0) {
+    // Fetch current prices for these items
+    const existingPriceSlugs = [...new Set(existingItemPrices.map(p => p.itemSlug))];
+    const currentPrices = await db
+      .select()
+      .from(schema.itemPrice)
+      .where(
+        and(
+          inArray(schema.itemPrice.itemSlug, existingPriceSlugs),
+          eq(schema.itemPrice.warehouseId, warehouseId)
+        )
+      );
     
-    // Create a map of existing details by slug_locale
-    const existingMap = new Map(
-      existingDetails.map(d => [`${d.itemSlug}_${d.locale}`, d])
+    const currentPriceMap = new Map(
+      currentPrices.map(p => [`${p.itemSlug}_${p.warehouseId}`, p])
     );
-    
-    // Separate into inserts and updates
-    const toInsert: any[] = [];
-    const toUpdate: any[] = [];
-    
-    for (const detail of uniqueDetails) {
-      const key = `${detail.itemSlug}_${detail.locale}`;
-      const existing = existingMap.get(key);
-      
-      if (existing) {
-        toUpdate.push({ ...detail, id: existing.id });
-      } else {
-        toInsert.push(detail);
-      }
-    }
-    
-    // Batch insert new details
-    if (toInsert.length > 0) {
-      for (let i = 0; i < toInsert.length; i += CHUNK_SIZE) {
-        const chunk = toInsert.slice(i, i + CHUNK_SIZE);
-        await db.insert(schema.itemDetails).values(chunk);
-      }
-    }
-    
-    // Batch update existing details
-    if (toUpdate.length > 0) {
-      const UPDATE_CHUNK = 50;
-      for (let i = 0; i < toUpdate.length; i += UPDATE_CHUNK) {
-        const chunk = toUpdate.slice(i, i + UPDATE_CHUNK);
-        for (const detail of chunk) {
-          await db.update(schema.itemDetails)
-            .set({
-              itemName: detail.itemName,
-              specifications: detail.specifications,
-            })
-            .where(eq(schema.itemDetails.id, detail.id));
-        }
-      }
-    }
-  }
 
-  if (uniquePrices.length > 0) {
-    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
-    for (let i = 0; i < uniquePrices.length; i += CHUNK_SIZE) {
-      const chunk = uniquePrices.slice(i, i + CHUNK_SIZE);
+    // Move current prices to history and update with new prices
+    for (const newPrice of existingItemPrices) {
+      const key = `${newPrice.itemSlug}_${newPrice.warehouseId}`;
+      const currentPrice = currentPriceMap.get(key);
       
-      // Check if there's a unique constraint on itemSlug + warehouseId
-      // If not, we need to handle this differently
-      try {
-        await db.insert(schema.itemPrice)
-          .values(chunk)
-          .onConflictDoUpdate({
-            target: [schema.itemPrice.itemSlug, schema.itemPrice.warehouseId],
-            set: {
-              price: chunk[0].price,
-              quantity: chunk[0].quantity,
-              updatedAt: now,
-            },
+      if (currentPrice) {
+        // Get item ID for history record
+        const itemData = existingItemMap.get(newPrice.itemSlug);
+        
+        if (itemData) {
+          // Insert current price into history
+          await db.insert(schema.itemPriceHistory).values({
+            itemId: itemData.id,
+            warehouseId: currentPrice.warehouseId,
+            price: currentPrice.price,
+            quantity: currentPrice.quantity,
+            promotionPrice: currentPrice.promotionPrice,
+            promoCode: currentPrice.promoCode,
+            promoEndDate: currentPrice.promoEndDate,
+            badge: currentPrice.badge,
+            recordedAt: currentPrice.updatedAt || currentPrice.createdAt,
           });
-      } catch (error) {
-        // Fallback: fetch existing and separate insert/update
-        const existingSlugs = [...new Set(chunk.map(p => p.itemSlug))];
-        const existingPrices = await db
-          .select()
-          .from(schema.itemPrice)
-          .where(
-            and(
-              inArray(schema.itemPrice.itemSlug, existingSlugs),
-              eq(schema.itemPrice.warehouseId, warehouseId)
-            )
-          );
-        
-        const existingMap = new Map(
-          existingPrices.map(p => [`${p.itemSlug}_${p.warehouseId}`, p])
-        );
-        
-        const toInsert: any[] = [];
-        const toUpdate: any[] = [];
-        
-        for (const price of chunk) {
-          const key = `${price.itemSlug}_${price.warehouseId}`;
-          const existing = existingMap.get(key);
-          
-          if (existing) {
-            toUpdate.push({ ...price, id: existing.id });
-          } else {
-            toInsert.push(price);
-          }
         }
         
-        if (toInsert.length > 0) {
-          await db.insert(schema.itemPrice).values(toInsert);
-        }
+        // Update with new price
+        await db
+          .update(schema.itemPrice)
+          .set({
+            price: newPrice.price,
+            quantity: newPrice.quantity,
+            updatedAt: now,
+          })
+          .where(eq(schema.itemPrice.id, currentPrice.id));
         
-        for (const price of toUpdate) {
-          await db.update(schema.itemPrice)
-            .set({
-              price: price.price,
-              quantity: price.quantity,
-              updatedAt: now,
-            })
-            .where(eq(schema.itemPrice.id, price.id));
-        }
+        results.updated++;
+      } else {
+        // Price doesn't exist yet for this warehouse, insert it
+        await db.insert(schema.itemPrice).values(newPrice);
+        results.created++;
       }
     }
   }

@@ -12,6 +12,7 @@ import { Item } from '@/helpers/types/item';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { useAdminItems } from '@/hooks/useAdminItems';
 import { useAdminBrands } from '@/hooks/useAdminBrands';
+import { toast } from 'sonner';
 
 export default function ItemsPage() {
   const router = useRouter();
@@ -28,6 +29,11 @@ export default function ItemsPage() {
   // Server-side pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  
+  // Selection state
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [selectAllMode, setSelectAllMode] = useState<'none' | 'page' | 'all'>('none');
+  const [isProcessingBatch, setIsProcessingBatch] = useState(false);
   
   // Custom hooks for data fetching
   const { brands: allBrands } = useAdminBrands();
@@ -53,11 +59,138 @@ export default function ItemsPage() {
       if (searchInput === '' || searchInput.length >= 3) {
         setSearchTerm(searchInput);
         setCurrentPage(1); // Reset to first page on search
+        setSelectedItems(new Set()); // Clear selection on search
+        setSelectAllMode('none');
       }
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchInput]);
+
+  // Clear selection when filters change
+  useEffect(() => {
+    setSelectedItems(new Set());
+    setSelectAllMode('none');
+  }, [selectedBrand, selectedCategory, currentPage]);
+
+  // Selection handlers
+  const handleSelectAll = () => {
+    if (selectAllMode === 'none') {
+      // Select all items on current page
+      const newSelected = new Set(items.map(item => item.slug));
+      setSelectedItems(newSelected);
+      setSelectAllMode('page');
+    } else if (selectAllMode === 'page') {
+      // Extend to all filtered items
+      setSelectAllMode('all');
+    } else {
+      // Deselect all
+      setSelectedItems(new Set());
+      setSelectAllMode('none');
+    }
+  };
+
+  const handleSelectItem = (slug: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(slug)) {
+      newSelected.delete(slug);
+    } else {
+      newSelected.add(slug);
+    }
+    setSelectedItems(newSelected);
+    
+    // Update select all mode
+    if (newSelected.size === 0) {
+      setSelectAllMode('none');
+    } else if (newSelected.size === items.length && selectAllMode !== 'all') {
+      setSelectAllMode('page');
+    } else if (selectAllMode === 'all' || selectAllMode === 'page') {
+      setSelectAllMode('none');
+    }
+  };
+
+  const isAllOnPageSelected = items.length > 0 && items.every(item => selectedItems.has(item.slug));
+
+  // Batch action handlers
+  const handleBatchAction = async (action: 'show' | 'hide' | 'delete') => {
+    if (selectAllMode === 'none' && selectedItems.size === 0) {
+      return;
+    }
+
+    const confirmMessage = selectAllMode === 'all'
+      ? `Are you sure you want to ${action} ALL ${pagination.totalItems} filtered items?`
+      : `Are you sure you want to ${action} ${selectedItems.size} selected item(s)?`;
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setIsProcessingBatch(true);
+
+    try {
+      const endpoint = action === 'delete' ? '/api/admin/items/batch-delete' : '/api/admin/items/batch-update';
+      
+      const body = selectAllMode === 'all'
+        ? {
+            action: action === 'delete' ? undefined : action,
+            filters: {
+              searchTerm: searchTerm || undefined,
+              brandSlug: selectedBrand || undefined,
+              categorySlug: selectedCategory || undefined,
+            }
+          }
+        : {
+            action: action === 'delete' ? undefined : action,
+            itemSlugs: Array.from(selectedItems),
+          };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Show success toast
+        toast.success('Batch Action Completed!', {
+          description: result.message,
+          duration: 5000,
+        });
+        
+        // Clear selection and refresh
+        setSelectedItems(new Set());
+        setSelectAllMode('none');
+        await refetchItems();
+      } else {
+        const error = await response.json();
+        toast.error('Batch Action Failed', {
+          description: error.error || 'Failed to perform batch action',
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Batch action error:', error);
+      toast.error('Batch Action Failed', {
+        description: 'Network error occurred',
+        duration: 5000,
+      });
+    } finally {
+      setIsProcessingBatch(false);
+    }
+  };
+
+  const getSelectionText = () => {
+    if (selectAllMode === 'all') {
+      return `All ${pagination.totalItems} filtered items selected`;
+    } else if (selectedItems.size > 0) {
+      return `${selectedItems.size} item(s) selected on this page`;
+    }
+    return '';
+  };
 
   const handleCreateItem = () => {
     router.push('/admin/items/new');
@@ -416,10 +549,85 @@ export default function ItemsPage() {
               </Button>
             )}
           </div>
+          
+          {/* Batch Actions Bar */}
+          {selectedItems.size > 0 && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium text-blue-900">
+                    {getSelectionText()}
+                  </span>
+                  {selectAllMode === 'page' && pagination.totalItems > items.length && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => setSelectAllMode('all')}
+                      className="text-blue-600 underline h-auto p-0"
+                    >
+                      Select all {pagination.totalItems} items
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBatchAction('show')}
+                    disabled={isProcessingBatch}
+                    className="border-green-600 text-green-600 hover:bg-green-50"
+                  >
+                    <Eye className="w-4 h-4 mr-1" />
+                    Make Visible
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBatchAction('hide')}
+                    disabled={isProcessingBatch}
+                    className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                  >
+                    <EyeOff className="w-4 h-4 mr-1" />
+                    Hide
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBatchAction('delete')}
+                    disabled={isProcessingBatch}
+                    className="border-red-600 text-red-600 hover:bg-red-50"
+                  >
+                    🗑️ Delete
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedItems(new Set());
+                      setSelectAllMode('none');
+                    }}
+                    disabled={isProcessingBatch}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-semibold text-sm w-12">
+                    <input
+                      type="checkbox"
+                      checked={isAllOnPageSelected || selectAllMode === 'all'}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      title={selectAllMode === 'all' ? 'All filtered items selected' : 'Select all on page'}
+                    />
+                  </th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Image</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Article ID</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Brand</th>
@@ -434,6 +642,14 @@ export default function ItemsPage() {
 
                   return (
                     <tr key={item.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.has(item.slug) || selectAllMode === 'all'}
+                          onChange={() => handleSelectItem(item.slug)}
+                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                      </td>
                       <td className="py-3 px-4">
                         {item.itemImageLink ? (
                           <img
@@ -491,7 +707,7 @@ export default function ItemsPage() {
                 })}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
+                    <td colSpan={7} className="py-8 text-center text-gray-500">
                       {searchTerm || selectedBrand || selectedCategory ? 'No items match your filters.' : 'No items found. Add your first item to get started.'}
                     </td>
                   </tr>

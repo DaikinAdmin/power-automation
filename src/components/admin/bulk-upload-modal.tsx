@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, AlertCircle, CheckCircle, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -146,6 +147,41 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
               ? [`Skipped ${result.duplicates.length} duplicate items: ${result.duplicates.join(', ')}`]
               : undefined
           });
+          
+          // Show detailed success toast with statistics
+          // The API returns: { results: { created, updated, errors }, message }
+          const created = result.results?.created || result.created || 0;
+          const updated = result.results?.updated || result.updated || 0;
+          const totalRecords = created + updated;
+          const stats: string[] = [];
+          
+          if (totalRecords > 0) {
+            stats.push(`Total: ${totalRecords} record${totalRecords !== 1 ? 's' : ''} uploaded`);
+          }
+          if (created > 0) {
+            stats.push(`New: ${created} created`);
+          }
+          if (updated > 0) {
+            stats.push(`Updated: ${updated} (prices moved to history)`);
+          }
+          
+          if (stats.length > 0) {
+            toast.success('Bulk Upload Completed!', {
+              description: (
+                <div className="space-y-1">
+                  {stats.map((stat, index) => (
+                    <div key={index} className="text-sm">{stat}</div>
+                  ))}
+                </div>
+              ),
+              duration: 10000,
+            });
+          } else {
+            toast.success('Bulk Upload Completed!', {
+              description: result.message || 'Upload completed successfully',
+              duration: 10000,
+            });
+          }
           
           setTimeout(() => {
             onSuccess();
