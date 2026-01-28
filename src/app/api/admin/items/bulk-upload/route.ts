@@ -18,6 +18,7 @@ interface FileTypeConfig {
     price: string;
     quantity?: string;
     itemName?: string;
+    itemDescription?: string;
     alias?: string;
     specifications?: string;
   };
@@ -27,6 +28,7 @@ interface FileTypeConfig {
   localeMapping?: {
     locale: string;
     itemNameColumn: string;
+    itemDescriptionColumn?: string;
   }[];
 }
 
@@ -49,7 +51,8 @@ const FILE_CONFIGS: Record<FileType, FileTypeConfig> = {
     columnMappings: {
       articleId: 'A',
       price: 'J',
-      itemName: 'B',
+      itemName: 'A',
+      itemDescription: 'B',
       alias: 'E',
       specifications: 'E',
     },
@@ -189,6 +192,7 @@ async function processGenericFile(
 
         const quantity = getCellValue(row, quantityColumn);
         const itemName = getCellValue(row, config.columnMappings.itemName || 'A');
+        const itemDescription = getCellValue(row, config.columnMappings.itemDescription || 'B');
         const alias = config.columnMappings.alias ? getCellValue(row, config.columnMappings.alias) : null;
         const specifications = config.columnMappings.specifications
           ? getCellValue(row, config.columnMappings.specifications)
@@ -220,7 +224,7 @@ async function processGenericFile(
             itemSlug: slug,
             locale,
             itemName: localizedItemName,
-            description: '',
+            description: itemDescription || null,
             specifications: specifications || null,
           });
         }

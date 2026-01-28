@@ -7,7 +7,6 @@ import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCart } from "@/components/cart-context";
 import { useCompare } from "@/components/compare-context";
 import useEmblaCarousel from "embla-carousel-react";
-import React, { useEffect, useRef } from "react";
 
 type ProductsTabsSectionProps = {
   items: ItemResponse[];
@@ -216,8 +215,8 @@ export default function ProductsTabsSection({
                     )
                   : null;
                 addToCart({
-                  id: `${item.articleId}-${warehouseId}`,
-                  slug: item.articleId,
+                  id: `${item.slug}-${warehouseId}`,
+                  slug: item.slug,
                   alias: null,
                   availableWarehouses: getAvailableWarehouses(item),
                   articleId: item.articleId,
@@ -249,8 +248,9 @@ export default function ProductsTabsSection({
 
               const addToCompareHandler = () => {
                 const compareItem = {
-                  id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
+                  id: item.slug, // використовуємо articleId як унікальний ідентифікатор
                   articleId: item.articleId,
+                  slug: item.slug,
                   name: details?.itemName || "Unnamed Product",
                   brand: item.brand?.name,
                   brandImage: item.brand?.imageLink,
@@ -265,8 +265,8 @@ export default function ProductsTabsSection({
 
               return (
                 <CatalogProductCard
-                  key={item.articleId}
-                  href={`/product/${item.articleId}`}
+                  key={item.slug}
+                  href={`/product/${item.slug}`}
                   imageSrc={item.itemImageLink}
                   imageAlt={details?.itemName || "Product"}
                   name={details?.itemName || "Unnamed Product"}
@@ -279,8 +279,8 @@ export default function ProductsTabsSection({
                   onAddToCart={addToCartHandler}
                   onAddToCompare={addToCompareHandler}
                   addToCartDisabled={!inStock}
-                  itemId={item.articleId}
-                  isInCompare={isInCompare(item.articleId)}
+                  itemId={item.slug}
+                  isInCompare={isInCompare(item.slug)}
                 />
               );
             })}
@@ -341,8 +341,8 @@ export default function ProductsTabsSection({
                         )
                       : null;
                     addToCart({
-                      id: `${item.articleId}-${warehouseId}`,
-                      slug: item.articleId,
+                      id: `${item.slug}-${warehouseId}`,
+                      slug: item.slug,
                       alias: null,
                       availableWarehouses: getAvailableWarehouses(item),
                       articleId: item.articleId,
@@ -374,8 +374,9 @@ export default function ProductsTabsSection({
 
                   const addToCompareHandler = () => {
                     const compareItem = {
-                      id: item.articleId, // використовуємо articleId як унікальний ідентифікатор
+                      id: item.slug, // використовуємо articleId як унікальний ідентифікатор
                       articleId: item.articleId,
+                      slug: item.slug,
                       name: details?.itemName || "Unnamed Product",
                       brand: item.brand?.name,
                       brandImage: item.brand?.imageLink,
@@ -390,11 +391,11 @@ export default function ProductsTabsSection({
 
                   return (
                     <div
-                      key={item.articleId}
+                      key={item.slug}
                       className="flex-[0_0_80vw] max-w-[40vw] md:max-w-[80vw]"
                     >
                       <CatalogProductCard
-                        href={`/product/${item.articleId}`}
+                        href={`/product/${item.slug}`}
                         imageSrc={item.itemImageLink}
                         imageAlt={details?.itemName || "Product"}
                         name={details?.itemName || "Unnamed Product"}
@@ -407,8 +408,8 @@ export default function ProductsTabsSection({
                         onAddToCart={addToCartHandler}
                         onAddToCompare={addToCompareHandler}
                         addToCartDisabled={!inStock}
-                        itemId={item.articleId}
-                        isInCompare={isInCompare(item.articleId)}
+                        itemId={item.slug}
+                        isInCompare={isInCompare(item.slug)}
                       />
                     </div>
                   );

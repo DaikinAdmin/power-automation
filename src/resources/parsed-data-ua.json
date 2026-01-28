@@ -3,7 +3,7 @@
     {
       "articleId": "ERGA04EV",
       "itemName": "ERGA04EV Зовнішній блок Daikin",
-      "slug": "erga04ev-zovnishnii-blok-daikin",
+      "slug": "daikin_ERGA04EV",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -23,7 +23,7 @@
     {
       "articleId": "EHVH04S18E6V",
       "itemName": "EHVH04S18E6V Внутрішній підлоговий блок з тепловим насосом Daikin",
-      "slug": "ehvh04s18e6v-vnutrishnii-pidlohovyi-blok-z-teplovym-nasosom-daikin",
+      "slug": "daikin_EHVH04S18E6V",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -43,7 +43,7 @@
     {
       "articleId": "EHBX08E6V",
       "itemName": "EHBX08E6V/ERGA08EVH7 Внутрішній блок Daikin",
-      "slug": "ehbx08e6v-erga08evh7-vnutrishnii-blok-daikin",
+      "slug": "daikin_EHBX08E6V",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -63,7 +63,7 @@
     {
       "articleId": "ERGA06EVH",
       "itemName": "EHBH08E6V/ERGA06EVH Настінний внутрішній блок серии Daikin Altherma",
-      "slug": "ehbh08e6v-erga06evh-nastinnyi-vnutrishnii-blok-seryy-daikin-altherma",
+      "slug": "daikin_ERGA06EVH",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -83,7 +83,7 @@
     {
       "articleId": "EHVH08S18E9W",
       "itemName": "EHVH08S18E9W Внутрішній підлоговий блок з тепловим насосом Daikin",
-      "slug": "ehvh08s18e9w-vnutrishnii-pidlohovyi-blok-z-teplovym-nasosom-daikin",
+      "slug": "daikin_EHVH08S18E9W",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -103,7 +103,7 @@
     {
       "articleId": "3MXM52A2V1B9",
       "itemName": "Зовнішній блок \"спліт-системи\" 3MXM52A9",
-      "slug": "zovnishnii-blok-split-systemy-3mxm52a9",
+      "slug": "daikin_3MXM52A2V1B9",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -123,7 +123,7 @@
     {
       "articleId": "2MXM40A2V1B9",
       "itemName": "Зовнішній блок \"спліт-системи\" 2MXM40A9",
-      "slug": "zovnishnii-blok-split-systemy-2mxm40a9",
+      "slug": "daikin_2MXM40A2V1B9",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -143,7 +143,7 @@
     {
       "articleId": "CTXM15A2V1B",
       "itemName": "Внутрішній настінний блок \"спліт-системи\" CTXM15A",
-      "slug": "vnutrishnii-nastinnyi-blok-split-systemy-ctxm15a",
+      "slug": "daikin_CTXM15A2V1B",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -163,7 +163,7 @@
     {
       "articleId": "CTXM15R5V1B",
       "itemName": "Внутрішній настінний блок \"спліт-системи\" CTXM15R",
-      "slug": "vnutrishnii-nastinnyi-blok-split-systemy-ctxm15r",
+      "slug": "daikin_CTXM15R5V1B",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -183,7 +183,7 @@
     {
       "articleId": "FTXM20A5V1B",
       "itemName": "Внутрішній настінний блок \"спліт-системи\" FTXM20A",
-      "slug": "vnutrishnii-nastinnyi-blok-split-systemy-ftxm20a",
+      "slug": "daikin_FTXM20A5V1B",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -203,7 +203,7 @@
     {
       "articleId": "FTXM25A5V1B",
       "itemName": "Внутрішній настінний блок \"спліт-системи\" FTXM25A",
-      "slug": "vnutrishnii-nastinnyi-blok-split-systemy-ftxm25a",
+      "slug": "daikin_FTXM25A5V1B",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -223,7 +223,7 @@
     {
       "articleId": "FTXM35A5V1B",
       "itemName": "Внутрішній настінний блок \"спліт-системи\" FTXM35A",
-      "slug": "vnutrishnii-nastinnyi-blok-split-systemy-ftxm35a",
+      "slug": "daikin_FTXM35A5V1B",
       "brandName": "daikin",
       "categoryName": "Кліматична техніка",
       "subcategoryName": null,
@@ -243,7 +243,7 @@
     {
       "articleId": "7MF1565-5CB00-1PA1",
       "itemName": "7MF1565-5CB00-1PA1 SITRANS P200 Перетворювачі для тиску та абсолютного тиску для загального застосув",
-      "slug": "7mf1565-5cb00-1pa1-sitrans-p200-peretvoriuvachi-dlia-tysku-ta-absoliutnoho-tysku-dlia-zahalnoho-zastosuv",
+      "slug": "siemens_7MF1565-5CB00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -263,7 +263,7 @@
     {
       "articleId": "7KT1665",
       "itemName": "7KT1665 Вимірювальний прилад 7kt*",
-      "slug": "7kt1665-vymiriuvalnyi-prylad-7kt",
+      "slug": "siemens_7KT1665",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": null,
@@ -283,7 +283,7 @@
     {
       "articleId": "7MC1007-7DE16",
       "itemName": "7MC1007-7DE16 Датчик Температури*",
-      "slug": "7mc1007-7de16-datchyk-temperatury",
+      "slug": "siemens_7MC1007-7DE16",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики температури",
@@ -303,7 +303,7 @@
     {
       "articleId": "7MF1565-9AA00-1PA1",
       "itemName": "7MF1565-9AA00-1PA1 Перетворювач тиску вимірювальний SITRANS P200 Siemens*",
-      "slug": "7mf1565-9aa00-1pa1-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p200-siemens",
+      "slug": "siemens_7MF1565-9AA00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -323,7 +323,7 @@
     {
       "articleId": "7MF1567-3BD00-1PA1",
       "itemName": "7MF1567-3BD00-1PA1 Вимірювальний перетворювач тиску SITRANS P220 Siemens*",
-      "slug": "7mf1567-3bd00-1pa1-vymiriuvalnyi-peretvoriuvach-tysku-sitrans-p220-siemens",
+      "slug": "siemens_7MF1567-3BD00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -343,7 +343,7 @@
     {
       "articleId": "7MF1567-3BE00-1PA1",
       "itemName": "7MF1567-3BE00-1PA1 SITRANS P220 Вимірювальний перетворювач надлишкового тиску*",
-      "slug": "7mf1567-3be00-1pa1-sitrans-p220-vymiriuvalnyi-peretvoriuvach-nadlyshkovoho-tysku",
+      "slug": "siemens_7MF1567-3BE00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -363,7 +363,7 @@
     {
       "articleId": "7MF1567-3CA00-1PA1",
       "itemName": "7MF1567-3CA00-1PA1 Вимірювальний перетворювач тиску SITRANS P220 Siemens*",
-      "slug": "7mf1567-3ca00-1pa1-vymiriuvalnyi-peretvoriuvach-tysku-sitrans-p220-siemens",
+      "slug": "siemens_7MF1567-3CA00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -383,7 +383,7 @@
     {
       "articleId": "7MF1567-3CE00-1AA1",
       "itemName": "7MF1567-3CE00-1AA1 Перетворювач тиску вимірювальний SITRANS P220 Siemens*",
-      "slug": "7mf1567-3ce00-1aa1-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p220-siemens",
+      "slug": "siemens_7MF1567-3CE00-1AA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -403,7 +403,7 @@
     {
       "articleId": "7MF1567-3CE00-1PA1",
       "itemName": "7MF1567-3CE00-1PA1 Перетворювач тиску вимірювальний SITRANS P220 Siemens*",
-      "slug": "7mf1567-3ce00-1pa1-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p220-siemens",
+      "slug": "siemens_7MF1567-3CE00-1PA1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -423,7 +423,7 @@
     {
       "articleId": "7MF4033-1DA10-2PB6",
       "itemName": "7MF4033-1DA10-2PB6 перетворювач тиску вимірювальний SITRANS*",
-      "slug": "7mf4033-1da10-2pb6-peretvoriuvach-tysku-vymiriuvalnyi-sitrans",
+      "slug": "siemens_7MF4033-1DA10-2PB6",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -441,7 +441,7 @@
     {
       "articleId": "7MF4433-1FY02-2AB6-Z",
       "itemName": "7MF4433-1FY02-2AB6-Z Перетворювач тиску вимірювальний SITRANS P DS III Siemens*",
-      "slug": "7mf4433-1fy02-2ab6-z-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p-ds-iii-siemens",
+      "slug": "siemens_7MF4433-1FY02-2AB6-Z",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -461,7 +461,7 @@
     {
       "articleId": "7MF8010-1XC31-1BD1-Z",
       "itemName": "7MF8010-1XC31-1BD1-Z Перетворювач тиску вимірювальний SITRANS P Compact*",
-      "slug": "7mf8010-1xc31-1bd1-z-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p-compact",
+      "slug": "siemens_7MF8010-1XC31-1BD1-Z",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -481,7 +481,7 @@
     {
       "articleId": "7MF8010-1XE31-1BB1",
       "itemName": "7MF8010-1XE31-1BB1 Перетворювач тиску вимірювальний SITRANS P Siemens*",
-      "slug": "7mf8010-1xe31-1bb1-peretvoriuvach-tysku-vymiriuvalnyi-sitrans-p-siemens",
+      "slug": "siemens_7MF8010-1XE31-1BB1",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -501,7 +501,7 @@
     {
       "articleId": "7MF9011-4FA",
       "itemName": "7MF9011-4FA Двохвентильний блок DN 5 Siemens*",
-      "slug": "7mf9011-4fa-dvokhventylnyi-blok-dn-5-siemens",
+      "slug": "siemens_7MF9011-4FA",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -521,7 +521,7 @@
     {
       "articleId": "7MF9411-5BA-Z K26",
       "itemName": "7MF9411-5BA-Z K26 Триходовий вентильний блок Siemens*",
-      "slug": "7mf9411-5ba-z-k26-trykhodovyi-ventylnyi-blok-siemens",
+      "slug": "siemens_7MF9411-5BA-Z K26",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики тиску",
@@ -541,7 +541,7 @@
     {
       "articleId": "7MH4132-4AG11",
       "itemName": "7MH4132-4AG11 Пластина основи для осередків навантажень SIWAREX R Siemens*",
-      "slug": "7mh4132-4ag11-plastyna-osnovy-dlia-oseredkiv-navantazhen-siwarex-r-siemens",
+      "slug": "siemens_7MH4132-4AG11",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": null,
@@ -561,7 +561,7 @@
     {
       "articleId": "7MH4132-4AK11",
       "itemName": "7MH4132-4AK11 SIWAREX R верхній модуль для осередків навантажень Siemens*",
-      "slug": "7mh4132-4ak11-siwarex-r-verkhnii-modul-dlia-oseredkiv-navantazhen-siemens",
+      "slug": "siemens_7MH4132-4AK11",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": null,
@@ -581,7 +581,7 @@
     {
       "articleId": "7NG3212-0AN00",
       "itemName": "7NG3212-0AN00 Температурний перетворювач SITRANS Siemens*",
-      "slug": "7ng3212-0an00-temperaturnyi-peretvoriuvach-sitrans-siemens",
+      "slug": "siemens_7NG3212-0AN00",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики температури",
@@ -601,7 +601,7 @@
     {
       "articleId": "7NG3214-0NN00",
       "itemName": "7NG3214-0NN00 Температурний перетворювач SITRANS Th400 Siemens*",
-      "slug": "7ng3214-0nn00-temperaturnyi-peretvoriuvach-sitrans-th400-siemens",
+      "slug": "siemens_7NG3214-0NN00",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Датчики температури",
@@ -621,7 +621,7 @@
     {
       "articleId": "A5E34346873",
       "itemName": "A5E34346873 Термінальні блоки для MAG Siemens*",
-      "slug": "a5e34346873-terminalni-bloky-dlia-mag-siemens",
+      "slug": "siemens_A5E34346873",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -641,7 +641,7 @@
     {
       "articleId": "A5E34827189",
       "itemName": "A5E34827189 Термінальні блоки для MAG Siemens*",
-      "slug": "a5e34827189-terminalni-bloky-dlia-mag-siemens",
+      "slug": "siemens_A5E34827189",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -661,7 +661,7 @@
     {
       "articleId": "DXX:LZX546",
       "itemName": "DXX:LZX546 Електрод Siemens*",
-      "slug": "dxxlzx546-elektrod-siemens",
+      "slug": "siemens_DXX:LZX546",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": null,
@@ -679,7 +679,7 @@
     {
       "articleId": "DXXLZX546",
       "itemName": "DXX:LZX546 Електрод Siemens*",
-      "slug": "dxxlzx546-elektrod-siemens/1265",
+      "slug": "siemens_DXXLZX546",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": null,
@@ -699,7 +699,7 @@
     {
       "articleId": "FDK:083G2119",
       "itemName": "FDK:083G2119 Приладдя до MAG1100 Siemens*",
-      "slug": "fdk083g2119-pryladdia-do-mag1100-siemens",
+      "slug": "siemens_FDK:083G2119",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -717,7 +717,7 @@
     {
       "articleId": "FDK083G2119",
       "itemName": "FDK:083G2119 Приладдя до MAG1100 Siemens*",
-      "slug": "fdk083g2119-pryladdia-do-mag1100-siemens/1266",
+      "slug": "siemens_FDK083G2119",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -737,7 +737,7 @@
     {
       "articleId": "FDK:083G2182",
       "itemName": "FDK:083G2182 Приладдя до Mag1100 Siemens*",
-      "slug": "fdk083g2182-pryladdia-do-mag1100-siemens",
+      "slug": "siemens_FDK:083G2182",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -755,7 +755,7 @@
     {
       "articleId": "FDK083G2182",
       "itemName": "FDK:083G2182 Приладдя до Mag1100 Siemens*",
-      "slug": "fdk083g2182-pryladdia-do-mag1100-siemens/1267",
+      "slug": "siemens_FDK083G2182",
       "brandName": "siemens",
       "categoryName": "Контрольно-вимірювальні прилади",
       "subcategoryName": "Контрольно-вимірювальні прилади/Витратоміри",
@@ -775,7 +775,7 @@
     {
       "articleId": "P6500AP",
       "itemName": "Генератор бензиновый P6500AP Atlas Copco 5 -5,5 кВт",
-      "slug": "henerator-benzynovyi-p6500ap-atlas-copco",
+      "slug": "atlas-copco_P6500AP",
       "brandName": "atlas-copco",
       "categoryName": "Генератори",
       "subcategoryName": "Генератори/Бензинові",
@@ -795,7 +795,7 @@
     {
       "articleId": "Р3000АР",
       "itemName": "Генератор бензиновий P3000AP Atlas Copco 2,3 - 2,5 кВт",
-      "slug": "henerator-benzynovyi-p3000ap-atlas-copco",
+      "slug": "atlas-copco_Р3000АР",
       "brandName": "atlas-copco",
       "categoryName": "Генератори",
       "subcategoryName": "Генератори/Бензинові",
@@ -815,7 +815,7 @@
     {
       "articleId": "1LE1001-0BA22-1AA4-Z",
       "itemName": "1LE1001-0BA22-1AA4-Z D22 Низьковольтний двигун*",
-      "slug": "1le1001-0ba22-1aa4-z-d22-nyzkovoltnyi-dvyhun",
+      "slug": "siemens_1LE1001-0BA22-1AA4-Z",
       "brandName": "siemens",
       "categoryName": "Двигуни і приводи",
       "subcategoryName": null,
@@ -835,7 +835,7 @@
     {
       "articleId": "3UF7111-1AA00-0",
       "itemName": "3UF7111-1AA00-0 Гібридний модуль вимірювання тиску/напруги Siemens*",
-      "slug": "3uf7111-1aa00-0-hibrydnyi-modul-vymiriuvannia-tysku-napruhy-siemens",
+      "slug": "siemens_3UF7111-1AA00-0",
       "brandName": "siemens",
       "categoryName": "Двигуни і приводи",
       "subcategoryName": null,
@@ -855,7 +855,7 @@
     {
       "articleId": "6FC5548-0AC21-0AA0",
       "itemName": "6FC5548-0AC21-0AA0 Перетворювач для серводвигуна Siemens*",
-      "slug": "6fc5548-0ac21-0aa0-peretvoriuvach-dlia-servodvyhuna-siemens",
+      "slug": "siemens_6FC5548-0AC21-0AA0",
       "brandName": "siemens",
       "categoryName": "Двигуни і приводи",
       "subcategoryName": "Двигуни і приводи/Серво",
@@ -875,7 +875,7 @@
     {
       "articleId": "6EP1931-2DC21",
       "itemName": "6EP1931-2DC21 МОДУЛЬ",
-      "slug": "6ep1931-2dc21-sitop-power-dc-ups-modul-24v-6a-bez-interfeisiv",
+      "slug": "siemens_6EP1931-2DC21",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -895,7 +895,7 @@
     {
       "articleId": "6EP1931-2EC21",
       "itemName": "6EP1931-2EC21 МОДУЛЬ",
-      "slug": "6ep1931-2ec21-sitop-power-dc-ups-modul-24v-15a",
+      "slug": "siemens_6EP1931-2EC21",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -915,7 +915,7 @@
     {
       "articleId": "6EP1961-2BA00",
       "itemName": "6EP1961-2BA00 МОДУЛЬ",
-      "slug": "6ep1961-2ba00-sitop-select-modul-diahnostyky-4-kanalnyi-vkhid-dc-24-v-vykhid-dc-24-v-10-a",
+      "slug": "siemens_6EP1961-2BA00",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -935,7 +935,7 @@
     {
       "articleId": "6SL3210-5BB17-5UV1",
       "itemName": "6SL3210-5BB17-5UV1 Частотний перетворювач",
-      "slug": "6sl3210-5bb17-5uv1-sinamics-v20-200-240-v-1-faza-ac-10-10-nominalna-potuzhnist-075-1-ps-z-1",
+      "slug": "siemens_6SL3210-5BB17-5UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -955,7 +955,7 @@
     {
       "articleId": "6SL3210-5BB11-2UV1",
       "itemName": "6SL3210-5BB11-2UV1 SINAMICS V20 перетворювач частоти",
-      "slug": "6sl3210-5bb11-2uv1-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BB11-2UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -975,7 +975,7 @@
     {
       "articleId": "6SL3210-5BB15-5UV1",
       "itemName": "6SL3210-5BB15-5UV1 SINAMICS V20 перетворювач частоти",
-      "slug": "6sl3210-5bb15-5uv1-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BB15-5UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -995,7 +995,7 @@
     {
       "articleId": "6SL3210-5BB21-1UV1",
       "itemName": "6SL3210-5BB21-1UV1 SINAMICS V20 перетворювач частоти",
-      "slug": "6sl3210-5bb21-1uv1-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BB21-1UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1015,7 +1015,7 @@
     {
       "articleId": "6SL3210-5BB21-5UV1",
       "itemName": "6SL3210-5BB21-5UV1 SINAMICS V20 перетворювач частоти",
-      "slug": "6sl3210-5bb21-5uv1-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BB21-5UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1035,7 +1035,7 @@
     {
       "articleId": "6SL3210-5BB22-2UV1",
       "itemName": "6SL3210-5BB22-2UV1 SINAMICS V20 Частотний перетворювач*",
-      "slug": "6sl3210-5bb22-2uv1-chastotnyi-peretvoriuvach-sinamics-v20",
+      "slug": "siemens_6SL3210-5BB22-2UV1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1055,7 +1055,7 @@
     {
       "articleId": "6SL3210-5BB22-2UV1-",
       "itemName": "6SL3210-5BB22-2UV1 SINAMICS V20 Частотний перетворювач*",
-      "slug": "6sl3210-5bb22-2uv1-sinamics-v20-chastotnyi-peretvoriuvach",
+      "slug": "siemens_6SL3210-5BB22-2UV1-",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1075,7 +1075,7 @@
     {
       "articleId": "6SL3210-5BE21-1UV0",
       "itemName": "6SL3210-5BE21-1UV0 SINAMICS V20 Перетворювач частоти",
-      "slug": "6sl3210-5be21-1uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE21-1UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1095,7 +1095,7 @@
     {
       "articleId": "6SL3210-5BE21-5UV0",
       "itemName": "6SL3210-5BE21-5UV0 Частотний перетворювач SINAMICS V20",
-      "slug": "6sl3210-5be21-5uv0-chastotnyi-peretvoriuvach-sinamics-v20",
+      "slug": "siemens_6SL3210-5BE21-5UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1115,7 +1115,7 @@
     {
       "articleId": "6SL3210-5BE23-0UV0",
       "itemName": "6SL3210-5BE23-0UV0 SINAMICS V20 Перетворювач частоти",
-      "slug": "6sl3210-5be23-0uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE23-0UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1135,7 +1135,7 @@
     {
       "articleId": "6SL3210-5BE24-0UV0",
       "itemName": "6SL3210-5BE24-0UV0 Частотний перетворювач SINAMICS V20 Siemens*",
-      "slug": "6sl3210-5be24-0uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE24-0UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1155,7 +1155,7 @@
     {
       "articleId": "6SL3210-5BE24-0UV0-",
       "itemName": "6SL3210-5BE24-0UV0 Частотний перетворювач SINAMICS V20 Siemens*",
-      "slug": "6sl3210-5be24-0uv0-chastotnyi-peretvoriuvach-sinamics-v20-siemens",
+      "slug": "siemens_6SL3210-5BE24-0UV0-",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1175,7 +1175,7 @@
     {
       "articleId": "6SL3210-5BE25-5UV0",
       "itemName": "6SL3210-5BE25-5UV0 SINAMICS V20, перетворювач частоти",
-      "slug": "6sl3210-5be25-5uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE25-5UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1195,7 +1195,7 @@
     {
       "articleId": "6SL3210-5BE27-5UV0",
       "itemName": "6SL3210-5BE27-5UV0 SINAMICS V20, перетворювач частоти",
-      "slug": "6sl3210-5be27-5uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE27-5UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1215,7 +1215,7 @@
     {
       "articleId": "6SL3210-5BE31-1UV0",
       "itemName": "6SL3210-5BE31-1UV0 Частотний перетворювач SINAMICS V20",
-      "slug": "6sl3210-5be31-1uv0-chastotnyi-peretvoriuvach-sinamics-v20",
+      "slug": "siemens_6SL3210-5BE31-1UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1235,7 +1235,7 @@
     {
       "articleId": "6SL3210-5BE31-5UV0",
       "itemName": "6SL3210-5BE31-5UV0 SINAMICS V20 ПЕРЕТВОРЮВАЧ ЧАСТОТИ",
-      "slug": "6sl3210-5be31-5uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE31-5UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1255,7 +1255,7 @@
     {
       "articleId": "6SL3210-5BE31-8UV0",
       "itemName": "6SL3210-5BE31-8UV0 SINAMICS V20 Перетворювач частоти",
-      "slug": "6sl3210-5be31-8uv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE31-8UV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1275,7 +1275,7 @@
     {
       "articleId": "6SL3255-0AA00-4CA1",
       "itemName": "6SL3255-0AA00-4CA1 SINAMICS G120 Базова панель оператора",
-      "slug": "6sl3255-0aa00-4ca1-sinamics-g120-bazova-panel-operatora",
+      "slug": "siemens_6SL3255-0AA00-4CA1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -1295,7 +1295,7 @@
     {
       "articleId": "6EP1333-2BA20",
       "itemName": "6EP1333-2BA20 Регульований блок електроживлення",
-      "slug": "6ep1333-2ba20-sitop-psu100s-24b-5a-rehulovanyi-blok-elektrozhyvlennia-vkhidac120-230v-vykhiddc24v-5a",
+      "slug": "siemens_6EP1333-2BA20",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1315,7 +1315,7 @@
     {
       "articleId": "6EP1333-3BA10",
       "itemName": "6EP1333-3BA10 Регульований блок електроживлення",
-      "slug": "6ep1333-3ba10-sitop-psu200m-5a-rehulovanyi-blok-elektrozhyvlennia-vkhid-ac-120-230-500-v-vykhid-dc",
+      "slug": "siemens_6EP1333-3BA10",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1335,7 +1335,7 @@
     {
       "articleId": "6EP1336-3BA10",
       "itemName": "6EP1336-3BA10 Стабілізований блок живлення",
-      "slug": "6ep1336-3ba10-sitop-psu100m-20a-stabilizovanyi-blok-zhyvlennia",
+      "slug": "siemens_6EP1336-3BA10",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1355,7 +1355,7 @@
     {
       "articleId": "6EP1322-2BA00",
       "itemName": "6EP1322-2BA00 Блок живлення SITOP PSU100S",
-      "slug": "6ep1322-2ba00-blok-zhyvlennia-sitop-psu100s",
+      "slug": "siemens_6EP1322-2BA00",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1375,7 +1375,7 @@
     {
       "articleId": "6EP1337-3BA00",
       "itemName": "6EP1337-3BA00 SITOP MODULAR 40, Блок живлення модульного типу для машин автоматичної обробки",
-      "slug": "6ep1337-3ba00-sitop-modular-40-blok-zhyvlennia-modulnoho-typu-dlia-mashyn-avtomatychnoi-obrobky",
+      "slug": "siemens_6EP1337-3BA00",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1395,7 +1395,7 @@
     {
       "articleId": "6EP1351-1SH03",
       "itemName": "6EP1351-1SH03 Джерело живлення",
-      "slug": "6ep1351-1sh03-dzherelo-zhyvlennia",
+      "slug": "siemens_6EP1351-1SH03",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1415,7 +1415,7 @@
     {
       "articleId": "6EP3337-8SB00-0AY0",
       "itemName": "6EP3337-8SB00-0AY0 SITOP Стабілізований блок живлення PSU8200",
-      "slug": "6ep3337-8sb00-0ay0-sitop-stabilizovanyi-blok-zhyvlennia-psu8200",
+      "slug": "siemens_6EP3337-8SB00-0AY0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Блоки живлення",
@@ -1435,7 +1435,7 @@
     {
       "articleId": "ATV610D22N4",
       "itemName": "ATV610D22N4 ПЕРЕТВОРЮВАЧ ЧАСТОТИ ATV610 22кВт 380В",
-      "slug": "atv610d22n4-peretvoriuvach-chastoty-atv610-22kvt-380v",
+      "slug": "schneider-electric_ATV610D22N4",
       "brandName": "schneider-electric",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1455,7 +1455,7 @@
     {
       "articleId": "ATV610D30N4",
       "itemName": "ATV610D30N4 ПЕРЕТВОРЮВАЧ ЧАСТОТИ ATV610 30кВт 380В",
-      "slug": "atv610d30n4-peretvoriuvach-chastoty-atv610-30kvt-380v",
+      "slug": "schneider-electric_ATV610D30N4",
       "brandName": "schneider-electric",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1475,7 +1475,7 @@
     {
       "articleId": "ATV610U55N4",
       "itemName": "ATV610U55N4 ПЕРЕТВОРЮВАЧ ЧАСТОТИ ATV610 5,5кВт 380В",
-      "slug": "atv610u55n4-peretvoriuvach-chastoty-atv610-55kvt-380v",
+      "slug": "schneider-electric_ATV610U55N4",
       "brandName": "schneider-electric",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1495,7 +1495,7 @@
     {
       "articleId": "6RA7081-6DV62-0",
       "itemName": "6RA7081-6DV62-0 Перетворювач постійного струму SIMOREG DC MASTER Siemens*",
-      "slug": "6ra7081-6dv62-0-peretvoriuvach-postiinoho-strumu-simoreg-dc-master-siemens",
+      "slug": "siemens_6RA7081-6DV62-0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1515,7 +1515,7 @@
     {
       "articleId": "6SE6401-1PB00-0AA0",
       "itemName": "6SE6401-1PB00-0AA0 Модуль PROFIBUS Siemens*",
-      "slug": "6se6401-1pb00-0aa0-modul-profibus-siemens",
+      "slug": "siemens_6SE6401-1PB00-0AA0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1535,7 +1535,7 @@
     {
       "articleId": "6SE6411-6UD23-0CA1",
       "itemName": "6SE6411-6UD23-0CA1 Перетворювач частоти Siemens*",
-      "slug": "6se6411-6ud23-0ca1-peretvoriuvach-chastoty-siemens",
+      "slug": "siemens_6SE6411-6UD23-0CA1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1555,7 +1555,7 @@
     {
       "articleId": "6SL3210-1KE23-8UF1",
       "itemName": "6SL3210-1KE23-8UF1 SINAMICS G120C Частотний перетворювач потужність 18,5KW*",
-      "slug": "6sl3210-1ke23-8uf1-sinamics-g120c-chastotnyi-peretvoriuvach-potuzhnist-185kw",
+      "slug": "siemens_6SL3210-1KE23-8UF1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1575,7 +1575,7 @@
     {
       "articleId": "6SL3210-1PB13-0UL0",
       "itemName": "6SL3210-1PB13-0UL0 SINAMICS G120,Силовий модуль PM240-2*",
-      "slug": "6sl3210-1pb13-0ul0-sinamics-g120sylovyi-modul-pm240-2",
+      "slug": "siemens_6SL3210-1PB13-0UL0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1595,7 +1595,7 @@
     {
       "articleId": "6SL3210-1PE23-8AL0",
       "itemName": "6SL3210-1PE23-8AL0 SINAMICS G120 Силовий модуль PM240-2*",
-      "slug": "6sl3210-1pe23-8al0-sinamics-g120-sylovyi-modul-pm240-2",
+      "slug": "siemens_6SL3210-1PE23-8AL0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1615,7 +1615,7 @@
     {
       "articleId": "6SL3210-1SE11-7UA0",
       "itemName": "6SL3210-1SE11-7UA0 Силовий модуль SINAMICS S120 Siemens*",
-      "slug": "6sl3210-1se11-7ua0-sylovyi-modul-sinamics-s120-siemens",
+      "slug": "siemens_6SL3210-1SE11-7UA0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1635,7 +1635,7 @@
     {
       "articleId": "6SL3210-5BE31-5CV0",
       "itemName": "6SL3210-5BE31-5CV0 SINAMICS V20 Перетворювач частоти*",
-      "slug": "6sl3210-5be31-5cv0-sinamics-v20-peretvoriuvach-chastoty",
+      "slug": "siemens_6SL3210-5BE31-5CV0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1655,7 +1655,7 @@
     {
       "articleId": "6SL3220-2YE10-0UF0",
       "itemName": "6SL3220-2YE10-0UF0 Частотний перетворювач SINAMICS G120X*",
-      "slug": "6sl3220-2ye10-0uf0-chastotnyi-peretvoriuvach-sinamics-g120x",
+      "slug": "siemens_6SL3220-2YE10-0UF0",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1675,7 +1675,7 @@
     {
       "articleId": "6SL3255-0AA00-2AA1",
       "itemName": "6SL3255-0AA00-2AA1 Комплект для сполучення ПК та перетворювача SINAMICS G110 Siemens*",
-      "slug": "6sl3255-0aa00-2aa1-komplekt-dlia-spoluchennia-pk-ta-peretvoriuvacha-sinamics-g110-siemens",
+      "slug": "siemens_6SL3255-0AA00-2AA1",
       "brandName": "siemens",
       "categoryName": "Перетворювачі для двигунів",
       "subcategoryName": "Перетворювачі для двигунів/Частотні перетворювачі",
@@ -1695,7 +1695,7 @@
     {
       "articleId": "6ES7131-6BF01-0BA0",
       "itemName": "6ES7131-6BF01-0BA0 Цифровий модуль",
-      "slug": "6es7131-6bf01-0ba0-simatic-et-200sp-tsyfrovyi-vkhid-modul-di-8x-24-v-postiinoho-strumu-typ-3-iec",
+      "slug": "siemens_6ES7131-6BF01-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1715,7 +1715,7 @@
     {
       "articleId": "6ES7131-6BH01-0BA0",
       "itemName": "6ES7131-6BH01-0BA0 Модуль дискретного вводу",
-      "slug": "6es7131-6bh01-0ba0-simatic-et-200sp-modul-dyskretnoho-vvodu",
+      "slug": "siemens_6ES7131-6BH01-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1735,7 +1735,7 @@
     {
       "articleId": "6ES7132-6BH01-0BA0",
       "itemName": "6ES7132-6BH01-0BA0 Цифровий вихідний модуль SIMATIC ET Siemens*",
-      "slug": "6es7132-6bh01-0ba0-simatic-et-200sp-modul-dyskretnoho-vyvodu",
+      "slug": "siemens_6ES7132-6BH01-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1755,7 +1755,7 @@
     {
       "articleId": "6ES7132-6BH01-0BA0-",
       "itemName": "6ES7132-6BH01-0BA0 Цифровий вихідний модуль SIMATIC ET Siemens*",
-      "slug": "6es7132-6bh01-0ba0-tsyfrovyi-vykhidnyi-modul-simatic-et-siemens",
+      "slug": "siemens_6ES7132-6BH01-0BA0-",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1775,7 +1775,7 @@
     {
       "articleId": "6ES7134-6GD01-0BA1",
       "itemName": "6ES7134-6GD01-0BA1 модуль аналогового вводу",
-      "slug": "6es7134-6gd01-0ba1-simatic-et-200sp-modul-analohovoho-vvodu",
+      "slug": "siemens_6ES7134-6GD01-0BA1",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1795,7 +1795,7 @@
     {
       "articleId": "6ES7134-6HD01-0BA1",
       "itemName": "6ES7134-6HD01-0BA1 аналоговий вхідний модуль.",
-      "slug": "6es7134-6hd01-0ba1-simatic-et-200sp-analohovyi-vkhidnyi-modul.",
+      "slug": "siemens_6ES7134-6HD01-0BA1",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1815,7 +1815,7 @@
     {
       "articleId": "6ES7155-6AA01-0BN0",
       "itemName": "6ES7155-6AA01-0BN0 Інтерфейсний модуль",
-      "slug": "6es7155-6aa01-0bn0-simatic-et-200sp-interfeisnyi-modul-im155-6pn-standard-dlia-merezhi-profinet",
+      "slug": "siemens_6ES7155-6AA01-0BN0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1835,7 +1835,7 @@
     {
       "articleId": "6ES7193-4CC30-0AA0",
       "itemName": "6ES7193-4CC30-0AA0 Термінальний модуль",
-      "slug": "6es7193-4cc30-0aa0-simatic-dp-et-200s-terminalnyi-modul-tm-p15c23-a1",
+      "slug": "siemens_6ES7193-4CC30-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1855,7 +1855,7 @@
     {
       "articleId": "6ES7193-6AR00-0AA0",
       "itemName": "6ES7193-6AR00-0AA0 Шинний адаптер",
-      "slug": "6es7193-6ar00-0aa0-simatic-shynnyi-adapter-ba-2x-rj45-2-roziemy-rj45-dlia-pidkliuchennia-do-profine",
+      "slug": "siemens_6ES7193-6AR00-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Перетворювачі сигналів/Конвертори сигналів",
@@ -1875,7 +1875,7 @@
     {
       "articleId": "6ES7193-6BP00-0DA0",
       "itemName": "6ES7193-6BP00-0DA0 Базовий блок",
-      "slug": "6es7193-6bp00-0da0-simatic-et-200sp-bazovyi-blok-bu15-p16a02d",
+      "slug": "siemens_6ES7193-6BP00-0DA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1895,7 +1895,7 @@
     {
       "articleId": "6ES7193-6BP20-0DA0",
       "itemName": "6ES7193-6BP20-0DA0 БАЗОВИЙ БЛОК",
-      "slug": "6es7193-6bp20-0da0-simatic-et-200sp-bazovyi-blok-bu15-p16-a10-2d-typ-a0-vtychni-kle-s-10-dop",
+      "slug": "siemens_6ES7193-6BP20-0DA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1915,7 +1915,7 @@
     {
       "articleId": "6ES7214-1HG40-0XB0",
       "itemName": "6ES7214-1HG40-0XB0 компактний ЦПУ CPU",
-      "slug": "6es7214-1hg40-0xb0-simatic-s7-1200-kompaktnyi-tspu-cpu-1214c-dc-dc-rly",
+      "slug": "siemens_6ES7214-1HG40-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -1935,7 +1935,7 @@
     {
       "articleId": "6ES7223-1BL32-0XB0",
       "itemName": "6ES7223-1BL32-0XB0 Сигнальна плата дискретних входів/виходів",
-      "slug": "6es7223-1bl32-0xb0-simatic-s7-1200-syhnalna-plata-dyskretnykh-vkhodiv-vykhodiv-sm1223-16di-16do",
+      "slug": "siemens_6ES7223-1BL32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1955,7 +1955,7 @@
     {
       "articleId": "6ES7232-4HB32-0XB0",
       "itemName": "6ES7232-4HB32-0XB0 Модуль аналового виводу",
-      "slug": "6es7232-4hb32-0xb0-modul-analovoho-vyvodu",
+      "slug": "siemens_6ES7232-4HB32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1975,7 +1975,7 @@
     {
       "articleId": "6ES7241-1CH30-1XB0",
       "itemName": "6ES7241-1CH30-1XB0 КОМУНІКАЦІЙНА СИСТЕМНА ПЛАТА",
-      "slug": "6es7241-1ch30-1xb0-simatic-s7-1200-komunikatsiina-systemna-plata-cb-1241-rs485",
+      "slug": "siemens_6ES7241-1CH30-1XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -1995,7 +1995,7 @@
     {
       "articleId": "6AV2123-2JB03-0AX0",
       "itemName": "6AV2123-2JB03-0AX0 ПАНЕЛЬ SIMATIC HMI",
-      "slug": "6av2123-2jb03-0ax0-panel-simatic-hmi",
+      "slug": "siemens_6AV2123-2JB03-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2015,7 +2015,7 @@
     {
       "articleId": "6AV2181-8XP00-0AX0",
       "itemName": "6AV2181-8XP00-0AX0 Карта пам'яті SIMATIC HMI",
-      "slug": "6av2181-8xp00-0ax0-karta-pamiati-simatic-hmi",
+      "slug": "siemens_6AV2181-8XP00-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2035,7 +2035,7 @@
     {
       "articleId": "6ED1052-1CC08-0BA2",
       "itemName": "6ED1052-1CC08-0BA2 ЛОГІЧНИЙ МОДУЛЬ LOGO",
-      "slug": "6ed1052-1cc08-0ba2-lohichnyi-modul-logo",
+      "slug": "siemens_6ED1052-1CC08-0BA2",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2055,7 +2055,7 @@
     {
       "articleId": "6ED1055-1MB00-0BA2",
       "itemName": "6ED1055-1MB00-0BA2 LOGO Модуль розширення",
-      "slug": "6ed1055-1mb00-0ba2-logo-modul-rozshyrennia",
+      "slug": "siemens_6ED1055-1MB00-0BA2",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2075,7 +2075,7 @@
     {
       "articleId": "6ED1056-1DA00-0BA0",
       "itemName": "6ED1056-1DA00-0BA0 Карта пам'яті для копіювання та/або захисту ноу-хау програм LOGO!",
-      "slug": "6ed1056-1da00-0ba0-karta-pamiati-dlia-kopiiuvannia-ta-abo-zakhystu-nou-khau-prohram-logo",
+      "slug": "siemens_6ED1056-1DA00-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2095,7 +2095,7 @@
     {
       "articleId": "6ES7132-6BF01-0AA0",
       "itemName": "6ES7132-6BF01-0AA0 SIMATIC ET 200SP, цифровий вихідний модуль",
-      "slug": "6es7132-6bf01-0aa0-simatic-et-200sp-tsyfrovyi-vykhidnyi-modul",
+      "slug": "siemens_6ES7132-6BF01-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2115,7 +2115,7 @@
     {
       "articleId": "6ES7132-6BF01-0BA0",
       "itemName": "6ES7132-6BF01-0BA0 SIMATIC ET 200SP, цифровий вихідний модуль",
-      "slug": "6es7132-6bf01-0ba0-simatic-et-200sp-tsyfrovyi-vykhidnyi-modul",
+      "slug": "siemens_6ES7132-6BF01-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2135,7 +2135,7 @@
     {
       "articleId": "6ES7137-6AA01-0BA0",
       "itemName": "6ES7137-6AA01-0BA0 SIMATIC ET 200SP, модуль зв'язку CM PTP для послідовного з'єднання",
-      "slug": "6es7137-6aa01-0ba0-simatic-et-200sp-modul-zviazku-cm-ptp-dlia-poslidovnoho-ziednannia",
+      "slug": "siemens_6ES7137-6AA01-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2155,7 +2155,7 @@
     {
       "articleId": "6ES7155-6AR00-0AN0",
       "itemName": "6ES7155-6AR00-0AN0 SIMATIC ET 200SP, PROFINET ІНТЕРФЕЙСНИЙ МОДУЛЬ",
-      "slug": "6es7155-6ar00-0an0-simatic-et-200sp-profinet-interfeisnyi-modul",
+      "slug": "siemens_6ES7155-6AR00-0AN0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2175,7 +2175,7 @@
     {
       "articleId": "6ES7155-6AU01-0CN0",
       "itemName": "6ES7155-6AU01-0CN0 SIMATIC ET 200SP, Інтерфейсний модуль*",
-      "slug": "6es7155-6au01-0cn0-interfeisnyi-modul",
+      "slug": "siemens_6ES7155-6AU01-0CN0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2195,7 +2195,7 @@
     {
       "articleId": "6ES7155-6AU01-0CN0-",
       "itemName": "6ES7155-6AU01-0CN0 SIMATIC ET 200SP, Інтерфейсний модуль*",
-      "slug": "6es7155-6au01-0cn0-simatic-et-200sp-interfeisnyi-modul",
+      "slug": "siemens_6ES7155-6AU01-0CN0-",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -2215,7 +2215,7 @@
     {
       "articleId": "6ES7155-6AU02-0BN0",
       "itemName": "6ES7155-6AU02-0BN0 SIMATIC ET 200SP, ІНТЕРФЕЙСНИЙ МОДУЛЬ PROFINET IM 155-6 PN ST",
-      "slug": "6es7155-6au02-0bn0-simatic-et-200sp-interfeisnyi-modul-profinet-im-155-6-pn-st",
+      "slug": "siemens_6ES7155-6AU02-0BN0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2235,7 +2235,7 @@
     {
       "articleId": "6ES7193-4CF40-0AA0",
       "itemName": "6ES7193-4CF40-0AA0 SIMATIC DP, термінальний модуль",
-      "slug": "6es7193-4cf40-0aa0-simatic-dp-terminalnyi-modul",
+      "slug": "siemens_6ES7193-4CF40-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2255,7 +2255,7 @@
     {
       "articleId": "6ES7193-6BP20-0BA0",
       "itemName": "6ES7193-6BP20-0BA0 SIMATIC ET 200SP, БАЗОВИЙ БЛОК",
-      "slug": "6es7193-6bp20-0ba0-simatic-et-200sp-bazovyi-blok",
+      "slug": "siemens_6ES7193-6BP20-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2275,7 +2275,7 @@
     {
       "articleId": "6ES7211-1AE40-0XB0",
       "itemName": "6ES7211-1AE40-0XB0 SIMATIC S7-1200, КОМПАКТНИЙ ЦПП",
-      "slug": "6es7211-1ae40-0xb0-simatic-s7-1200-kompaktnyi-tspp",
+      "slug": "siemens_6ES7211-1AE40-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2295,7 +2295,7 @@
     {
       "articleId": "6ES7217-1AG40-0XB0",
       "itemName": "6ES7217-1AG40-0XB0 Центральний процесор SIMATIC S7-1200",
-      "slug": "6es7217-1ag40-0xb0-tsentralnyi-protsesor-simatic-s7-1200",
+      "slug": "siemens_6ES7217-1AG40-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2315,7 +2315,7 @@
     {
       "articleId": "6ES7222-1BF32-0XB0",
       "itemName": "6ES7222-1BF32-0XB0 SIMATIC S7-1200 SIMATIC S7-1200, модуль виводу дискретних сигналів",
-      "slug": "6es7222-1bf32-0xb0-simatic-s7-1200-simatic-s7-1200-modul-vyvodu-dyskretnykh-syhnaliv",
+      "slug": "siemens_6ES7222-1BF32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2335,7 +2335,7 @@
     {
       "articleId": "6ES7222-1BH32-0XB0",
       "itemName": "6ES7222-1BH32-0XB0 SIMATIC S7-1200, модуль дискретного виводу SM 1222",
-      "slug": "6es7222-1bh32-0xb0-simatic-s7-1200-modul-dyskretnoho-vyvodu-sm-1222",
+      "slug": "siemens_6ES7222-1BH32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2355,7 +2355,7 @@
     {
       "articleId": "6ES7223-1BH32-0XB0",
       "itemName": "6ES7223-1BH32-0XB0 SIMATIC S7-1200 Модуль",
-      "slug": "6es7223-1bh32-0xb0-simatic-s7-1200-modul",
+      "slug": "siemens_6ES7223-1BH32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2375,7 +2375,7 @@
     {
       "articleId": "6ES7231-5ND32-0XB0",
       "itemName": "6ES7231-5ND32-0XB0 SIMATIC S7-1200, МОДУЛЬ АНАЛОГОВОГО ВВЕДЕННЯ",
-      "slug": "6es7231-5nd32-0xb0-simatic-s7-1200-modul-analohovoho-vvedennia",
+      "slug": "siemens_6ES7231-5ND32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2395,7 +2395,7 @@
     {
       "articleId": "6ES7231-5PD32-0XB0",
       "itemName": "6ES7231-5PD32-0XB0 SIMATIC S7-1200, аналоговий вхід",
-      "slug": "6es7231-5pd32-0xb0-simatic-s7-1200-analohovyi-vkhid",
+      "slug": "siemens_6ES7231-5PD32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2415,7 +2415,7 @@
     {
       "articleId": "6ES7231-5PF32-0XB0",
       "itemName": "6ES7231-5PF32-0XB0 SIMATIC S7-1200, Модуль аналогових вводів",
-      "slug": "6es7231-5pf32-0xb0-simatic-s7-1200-modul-analohovykh-vvodiv",
+      "slug": "siemens_6ES7231-5PF32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2435,7 +2435,7 @@
     {
       "articleId": "6ES7232-4HA30-0XB0",
       "itemName": "6ES7232-4HA30-0XB0 SIMATIC S7-1200, ПЛАТА АНАЛОГОВОГО ВИВОДУ SB 1232",
-      "slug": "6es7232-4ha30-0xb0-simatic-s7-1200-plata-analohovoho-vyvodu-sb-1232",
+      "slug": "siemens_6ES7232-4HA30-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2455,7 +2455,7 @@
     {
       "articleId": "6ES7241-1AH32-0XB0",
       "itemName": "6ES7241-1AH32-0XB0 SIMATIC S7-1200, Комунікаційний модуль CM 1241, RS232*",
-      "slug": "6es7241-1ah32-0xb0-simatic-s7-1200-komunikatsiinyi-modul-cm-1241",
+      "slug": "siemens_6ES7241-1AH32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2475,7 +2475,7 @@
     {
       "articleId": "6ES7241-1AH32-0XB0-",
       "itemName": "6ES7241-1AH32-0XB0 SIMATIC S7-1200, Комунікаційний модуль CM 1241, RS232*",
-      "slug": "6es7241-1ah32-0xb0-simatic-s7-1200-komunikatsiinyi-modul-cm-1241-rs232",
+      "slug": "siemens_6ES7241-1AH32-0XB0-",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -2495,7 +2495,7 @@
     {
       "articleId": "6ES7321-1BL00-0AA0",
       "itemName": "6ES7321-1BL00-0AA0 SIMATIC S7-300, SM 321, Модуль вводу дискретних сигналів",
-      "slug": "6es7321-1bl00-0aa0-simatic-s7-300-sm-321-modul-vvodu-dyskretnykh-syhnaliv",
+      "slug": "siemens_6ES7321-1BL00-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2515,7 +2515,7 @@
     {
       "articleId": "6ES7322-8BF00-0AB0",
       "itemName": "6ES7322-8BF00-0AB0 SIMATIC S7-300, цифровий вихід SM 322",
-      "slug": "6es7322-8bf00-0ab0-simatic-s7-300-tsyfrovyi-vykhid-sm-322",
+      "slug": "siemens_6ES7322-8BF00-0AB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2535,7 +2535,7 @@
     {
       "articleId": "6ES7332-5HF00-0AB0",
       "itemName": "6ES7332-5HF00-0AB0 SIMATIC S7-300 МОДУЛЬ ВИВОДУ АНАЛОГОВИХ СИГНАЛІВ",
-      "slug": "6es7332-5hf00-0ab0-simatic-s7-300-modul-vyvodu-analohovykh-syhnaliv",
+      "slug": "siemens_6ES7332-5HF00-0AB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2555,7 +2555,7 @@
     {
       "articleId": "6ES7334-0CE01-0AA0",
       "itemName": "6ES7334-0CE01-0AA0 SIMATIC S7-300 Модуль аналогового вводу-виводу для контролера",
-      "slug": "6es7334-0ce01-0aa0-simatic-s7-300-modul-analohovoho-vvodu-vyvodu-dlia-kontrolera",
+      "slug": "siemens_6ES7334-0CE01-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2575,7 +2575,7 @@
     {
       "articleId": "6ES7392-1AJ00-0AA0",
       "itemName": "6ES7392-1AJ00-0AA0 SIMATIC S7-300 Фронтальний з'єднувач",
-      "slug": "6es7392-1aj00-0aa0-simatic-s7-300-frontalnyi-ziednuvach",
+      "slug": "siemens_6ES7392-1AJ00-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2595,7 +2595,7 @@
     {
       "articleId": "6ES7392-1AM00-0AA0",
       "itemName": "6ES7392-1AM00-0AA0 SIMATIC S7-300, 40-полюсний ФРОНТАЛЬНИЙ З'ЄДНУВАЧ",
-      "slug": "6es7392-1am00-0aa0-simatic-s7-300-40-poliusnyi-frontalnyi-ziednuvach",
+      "slug": "siemens_6ES7392-1AM00-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2615,7 +2615,7 @@
     {
       "articleId": "6ES7590-1AB60-0AA0",
       "itemName": "6ES7590-1AB60-0AA0 Монтажна рейка",
-      "slug": "6es7590-1ab60-0aa0-montazhna-reika",
+      "slug": "siemens_6ES7590-1AB60-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2635,7 +2635,7 @@
     {
       "articleId": "6ES7954-8LC04-0AA0",
       "itemName": "6ES7954-8LC04-0AA0 SIMATIC S7, КАРТА ПАМ'ЯТІ",
-      "slug": "6es7954-8lc04-0aa0-simatic-s7-karta-pamiati",
+      "slug": "siemens_6ES7954-8LC04-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2655,7 +2655,7 @@
     {
       "articleId": "6ES7954-8LE04-0AA0",
       "itemName": "6ES7954-8LE04-0AA0 SIMATIC S7, КАРТА ПАМ'ЯТІ",
-      "slug": "6es7954-8le04-0aa0-simatic-s7-karta-pamiati",
+      "slug": "siemens_6ES7954-8LE04-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2675,7 +2675,7 @@
     {
       "articleId": "6ES7954-8LF03-0AA0",
       "itemName": "6ES7954-8LF03-0AA0 SIMATIC S7 КАРТА ПАМ'ЯТІ ДЛЯ S7-1X00 CPU",
-      "slug": "6es7954-8lf03-0aa0-simatic-s7-karta-pamiati-dlia-s7-1x00-cpu",
+      "slug": "siemens_6ES7954-8LF03-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2695,7 +2695,7 @@
     {
       "articleId": "6ES7954-8LL04-0AA0",
       "itemName": "6ES7954-8LL04-0AA0 КАРТА ПАМ'ЯТІ",
-      "slug": "6es7954-8ll04-0aa0-karta-pamiati",
+      "slug": "siemens_6ES7954-8LL04-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2715,7 +2715,7 @@
     {
       "articleId": "6ES7972-0BB12-0XA0",
       "itemName": "6ES7972-0BB12-0XA0 SIMATIC DP, З'ЄДНУВАЧ ДЛЯ ПІДКЛЮЧЕННЯ ДО PROFIBUS",
-      "slug": "6es7972-0bb12-0xa0-simatic-dp-ziednuvach-dlia-pidkliuchennia-do-profibus",
+      "slug": "siemens_6ES7972-0BB12-0XA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2735,7 +2735,7 @@
     {
       "articleId": "7MH4960-2AA01",
       "itemName": "7MH4960-2AA01 Ваговий модуль SIWAREX WP231",
-      "slug": "7mh4960-2aa01-vahovyi-modul-siwarex-wp231",
+      "slug": "siemens_7MH4960-2AA01",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2755,7 +2755,7 @@
     {
       "articleId": "773100",
       "itemName": "773100 Контролер Pilz PNOZ m1p",
-      "slug": "773100-kontroler-pilz-pnoz-m1p",
+      "slug": "pilz_773100",
       "brandName": "pilz",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2775,7 +2775,7 @@
     {
       "articleId": "773110",
       "itemName": "773110 PNOZ Конфігурований модуль безпеки PNOZ multi",
-      "slug": "773110-pnoz-konfihurovanyi-modul-bezpeky-pnoz-multi",
+      "slug": "pilz_773110",
       "brandName": "pilz",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2795,7 +2795,7 @@
     {
       "articleId": "6ES7193-6BP00-0BA0",
       "itemName": "6ES7193-6BP00-0BA0 Модуль базовий для контролера",
-      "slug": "6es7193-6bp00-0ba0-simatic-et-200sp-modul-bazovyi-dlia-kontrolera",
+      "slug": "siemens_6ES7193-6BP00-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -2815,7 +2815,7 @@
     {
       "articleId": "HMIET6500",
       "itemName": "HMIET6500 СЕНСОРНА ПАНЕЛЬ ОПЕРАТОРА 10\" Harmony ET6, =24В, Ethernet",
-      "slug": "hmiet6500-sensorna-panel-operatora-10-harmony-et6-24v-ethernet",
+      "slug": "schneider-electric_HMIET6500",
       "brandName": "schneider-electric",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2835,7 +2835,7 @@
     {
       "articleId": "6ES7132-4BD02-0AA0",
       "itemName": "6ES7132-4BD02-0AA0 SIMATIC DP, 5 електронних модулів виводу для ET 200S (упаковка з 5 штук)",
-      "slug": "6es7132-4bd02-0aa0-simatic-dp-5-elektronnykh-moduliv-vyvodu-dlia-et-200s-upakovka-z-5-shtuk",
+      "slug": "siemens_6ES7132-4BD02-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -2855,7 +2855,7 @@
     {
       "articleId": "3RK1400-1CG01-0AA2",
       "itemName": "3RK1400-1CG01-0AA2 AS-I SLIMLINE Модуль для контролера Siemens*",
-      "slug": "3rk1400-1cg01-0aa2-as-i-slimline-modul-dlia-kontrolera-siemens",
+      "slug": "siemens_3RK1400-1CG01-0AA2",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -2875,7 +2875,7 @@
     {
       "articleId": "6AV2123-2DB03-0AX0",
       "itemName": "6AV2123-2DB03-0AX0 SIMATIC HMI, KTP400 Basic Сенсорна панель*",
-      "slug": "6av2123-2db03-0ax0-simatic-hmi-ktp400-basic-sensorna-panel",
+      "slug": "siemens_6AV2123-2DB03-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2895,7 +2895,7 @@
     {
       "articleId": "6AV3515-1MA20-1AA0",
       "itemName": "6AV3515-1MA20-1AA0 Панель оператора Siemens*",
-      "slug": "6av3515-1ma20-1aa0-panel-operatora-siemens",
+      "slug": "siemens_6AV3515-1MA20-1AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2915,7 +2915,7 @@
     {
       "articleId": "6AV3515-1MA22-1AA0",
       "itemName": "6AV3515-1MA22-1AA0 Панель оператора Siemens*",
-      "slug": "6av3515-1ma22-1aa0-panel-operatora-siemens",
+      "slug": "siemens_6AV3515-1MA22-1AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2935,7 +2935,7 @@
     {
       "articleId": "6AV3607-1JC20-0AX1",
       "itemName": "6AV3607-1JC20-0AX1 Текстова панель оператора SIMATIC OP7/DP Siemens*",
-      "slug": "6av3607-1jc20-0ax1-tekstova-panel-operatora-simatic-op7-dp-siemens",
+      "slug": "siemens_6AV3607-1JC20-0AX1",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2955,7 +2955,7 @@
     {
       "articleId": "6AV3627-1JK00-0AX0",
       "itemName": "6AV3627-1JK00-0AX0 Панель оператора ОР 27 Siemens*",
-      "slug": "6av3627-1jk00-0ax0-panel-operatora-or-27-siemens",
+      "slug": "siemens_6AV3627-1JK00-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2975,7 +2975,7 @@
     {
       "articleId": "6AV6545-0BB15-2AX0",
       "itemName": "6AV6545-0BB15-2AX0 Сенсорна панель оператора Siemens*",
-      "slug": "6av6545-0bb15-2ax0-sensorna-panel-operatora-siemens",
+      "slug": "siemens_6AV6545-0BB15-2AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -2995,7 +2995,7 @@
     {
       "articleId": "6AV6545-0DA10-0AX0",
       "itemName": "6AV6545-0DA10-0AX0 SIMATIC MP370-12 TOUCH СЕНСОРНА ПАНЕЛЬ*",
-      "slug": "6av6545-0da10-0ax0-simatic-mp370-12-touch-sensorna-panel",
+      "slug": "siemens_6AV6545-0DA10-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -3015,7 +3015,7 @@
     {
       "articleId": "6AV6671-5AE01-0AX0",
       "itemName": "6AV6671-5AE01-0AX0 З'єднувальна коробка для панелі оператора 24В Siemens*",
-      "slug": "6av6671-5ae01-0ax0-ziednuvalna-korobka-dlia-paneli-operatora-24v-siemens",
+      "slug": "siemens_6AV6671-5AE01-0AX0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -3035,7 +3035,7 @@
     {
       "articleId": "6ED1052-1MD00-0BA4",
       "itemName": "6ED1052-1MD00-0BA4 Логічний модуль Siemens*",
-      "slug": "6ed1052-1md00-0ba4-lohichnyi-modul-siemens",
+      "slug": "siemens_6ED1052-1MD00-0BA4",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3055,7 +3055,7 @@
     {
       "articleId": "6ED1052-2FB08-0BA0",
       "itemName": "6ED1052-2FB08-0BA0 LOGO! 230RCEO,ЛОГІЧНИЙ МОДУЛЬ*",
-      "slug": "6ed1052-2fb08-0ba0-logo-230rceolohichnyi-modul",
+      "slug": "siemens_6ED1052-2FB08-0BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3075,7 +3075,7 @@
     {
       "articleId": "6ED1052-2FB08-0BA1",
       "itemName": "6ED1052-2FB08-0BA1 LOGO! 230RCEO, ЛОГІЧНИЙ МОДУЛЬ*",
-      "slug": "6ed1052-2fb08-0ba1-logo-230rceo-lohichnyi-modul",
+      "slug": "siemens_6ED1052-2FB08-0BA1",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3095,7 +3095,7 @@
     {
       "articleId": "6ED1055-1FB00-0BA2",
       "itemName": "6ED1055-1FB00-0BA2 МОДУЛЬ*",
-      "slug": "6ed1055-1fb00-0ba2-modul",
+      "slug": "siemens_6ED1055-1FB00-0BA2",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3115,7 +3115,7 @@
     {
       "articleId": "6ES7131-6TF00-0CA0",
       "itemName": "6ES7131-6TF00-0CA0 Цифровий модуль входу Siemens*",
-      "slug": "6es7131-6tf00-0ca0-tsyfrovyi-modul-vkhodu-siemens",
+      "slug": "siemens_6ES7131-6TF00-0CA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3135,7 +3135,7 @@
     {
       "articleId": "6ES7135-6HB00-0CA1",
       "itemName": "6ES7135-6HB00-0CA1 SIMATIC ET 200SP, МОДУЛЬ АНАЛОГОВОГО ВИВОДУ*",
-      "slug": "6es7135-6hb00-0ca1-simatic-et-200sp-modul-analohovoho-vyvodu",
+      "slug": "siemens_6ES7135-6HB00-0CA1",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3155,7 +3155,7 @@
     {
       "articleId": "6ES7193-4CB00-0AA0",
       "itemName": "6ES7193-4CB00-0AA0 Термінальний модуль SIMATIC DP Siemens*",
-      "slug": "6es7193-4cb00-0aa0-terminalnyi-modul-simatic-dp-siemens",
+      "slug": "siemens_6ES7193-4CB00-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3175,7 +3175,7 @@
     {
       "articleId": "6ES7193-4CC20-1AA0",
       "itemName": "6ES7193-4CC20-1AA0 5 термінальних модулів SIMATIC DP Siemens*",
-      "slug": "6es7193-4cc20-1aa0-5-terminalnykh-moduliv-simatic-dp-siemens",
+      "slug": "siemens_6ES7193-4CC20-1AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3195,7 +3195,7 @@
     {
       "articleId": "6ES7193-4LF20-0AA0",
       "itemName": "6ES7193-4LF20-0AA0 Кольорові кодувальні пластини Siemens*",
-      "slug": "6es7193-4lf20-0aa0-kolorovi-koduvalni-plastyny-siemens",
+      "slug": "siemens_6ES7193-4LF20-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3215,7 +3215,7 @@
     {
       "articleId": "6ES7221-1BF32-0XB0",
       "itemName": "6ES7221-1BF32-0XB0 SIMATIC S7-1200, Модуль дискретного входу*",
-      "slug": "6es7221-1bf32-0xb0-simatic-s7-1200-modul-dyskretnoho-vkhodu",
+      "slug": "siemens_6ES7221-1BF32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3235,7 +3235,7 @@
     {
       "articleId": "6ES7221-3AD30-0XB0",
       "itemName": "6ES7221-3AD30-0XB0 Цифровий вхід SIMATIC S7 Siemens*",
-      "slug": "6es7221-3ad30-0xb0-tsyfrovyi-vkhid-simatic-s7-siemens",
+      "slug": "siemens_6ES7221-3AD30-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3255,7 +3255,7 @@
     {
       "articleId": "6ES7241-1CH32-0XB0",
       "itemName": "6ES7241-1CH32-0XB0 SIMATIC S7-1200 Комунікаційний модуль*",
-      "slug": "6es7241-1ch32-0xb0-simatic-s7-1200-komunikatsiinyi-modul",
+      "slug": "siemens_6ES7241-1CH32-0XB0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3275,7 +3275,7 @@
     {
       "articleId": "6ES7322-1BH01-0AA0",
       "itemName": "6ES7322-1BH01-0AA0 SIMATIC S7-300, SM 322, Модуль виводу дискретних сигналів*",
-      "slug": "6es7322-1bh01-0aa0-simatic-s7-300-sm-322-modul-vyvodu-dyskretnykh-syhnaliv",
+      "slug": "siemens_6ES7322-1BH01-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3295,7 +3295,7 @@
     {
       "articleId": "6ES7322-1HF10-0AA0",
       "itemName": "6ES7322-1HF10-0AA0 Модуль виведення дискретних сигналів SIMATIC S7 Siemens*",
-      "slug": "6es7322-1hf10-0aa0-modul-vyvedennia-dyskretnykh-syhnaliv-simatic-s7-siemens",
+      "slug": "siemens_6ES7322-1HF10-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3313,7 +3313,7 @@
     {
       "articleId": "6ES7403-1TA01-0AA0",
       "itemName": "6ES7403-1TA01-0AA0 Стійка розширення SIMATIC S7 Siemens*",
-      "slug": "6es7403-1ta01-0aa0-stiika-rozshyrennia-simatic-s7-siemens",
+      "slug": "siemens_6ES7403-1TA01-0AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3333,7 +3333,7 @@
     {
       "articleId": "6ES7972-0BA41-0XA0",
       "itemName": "6ES7972-0BA41-0XA0 SIMATIC DP,ШИННИЙ РОЗ'ЄМ ДЛЯ PROFIBUS*",
-      "slug": "6es7972-0ba41-0xa0-simatic-dpshynnyi-roziem-dlia-profibus",
+      "slug": "siemens_6ES7972-0BA41-0XA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Станції вводу-виводу",
@@ -3353,7 +3353,7 @@
     {
       "articleId": "6RY1704-0AA00",
       "itemName": "6RY1704-0AA00 Панель керування Siemens*",
-      "slug": "6ry1704-0aa00-panel-keruvannia-siemens",
+      "slug": "siemens_6RY1704-0AA00",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -3373,7 +3373,7 @@
     {
       "articleId": "6SE9996-0XA17",
       "itemName": "6SE9996-0XA17 Контролер Profibus Module Siemens*",
-      "slug": "6se9996-0xa17-kontroler-profibus-module-siemens",
+      "slug": "siemens_6SE9996-0XA17",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Контролери",
@@ -3393,7 +3393,7 @@
     {
       "articleId": "6SL3054-7TF00-2BA0",
       "itemName": "6SL3054-7TF00-2BA0 Карта пам'яті Siemens*",
-      "slug": "6sl3054-7tf00-2ba0-karta-pamiati-siemens",
+      "slug": "siemens_6SL3054-7TF00-2BA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -3413,7 +3413,7 @@
     {
       "articleId": "6SL3255-0AA00-4JA2",
       "itemName": "6SL3255-0AA00-4JA2 SINAMICS G120 Інтелектуальна панель оператора IOP*",
-      "slug": "6sl3255-0aa00-4ja2-sinamics-g120-intelektualna-panel-operatora-iop",
+      "slug": "siemens_6SL3255-0AA00-4JA2",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": "Компоненти систем керування/Панелі операторів",
@@ -3433,7 +3433,7 @@
     {
       "articleId": "6SL3255-0AA00-5AA0",
       "itemName": "6SL3255-0AA00-5AA0 Модуль веб-сервера SINAMICS G120*",
-      "slug": "6sl3255-0aa00-5aa0-modul-veb-servera-sinamics-g120",
+      "slug": "siemens_6SL3255-0AA00-5AA0",
       "brandName": "siemens",
       "categoryName": "Компоненти систем керування",
       "subcategoryName": null,
@@ -3453,7 +3453,7 @@
     {
       "articleId": "3RH2911-1FA22",
       "itemName": "3RH2911-1FA22 Блок-контакт",
-      "slug": "3rh2911-1fa22-blok-kontakt-2no-2nz-1no-1nc-1nc-1no",
+      "slug": "siemens_3RH2911-1FA22",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3473,7 +3473,7 @@
     {
       "articleId": "5SL6125-7",
       "itemName": "5SL6125-7 Автоматичний вимикач",
-      "slug": "5sl6125-7-avtomatychnyi-vymykach-230-400v-6ka-1-pol.-c-25a",
+      "slug": "siemens_5SL6125-7",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": null,
@@ -3493,7 +3493,7 @@
     {
       "articleId": "3RT1054-1AP36",
       "itemName": "3RT1054-1AP36 Контактор",
-      "slug": "3rt1054-1ap36-kontaktor",
+      "slug": "siemens_3RT1054-1AP36",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3513,7 +3513,7 @@
     {
       "articleId": "3RT2015-2AF01",
       "itemName": "3RT2015-2AF01 Контактор живлення",
-      "slug": "3rt2015-2af01-kontaktor-zhyvlennia",
+      "slug": "siemens_3RT2015-2AF01",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3533,7 +3533,7 @@
     {
       "articleId": "3RT2017-1BB42",
       "itemName": "3RT2017-1BB42 Контактор",
-      "slug": "3rt2017-1bb42-kontaktor",
+      "slug": "siemens_3RT2017-1BB42",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3553,7 +3553,7 @@
     {
       "articleId": "3RT2018-1BB41",
       "itemName": "3RT2018-1BB41 Контактор 3-полюсний Siemens*",
-      "slug": "3rt2018-1bb41-rele-elektromahnitnyi-kontaktor",
+      "slug": "siemens_3RT2018-1BB41",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3573,7 +3573,7 @@
     {
       "articleId": "3RT2018-1BB41-",
       "itemName": "3RT2018-1BB41 Контактор 3-полюсний Siemens*",
-      "slug": "3rt2018-1bb41-kontaktor-3-poliusnyi-siemens",
+      "slug": "siemens_3RT2018-1BB41-",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3593,7 +3593,7 @@
     {
       "articleId": "3RT2018-1BB42",
       "itemName": "3RT2018-1BB42 КОНТАКТОР",
-      "slug": "3rt2018-1bb42-kontaktor",
+      "slug": "siemens_3RT2018-1BB42",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3613,7 +3613,7 @@
     {
       "articleId": "3RT2018-2BB42",
       "itemName": "3RT2018-2BB42 Cиловий контактор",
-      "slug": "3rt2018-2bb42-cylovyi-kontaktor",
+      "slug": "siemens_3RT2018-2BB42",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3633,7 +3633,7 @@
     {
       "articleId": "3RT2025-1AL20",
       "itemName": "3RT2025-1AL20 силовий контактор",
-      "slug": "3rt2025-1al20-sylovyi-kontaktor",
+      "slug": "siemens_3RT2025-1AL20",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3653,7 +3653,7 @@
     {
       "articleId": "3RT2025-1AP00",
       "itemName": "3RT2025-1AP00 Контактор",
-      "slug": "3rt2025-1ap00-kontaktor",
+      "slug": "siemens_3RT2025-1AP00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3673,7 +3673,7 @@
     {
       "articleId": "3RT2025-1AP04",
       "itemName": "3RT2025-1AP04 Силовий контактор",
-      "slug": "3rt2025-1ap04-sylovyi-kontaktor",
+      "slug": "siemens_3RT2025-1AP04",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3693,7 +3693,7 @@
     {
       "articleId": "3RT2026-1AP04",
       "itemName": "3RT2026-1AP04 Силовий контактор",
-      "slug": "3rt2026-1ap04-sylovyi-kontaktor",
+      "slug": "siemens_3RT2026-1AP04",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3713,7 +3713,7 @@
     {
       "articleId": "3RT2028-2BB40",
       "itemName": "3RT2028-2BB40 Контактор живлення",
-      "slug": "3rt2028-2bb40-kontaktor-zhyvlennia",
+      "slug": "siemens_3RT2028-2BB40",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3733,7 +3733,7 @@
     {
       "articleId": "3RT2037-1AP04",
       "itemName": "3RT2037-1AP04 КОНТАКТОР",
-      "slug": "3rt2037-1ap04-kontaktor",
+      "slug": "siemens_3RT2037-1AP04",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3753,7 +3753,7 @@
     {
       "articleId": "3RT2047-1AP00",
       "itemName": "3RT2047-1AP00 Силовий контактор",
-      "slug": "3rt2047-1ap00-sylovyi-kontaktor",
+      "slug": "siemens_3RT2047-1AP00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3773,7 +3773,7 @@
     {
       "articleId": "6GK5004-1BF00-1AB2",
       "itemName": "6GK5004-1BF00-1AB2 SCALANCE XB004-1LD, НЕКЕРОВАНИЙ КОМУНІКАЦІЙНИЙ МОДУЛЬ ДЛЯ КОНТРОЛЕРА",
-      "slug": "6gk5004-1bf00-1ab2-scalance-xb004-1ld-nekerovanyi-komunikatsiinyi-modul-dlia-kontrolera",
+      "slug": "siemens_6GK5004-1BF00-1AB2",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комунікаційне обладнання/Комутатори",
@@ -3793,7 +3793,7 @@
     {
       "articleId": "570301",
       "itemName": "570301 Тросовий вимикач з кнопкою E-STOP",
-      "slug": "570301-trosovyi-vymykach-z-knopkoiu-e-stop",
+      "slug": "pilz_570301",
       "brandName": "pilz",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Компоненти захисту",
@@ -3813,7 +3813,7 @@
     {
       "articleId": "LA1KN11",
       "itemName": "LA1KN11 Блок додаткових контактів 1НО+1НЗ ГВИНТ.КРІП.",
-      "slug": "la1kn11-blok-dodatkovykh-kontaktiv-1no1nz-hvynt.krip.",
+      "slug": "schneider-electric_LA1KN11",
       "brandName": "schneider-electric",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3833,7 +3833,7 @@
     {
       "articleId": "3RA1911-1AA00",
       "itemName": "3RA1911-1AA00 З'єднувальний модуль Siemens*",
-      "slug": "3ra1911-1aa00-ziednuvalnyi-modul-siemens",
+      "slug": "siemens_3RA1911-1AA00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -3853,7 +3853,7 @@
     {
       "articleId": "3RA1912-2H",
       "itemName": "3RA1912-2H Механічний з'єднувач Siemens*",
-      "slug": "3ra1912-2h-mekhanichnyi-ziednuvach-siemens",
+      "slug": "siemens_3RA1912-2H",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -3873,7 +3873,7 @@
     {
       "articleId": "3RA2912-2H",
       "itemName": "3RA2912-2H Набір для взаємного механічного блокування Siemens*",
-      "slug": "3ra2912-2h-nabir-dlia-vzaiemnoho-mekhanichnoho-blokuvannia-siemens",
+      "slug": "siemens_3RA2912-2H",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -3893,7 +3893,7 @@
     {
       "articleId": "3RH1911-1LA11",
       "itemName": "3RH1911-1LA11 Блок допоміжних контактів контактора Siemens*",
-      "slug": "3rh1911-1la11-blok-dopomizhnykh-kontaktiv-kontaktora-siemens",
+      "slug": "siemens_3RH1911-1LA11",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3913,7 +3913,7 @@
     {
       "articleId": "3RH2911-1AA10",
       "itemName": "3RH2911-1AA10 Модуль блок-контактів Siemens*",
-      "slug": "3rh2911-1aa10-modul-blok-kontaktiv-siemens",
+      "slug": "siemens_3RH2911-1AA10",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3933,7 +3933,7 @@
     {
       "articleId": "3RH2911-1NF11",
       "itemName": "3RH2911-1NF11 Модуль блок-контактів Siemens*",
-      "slug": "3rh2911-1nf11-modul-blok-kontaktiv-siemens",
+      "slug": "siemens_3RH2911-1NF11",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3953,7 +3953,7 @@
     {
       "articleId": "3RK1301-0DB00-0AA2",
       "itemName": "3RK1301-0DB00-0AA2 Контактор Siemens*",
-      "slug": "3rk1301-0db00-0aa2-kontaktor-siemens",
+      "slug": "siemens_3RK1301-0DB00-0AA2",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3973,7 +3973,7 @@
     {
       "articleId": "3RT1024-1AL20",
       "itemName": "3RT1024-1AL20 Силовий контактор Siemens*",
-      "slug": "3rt1024-1al20-sylovyi-kontaktor-siemens",
+      "slug": "siemens_3RT1024-1AL20",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -3993,7 +3993,7 @@
     {
       "articleId": "3RT1035-1BB40",
       "itemName": "3RT1035-1BB40 Контактор Siemens*",
-      "slug": "3rt1035-1bb40-kontaktor-siemens",
+      "slug": "siemens_3RT1035-1BB40",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4013,7 +4013,7 @@
     {
       "articleId": "3RT1036-1AP00",
       "itemName": "3RT1036-1AP00 Контактор Siemens*",
-      "slug": "3rt1036-1ap00-kontaktor-siemens",
+      "slug": "siemens_3RT1036-1AP00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4031,7 +4031,7 @@
     {
       "articleId": "3RT1044-1AP00",
       "itemName": "3RT1044-1AP00 Контактор 3-пол. Siemens*",
-      "slug": "3rt1044-1ap00-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT1044-1AP00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4051,7 +4051,7 @@
     {
       "articleId": "3RT1044-1BB40",
       "itemName": "3RT1044-1BB40 Контактор 3-пол. Siemens*",
-      "slug": "3rt1044-1bb40-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT1044-1BB40",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4071,7 +4071,7 @@
     {
       "articleId": "3RT1045-1BB40",
       "itemName": "3RT1045-1BB40 Контактор 3-пол. Siemens*",
-      "slug": "3rt1045-1bb40-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT1045-1BB40",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4091,7 +4091,7 @@
     {
       "articleId": "3RT1046-1AP00",
       "itemName": "3RT1046-1AP00 Контактор 3-пол. Siemens*",
-      "slug": "3rt1046-1ap00-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT1046-1AP00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4111,7 +4111,7 @@
     {
       "articleId": "3RT1046-1BB40",
       "itemName": "3RT1046-1BB40 Контактор 3-пол. Siemens*",
-      "slug": "3rt1046-1bb40-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT1046-1BB40",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4131,7 +4131,7 @@
     {
       "articleId": "3RT1055-2AB36",
       "itemName": "3RT1055-2AB36 Контактор живлення Siemens*",
-      "slug": "3rt1055-2ab36-kontaktor-zhyvlennia-siemens",
+      "slug": "siemens_3RT1055-2AB36",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4151,7 +4151,7 @@
     {
       "articleId": "3RT1064-2AP36",
       "itemName": "3RT1064-2AP36 Контактор 110КВТ*",
-      "slug": "3rt1064-2ap36-kontaktor-110kvt",
+      "slug": "siemens_3RT1064-2AP36",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4171,7 +4171,7 @@
     {
       "articleId": "3RT2018-1AP02",
       "itemName": "3RT2018-1AP02 Контактор 3-пол. Siemens*",
-      "slug": "3rt2018-1ap02-kontaktor-3-pol.-siemens",
+      "slug": "siemens_3RT2018-1AP02",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4191,7 +4191,7 @@
     {
       "articleId": "3RW5516-1HA14",
       "itemName": "3RW5516-1HA14 Пристрій плавного пуску*",
-      "slug": "3rw5516-1ha14-prystrii-plavnoho-pusku",
+      "slug": "siemens_3RW5516-1HA14",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -4211,7 +4211,7 @@
     {
       "articleId": "3RW5534-6HA14",
       "itemName": "3RW5534-6HA14 Пристрій плавного пуску SIRIUS*",
-      "slug": "3rw5534-6ha14-prystrii-plavnoho-pusku-sirius",
+      "slug": "siemens_3RW5534-6HA14",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -4231,7 +4231,7 @@
     {
       "articleId": "3RW5553-6HA14",
       "itemName": "3RW5553-6HA14 Пристрій плавного пуску SIRIUS*",
-      "slug": "3rw5553-6ha14-prystrii-plavnoho-pusku-sirius",
+      "slug": "siemens_3RW5553-6HA14",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Пристрої плавного пуску",
@@ -4251,7 +4251,7 @@
     {
       "articleId": "3TF6844-0CM7",
       "itemName": "3TF6844-0CM7 Контактор*",
-      "slug": "3tf6844-0cm7-kontaktor",
+      "slug": "siemens_3TF6844-0CM7",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4271,7 +4271,7 @@
     {
       "articleId": "3TF6944-0CM7",
       "itemName": "3TF6944-0CM7 Контактор*",
-      "slug": "3tf6944-0cm7-kontaktor",
+      "slug": "siemens_3TF6944-0CM7",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4291,7 +4291,7 @@
     {
       "articleId": "3TX7002-3AB00",
       "itemName": "3TX7002-3AB00 Вихідна розв'язка Siemens*",
-      "slug": "3tx7002-3ab00-vykhidna-rozviazka-siemens",
+      "slug": "siemens_3TX7002-3AB00",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Реле",
@@ -4311,7 +4311,7 @@
     {
       "articleId": "3TX7005-2MB02",
       "itemName": "3TX7005-2MB02 Вхідна розв'язка Siemens*",
-      "slug": "3tx7005-2mb02-vkhidna-rozviazka-siemens",
+      "slug": "siemens_3TX7005-2MB02",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Реле",
@@ -4331,7 +4331,7 @@
     {
       "articleId": "5TT5740-0",
       "itemName": "5TT5740-0 Контактор 3 мод. Semens*",
-      "slug": "5tt5740-0-kontaktor-3-mod.-semens",
+      "slug": "siemens_5TT5740-0",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4351,7 +4351,7 @@
     {
       "articleId": "5TT5750-0",
       "itemName": "5TT5750-0 Контактор 3 мод. Siemens*",
-      "slug": "5tt5750-0-kontaktor-3-mod.-siemens",
+      "slug": "siemens_5TT5750-0",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4371,7 +4371,7 @@
     {
       "articleId": "5TT5800-6",
       "itemName": "5TT5800-6 Контактор AUT 2НВ Siemens*",
-      "slug": "5tt5800-6-kontaktor-aut-2nv-siemens",
+      "slug": "siemens_5TT5800-6",
       "brandName": "siemens",
       "categoryName": "Комутаційне обладнання",
       "subcategoryName": "Комутаційне обладнання/Контактори",
@@ -4391,7 +4391,7 @@
     {
       "articleId": "6XV1870-3QN10",
       "itemName": "6XV1870-3QN10 ТР Корд SIMATIC NET Siemens*",
-      "slug": "6xv1870-3qn10-tr-kord-simatic-net-siemens",
+      "slug": "siemens_6XV1870-3QN10",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комунікаційне обладнання/Пасивні мережеві компоненти",
@@ -4411,7 +4411,7 @@
     {
       "articleId": "6XV1870-3QN15",
       "itemName": "6XV1870-3QN15 Патч корд SIND. ETHERNET SIMATIC NET Siemens*",
-      "slug": "6xv1870-3qn15-patch-kord-sind.-ethernet-simatic-net-siemens",
+      "slug": "siemens_6XV1870-3QN15",
       "brandName": "siemens",
       "categoryName": "Комунікаційне обладнання",
       "subcategoryName": "Комунікаційне обладнання/Пасивні мережеві компоненти",
@@ -4431,7 +4431,7 @@
     {
       "articleId": "3LD2203-0TK53",
       "itemName": "3LD2203-0TK53 Аварійний головний вимикач",
-      "slug": "3ld2203-0tk53-avariinyi-holovnyi-vymykach",
+      "slug": "siemens_3LD2203-0TK53",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Комутаційне обладнання/Компоненти захисту",
@@ -4451,7 +4451,7 @@
     {
       "articleId": "3SU1102-0AB50-1BA0",
       "itemName": "3SU1102-0AB50-1BA0 Кнопка з підсвічуванням",
-      "slug": "3su1102-0ab50-1ba0-knopka-z-pidsvichuvanniam",
+      "slug": "siemens_3SU1102-0AB50-1BA0",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4471,7 +4471,7 @@
     {
       "articleId": "3SU1102-0AB60-1BA0",
       "itemName": "3SU1102-0AB60-1BA0 Кнопка з підсвітленням",
-      "slug": "3su1102-0ab60-1ba0-knopka-z-pidsvitlenniam",
+      "slug": "siemens_3SU1102-0AB60-1BA0",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4491,7 +4491,7 @@
     {
       "articleId": "400131",
       "itemName": "400131 Кнопка PIT es1s E-STOP IP65 з символом E-STOP та логотипом",
-      "slug": "400131-knopka-pit-es1s-e-stop-ip65-z-symvolom-e-stop-ta-lohotypom",
+      "slug": "pilz_400131",
       "brandName": "pilz",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4511,7 +4511,7 @@
     {
       "articleId": "400309",
       "itemName": "400309 Блок контактів PIT esc8c 1n/c 1n/o",
-      "slug": "400309-blok-kontaktiv-pit-esc8c-1n-c-1n-o",
+      "slug": "pilz_400309",
       "brandName": "pilz",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4531,7 +4531,7 @@
     {
       "articleId": "XB5AD912R10K",
       "itemName": "XB5AD912R10K XB5 ПОТЕНЦІОМЕТР R10K",
-      "slug": "xb5ad912r10k-xb5-potentsiometr-r10k",
+      "slug": "schneider-electric_XB5AD912R10K",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4551,7 +4551,7 @@
     {
       "articleId": "XACV06",
       "itemName": "XACV06 Лампа сигнальна",
-      "slug": "xacv06-lampa-syhnalna",
+      "slug": "schneider-electric_XACV06",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -4571,7 +4571,7 @@
     {
       "articleId": "XB5AD21",
       "itemName": "XB5AD21 Перемикач",
-      "slug": "xb5ad21-peremykach",
+      "slug": "schneider-electric_XB5AD21",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4591,7 +4591,7 @@
     {
       "articleId": "XB5AD33",
       "itemName": "XB5AD33 Перемикач на 3 положення з фіксацією",
-      "slug": "xb5ad33-peremykach-na-3-polozhennia-z-fiksatsiieiu",
+      "slug": "schneider-electric_XB5AD33",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4611,7 +4611,7 @@
     {
       "articleId": "ZB4BA3",
       "itemName": "ZB4BA3 Головка кнопки зелена",
-      "slug": "zb4ba3-holovka-knopky-zelena",
+      "slug": "schneider-electric_ZB4BA3",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4631,7 +4631,7 @@
     {
       "articleId": "ZB4BD2",
       "itemName": "ZB4BD2 Головка для перемикача чорна.",
-      "slug": "zb4bd2-holovka-dlia-peremykacha-chorna.",
+      "slug": "schneider-electric_ZB4BD2",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4651,7 +4651,7 @@
     {
       "articleId": "ZB4BD5",
       "itemName": "ZB4BD5 ГОЛОВКА ДЛЯ ПЕРЕМИКАЧА",
-      "slug": "zb4bd5-holovka-dlia-peremykacha",
+      "slug": "schneider-electric_ZB4BD5",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4671,7 +4671,7 @@
     {
       "articleId": "ZB4BW333",
       "itemName": "ZB4BW333 КНОПКА З ПІДСВІЧУВАННЯМ",
-      "slug": "zb4bw333-knopka-z-pidsvichuvanniam",
+      "slug": "schneider-electric_ZB4BW333",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4691,7 +4691,7 @@
     {
       "articleId": "ZB4BZ009",
       "itemName": "ZB4BZ009 ХВ4В КРІПИЛЬНА ОСНОВА",
-      "slug": "zb4bz009-khv4v-kripylna-osnova",
+      "slug": "schneider-electric_ZB4BZ009",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4711,7 +4711,7 @@
     {
       "articleId": "ZB4BZ2005",
       "itemName": "ZB4BZ2005 Захисний кожух для аварійної кнопки",
-      "slug": "zb4bz2005-zakhysnyi-kozhukh-dlia-avariinoi-knopky",
+      "slug": "schneider-electric_ZB4BZ2005",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4731,7 +4731,7 @@
     {
       "articleId": "ZB5AS844",
       "itemName": "ZB5AS844 Кнопка аварійної зупинки",
-      "slug": "zb5as844-knopka-avariinoi-zupynky",
+      "slug": "schneider-electric_ZB5AS844",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4751,7 +4751,7 @@
     {
       "articleId": "ZB5AW0B15",
       "itemName": "ZB5AW0B15 КНОПКА З ПІДСВІЧУВАННЯМ-24В",
-      "slug": "zb5aw0b15-knopka-z-pidsvichuvanniam-24v",
+      "slug": "schneider-electric_ZB5AW0B15",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4771,7 +4771,7 @@
     {
       "articleId": "ZBE101",
       "itemName": "ZBE101 Блок-контакт для гвинтового кріплення 1НО",
-      "slug": "zbe101-blok-kontakt-dlia-hvyntovoho-kriplennia-1no",
+      "slug": "schneider-electric_ZBE101",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4791,7 +4791,7 @@
     {
       "articleId": "ZBVB1",
       "itemName": "ZBVB1 Світлодіодний блок, гвинтове кріплення 24В",
-      "slug": "zbvb1-svitlodiodnyi-blok-hvyntove-kriplennia-24v",
+      "slug": "schneider-electric_ZBVB1",
       "brandName": "schneider-electric",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4811,7 +4811,7 @@
     {
       "articleId": "3SU1400-1AA10-1BA0",
       "itemName": "3SU1400-1AA10-1BA0 Кнопка з підсвічуванням",
-      "slug": "3su1400-1aa10-1ba0-knopka-z-pidsvichuvanniam",
+      "slug": "siemens_3SU1400-1AA10-1BA0",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4831,7 +4831,7 @@
     {
       "articleId": "3NC1492",
       "itemName": "3NC1492 Вимикач-роз'єднувач Siemens*",
-      "slug": "3nc1492-vymykach-roziednuvach-siemens",
+      "slug": "siemens_3NC1492",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4851,7 +4851,7 @@
     {
       "articleId": "3NP1123-1CA20",
       "itemName": "3NP1123-1CA20 Запобіжний роз'єднувач 3 полюси Siemens*",
-      "slug": "3np1123-1ca20-zapobizhnyi-roziednuvach-3-poliusy-siemens",
+      "slug": "siemens_3NP1123-1CA20",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4871,7 +4871,7 @@
     {
       "articleId": "3NP4010-0CH01",
       "itemName": "3NP4010-0CH01 Роз'єднувач запобіжника Siemens*",
-      "slug": "3np4010-0ch01-roziednuvach-zapobizhnyka-siemens",
+      "slug": "siemens_3NP4010-0CH01",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4891,7 +4891,7 @@
     {
       "articleId": "3NP4270-0FA01",
       "itemName": "3NP4270-0FA01 Роз'єднувач запобіжника Siemens*",
-      "slug": "3np4270-0fa01-roziednuvach-zapobizhnyka-siemens",
+      "slug": "siemens_3NP4270-0FA01",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Перемикачі",
@@ -4911,7 +4911,7 @@
     {
       "articleId": "3SB3000-4HD11",
       "itemName": "3SB3000-4HD11 Круглий замок з ключем Siemens*",
-      "slug": "3sb3000-4hd11-kruhlyi-zamok-z-kliuchem-siemens",
+      "slug": "siemens_3SB3000-4HD11",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4931,7 +4931,7 @@
     {
       "articleId": "3SB3203-0AA21",
       "itemName": "3SB3203-0AA21 Комплектний пристрій Siemens*",
-      "slug": "3sb3203-0aa21-komplektnyi-prystrii-siemens",
+      "slug": "siemens_3SB3203-0AA21",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4951,7 +4951,7 @@
     {
       "articleId": "3SB3601-4AD11",
       "itemName": "3SB3601-4AD11 Комплектний пристрій Siemens*",
-      "slug": "3sb3601-4ad11-komplektnyi-prystrii-siemens",
+      "slug": "siemens_3SB3601-4AD11",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4971,7 +4971,7 @@
     {
       "articleId": "3SB3602-0AA41",
       "itemName": "3SB3602-0AA41 Комплектний пристрій Siemens*",
-      "slug": "3sb3602-0aa41-komplektnyi-prystrii-siemens",
+      "slug": "siemens_3SB3602-0AA41",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -4991,7 +4991,7 @@
     {
       "articleId": "3SB3603-0AA21",
       "itemName": "3SB3603-0AA21 Комплектний пристрій Siemens*",
-      "slug": "3sb3603-0aa21-komplektnyi-prystrii-siemens",
+      "slug": "siemens_3SB3603-0AA21",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -5011,7 +5011,7 @@
     {
       "articleId": "3SB3644-6BA40",
       "itemName": "3SB3644-6BA40 Кругла сигнальна лампа Siemens*",
-      "slug": "3sb3644-6ba40-kruhla-syhnalna-lampa-siemens",
+      "slug": "siemens_3SB3644-6BA40",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5031,7 +5031,7 @@
     {
       "articleId": "3SB3647-0AA41",
       "itemName": "3SB3647-0AA41 Комплектний пристрій Siemens*",
-      "slug": "3sb3647-0aa41-komplektnyi-prystrii-siemens",
+      "slug": "siemens_3SB3647-0AA41",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -5051,7 +5051,7 @@
     {
       "articleId": "3SB3652-6BA30",
       "itemName": "3SB3652-6BA30 Кругла сигнальна лампа Siemens*",
-      "slug": "3sb3652-6ba30-kruhla-syhnalna-lampa-siemens",
+      "slug": "siemens_3SB3652-6BA30",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5071,7 +5071,7 @@
     {
       "articleId": "3SB3652-6BA50",
       "itemName": "3SB3652-6BA50 Кругла сигнальна лампа Siemens*",
-      "slug": "3sb3652-6ba50-kruhla-syhnalna-lampa-siemens",
+      "slug": "siemens_3SB3652-6BA50",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5091,7 +5091,7 @@
     {
       "articleId": "3SE7930-1AD",
       "itemName": "3SE7930-1AD Петля для натяжного модуля вимикача Siemens*",
-      "slug": "3se7930-1ad-petlia-dlia-natiazhnoho-modulia-vymykacha-siemens",
+      "slug": "siemens_3SE7930-1AD",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5111,7 +5111,7 @@
     {
       "articleId": "3SU1100-0AB10-1FA0",
       "itemName": "3SU1100-0AB10-1FA0 Кнопка 22mm*",
-      "slug": "3su1100-0ab10-1fa0-knopka-22mm",
+      "slug": "siemens_3SU1100-0AB10-1FA0",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -5131,7 +5131,7 @@
     {
       "articleId": "3SU1500-0AA10-0AA0",
       "itemName": "3SU1500-0AA10-0AA0 Тримач для 3 модулей Siemens*",
-      "slug": "3su1500-0aa10-0aa0-trymach-dlia-3-modulei-siemens",
+      "slug": "siemens_3SU1500-0AA10-0AA0",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Кнопки",
@@ -5151,7 +5151,7 @@
     {
       "articleId": "8WD4328-1XX",
       "itemName": "8WD4328-1XX Лампа розжарювання Siemens*",
-      "slug": "8wd4328-1xx-lampa-rozzhariuvannia-siemens",
+      "slug": "siemens_8WD4328-1XX",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5171,7 +5171,7 @@
     {
       "articleId": "8WD4358-1XX",
       "itemName": "8WD4358-1XX Лампа розжарювання Siemens*",
-      "slug": "8wd4358-1xx-lampa-rozzhariuvannia-siemens",
+      "slug": "siemens_8WD4358-1XX",
       "brandName": "siemens",
       "categoryName": "Командно-сигнальна арматура",
       "subcategoryName": "Командно-сигнальна арматура/Елементи індикації",
@@ -5191,7 +5191,7 @@
     {
       "articleId": "312085",
       "itemName": "312085 Головний модуль децентралізованої системи PSSu H FS SN SD",
-      "slug": "312085-holovnyi-modul-detsentralizovanoi-systemy-pssu-h-fs-sn-sd",
+      "slug": "pilz_312085",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5211,7 +5211,7 @@
     {
       "articleId": "504227",
       "itemName": "504227 Вимикач безпеки PSEN",
-      "slug": "504227-vymykach-bezpeky-psen",
+      "slug": "pilz_504227",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Кінцевики",
@@ -5231,7 +5231,7 @@
     {
       "articleId": "505223",
       "itemName": "505223 Магнітний вимикач безпеки",
-      "slug": "505223-mahnitnyi-vymykach-bezpeky",
+      "slug": "pilz_505223",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Кінцевики",
@@ -5251,7 +5251,7 @@
     {
       "articleId": "515120",
       "itemName": "515120 Актуатор для магнітного датчика безпеки",
-      "slug": "515120-aktuator-dlia-mahnitnoho-datchyka-bezpeky",
+      "slug": "pilz_515120",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Кінцевики",
@@ -5271,7 +5271,7 @@
     {
       "articleId": "570000",
       "itemName": "570000 Механічний датчик безпеки з стандартним актуатором",
-      "slug": "570000-mekhanichnyi-datchyk-bezpeky-z-standartnym-aktuatorom",
+      "slug": "pilz_570000",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Кінцевики",
@@ -5291,7 +5291,7 @@
     {
       "articleId": "710001",
       "itemName": "710001 Реле безпеки PILZ PNOZ c1 24VDC 3n/o 1n/c",
-      "slug": "710001-rele-bezpeky-pilz-pnoz-c1-24vdc-3n-o-1n-c",
+      "slug": "pilz_710001",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5311,7 +5311,7 @@
     {
       "articleId": "750101",
       "itemName": "750101 Реле безпеки PNOZ s1 24VDC 2 n/o",
-      "slug": "750101-rele-bezpeky-pnoz-s1-24vdc-2-n-o",
+      "slug": "pilz_750101",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5331,7 +5331,7 @@
     {
       "articleId": "750104",
       "itemName": "750104 Реле безпеки Pilz PNOZ s4 24VDC 3 n/o 1 n/c",
-      "slug": "750104-rele-bezpeky-pilz-pnoz-s4-24vdc-3-n-o-1-n-c",
+      "slug": "pilz_750104",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5351,7 +5351,7 @@
     {
       "articleId": "750105",
       "itemName": "750105 Реле PNOZ s5 24VDC 2n/o 2n/ot",
-      "slug": "750105-rele-pnoz-s5-24vdc-2n-o-2n-ot",
+      "slug": "pilz_750105",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5371,7 +5371,7 @@
     {
       "articleId": "750107",
       "itemName": "750107 Модуль PNOZ s7 24VDC 4 n/o 1 n/c",
-      "slug": "750107-modul-pnoz-s7-24vdc-4-n-o-1-n-c",
+      "slug": "pilz_750107",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5391,7 +5391,7 @@
     {
       "articleId": "751103",
       "itemName": "751103 Реле безпеки PNOZ s3 C 24VDC 2 n/o",
-      "slug": "751103-rele-bezpeky-pnoz-s3-c-24vdc-2-n-o",
+      "slug": "pilz_751103",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5411,7 +5411,7 @@
     {
       "articleId": "751104",
       "itemName": "751104 Реле безпеки Pilz Pnoz s4 C24 VDC 3n/o 1n/c",
-      "slug": "751104-rele-bezpeky-pilz-pnoz-s4-c24-vdc-3n-o-1n-c",
+      "slug": "pilz_751104",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5431,7 +5431,7 @@
     {
       "articleId": "751105",
       "itemName": "751105 Реле безпеки PNOZ s5 C 24VDC 2 n/o 2 n/o t",
-      "slug": "751105-rele-bezpeky-pnoz-s5-c-24vdc-2-n-o-2-n-o-t",
+      "slug": "pilz_751105",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5451,7 +5451,7 @@
     {
       "articleId": "751107",
       "itemName": "751107 Модуль розширення PNOZ s7",
-      "slug": "751107-modul-rozshyrennia-pnoz-s7",
+      "slug": "pilz_751107",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5471,7 +5471,7 @@
     {
       "articleId": "751109",
       "itemName": "751109 Модуль розширення PNOZ s9",
-      "slug": "751109-modul-rozshyrennia-pnoz-s9",
+      "slug": "pilz_751109",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5491,7 +5491,7 @@
     {
       "articleId": "774300",
       "itemName": "774300 Реле безпеки PNOZ X1 24VAC/DC 3n/o 1n/c",
-      "slug": "774300-rele-bezpeky-pnoz-x1-24vac-dc-3n-o-1n-c",
+      "slug": "pilz_774300",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5511,7 +5511,7 @@
     {
       "articleId": "774310",
       "itemName": "774310 Реле безпеки PNOZ X3 24VAC 24VDC 3n/o 1n/c 1so",
-      "slug": "774310-rele-bezpeky-pnoz-x3-24vac-24vdc-3n-o-1n-c-1so",
+      "slug": "pilz_774310",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5531,7 +5531,7 @@
     {
       "articleId": "774314",
       "itemName": "774314 Реле безпеки PNOZ X3 110VAC 24VDC 3n/o 1n/c 1so",
-      "slug": "774314-rele-bezpeky-pnoz-x3-110vac-24vdc-3n-o-1n-c-1so",
+      "slug": "pilz_774314",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5551,7 +5551,7 @@
     {
       "articleId": "774540",
       "itemName": "774540 Реле безпеки PNOZ XV3 30/24 VDC 3n/o 2n/o",
-      "slug": "774540-rele-bezpeky-pnoz-xv3-30-24-vdc-3n-o-2n-o",
+      "slug": "pilz_774540",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5571,7 +5571,7 @@
     {
       "articleId": "787602",
       "itemName": "787602 Реле безпеки PNOZ XV1P C 30/24VDC 2n/o 1n/o t",
-      "slug": "787602-rele-bezpeky-pnoz-xv1p-c-30-24vdc-2n-o-1n-o-t",
+      "slug": "pilz_787602",
       "brandName": "pilz",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5591,7 +5591,7 @@
     {
       "articleId": "RM17UAS16",
       "itemName": "RM17UAS16 РЕЛЕ КОНТРОЛЮ НАПРУГИ",
-      "slug": "rm17uas16-rele-kontroliu-napruhy",
+      "slug": "schneider-electric_RM17UAS16",
       "brandName": "schneider-electric",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5611,7 +5611,7 @@
     {
       "articleId": "RXM4AB1BD",
       "itemName": "RXM4AB1BD РЕЛЕ МІНІАТЮРНЕ,4CO,=24 В",
-      "slug": "rxm4ab1bd-rele-miniatiurne4co24-v",
+      "slug": "schneider-electric_RXM4AB1BD",
       "brandName": "schneider-electric",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5631,7 +5631,7 @@
     {
       "articleId": "RXZE2S114M",
       "itemName": "RXZE2S114M РОЗЕТКА ДЛЯ РЕЛЕ ТИПУ RXM4",
-      "slug": "rxze2s114m-rozetka-dlia-rele-typu-rxm4",
+      "slug": "schneider-electric_RXZE2S114M",
       "brandName": "schneider-electric",
       "categoryName": "Компоненти систем безпеки",
       "subcategoryName": "Компоненти систем безпеки/Реле безпеки",
@@ -5651,7 +5651,7 @@
     {
       "articleId": "3RV2901-1A",
       "itemName": "3RV2901-1A Бічний БЛОК-КОНТАКТ",
-      "slug": "3rv2901-1a-bichnyi-blok-kontakt-1-ale-1nz-hvyntovi-klemy-dlia-avtomatychnoho-vymykacha-3rv2",
+      "slug": "siemens_3RV2901-1A",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Клемні системи",
@@ -5671,7 +5671,7 @@
     {
       "articleId": "3RQ3901-0B",
       "itemName": "3RQ3901-0B З'єднувальна гребінка 4-полюсна",
-      "slug": "3rq3901-0b-ziednuvalna-hrebinka-4-poliusna",
+      "slug": "siemens_3RQ3901-0B",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5691,7 +5691,7 @@
     {
       "articleId": "3SU1900-0AE81-0AA0",
       "itemName": "3SU1900-0AE81-0AA0 Табличка для написів для монтажу",
-      "slug": "3su1900-0ae81-0aa0-tablychka-dlia-napysiv-dlia-montazhu",
+      "slug": "siemens_3SU1900-0AE81-0AA0",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5711,7 +5711,7 @@
     {
       "articleId": "533130",
       "itemName": "533130 Кабель з'єднувальний 10м.",
-      "slug": "533130-kabel-ziednuvalnyi-10m.",
+      "slug": "pilz_533130",
       "brandName": "pilz",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5731,7 +5731,7 @@
     {
       "articleId": "533141",
       "itemName": "533141 Кабель PSEN прямий/кабель прямий штекер 30м",
-      "slug": "533141-kabel-psen-priamyi-kabel-priamyi-shteker-30m",
+      "slug": "pilz_533141",
       "brandName": "pilz",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5751,7 +5751,7 @@
     {
       "articleId": "6FX2002-2AS01-1AC5",
       "itemName": "6FX2002-2AS01-1AC5 Сигнальний кабель PREASSAMBLED Siemens*",
-      "slug": "6fx2002-2as01-1ac5-syhnalnyi-kabel-preassambled-siemens",
+      "slug": "siemens_6FX2002-2AS01-1AC5",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5771,7 +5771,7 @@
     {
       "articleId": "6FX8002-2AD04-1AC0",
       "itemName": "6FX8002-2AD04-1AC0 Сигнальний кабель Siemens*",
-      "slug": "6fx8002-2ad04-1ac0-syhnalnyi-kabel-siemens",
+      "slug": "siemens_6FX8002-2AD04-1AC0",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5791,7 +5791,7 @@
     {
       "articleId": "6FX8002-2AD04-1AJ0",
       "itemName": "6FX8002-2AD04-1AJ0 Сигнальний кабель Siemens*",
-      "slug": "6fx8002-2ad04-1aj0-syhnalnyi-kabel-siemens",
+      "slug": "siemens_6FX8002-2AD04-1AJ0",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5811,7 +5811,7 @@
     {
       "articleId": "6FX8002-4AA21-1BA0",
       "itemName": "6FX8002-4AA21-1BA0 Сигнальний кабель Siemens*",
-      "slug": "6fx8002-4aa21-1ba0-syhnalnyi-kabel-siemens",
+      "slug": "siemens_6FX8002-4AA21-1BA0",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": "Монтажне обладнання/Кабель",
@@ -5831,7 +5831,7 @@
     {
       "articleId": "7MF4997-1AJ",
       "itemName": "7MF4997-1AJ Монтажний кронштейн Siemens*",
-      "slug": "7mf4997-1aj-montazhnyi-kronshtein-siemens",
+      "slug": "siemens_7MF4997-1AJ",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5851,7 +5851,7 @@
     {
       "articleId": "7MF4997-1AK",
       "itemName": "7MF4997-1AK Монтажний кронштейн Siemens*",
-      "slug": "7mf4997-1ak-montazhnyi-kronshtein-siemens",
+      "slug": "siemens_7MF4997-1AK",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5871,7 +5871,7 @@
     {
       "articleId": "7ML1830-1BU",
       "itemName": "7ML1830-1BU Універсальний монтажний адаптер Siemens*",
-      "slug": "7ml1830-1bu-universalnyi-montazhnyi-adapter-siemens",
+      "slug": "siemens_7ML1830-1BU",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5891,7 +5891,7 @@
     {
       "articleId": "LZE:100000001026",
       "itemName": "LZE:100000001026 Модуль вентиляції Siemens*",
-      "slug": "lze100000001026-modul-ventyliatsii-siemens",
+      "slug": "siemens_LZE:100000001026",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5909,7 +5909,7 @@
     {
       "articleId": "LZE100000001026",
       "itemName": "LZE:100000001026 Модуль вентиляції Siemens*",
-      "slug": "lze100000001026-modul-ventyliatsii-siemens/1268",
+      "slug": "siemens_LZE100000001026",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5929,7 +5929,7 @@
     {
       "articleId": "LZE:100000001077",
       "itemName": "LZE:100000001077 Ущільнення Siemens*",
-      "slug": "lze100000001077-ushchilnennia-siemens",
+      "slug": "siemens_LZE:100000001077",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5947,7 +5947,7 @@
     {
       "articleId": "LZE100000001077",
       "itemName": "LZE:100000001077 Ущільнення Siemens*",
-      "slug": "lze100000001077-ushchilnennia-siemens/1269",
+      "slug": "siemens_LZE100000001077",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5967,7 +5967,7 @@
     {
       "articleId": "LZE:100000001078",
       "itemName": "LZE:100000001078 Гільза Siemens*",
-      "slug": "lze100000001078-hilza-siemens",
+      "slug": "siemens_LZE:100000001078",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -5985,7 +5985,7 @@
     {
       "articleId": "LZE100000001078",
       "itemName": "LZE:100000001078 Гільза Siemens*",
-      "slug": "lze100000001078-hilza-siemens/1270",
+      "slug": "siemens_LZE100000001078",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -6005,7 +6005,7 @@
     {
       "articleId": "LZX:PT16040",
       "itemName": "LZX:PT16040 Маркувальна пластина Siemens*",
-      "slug": "lzxpt16040-markuvalna-plastyna-siemens",
+      "slug": "siemens_LZX:PT16040",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -6023,7 +6023,7 @@
     {
       "articleId": "LZXPT16040",
       "itemName": "LZX:PT16040 Маркувальна пластина Siemens*",
-      "slug": "lzxpt16040-markuvalna-plastyna-siemens/1271",
+      "slug": "siemens_LZXPT16040",
       "brandName": "siemens",
       "categoryName": "Монтажне обладнання",
       "subcategoryName": null,
@@ -6043,7 +6043,7 @@
     {
       "articleId": "NSYS3D7525P",
       "itemName": "NSYS3D7525P ШАФА S3D В700XШ500XГ250+МОНТАЖН.ПЛАТА",
-      "slug": "nsys3d7525p-shafa-s3d-v700xsh500xh250montazhn.plata",
+      "slug": "schneider-electric_NSYS3D7525P",
       "brandName": "schneider-electric",
       "categoryName": "Конструктиви",
       "subcategoryName": "Конструктиви/Шафи для електрообладнання",
@@ -6063,7 +6063,7 @@
     {
       "articleId": "NSYSBM304012",
       "itemName": "NSYSBM304012 ШАФА 300Х400Х120 SPACIAL SBM",
-      "slug": "nsysbm304012-shafa-300kh400kh120-spacial-sbm",
+      "slug": "schneider-electric_NSYSBM304012",
       "brandName": "schneider-electric",
       "categoryName": "Конструктиви",
       "subcategoryName": "Конструктиви/Шафи для електрообладнання",
@@ -6083,7 +6083,7 @@
     {
       "articleId": "3NA3120",
       "itemName": "3NA3120 Плавка вставка низьковольтна Siemens*",
-      "slug": "3na3120-plavka-vstavka-nyzkovoltna-siemens",
+      "slug": "siemens_3NA3120",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6103,7 +6103,7 @@
     {
       "articleId": "3NA3250",
       "itemName": "3NA3250 Плавка вставка низьковольтна Siemens*",
-      "slug": "3na3250-plavka-vstavka-nyzkovoltna-siemens",
+      "slug": "siemens_3NA3250",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6123,7 +6123,7 @@
     {
       "articleId": "3NE1803-0",
       "itemName": "3NE1803-0 Плавка вставка Siemens*",
-      "slug": "3ne1803-0-plavka-vstavka-siemens",
+      "slug": "siemens_3NE1803-0",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6143,7 +6143,7 @@
     {
       "articleId": "3NE1813-0",
       "itemName": "3NE1813-0 Плавка вставка Siemens*",
-      "slug": "3ne1813-0-plavka-vstavka-siemens",
+      "slug": "siemens_3NE1813-0",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6163,7 +6163,7 @@
     {
       "articleId": "3NH3030",
       "itemName": "3NH3030 Основа плавкої вставки Siemens*",
-      "slug": "3nh3030-osnova-plavkoi-vstavky-siemens",
+      "slug": "siemens_3NH3030",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6183,7 +6183,7 @@
     {
       "articleId": "3NW6010-1",
       "itemName": "3NW6010-1 Циліндричні плавкі вставки Siemens*",
-      "slug": "3nw6010-1-tsylindrychni-plavki-vstavky-siemens",
+      "slug": "siemens_3NW6010-1",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6203,7 +6203,7 @@
     {
       "articleId": "5SE2316",
       "itemName": "5SE2316 Плавка вставка запобіжника neozed*",
-      "slug": "5se2316-plavka-vstavka-zapobizhnyka-neozed",
+      "slug": "siemens_5SE2316",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6223,7 +6223,7 @@
     {
       "articleId": "5SE2363",
       "itemName": "5SE2363 Плавка втавка NEOZED*",
-      "slug": "5se2363-plavka-vtavka-neozed",
+      "slug": "siemens_5SE2363",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6243,7 +6243,7 @@
     {
       "articleId": "5SF1005",
       "itemName": "5SF1005 Основа плавкої вставки DIAZED Siemens*",
-      "slug": "5sf1005-osnova-plavkoi-vstavky-diazed-siemens",
+      "slug": "siemens_5SF1005",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6263,7 +6263,7 @@
     {
       "articleId": "5SH316",
       "itemName": "5SH316 Гвинтовий адаптер DIAZED Siemens*",
-      "slug": "5sh316-hvyntovyi-adapter-diazed-siemens",
+      "slug": "siemens_5SH316",
       "brandName": "siemens",
       "categoryName": "Плавкі запобіжники",
       "subcategoryName": null,
@@ -6283,7 +6283,7 @@
     {
       "articleId": "6ES5375-0LA15",
       "itemName": "6ES5375-0LA15 Модуль пям’яті SIMATIC S5 Siemens*",
-      "slug": "6es5375-0la15-modul-piamiati-simatic-s5-siemens",
+      "slug": "siemens_6ES5375-0LA15",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6303,7 +6303,7 @@
     {
       "articleId": "6ES5375-0LC31",
       "itemName": "6ES5375-0LC31 Модуль пам'яті SIMATIC S5 Siemens*",
-      "slug": "6es5375-0lc31-modul-pamiati-simatic-s5-siemens",
+      "slug": "siemens_6ES5375-0LC31",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6323,7 +6323,7 @@
     {
       "articleId": "6ES5375-1LA15",
       "itemName": "6ES5375-1LA15 Модуль пам'яті SIMATIC S5 Siemens*",
-      "slug": "6es5375-1la15-modul-pamiati-simatic-s5-siemens",
+      "slug": "siemens_6ES5375-1LA15",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6343,7 +6343,7 @@
     {
       "articleId": "6ES5380-8MA11",
       "itemName": "6ES5380-8MA11 Часовий модуль SIMATIC S5 Siemens*",
-      "slug": "6es5380-8ma11-chasovyi-modul-simatic-s5-siemens",
+      "slug": "siemens_6ES5380-8MA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6363,7 +6363,7 @@
     {
       "articleId": "6ES5420-7LA11",
       "itemName": "6ES5420-7LA11 Цифровий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5420-7la11-tsyfrovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5420-7LA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6383,7 +6383,7 @@
     {
       "articleId": "6ES5421-8MA11",
       "itemName": "6ES5421-8MA11 Цифровий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5421-8ma11-tsyfrovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5421-8MA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6403,7 +6403,7 @@
     {
       "articleId": "6ES5430-7LA11",
       "itemName": "6ES5430-7LA11 Модуль цифрового входу SIMATIC S5 Siemens*",
-      "slug": "6es5430-7la11-modul-tsyfrovoho-vkhodu-simatic-s5-siemens",
+      "slug": "siemens_6ES5430-7LA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6423,7 +6423,7 @@
     {
       "articleId": "6ES5431-8MD11",
       "itemName": "6ES5431-8MD11 Цифровий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5431-8md11-tsyfrovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5431-8MD11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6443,7 +6443,7 @@
     {
       "articleId": "6ES5441-7LA11",
       "itemName": "6ES5441-7LA11 Цифровий модуль виходу SIMATIC S5 Siemens*",
-      "slug": "6es5441-7la11-tsyfrovyi-modul-vykhodu-simatic-s5-siemens",
+      "slug": "siemens_6ES5441-7LA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6463,7 +6463,7 @@
     {
       "articleId": "6ES5441-7LA12",
       "itemName": "6ES5441-7LA12 Цифровий модуль виходу SIMATIC S5 Siemens*",
-      "slug": "6es5441-7la12-tsyfrovyi-modul-vykhodu-simatic-s5-siemens",
+      "slug": "siemens_6ES5441-7LA12",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6483,7 +6483,7 @@
     {
       "articleId": "6ES5451-7LA11",
       "itemName": "6ES5451-7LA11 Цифровий вихідний модуль SIMATIC S5 Siemens*",
-      "slug": "6es5451-7la11-tsyfrovyi-vykhidnyi-modul-simatic-s5-siemens",
+      "slug": "siemens_6ES5451-7LA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6503,7 +6503,7 @@
     {
       "articleId": "6ES5451-8MA11",
       "itemName": "6ES5451-8MA11 Цифровий вихід SIMATIC S5 Siemens*",
-      "slug": "6es5451-8ma11-tsyfrovyi-vykhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5451-8MA11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6523,7 +6523,7 @@
     {
       "articleId": "6ES5452-8MR11",
       "itemName": "6ES5452-8MR11 Цифровий вихід SIMATIC S5 Siemens*",
-      "slug": "6es5452-8mr11-tsyfrovyi-vykhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5452-8MR11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6543,7 +6543,7 @@
     {
       "articleId": "6ES5458-7LC11",
       "itemName": "6ES5458-7LC11 Цифровий вихід SIMATIC S5 Siemens*",
-      "slug": "6es5458-7lc11-tsyfrovyi-vykhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5458-7LC11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6563,7 +6563,7 @@
     {
       "articleId": "6ES5464-8MC11",
       "itemName": "6ES5464-8MC11 Аналоговий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5464-8mc11-analohovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5464-8MC11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6583,7 +6583,7 @@
     {
       "articleId": "6ES5464-8MD11",
       "itemName": "6ES5464-8MD11 Аналоговий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5464-8md11-analohovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5464-8MD11",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6603,7 +6603,7 @@
     {
       "articleId": "6ES5465-4UA12",
       "itemName": "6ES5465-4UA12 Аналоговий вхід SIMATIC S5 Siemens*",
-      "slug": "6es5465-4ua12-analohovyi-vkhid-simatic-s5-siemens",
+      "slug": "siemens_6ES5465-4UA12",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6623,7 +6623,7 @@
     {
       "articleId": "6ES5470-7LC12",
       "itemName": "6ES5470-7LC12 Аналоговий вихідний модуль SIMATIC S5 Siemens*",
-      "slug": "6es5470-7lc12-analohovyi-vykhidnyi-modul-simatic-s5-siemens",
+      "slug": "siemens_6ES5470-7LC12",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6643,7 +6643,7 @@
     {
       "articleId": "6ES5928-3UA12",
       "itemName": "6ES5928-3UA12 Центральний процессорний модуль Siemens*",
-      "slug": "6es5928-3ua12-tsentralnyi-protsessornyi-modul-siemens",
+      "slug": "siemens_6ES5928-3UA12",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6663,7 +6663,7 @@
     {
       "articleId": "6ES5951-7NB21",
       "itemName": "6ES5951-7NB21 Блок живлення SIMATIC S5 Siemens*",
-      "slug": "6es5951-7nb21-blok-zhyvlennia-simatic-s5-siemens",
+      "slug": "siemens_6ES5951-7NB21",
       "brandName": "siemens",
       "categoryName": "Siemens Simatic S5",
       "subcategoryName": null,
@@ -6683,7 +6683,7 @@
     {
       "articleId": "3RH2911-1FB11",
       "itemName": "3RH2911-1FB11 Допоміжний вимикач",
-      "slug": "3rh2911-1fb11-dopomizhnyi-vymykach",
+      "slug": "siemens_3RH2911-1FB11",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6703,7 +6703,7 @@
     {
       "articleId": "3RT2916-1DG00",
       "itemName": "3RT2916-1DG00 Обмежувачі перенапруги",
-      "slug": "3rt2916-1dg00-obmezhuvachi-perenapruhy",
+      "slug": "siemens_3RT2916-1DG00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6723,7 +6723,7 @@
     {
       "articleId": "3RV2011-0BA10",
       "itemName": "3RV2011-0BA10 АВТОМАТИЧНИЙ ВИМИКАЧ",
-      "slug": "3rv2011-0ba10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2011-0BA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6743,7 +6743,7 @@
     {
       "articleId": "3RV2011-0GA10",
       "itemName": "3RV2011-0GA10 АВТОМАТИЧНИЙ ВИМИКАЧ",
-      "slug": "3rv2011-0ga10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2011-0GA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6763,7 +6763,7 @@
     {
       "articleId": "3RV2011-0HA10",
       "itemName": "3RV2011-0HA10 Автоматичний вимикач для захисту електродвигуна",
-      "slug": "3rv2011-0ha10-avtomatychnyi-vymykach-dlia-zakhystu-elektrodvyhuna",
+      "slug": "siemens_3RV2011-0HA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6783,7 +6783,7 @@
     {
       "articleId": "3RV2011-1GA15",
       "itemName": "3RV2011-1GA15 Автоматичний вимикач",
-      "slug": "3rv2011-1ga15-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2011-1GA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6803,7 +6803,7 @@
     {
       "articleId": "3RV2021-1KA10",
       "itemName": "3RV2021-1KA10 Вимикачдля захисту двигуна",
-      "slug": "3rv2021-1ka10-vymykachdlia-zakhystu-dvyhuna",
+      "slug": "siemens_3RV2021-1KA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6823,7 +6823,7 @@
     {
       "articleId": "3RV2021-4CA10",
       "itemName": "3RV2021-4CA10 Автоматичний вимикач",
-      "slug": "3rv2021-4ca10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2021-4CA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6843,7 +6843,7 @@
     {
       "articleId": "3RV2021-4CA15",
       "itemName": "3RV2021-4CA15 Автоматичний вимикач",
-      "slug": "3rv2021-4ca15-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2021-4CA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6863,7 +6863,7 @@
     {
       "articleId": "3RV2021-4DA10",
       "itemName": "3RV2021-4DA10 Автоматичний вимикач для захисту електродвигуна",
-      "slug": "3rv2021-4da10-avtomatychnyi-vymykach-dlia-zakhystu-elektrodvyhuna",
+      "slug": "siemens_3RV2021-4DA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6883,7 +6883,7 @@
     {
       "articleId": "3RV2021-4FA10",
       "itemName": "3RV2021-4FA10 Автоматичний вимикач для захисту електродвигуна",
-      "slug": "3rv2021-4fa10-avtomatychnyi-vymykach-dlia-zakhystu-elektrodvyhuna",
+      "slug": "siemens_3RV2021-4FA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6903,7 +6903,7 @@
     {
       "articleId": "3RV2021-4NA10",
       "itemName": "3RV2021-4NA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2021-4na10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2021-4NA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6923,7 +6923,7 @@
     {
       "articleId": "3RV2021-4NA10-",
       "itemName": "3RV2021-4NA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2021-4na10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2021-4NA10-",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6943,7 +6943,7 @@
     {
       "articleId": "3RV2031-4RA10",
       "itemName": "3RV2031-4RA10 АВТОМАТИЧНИЙ ВИМИКАЧ SIZE S2",
-      "slug": "3rv2031-4ra10-avtomatychnyi-vymykach-size-s2",
+      "slug": "siemens_3RV2031-4RA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6963,7 +6963,7 @@
     {
       "articleId": "3RV2041-4HA10",
       "itemName": "3RV2041-4HA10 Автоматичний вимикач",
-      "slug": "3rv2041-4ha10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2041-4HA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -6983,7 +6983,7 @@
     {
       "articleId": "5SL6103-7",
       "itemName": "5SL6103-7 АВТОМАТИЧНИЙ ВИМИКАЧ",
-      "slug": "5sl6103-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL6103-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7003,7 +7003,7 @@
     {
       "articleId": "5SL6106-6",
       "itemName": "5SL6106-6 Автоматичний вимикач",
-      "slug": "5sl6106-6-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL6106-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7023,7 +7023,7 @@
     {
       "articleId": "5SL6110-7",
       "itemName": "5SL6110-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6110-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL6110-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7043,7 +7043,7 @@
     {
       "articleId": "5SL6110-7-",
       "itemName": "5SL6110-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6110-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6110-7-",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7063,7 +7063,7 @@
     {
       "articleId": "5SL6632-7",
       "itemName": "5SL6632-7 Автоматичний вимикач",
-      "slug": "5sl6632-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL6632-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7083,7 +7083,7 @@
     {
       "articleId": "5SU1154-6KK13",
       "itemName": "5SU1154-6KK13 ПЗО + автомат",
-      "slug": "5su1154-6kk13-pzo-avtomat",
+      "slug": "siemens_5SU1154-6KK13",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7103,7 +7103,7 @@
     {
       "articleId": "5SY6106-6",
       "itemName": "5SY6106-6 Автоматичний вимикач",
-      "slug": "5sy6106-6-avtomatychnyi-vymykach",
+      "slug": "siemens_5SY6106-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7123,7 +7123,7 @@
     {
       "articleId": "A9N26899",
       "itemName": "A9N26899 ДОПОМІЖНИЙ КОНТАКТ OF+SD24",
-      "slug": "a9n26899-dopomizhnyi-kontakt-ofsd24",
+      "slug": "schneider-electric_A9N26899",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7143,7 +7143,7 @@
     {
       "articleId": "A9F74101",
       "itemName": "A9F74101 Автоматичний вимикач iC60N 1P 1A C",
-      "slug": "a9f74101-avtomatychnyi-vymykach-ic60n-1p-1a-c",
+      "slug": "schneider-electric_A9F74101",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7163,7 +7163,7 @@
     {
       "articleId": "A9F74102",
       "itemName": "A9F74102 Автоматичний вимикач iC60N 1P 2A C",
-      "slug": "a9f74102-avtomatychnyi-vymykach-ic60n-1p-2a-c",
+      "slug": "schneider-electric_A9F74102",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7183,7 +7183,7 @@
     {
       "articleId": "A9F74204",
       "itemName": "A9F74204 Автоматичний вимикач iC60N 2P 4A C",
-      "slug": "a9f74204-avtomatychnyi-vymykach-ic60n-2p-4a-c",
+      "slug": "schneider-electric_A9F74204",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7203,7 +7203,7 @@
     {
       "articleId": "A9F78106",
       "itemName": "A9F78106 Автоматичний вимикач iC60N 1P 6A B",
-      "slug": "a9f78106-avtomatychnyi-vymykach-ic60n-1p-6a-b",
+      "slug": "schneider-electric_A9F78106",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7223,7 +7223,7 @@
     {
       "articleId": "A9F78206",
       "itemName": "A9F78206 Автоматичний вимикач iC60N 2P 6A B",
-      "slug": "a9f78206-avtomatychnyi-vymykach-ic60n-2p-6a-b",
+      "slug": "schneider-electric_A9F78206",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7243,7 +7243,7 @@
     {
       "articleId": "A9F79110",
       "itemName": "A9F79110 Автоматичний вимикач iC60N 1P 10A C",
-      "slug": "a9f79110-avtomatychnyi-vymykach-ic60n-1p-10a-c",
+      "slug": "schneider-electric_A9F79110",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7263,7 +7263,7 @@
     {
       "articleId": "A9F79116",
       "itemName": "A9F79116 Автоматичний вимикач iC60N 1P 16A C",
-      "slug": "a9f79116-avtomatychnyi-vymykach-ic60n-1p-16a-c",
+      "slug": "schneider-electric_A9F79116",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7283,7 +7283,7 @@
     {
       "articleId": "A9F79125",
       "itemName": "A9F79125 Автоматичний вимикач iC60N 1P 25A C",
-      "slug": "a9f79125-avtomatychnyi-vymykach-ic60n-1p-25a-c",
+      "slug": "schneider-electric_A9F79125",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7303,7 +7303,7 @@
     {
       "articleId": "A9F79206",
       "itemName": "A9F79206 Автоматичний вимикач iC60N 2P 6A C",
-      "slug": "a9f79206-avtomatychnyi-vymykach-ic60n-2p-6a-c",
+      "slug": "schneider-electric_A9F79206",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7323,7 +7323,7 @@
     {
       "articleId": "A9F79210",
       "itemName": "A9F79210 Автоматичний вимикач iC60N 2P 10A C",
-      "slug": "a9f79210-avtomatychnyi-vymykach-ic60n-2p-10a-c",
+      "slug": "schneider-electric_A9F79210",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7343,7 +7343,7 @@
     {
       "articleId": "A9F79216",
       "itemName": "A9F79216 Автоматичний вимикач iC60N 2P 16A C",
-      "slug": "a9f79216-avtomatychnyi-vymykach-ic60n-2p-16a-c",
+      "slug": "schneider-electric_A9F79216",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7363,7 +7363,7 @@
     {
       "articleId": "A9F79250",
       "itemName": "A9F79250 Автоматичний вимикач iC60N 2P 50A C",
-      "slug": "a9f79250-avtomatychnyi-vymykach-ic60n-2p-50a-c",
+      "slug": "schneider-electric_A9F79250",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7383,7 +7383,7 @@
     {
       "articleId": "A9F79306",
       "itemName": "A9F79306 Автоматичний вимикач iC60N 3P 6A C",
-      "slug": "a9f79306-avtomatychnyi-vymykach-ic60n-3p-6a-c",
+      "slug": "schneider-electric_A9F79306",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7403,7 +7403,7 @@
     {
       "articleId": "A9F79310",
       "itemName": "A9F79310 Автоматичний вимикач iC60N 3P 10A C",
-      "slug": "a9f79310-avtomatychnyi-vymykach-ic60n-3p-10a-c",
+      "slug": "schneider-electric_A9F79310",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7423,7 +7423,7 @@
     {
       "articleId": "A9F79325",
       "itemName": "A9F79325 Автоматичний вимикач iC60N 3P 25A C",
-      "slug": "a9f79325-avtomatychnyi-vymykach-ic60n-3p-25a-c",
+      "slug": "schneider-electric_A9F79325",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7443,7 +7443,7 @@
     {
       "articleId": "A9N26904",
       "itemName": "A9N26904 Допоміжний контакт iOF 100 мА-6 А C60/C120",
-      "slug": "a9n26904-dopomizhnyi-kontakt-iof-100-ma-6-a-c60-c120",
+      "slug": "schneider-electric_A9N26904",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7463,7 +7463,7 @@
     {
       "articleId": "A9N61522",
       "itemName": "A9N61522 Автоматичний вимикач C60H-DC =500В 2А 2Р С",
-      "slug": "a9n61522-avtomatychnyi-vymykach-c60h-dc-500v-2a-2r-s",
+      "slug": "schneider-electric_A9N61522",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7483,7 +7483,7 @@
     {
       "articleId": "A9N61524",
       "itemName": "A9N61524 Автоматичний вимикач C60H-DC =500В 4А 2Р С",
-      "slug": "a9n61524-avtomatychnyi-vymykach-c60h-dc-500v-4a-2r-s",
+      "slug": "schneider-electric_A9N61524",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7503,7 +7503,7 @@
     {
       "articleId": "A9N61531",
       "itemName": "A9N61531 Автоматичний вимикач C60H-DC =500В 16А 2Р С",
-      "slug": "a9n61531-avtomatychnyi-vymykach-c60h-dc-500v-16a-2r-s",
+      "slug": "schneider-electric_A9N61531",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7523,7 +7523,7 @@
     {
       "articleId": "ABLS1A24050",
       "itemName": "ABLS1A24050 БЛОК ЖИВЛЕННЯ ОПТИМІЗОВАНИЙ 1Ф 24В 5A",
-      "slug": "abls1a24050-blok-zhyvlennia-optymizovanyi-1f-24v-5a",
+      "slug": "schneider-electric_ABLS1A24050",
       "brandName": "schneider-electric",
       "categoryName": "Блоки живлення",
       "subcategoryName": null,
@@ -7543,7 +7543,7 @@
     {
       "articleId": "GV2ME08",
       "itemName": "GV2ME08 Автоматичний вимикач 2.5-4",
-      "slug": "gv2me08-avtomatychnyi-vymykach-2.5-4",
+      "slug": "schneider-electric_GV2ME08",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7563,7 +7563,7 @@
     {
       "articleId": "R9F12116",
       "itemName": "R9F12116 Автоматичний вимикач RESI9 6kA 1P 16A C",
-      "slug": "r9f12116-avtomatychnyi-vymykach-resi9-6ka-1p-16a-c",
+      "slug": "schneider-electric_R9F12116",
       "brandName": "schneider-electric",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7583,7 +7583,7 @@
     {
       "articleId": "3RT2916-4MC00",
       "itemName": "3RT2916-4MC00 Контрольний комплект (жовтий)",
-      "slug": "3rt2916-4mc00-kontrolnyi-komplekt-zhovtyi",
+      "slug": "siemens_3RT2916-4MC00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7603,7 +7603,7 @@
     {
       "articleId": "3RT2936-1ER00",
       "itemName": "3RT2936-1ER00 Обмежувач перенапруг",
-      "slug": "3rt2936-1er00-obmezhuvach-perenapruh",
+      "slug": "siemens_3RT2936-1ER00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7623,7 +7623,7 @@
     {
       "articleId": "3RV1011-1GA10",
       "itemName": "3RV1011-1GA10 Автоматичний вимикач",
-      "slug": "3rv1011-1ga10-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV1011-1GA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7643,7 +7643,7 @@
     {
       "articleId": "3LD9221-0A",
       "itemName": "3LD9221-0A Контактна кришка 3-х полюсна для 3LD2 Siemens*",
-      "slug": "3ld9221-0a-kontaktna-kryshka-3-kh-poliusna-dlia-3ld2-siemens",
+      "slug": "siemens_3LD9221-0A",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7663,7 +7663,7 @@
     {
       "articleId": "3NY7131",
       "itemName": "3NY7131 Аксесур для вимикача Siemens*",
-      "slug": "3ny7131-aksesur-dlia-vymykacha-siemens",
+      "slug": "siemens_3NY7131",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7683,7 +7683,7 @@
     {
       "articleId": "3RA2921-2AA00",
       "itemName": "3RA2921-2AA00 З'єднувальний модуль Siemens*",
-      "slug": "3ra2921-2aa00-ziednuvalnyi-modul-siemens",
+      "slug": "siemens_3RA2921-2AA00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7703,7 +7703,7 @@
     {
       "articleId": "3RV1011-0FA10",
       "itemName": "3RV1011-0FA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv1011-0fa10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV1011-0FA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7723,7 +7723,7 @@
     {
       "articleId": "3RV1021-0FA10",
       "itemName": "3RV1021-0FA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv1021-0fa10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV1021-0FA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7743,7 +7743,7 @@
     {
       "articleId": "3RV1021-1DA10",
       "itemName": "3RV1021-1DA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv1021-1da10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV1021-1DA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7763,7 +7763,7 @@
     {
       "articleId": "3RV1021-1DA15",
       "itemName": "3RV1021-1DA15 Автоматичний вимикач Siemens*",
-      "slug": "3rv1021-1da15-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV1021-1DA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7783,7 +7783,7 @@
     {
       "articleId": "3RV1021-1JA10",
       "itemName": "3RV1021-1JA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv1021-1ja10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV1021-1JA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7803,7 +7803,7 @@
     {
       "articleId": "3RV1917-7B",
       "itemName": "3RV1917-7B Монтажна рейка Siemens*",
-      "slug": "3rv1917-7b-montazhna-reika-siemens",
+      "slug": "siemens_3RV1917-7B",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7823,7 +7823,7 @@
     {
       "articleId": "3RV1927-5AA00",
       "itemName": "3RV1927-5AA00 Роз'єм для вимикача 24В Siemens*",
-      "slug": "3rv1927-5aa00-roziem-dlia-vymykacha-24v-siemens",
+      "slug": "siemens_3RV1927-5AA00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7843,7 +7843,7 @@
     {
       "articleId": "3RV2011-0DA10",
       "itemName": "3RV2011-0DA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2011-0da10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2011-0DA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7863,7 +7863,7 @@
     {
       "articleId": "3RV2011-0DA15",
       "itemName": "3RV2011-0DA15 Автоматичний вимикач Siemens*",
-      "slug": "3rv2011-0da15-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2011-0DA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7883,7 +7883,7 @@
     {
       "articleId": "3RV2011-0FA15",
       "itemName": "3RV2011-0FA15 Автоматичний вимикач Siemens*",
-      "slug": "3rv2011-0fa15-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2011-0FA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7903,7 +7903,7 @@
     {
       "articleId": "3RV2011-1BA15",
       "itemName": "3RV2011-1BA15 Автоматичний вимикач*",
-      "slug": "3rv2011-1ba15-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2011-1BA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7923,7 +7923,7 @@
     {
       "articleId": "3RV2011-1CA10",
       "itemName": "3RV2011-1CA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2011-1ca10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2011-1CA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7943,7 +7943,7 @@
     {
       "articleId": "3RV2021-1KA15",
       "itemName": "3RV2021-1KA15 Вимикач SZ S0*",
-      "slug": "3rv2021-1ka15-vymykach-sz-s0",
+      "slug": "siemens_3RV2021-1KA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7963,7 +7963,7 @@
     {
       "articleId": "3RV2021-4DA15",
       "itemName": "3RV2021-4DA15 Автоматичний вимикач Siemens*",
-      "slug": "3rv2021-4da15-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2021-4DA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -7983,7 +7983,7 @@
     {
       "articleId": "3RV2021-4NA15",
       "itemName": "3RV2021-4NA15 Автоматичний вимикач Siemens*",
-      "slug": "3rv2021-4na15-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2021-4NA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8003,7 +8003,7 @@
     {
       "articleId": "3RV2031-4PA10",
       "itemName": "3RV2031-4PA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2031-4pa10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2031-4PA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8023,7 +8023,7 @@
     {
       "articleId": "3RV2031-4TB15",
       "itemName": "3RV2031-4TB15 Автоматичний вимикач*",
-      "slug": "3rv2031-4tb15-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2031-4TB15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8043,7 +8043,7 @@
     {
       "articleId": "3RV2041-4FA10",
       "itemName": "3RV2041-4FA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2041-4fa10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2041-4FA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8063,7 +8063,7 @@
     {
       "articleId": "3RV2041-4MA10",
       "itemName": "3RV2041-4MA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2041-4ma10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2041-4MA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8083,7 +8083,7 @@
     {
       "articleId": "3RV2041-4YA10",
       "itemName": "3RV2041-4YA10 Автоматичний вимикач Siemens*",
-      "slug": "3rv2041-4ya10-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3RV2041-4YA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8103,7 +8103,7 @@
     {
       "articleId": "3RV2041-4YA15",
       "itemName": "3RV2041-4YA15 Автоматичний вимикач*",
-      "slug": "3rv2041-4ya15-avtomatychnyi-vymykach",
+      "slug": "siemens_3RV2041-4YA15",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8123,7 +8123,7 @@
     {
       "articleId": "3RV2917-5D",
       "itemName": "3RV2917-5D Клемний блок для вимикача Siemens*",
-      "slug": "3rv2917-5d-klemnyi-blok-dlia-vymykacha-siemens",
+      "slug": "siemens_3RV2917-5D",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8143,7 +8143,7 @@
     {
       "articleId": "3RV2917-5E",
       "itemName": "3RV2917-5E З'єднувальний розширений елемент Siemens*",
-      "slug": "3rv2917-5e-ziednuvalnyi-rozshyrenyi-element-siemens",
+      "slug": "siemens_3RV2917-5E",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8163,7 +8163,7 @@
     {
       "articleId": "3VF9524-1NB10",
       "itemName": "3VF9524-1NB10 Аксесуар для автоматичного вимикача 3VF5 Siemens*",
-      "slug": "3vf9524-1nb10-aksesuar-dlia-avtomatychnoho-vymykacha-3vf5-siemens",
+      "slug": "siemens_3VF9524-1NB10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8183,7 +8183,7 @@
     {
       "articleId": "3VF9524-1RA10",
       "itemName": "3VF9524-1RA10 Аксесуар для автоматичних вимикачів 3VF4 І 3VF5 Siemens*",
-      "slug": "3vf9524-1ra10-aksesuar-dlia-avtomatychnykh-vymykachiv-3vf4-i-3vf5-siemens",
+      "slug": "siemens_3VF9524-1RA10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8203,7 +8203,7 @@
     {
       "articleId": "3VL9400-3HF05",
       "itemName": "3VL9400-3HF05 Аксесуар для VL400 Siemens*",
-      "slug": "3vl9400-3hf05-aksesuar-dlia-vl400-siemens",
+      "slug": "siemens_3VL9400-3HF05",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8223,7 +8223,7 @@
     {
       "articleId": "3VT1701-2DC36-0AA0",
       "itemName": "3VT1701-2DC36-0AA0 автоматичний вимикач 3vt1*",
-      "slug": "3vt1701-2dc36-0aa0-avtomatychnyi-vymykach-3vt1",
+      "slug": "siemens_3VT1701-2DC36-0AA0",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8243,7 +8243,7 @@
     {
       "articleId": "3VT1705-2DA36-0AA0",
       "itemName": "3VT1705-2DA36-0AA0 Автоматичний вимикач 3VT1*",
-      "slug": "3vt1705-2da36-0aa0-avtomatychnyi-vymykach-3vt1",
+      "slug": "siemens_3VT1705-2DA36-0AA0",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8263,7 +8263,7 @@
     {
       "articleId": "3VT1710-2DC36-0AA0",
       "itemName": "3VT1710-2DC36-0AA0 Автоматичний вимикач Siemens*",
-      "slug": "3vt1710-2dc36-0aa0-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_3VT1710-2DC36-0AA0",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8283,7 +8283,7 @@
     {
       "articleId": "3VT2725-3AA36-0AA0",
       "itemName": "3VT2725-3AA36-0AA0 Автоматичний вимикач 3VT2*",
-      "slug": "3vt2725-3aa36-0aa0-avtomatychnyi-vymykach-3vt2",
+      "slug": "siemens_3VT2725-3AA36-0AA0",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8303,7 +8303,7 @@
     {
       "articleId": "3VT3763-3AA36-0AA0",
       "itemName": "3VT3763-3AA36-0AA0 CIRCUIT Автоматичний вимикач*",
-      "slug": "3vt3763-3aa36-0aa0-circuit-avtomatychnyi-vymykach",
+      "slug": "siemens_3VT3763-3AA36-0AA0",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8323,7 +8323,7 @@
     {
       "articleId": "3VT9100-1SE00",
       "itemName": "3VT9100-1SE00 Додаткове обладнання для VT160*",
-      "slug": "3vt9100-1se00-dodatkove-obladnannia-dlia-vt160",
+      "slug": "siemens_3VT9100-1SE00",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8343,7 +8343,7 @@
     {
       "articleId": "3VT9100-3HE10",
       "itemName": "3VT9100-3HE10 Рукоятка Siemens*",
-      "slug": "3vt9100-3he10-rukoiatka-siemens",
+      "slug": "siemens_3VT9100-3HE10",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8363,7 +8363,7 @@
     {
       "articleId": "3VT9100-8CA30",
       "itemName": "3VT9100-8CA30 Приладдя для вимикача: термінальна кришка Siemens*",
-      "slug": "3vt9100-8ca30-pryladdia-dlia-vymykacha-terminalna-kryshka-siemens",
+      "slug": "siemens_3VT9100-8CA30",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8383,7 +8383,7 @@
     {
       "articleId": "3VT9200-3HB20",
       "itemName": "3VT9200-3HB20 Додаткове обладнання для VT250 Siemens*",
-      "slug": "3vt9200-3hb20-dodatkove-obladnannia-dlia-vt250-siemens",
+      "slug": "siemens_3VT9200-3HB20",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8403,7 +8403,7 @@
     {
       "articleId": "3VT9200-8CB30",
       "itemName": "3VT9200-8CB30 Термінальна кришка до автоматичних вимикачів VT250 Siemens*",
-      "slug": "3vt9200-8cb30-terminalna-kryshka-do-avtomatychnykh-vymykachiv-vt250-siemens",
+      "slug": "siemens_3VT9200-8CB30",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8423,7 +8423,7 @@
     {
       "articleId": "5SL4104-7",
       "itemName": "5SL4104-7 Автоматичний вимикач*",
-      "slug": "5sl4104-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL4104-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8443,7 +8443,7 @@
     {
       "articleId": "5SL4106-7",
       "itemName": "5SL4106-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl4106-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL4106-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8461,7 +8461,7 @@
     {
       "articleId": "5SL4306-6",
       "itemName": "5SL4306-6 Автоматичний вимикач Siemens*",
-      "slug": "5sl4306-6-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL4306-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8481,7 +8481,7 @@
     {
       "articleId": "5SL4310-7",
       "itemName": "5SL4310-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl4310-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL4310-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8501,7 +8501,7 @@
     {
       "articleId": "5SL4320-7",
       "itemName": "5SL4320-7 Автоматичний вимикач*",
-      "slug": "5sl4320-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL4320-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8521,7 +8521,7 @@
     {
       "articleId": "5SL4325-7",
       "itemName": "5SL4325-7 Автоматичний вимикач*",
-      "slug": "5sl4325-7-avtomatychnyi-vymykach",
+      "slug": "siemens_5SL4325-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8541,7 +8541,7 @@
     {
       "articleId": "5SL6101-7",
       "itemName": "5SL6101-7 Лінійний автомат захисту Siemens*",
-      "slug": "5sl6101-7-liniinyi-avtomat-zakhystu-siemens",
+      "slug": "siemens_5SL6101-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8561,7 +8561,7 @@
     {
       "articleId": "5SL6102-7",
       "itemName": "5SL6102-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6102-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6102-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8581,7 +8581,7 @@
     {
       "articleId": "5SL6104-7",
       "itemName": "5SL6104-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6104-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6104-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8601,7 +8601,7 @@
     {
       "articleId": "5SL6120-7",
       "itemName": "5SL6120-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6120-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6120-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8621,7 +8621,7 @@
     {
       "articleId": "5SL6132-7",
       "itemName": "5SL6132-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6132-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6132-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8641,7 +8641,7 @@
     {
       "articleId": "5SL6204-7",
       "itemName": "5SL6204-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6204-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6204-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8661,7 +8661,7 @@
     {
       "articleId": "5SL6306-7",
       "itemName": "5SL6306-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6306-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6306-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8681,7 +8681,7 @@
     {
       "articleId": "5SL6310-7",
       "itemName": "5SL6310-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6310-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6310-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8701,7 +8701,7 @@
     {
       "articleId": "5SL6325-7",
       "itemName": "5SL6325-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6325-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6325-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8721,7 +8721,7 @@
     {
       "articleId": "5SL6332-7",
       "itemName": "5SL6332-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6332-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6332-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8741,7 +8741,7 @@
     {
       "articleId": "5SL6340-7",
       "itemName": "5SL6340-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6340-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6340-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8761,7 +8761,7 @@
     {
       "articleId": "5SL6350-7",
       "itemName": "5SL6350-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6350-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6350-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8781,7 +8781,7 @@
     {
       "articleId": "5SL6363-7",
       "itemName": "5SL6363-7 Автоматичний вимикач Siemens*",
-      "slug": "5sl6363-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SL6363-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8801,7 +8801,7 @@
     {
       "articleId": "5ST3013",
       "itemName": "5ST3013 Блок допоміжних контактів стану 1нв+1нз для малих навантажень*",
-      "slug": "5st3013-blok-dopomizhnykh-kontaktiv-stanu-1nv1nz-dlia-malykh-navantazhen",
+      "slug": "siemens_5ST3013",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8821,7 +8821,7 @@
     {
       "articleId": "5ST3601",
       "itemName": "5ST3601 Збірна шина штифтового типу Siemens*",
-      "slug": "5st3601-zbirna-shyna-shtyftovoho-typu-siemens",
+      "slug": "siemens_5ST3601",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8841,7 +8841,7 @@
     {
       "articleId": "5SX2201-7",
       "itemName": "5SX2201-7 Автоматичний вимикач Siemens*",
-      "slug": "5sx2201-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SX2201-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8861,7 +8861,7 @@
     {
       "articleId": "5SX2203-7",
       "itemName": "5SX2203-7 Автоматичний вимикач Siemens*",
-      "slug": "5sx2203-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SX2203-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8881,7 +8881,7 @@
     {
       "articleId": "5SY4102-7",
       "itemName": "5SY4102-7 Автоматичний вимикач Siemens*",
-      "slug": "5sy4102-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4102-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8901,7 +8901,7 @@
     {
       "articleId": "5SY4201-7",
       "itemName": "5SY4201-7 Автоматичний вимикач Siemens*",
-      "slug": "5sy4201-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4201-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8921,7 +8921,7 @@
     {
       "articleId": "5SY4202-7",
       "itemName": "5SY4202-7 Автоматичний вимикач Siemens*",
-      "slug": "5sy4202-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4202-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8941,7 +8941,7 @@
     {
       "articleId": "5SY4202-8",
       "itemName": "5SY4202-8 Автоматичний вимикач Siemens*",
-      "slug": "5sy4202-8-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4202-8",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8961,7 +8961,7 @@
     {
       "articleId": "5SY4203-7",
       "itemName": "5SY4203-7 Автоматичний вимикач Siemens*",
-      "slug": "5sy4203-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4203-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -8981,7 +8981,7 @@
     {
       "articleId": "5SY4203-8",
       "itemName": "5SY4203-8 Автоматичний вимикач Siemens*",
-      "slug": "5sy4203-8-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4203-8",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9001,7 +9001,7 @@
     {
       "articleId": "5SY4204-8",
       "itemName": "5SY4204-8 Автоматичний вимикач Siemens*",
-      "slug": "5sy4204-8-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4204-8",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9021,7 +9021,7 @@
     {
       "articleId": "5SY4213-7",
       "itemName": "5SY4213-7 Мініатюрний вимикач Siemens*",
-      "slug": "5sy4213-7-miniatiurnyi-vymykach-siemens",
+      "slug": "siemens_5SY4213-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9041,7 +9041,7 @@
     {
       "articleId": "5SY4301-7",
       "itemName": "5SY4301-7 Автоматичний вимикач Siemens*",
-      "slug": "5sy4301-7-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY4301-7",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9061,7 +9061,7 @@
     {
       "articleId": "5SY5102-6",
       "itemName": "5SY5102-6 Автоматичний вимикач Siemens*",
-      "slug": "5sy5102-6-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY5102-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9081,7 +9081,7 @@
     {
       "articleId": "5SY5110-6",
       "itemName": "5SY5110-6 Автоматичний вимикач Siemens*",
-      "slug": "5sy5110-6-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY5110-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9101,7 +9101,7 @@
     {
       "articleId": "5SY5113-6",
       "itemName": "5SY5113-6 Автоматичний вимикач Siemens*",
-      "slug": "5sy5113-6-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY5113-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9121,7 +9121,7 @@
     {
       "articleId": "5SY5206-6",
       "itemName": "5SY5206-6 Автоматичний вимикач Siemens*",
-      "slug": "5sy5206-6-avtomatychnyi-vymykach-siemens",
+      "slug": "siemens_5SY5206-6",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9141,7 +9141,7 @@
     {
       "articleId": "5TE6800",
       "itemName": "5TE6800 Розетка 16А*",
-      "slug": "5te6800-rozetka-16a",
+      "slug": "siemens_5TE6800",
       "brandName": "siemens",
       "categoryName": "Апаратура захисту",
       "subcategoryName": null,
@@ -9161,7 +9161,7 @@
     {
       "articleId": "6EP1321-1LD00",
       "itemName": "6EP1321-1LD00 Регульований блок живлення Siemens*",
-      "slug": "6ep1321-1ld00-rehulovanyi-blok-zhyvlennia-siemens",
+      "slug": "siemens_6EP1321-1LD00",
       "brandName": "siemens",
       "categoryName": "Блоки живлення",
       "subcategoryName": null,
@@ -9181,7 +9181,7 @@
     {
       "articleId": "6EP1536-2AA00",
       "itemName": "6EP1536-2AA00 Модульний блок живлення Siemens*",
-      "slug": "6ep1536-2aa00-modulnyi-blok-zhyvlennia-siemens",
+      "slug": "siemens_6EP1536-2AA00",
       "brandName": "siemens",
       "categoryName": "Блоки живлення",
       "subcategoryName": null,
@@ -9201,7 +9201,7 @@
     {
       "articleId": "6EP4135-0GB00-0AY0",
       "itemName": "6EP4135-0GB00-0AY0 Акумуляторний модуль SITOP Siemens*",
-      "slug": "6ep4135-0gb00-0ay0-akumuliatornyi-modul-sitop-siemens",
+      "slug": "siemens_6EP4135-0GB00-0AY0",
       "brandName": "siemens",
       "categoryName": "Блоки живлення",
       "subcategoryName": null,
@@ -9221,7 +9221,7 @@
     {
       "articleId": "3RT2018-1AP01",
       "itemName": "3RT2018-1AP01 Контактор",
-      "slug": "3rt2018-1ap01-kontaktor",
+      "slug": "siemens_3RT2018-1AP01",
       "brandName": "siemens",
       "categoryName": "Низьковольтні компоненти",
       "subcategoryName": "Комутаційне обладнання/Контактори",

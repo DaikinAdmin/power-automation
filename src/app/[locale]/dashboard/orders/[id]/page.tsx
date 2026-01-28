@@ -13,6 +13,7 @@ import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/
 type OrderLineItem = {
   itemId: string;
   articleId: string;
+  slug: string;
   name: string;
   quantity: number;
   unitPrice?: number | null;
@@ -227,7 +228,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
                 Order Items ({order.lineItems.length})

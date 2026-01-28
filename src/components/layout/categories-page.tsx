@@ -387,8 +387,8 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                         : null;
 
                       const cartItem: Omit<CartItemType, "quantity"> = {
-                        id: `${item.articleId}-${warehouseId}`,
-                        slug: item.articleId,
+                        id: `${item.slug}-${warehouseId}`,
+                        slug: item.slug,
                         alias: null,
                         articleId: item.articleId,
                         itemImageLink: item.itemImageLink,
@@ -434,7 +434,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                           {
                             ...item.details,
                             id: item.articleId,
-                            itemSlug: item.articleId,
+                            itemSlug: item.slug,
                           },
                         ] as any,
                         itemPrice: item.prices as any,
