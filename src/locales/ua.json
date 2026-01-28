@@ -78,6 +78,15 @@
     "priceHigh": "Ціна: Висока",
     "name": "Назва",
     "view": "Вигляд:",
+    "viewMode": {
+      "grid": "Сітка",
+      "list": "Список"
+    },
+    "priceFilter": {
+      "label": "Ціна",
+      "from": "Від",
+      "to": "До"
+    },
     "filters": {
       "title": "Фільтри",
       "categories": "Категорії",

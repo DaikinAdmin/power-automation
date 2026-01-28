@@ -9,6 +9,10 @@ interface UseCategoryDataParams {
     warehouse?: string[];
     subcategory?: string[];
   };
+  pagination?: {
+    page?: number;
+    limit?: number;
+  };
 }
 
 interface Category {
@@ -40,18 +44,28 @@ interface UseCategoryDataReturn {
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
+  pagination?: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 export function useCategoryData({
   locale,
   categorySlug,
   filters,
+  pagination,
 }: UseCategoryDataParams): UseCategoryDataReturn {
   const [items, setItems] = useState<ItemResponse[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name: string; slug: string }[]>([]);
+  const [paginationMeta, setPaginationMeta] = useState<UseCategoryDataReturn['pagination']>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -65,6 +79,8 @@ export function useCategoryData({
       filters?.brand?.forEach(b => params.append('brand', b));
       filters?.warehouse?.forEach(w => params.append('warehouse', w));
       filters?.subcategory?.forEach(s => params.append('subcategory', s));
+      if (pagination?.page) params.append('page', pagination.page.toString());
+      if (pagination?.limit) params.append('limit', pagination.limit.toString());
       
       const queryString = params.toString();
       
@@ -77,7 +93,15 @@ export function useCategoryData({
       
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json();
-        setItems(itemsData);
+        // Check if response is paginated (has items and pagination properties)
+        if (itemsData.items && itemsData.pagination) {
+          setItems(itemsData.items);
+          setPaginationMeta(itemsData.pagination);
+        } else {
+          // Fallback for non-paginated responses
+          setItems(itemsData);
+          setPaginationMeta(undefined);
+        }
       }
 
       // Fetch all items for extracting categories, brands, and warehouses
@@ -156,7 +180,7 @@ export function useCategoryData({
     } finally {
       setIsLoading(false);
     }
-  }, [locale, categorySlug, JSON.stringify(filters)]);
+  }, [locale, categorySlug, JSON.stringify(filters), JSON.stringify(pagination)]);
 
   useEffect(() => {
     fetchData();
@@ -171,5 +195,6 @@ export function useCategoryData({
     isLoading,
     error,
     refetch: fetchData,
+    pagination: paginationMeta,
   };
 }

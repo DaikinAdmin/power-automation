@@ -16,6 +16,7 @@ import { CategorySidebar } from "@/components/category/category-sidebar";
 import { ProductsGrid } from "@/components/category/products-grid";
 import { MobileFilterDrawer } from "@/components/category/mobile-filter-drawer";
 import { SubcategoryFilter } from "@/components/category/subcategory-filter";
+import { Pagination } from "@/components/category/pagination";
 import { useTranslations } from "next-intl";
 
 export default function CategoryPage({
@@ -40,6 +41,8 @@ export default function CategoryPage({
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(16);
 
   const {
     viewMode,
@@ -70,6 +73,7 @@ export default function CategoryPage({
     warehouses,
     subcategories,
     isLoading,
+    pagination,
   } = useCategoryData({
     locale,
     categorySlug: slug,
@@ -77,6 +81,10 @@ export default function CategoryPage({
       brand: urlBrands,
       warehouse: urlWarehouses,
       subcategory: urlSubcategories,
+    },
+    pagination: {
+      page: currentPage,
+      limit: pageSize,
     },
   });
 
@@ -107,6 +115,7 @@ export default function CategoryPage({
       : [...urlSubcategories, subcategorySlug];
     
     updateURLParams('subcategory', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Update handlers to work with URL
@@ -116,6 +125,7 @@ export default function CategoryPage({
       : urlBrands.filter(b => b !== brand);
     
     updateURLParams('brand', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleWarehouseSelectionWithURL = (warehouseId: string, checked: boolean) => {
@@ -124,6 +134,19 @@ export default function CategoryPage({
       : urlWarehouses.filter(w => w !== warehouseId);
     
     updateURLParams('warehouse', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  // Handler for page size change
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  // Handler for page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
@@ -202,11 +225,13 @@ export default function CategoryPage({
             {/* Category Header */}
             <CategoryHeader
               categoryName={getOriginalCategoryName()}
-              productsCount={sortedItems.length}
+              productsCount={pagination?.totalItems || sortedItems.length}
               sortBy={sortBy}
               setSortBy={setSortBy}
               viewMode={viewMode}
               setViewMode={setViewMode}
+              pageSize={pageSize}
+              setPageSize={handlePageSizeChange}
             />
 
             {isLoading ? (
@@ -345,6 +370,17 @@ export default function CategoryPage({
                       addToCart(cartItem);
                     }}
                   />
+                  
+                  {/* Pagination Controls */}
+                  {pagination && pagination.totalPages > 1 && (
+                    <Pagination
+                      currentPage={pagination.page}
+                      totalPages={pagination.totalPages}
+                      onPageChange={handlePageChange}
+                      hasNextPage={pagination.hasNextPage}
+                      hasPreviousPage={pagination.hasPreviousPage}
+                    />
+                  )}
                 </div>
               </div>
             )}

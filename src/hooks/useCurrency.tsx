@@ -1,11 +1,12 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { convertPriceValue, detectCurrencyFromLocale, getLocaleForCurrency, SupportedCurrency } from '@/helpers/currency';
+import { convertPriceValue, detectCurrencyFromLocale, getCurrencySymbol, getLocaleForCurrency, SupportedCurrency } from '@/helpers/currency';
 
 interface CurrencyContextValue {
   baseCurrency: SupportedCurrency;
   currencyCode: SupportedCurrency;
+  currencySymbol: string;
   exchangeRate: number;
   convertPrice: (baseValue: number) => number;
   formatPrice: (value: number) => string;
@@ -93,6 +94,7 @@ export const CurrencyProvider = ({ children }: { children: React.ReactNode }) =>
     () => ({
       baseCurrency: BASE_CURRENCY,
       currencyCode,
+      currencySymbol: getCurrencySymbol(currencyCode),
       exchangeRate,
       convertPrice,
       formatPrice,

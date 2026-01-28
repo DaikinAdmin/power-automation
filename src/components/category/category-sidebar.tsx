@@ -133,8 +133,8 @@ export function CategorySidebar({
             value={viewMode}
             onChange={(e) => setViewMode(e.target.value as "grid" | "list")}
           >
-            <option value="grid">Сітка</option>
-            <option value="list">Список</option>
+            <option value="grid">{t("viewMode.grid")}</option>
+            <option value="list">{t("viewMode.list")}</option>
           </select>
         </div>
       </div>

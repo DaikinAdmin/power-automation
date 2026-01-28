@@ -9,6 +9,8 @@ interface CategoryHeaderProps {
   setSortBy: (value: string) => void;
   viewMode: "grid" | "list";
   setViewMode: (value: "grid" | "list") => void;
+  pageSize: number;
+  setPageSize: (value: number) => void;
 }
 
 export function CategoryHeader({
@@ -18,8 +20,14 @@ export function CategoryHeader({
   setSortBy,
   viewMode,
   setViewMode,
+  pageSize,
+  setPageSize,
 }: CategoryHeaderProps) {
   const t = useTranslations("categories");
+
+  // Grid view: 8, 16, 32, 64 (optimized for 4 items per row)
+  // List view: 10, 20, 50, 100
+  const pageSizeOptions = viewMode === "grid" ? [8, 16, 32, 64] : [10, 20, 50, 100];
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
@@ -120,6 +128,22 @@ export function CategoryHeader({
             <List className="h-4 w-4" />
           </Button>
         </div>
+      </div>
+
+      {/* Page Size Selector - Desktop Only */}
+      <div className="hidden md:flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-700">Items per page</span>
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          className="border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+        >
+          {pageSizeOptions.map((size) => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );

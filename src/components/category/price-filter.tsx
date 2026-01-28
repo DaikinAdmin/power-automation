@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useCurrency } from "@/hooks/useCurrency";
 
 interface PriceFilterProps {
   min: number;
@@ -15,6 +17,8 @@ export default function PriceFilter({
   value,
   onChange,
 }: PriceFilterProps) {
+  const t = useTranslations("categories");
+  const { currencySymbol } = useCurrency();
   const [minVal, setMinVal] = useState(value[0]);
   const [maxVal, setMaxVal] = useState(value[1]);
 
@@ -56,12 +60,12 @@ export default function PriceFilter({
 
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <h3 className="mb-4 text-sm font-semibold text-gray-900">Ціна</h3>
+      <h3 className="mb-4 text-sm font-semibold text-gray-900">{t("priceFilter.label")}</h3>
 
       {/* Inputs */}
       <div className="mb-6 flex gap-2">
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs text-gray-500">Від</label>
+          <label className="text-xs text-gray-500">{t("priceFilter.from")}</label>
           <input
             type="number"
             value={minVal}
@@ -73,7 +77,7 @@ export default function PriceFilter({
         </div>
 
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs text-gray-500">До</label>
+          <label className="text-xs text-gray-500">{t("priceFilter.to")}</label>
           <input
             type="number"
             value={maxVal}
@@ -123,8 +127,8 @@ export default function PriceFilter({
 
       {/* Price Range Display */}
       <div className="mt-3 flex justify-between text-xs text-gray-500">
-        <span>{minVal.toLocaleString()} ₴</span>
-        <span>{maxVal.toLocaleString()} ₴</span>
+        <span>{minVal.toLocaleString()} {currencySymbol}</span>
+        <span>{maxVal.toLocaleString()} {currencySymbol}</span>
       </div>
     </div>
   );

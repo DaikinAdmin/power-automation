@@ -33,6 +33,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
+  const [pageSize, setPageSize] = useState(16);
 
   const {
     viewMode,
@@ -177,6 +178,8 @@ export default function CategoriesPage({ locale }: { locale: string }) {
               setSortBy={setSortBy}
               viewMode={viewMode}
               setViewMode={setViewMode}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
             />
 
             {isLoading ? (

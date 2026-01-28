@@ -78,6 +78,15 @@
     "priceHigh": "Precio: Alto",
     "name": "Nombre",
     "view": "Vista:",
+    "viewMode": {
+      "grid": "Cuadrícula",
+      "list": "Lista"
+    },
+    "priceFilter": {
+      "label": "Precio",
+      "from": "Desde",
+      "to": "Hasta"
+    },
     "filters": {
       "categories": "Categorías",
       "brands": "Marcas",

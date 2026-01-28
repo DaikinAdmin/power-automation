@@ -29,6 +29,15 @@ export const getLocaleForCurrency = (currency: SupportedCurrency): string => {
   return localeCurrencyMap[currency] ?? localeCurrencyMap.EUR;
 };
 
+export const getCurrencySymbol = (currency: SupportedCurrency): string => {
+  const symbolMap: Record<SupportedCurrency, string> = {
+    EUR: '€',
+    PLN: 'zł',
+    UAH: '₴',
+  };
+  return symbolMap[currency] ?? '€';
+};
+
 export const convertPriceValue = (value: number, exchangeRate: number): number => {
   const converted = value * exchangeRate;
   if (!Number.isFinite(converted)) {

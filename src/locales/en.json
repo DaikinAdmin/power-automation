@@ -78,6 +78,15 @@
     "priceHigh": "Price: High",
     "name": "Name",
     "view": "View:",
+    "viewMode": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "priceFilter": {
+      "label": "Price",
+      "from": "From",
+      "to": "To"
+    },
     "filters": {
       "categories": "Categories",
       "brands": "Brands",

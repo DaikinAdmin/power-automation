@@ -78,6 +78,15 @@
     "priceHigh": "Cena: Wysokie",
     "name": "Nazwa",
     "view": "Widok:",
+    "viewMode": {
+      "grid": "Siatka",
+      "list": "Lista"
+    },
+    "priceFilter": {
+      "label": "Cena",
+      "from": "Od",
+      "to": "Do"
+    },
     "filters": {
       "categories": "Kategorie",
       "brands": "Marki",
