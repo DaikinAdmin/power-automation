@@ -132,7 +132,7 @@ export function CategoryHeader({
 
       {/* Page Size Selector - Desktop Only */}
       <div className="hidden md:flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">Items per page</span>
+        <span className="text-sm font-medium text-gray-700">{t("itemsPerPage")}</span>
         <select
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}

@@ -15,6 +15,7 @@ import { CategoryHeader } from '@/components/category/category-header';
 import { CategorySidebar } from '@/components/category/category-sidebar';
 import { ProductsGrid } from '@/components/category/products-grid';
 import { MobileFilterDrawer } from '@/components/category/mobile-filter-drawer';
+import { Pagination } from '@/components/category/pagination';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
@@ -34,6 +35,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [pageSize, setPageSize] = useState(16);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     viewMode,
@@ -98,6 +100,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlBrands.filter(b => b !== brand);
     
     updateURLParams('brand', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleWarehouseSelectionWithURL = (warehouseId: string, checked: boolean) => {
@@ -106,6 +109,19 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlWarehouses.filter(w => w !== warehouseId);
     
     updateURLParams('warehouse', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  // Handler for page size change
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  // Handler for page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
@@ -158,6 +174,20 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       }
     });
 
+  // Apply pagination
+  const totalItems = sortedItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedItems = sortedItems.slice(startIndex, endIndex);
+
+  // Reset to page 1 if current page is out of bounds
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
   return (
     <PageLayout>
       <div className="min-h-screen bg-gray-50">
@@ -173,13 +203,13 @@ export default function CategoriesPage({ locale }: { locale: string }) {
             {/* Category Header */}
             <CategoryHeader
               categoryName={searchQuery ? t('searchResults') : t('pageTitle')}
-              productsCount={sortedItems.length}
+              productsCount={totalItems}
               sortBy={sortBy}
               setSortBy={setSortBy}
               viewMode={viewMode}
               setViewMode={setViewMode}
               pageSize={pageSize}
-              setPageSize={setPageSize}
+              setPageSize={handlePageSizeChange}
             />
 
             {isLoading ? (
@@ -339,7 +369,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                 {/* Products Grid/List */}
                 <div className="lg:col-span-3">
                   <ProductsGrid
-                    items={sortedItems}
+                    items={paginatedItems}
                     viewMode={viewMode}
                     getItemDetails={getItemDetails}
                     getItemPrice={getItemPrice}
@@ -418,6 +448,17 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       addToCart(cartItem);
                     }}
                   />
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      hasNextPage={currentPage < totalPages}
+                      hasPreviousPage={currentPage > 1}
+                    />
+                  )}
                 </div>
               </div>
             )}

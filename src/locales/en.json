@@ -78,6 +78,7 @@
     "priceHigh": "Price: High",
     "name": "Name",
     "view": "View:",
+    "itemsPerPage": "Items per page",
     "viewMode": {
       "grid": "Grid",
       "list": "List"

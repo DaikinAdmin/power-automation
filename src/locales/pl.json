@@ -78,6 +78,7 @@
     "priceHigh": "Cena: Wysokie",
     "name": "Nazwa",
     "view": "Widok:",
+    "itemsPerPage": "Produktów na stronę",
     "viewMode": {
       "grid": "Siatka",
       "list": "Lista"

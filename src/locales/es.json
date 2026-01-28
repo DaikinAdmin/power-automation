@@ -78,6 +78,7 @@
     "priceHigh": "Precio: Alto",
     "name": "Nombre",
     "view": "Vista:",
+    "itemsPerPage": "Productos por página",
     "viewMode": {
       "grid": "Cuadrícula",
       "list": "Lista"
