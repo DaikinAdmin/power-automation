@@ -21,6 +21,7 @@ interface MobileFilterDrawerProps {
   maxPrice: number;
   priceRange: [number, number];
   onPriceChange: (range: [number, number]) => void;
+  totalItems: number;
 }
 
 export function MobileFilterDrawer({
@@ -36,6 +37,7 @@ export function MobileFilterDrawer({
   maxPrice,
   priceRange,
   onPriceChange,
+  totalItems,
 }: MobileFilterDrawerProps) {
   const t = useTranslations("categories");
 
@@ -61,12 +63,14 @@ export function MobileFilterDrawer({
           {/* Filters Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {/* Price Filter */}
-            <PriceFilter
-              min={minPrice}
-              max={maxPrice}
-              value={priceRange}
-              onChange={onPriceChange}
-            />
+            {totalItems > 1 && (
+              <PriceFilter
+                min={minPrice}
+                max={maxPrice}
+                value={priceRange}
+                onChange={onPriceChange}
+              />
+            )}
 
             {/* Brands */}
             {brands.length > 0 && (

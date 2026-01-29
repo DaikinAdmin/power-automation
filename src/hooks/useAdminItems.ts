@@ -24,6 +24,7 @@ interface UseAdminItemsParams {
   searchTerm: string;
   selectedBrand: string;
   selectedCategory: string;
+  hideHidden?: boolean;
 }
 
 interface UseAdminItemsReturn {
@@ -41,6 +42,7 @@ export function useAdminItems({
   searchTerm,
   selectedBrand,
   selectedCategory,
+  hideHidden = false,
 }: UseAdminItemsParams): UseAdminItemsReturn {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +78,7 @@ export function useAdminItems({
       if (searchTerm) params.set('search', searchTerm);
       if (selectedBrand) params.set('brand', selectedBrand);
       if (selectedCategory) params.set('category', selectedCategory);
+      if (hideHidden) params.set('hideHidden', 'true');
       
       // Include ETag in request headers if we have one
       const headers: HeadersInit = {};

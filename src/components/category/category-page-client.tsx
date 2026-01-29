@@ -134,6 +134,7 @@ export function CategoryPageClient({
   };
 
   // Calculate min/max prices from items
+  // Category page always shows filtered items (by category), so use actual min/max
   const { minPrice, maxPrice } = useMemo(() => {
     if (initialData.items.length === 0) {
       return { minPrice: 0, maxPrice: 100000 };
@@ -288,6 +289,7 @@ export function CategoryPageClient({
           maxPrice={maxPrice}
           priceRange={priceRange}
           onPriceChange={setPriceRange}
+          totalItems={initialData.items.length}
         />
 
         {/* Products Grid/List */}
@@ -338,6 +340,7 @@ export function CategoryPageClient({
         maxPrice={maxPrice}
         priceRange={priceRange}
         onPriceChange={setPriceRange}
+        totalItems={initialData.items.length}
       />
     </>
   );

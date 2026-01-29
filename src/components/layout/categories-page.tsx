@@ -125,13 +125,17 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
-  const minPrice = items.length > 0
+  // If no filters are applied, use full range (0 to 100000)
+  // If filters are applied, use actual min/max from filtered items
+  const hasActiveFilters = urlBrands.length > 0 || urlWarehouses.length > 0 || searchQuery !== '';
+  
+  const minPrice = hasActiveFilters && items.length > 0
     ? Math.floor(Math.min(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
         return convertPrice(price);
       })))
     : 0;
-  const maxPrice = items.length > 0
+  const maxPrice = hasActiveFilters && items.length > 0
     ? Math.ceil(Math.max(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
         return convertPrice(price);
@@ -479,6 +483,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
           maxPrice={maxPrice}
           priceRange={priceRange}
           onPriceChange={setPriceRange}
+          totalItems={items.length}
         />
       </div>
     </PageLayout>

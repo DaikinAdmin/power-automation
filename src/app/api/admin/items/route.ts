@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = searchParams.get('search') || '';
     const brandFilter = searchParams.get('brand') || '';
     const categoryFilter = searchParams.get('category') || '';
+    const hideHidden = searchParams.get('hideHidden') === 'true';
     
     logger.info('Fetching items (admin)', { 
       userId: session.user.id, 
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
       pageSize,
       searchTerm,
       brandFilter,
-      categoryFilter
+      categoryFilter,
+      hideHidden
     });
 
     // Build WHERE conditions for filtering
@@ -53,6 +55,10 @@ export async function GET(request: NextRequest) {
     
     if (categoryFilter) {
       conditions.push(eq(schema.item.categorySlug, categoryFilter));
+    }
+    
+    if (hideHidden) {
+      conditions.push(eq(schema.item.isDisplayed, true));
     }
     
     if (searchTerm) {

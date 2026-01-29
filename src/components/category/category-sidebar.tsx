@@ -43,6 +43,7 @@ interface CategorySidebarProps {
   maxPrice: number;
   priceRange: [number, number];
   onPriceChange: (range: [number, number]) => void;
+  totalItems: number;
 }
 
 export function CategorySidebar({
@@ -68,6 +69,7 @@ export function CategorySidebar({
   maxPrice,
   priceRange,
   onPriceChange,
+  totalItems,
 }: CategorySidebarProps) {
   const t = useTranslations("categories");
 
@@ -140,14 +142,16 @@ export function CategorySidebar({
       </div>
 
       {/* Price Filter (Desktop Only) */}
-      <div className="hidden md:block">
-        <PriceFilter
-          min={minPrice}
-          max={maxPrice}
-          value={priceRange}
-          onChange={onPriceChange}
-        />
-      </div>
+      {totalItems > 1 && (
+        <div className="hidden md:block">
+          <PriceFilter
+            min={minPrice}
+            max={maxPrice}
+            value={priceRange}
+            onChange={onPriceChange}
+          />
+        </div>
+      )}
 
       {/* Brands Filter (Desktop Only) */}
       {brands.length > 0 && (

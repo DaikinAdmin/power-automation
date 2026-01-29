@@ -25,6 +25,7 @@ export default function ItemsPage() {
   const [searchTerm, setSearchTerm] = useState(''); // Actual search term sent to API
   const [selectedBrand, setSelectedBrand] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [hideHidden, setHideHidden] = useState(false);
   
   // Server-side pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +51,7 @@ export default function ItemsPage() {
     searchTerm,
     selectedBrand,
     selectedCategory,
+    hideHidden,
   });
 
   // Debounce search input - only search after user stops typing for 500ms and has 3+ chars
@@ -71,7 +73,7 @@ export default function ItemsPage() {
   useEffect(() => {
     setSelectedItems(new Set());
     setSelectAllMode('none');
-  }, [selectedBrand, selectedCategory, currentPage]);
+  }, [selectedBrand, selectedCategory, currentPage, hideHidden]);
 
   // Selection handlers
   const handleSelectAll = () => {
@@ -474,7 +476,7 @@ export default function ItemsPage() {
               )}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
                 <select
@@ -514,6 +516,33 @@ export default function ItemsPage() {
               </div>
               
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hide Hidden</label>
+                <button
+                  onClick={() => {
+                    setHideHidden(!hideHidden);
+                    setCurrentPage(1);
+                  }}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center gap-2 ${
+                    hideHidden
+                      ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {hideHidden ? (
+                    <>
+                      <Eye className="w-4 h-4" />
+                      <span>Visible Only</span>
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-4 h-4" />
+                      <span>Show All</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Items per page</label>
                 <select
                   value={pageSize}
@@ -532,7 +561,7 @@ export default function ItemsPage() {
               </div>
             </div>
             
-            {(searchTerm || selectedBrand || selectedCategory) && (
+            {(searchTerm || selectedBrand || selectedCategory || hideHidden) && (
               <Button
                 variant="outline"
                 size="sm"
@@ -541,6 +570,7 @@ export default function ItemsPage() {
                   setSearchTerm('');
                   setSelectedBrand('');
                   setSelectedCategory('');
+                  setHideHidden(false);
                   setCurrentPage(1);
                 }}
                 className="text-gray-600"
