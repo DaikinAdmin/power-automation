@@ -172,6 +172,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
 
     return {
       articleId: item.articleId,
+      slug: item.slug,
       isDisplayed: item.isDisplayed,
       sellCounter: item.sellCounter,
       itemImageLink: item.itemImageLink || [],
