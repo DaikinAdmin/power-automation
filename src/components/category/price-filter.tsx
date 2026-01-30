@@ -90,7 +90,7 @@ export default function PriceFilter({
       </div>
 
       {/* Dual Range Slider */}
-      <div className="relative h-6 px-1">
+      <div className="relative h-6 px-1 overflow-hidden">
         {/* Background Track */}
         <div className="absolute top-1/2 h-1.5 w-full -translate-y-1/2 rounded-full bg-gray-200" />
 

@@ -414,9 +414,16 @@ async function orderHandler(body: any, userId: string) {
       (price: { warehouse: any }) => price.warehouse?.id === cartItem.warehouseId
     );
 
-    if (!itemPrice || !itemPrice.warehouse || itemPrice.quantity < cartItem.quantity) {
+    if (!itemPrice || !itemPrice.warehouse) {
       return NextResponse.json(
-        { error: `Insufficient stock for item ${cartItem.name}` },
+        { error: `Item ${cartItem.name} not available in selected warehouse` },
+        { status: 400 }
+      );
+    }
+
+    if (itemPrice.quantity < cartItem.quantity) {
+      return NextResponse.json(
+        { error: `Insufficient stock for item ${cartItem.name}. Available: ${itemPrice.quantity}, Requested: ${cartItem.quantity}` },
         { status: 400 }
       );
     }

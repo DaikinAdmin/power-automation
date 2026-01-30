@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCart } from "@/components/cart-context";
 import { CartItemType } from "@/helpers/types/item";
@@ -140,16 +140,27 @@ export function CategoryPageClient({
       return { minPrice: 0, maxPrice: 100000 };
     }
     
-    const prices = initialData.items.map(item => {
-      const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-      return convertPrice(price);
-    });
+    const prices = initialData.items
+      .map(item => {
+        const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+        return convertPrice(price);
+      })
+      .filter(price => price > 0); // Filter out zero prices
+    
+    if (prices.length === 0) {
+      return { minPrice: 0, maxPrice: 100000 };
+    }
     
     return {
       minPrice: Math.floor(Math.min(...prices)),
       maxPrice: Math.ceil(Math.max(...prices)),
     };
   }, [initialData.items, convertPrice]);
+
+  // Sync priceRange state with calculated min/max prices
+  useEffect(() => {
+    setPriceRange([minPrice, maxPrice]);
+  }, [minPrice, maxPrice]);
 
   // Client-side price filtering and sorting
   const sortedItems = useMemo(() => {
