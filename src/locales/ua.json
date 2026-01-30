@@ -399,5 +399,10 @@
       "weekdays": "Пн-Пт: 9:00-18:00",
       "saturday": "Сб: 9:00-16:00"
     }
+  },
+  "errors": {
+    "insufficientStock": "Недостатня кількість товару {itemName}. Доступно: {available}, Замовлено: {requested}",
+    "itemNotAvailable": "Товар {itemName} недоступний у обраному складі",
+    "itemNotFound": "Товар {articleId} не знайдено"
   }
 }

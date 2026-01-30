@@ -6,6 +6,7 @@ import { eq, desc, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
+import { getTranslations } from 'next-intl/server';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -144,6 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const locale = body.locale || 'en';
     
     logger.info('Creating order', { 
       userId, 
@@ -153,7 +155,7 @@ export async function POST(request: NextRequest) {
     if (body.isPriceRequest) {
       return priceRequestHandler(body, userId!);
     } else {
-      return orderHandler(body, userId!);
+      return orderHandler(body, userId!, locale);
     }
   } catch (error) {
     return apiErrorHandler(error, request, {
@@ -304,7 +306,9 @@ async function priceRequestHandler(body: any, userId: string) {
   });
 }
 
-async function orderHandler(body: any, userId: string) {
+async function orderHandler(body: any, userId: string, locale: string = 'en') {
+  const t = await getTranslations({ locale, namespace: 'errors' });
+  
   const {
     cartItems,
     totalPrice,
@@ -350,7 +354,7 @@ async function orderHandler(body: any, userId: string) {
       const [itemDetails, itemPrices] = await Promise.all([
         db.select({ itemName: schema.itemDetails.itemName, locale: schema.itemDetails.locale })
           .from(schema.itemDetails)
-          .where(eq(schema.itemDetails.itemSlug, item.articleId))
+          .where(eq(schema.itemDetails.itemSlug, item.slug))
           .limit(1),
         db.select({
           id: schema.itemPrice.id,
@@ -363,7 +367,7 @@ async function orderHandler(body: any, userId: string) {
         })
           .from(schema.itemPrice)
           .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-          .where(eq(schema.itemPrice.itemSlug, item.articleId)),
+          .where(eq(schema.itemPrice.itemSlug, item.slug)),
       ]);
 
       return {
@@ -405,7 +409,7 @@ async function orderHandler(body: any, userId: string) {
     const dbItem = dbItemsWithRelations.find((item: { articleId: string }) => item.articleId === cartArticleId);
     if (!dbItem) {
       return NextResponse.json(
-        { error: `Item ${cartArticleId} not found` },
+        { error: t('itemNotFound', { articleId: cartArticleId }) },
         { status: 404 }
       );
     }
@@ -414,16 +418,27 @@ async function orderHandler(body: any, userId: string) {
       (price: { warehouse: any }) => price.warehouse?.id === cartItem.warehouseId
     );
 
+    // Debug logging to understand the issue
+    if (!itemPrice) {
+      logger.warn('Warehouse not found for cart item', {
+        cartItemWarehouseId: cartItem.warehouseId,
+        availableWarehouses: dbItem.itemPrice.map((p: any) => ({
+          id: p.warehouse?.id,
+          name: p.warehouse?.name
+        }))
+      });
+    }
+
     if (!itemPrice || !itemPrice.warehouse) {
       return NextResponse.json(
-        { error: `Item ${cartItem.name} not available in selected warehouse` },
+        { error: t('itemNotAvailable', { itemName: cartItem.name }) },
         { status: 400 }
       );
     }
 
     if (itemPrice.quantity < cartItem.quantity) {
       return NextResponse.json(
-        { error: `Insufficient stock for item ${cartItem.name}. Available: ${itemPrice.quantity}, Requested: ${cartItem.quantity}` },
+        { error: t('insufficientStock', { itemName: cartItem.name, available: itemPrice.quantity, requested: cartItem.quantity }) },
         { status: 400 }
       );
     }
