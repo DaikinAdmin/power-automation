@@ -166,6 +166,73 @@
       "orderCreated": "Order created successfully! Order ID:"
     }
   },
+  "payment": {
+    "title": "Payment",
+    "backToShop": "Back to Shop",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "errors": {
+      "title": "Error",
+      "noOrder": "No order ID",
+      "noOrderDescription": "No valid order ID provided. Please return to the shop and try again."
+    },
+    "orderSummary": {
+      "title": "Order Summary",
+      "orderId": "Order ID",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total to Pay"
+    },
+    "paymentInfo": {
+      "title": "Secure Payment",
+      "securePayment": "Your payment is protected by Przelewy24. All data is encrypted and secure.",
+      "methods": "Available payment methods:",
+      "creditCard": "Credit/Debit Card",
+      "bankTransfer": "Bank Transfer",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "poweredBy": "Payment powered by"
+    },
+    "buttons": {
+      "proceedToPayment": "Proceed to Payment",
+      "processing": "Processing...",
+      "alreadyPaid": "Already Paid"
+    },
+    "additionalInfo": {
+      "text": "After payment, you will receive a confirmation email. If you have any questions, please contact our customer service."
+    }
+  },
+  "paymentReturn": {
+    "backToShop": "Back to Shop",
+    "processing": {
+      "title": "Processing Payment",
+      "message": "Please wait, we're checking your payment status..."
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "message": "Thank you for your payment.",
+      "orderId": "Order ID",
+      "amount": "Amount",
+      "status": "Status",
+      "emailSent": "We have sent an order confirmation to your email address.",
+      "viewOrders": "View Orders",
+      "continueShopping": "Continue Shopping"
+    },
+    "pending": {
+      "title": "Payment Pending",
+      "message": "Your payment is being processed. This may take a few minutes.",
+      "orderId": "Order ID",
+      "checkStatus": "Check Status"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "message": "Unfortunately, your payment was not completed.",
+      "orderId": "Order ID",
+      "tryAgain": "Please try again or contact our customer service.",
+      "retryPayment": "Try Again",
+      "backToShop": "Back to Shop"
+    }
+  },
   "dashboard": {
     "welcomeBack": "Welcome back",
     "statsOverview": "Stats overview",

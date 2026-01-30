@@ -166,6 +166,73 @@
       "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:"
     }
   },
+  "payment": {
+    "title": "Płatność",
+    "backToShop": "Wróć do sklepu",
+    "loading": "Ładowanie...",
+    "retry": "Spróbuj ponownie",
+    "errors": {
+      "title": "Błąd",
+      "noOrder": "Brak numeru zamówienia",
+      "noOrderDescription": "Nie podano prawidłowego numeru zamówienia. Wróć do sklepu i spróbuj ponownie."
+    },
+    "orderSummary": {
+      "title": "Podsumowanie zamówienia",
+      "orderId": "Numer zamówienia",
+      "date": "Data",
+      "status": "Status",
+      "total": "Razem do zapłaty"
+    },
+    "paymentInfo": {
+      "title": "Bezpieczna płatność",
+      "securePayment": "Twoja płatność jest chroniona przez Przelewy24. Wszystkie dane są szyfrowane i bezpieczne.",
+      "methods": "Dostępne metody płatności:",
+      "creditCard": "Karta kredytowa/debetowa",
+      "bankTransfer": "Przelew bankowy",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "poweredBy": "Płatność obsługiwana przez"
+    },
+    "buttons": {
+      "proceedToPayment": "Przejdź do płatności",
+      "processing": "Przetwarzanie...",
+      "alreadyPaid": "Już opłacone"
+    },
+    "additionalInfo": {
+      "text": "Po dokonaniu płatności otrzymasz e-mail z potwierdzeniem. W razie pytań skontaktuj się z naszym działem obsługi klienta."
+    }
+  },
+  "paymentReturn": {
+    "backToShop": "Wróć do sklepu",
+    "processing": {
+      "title": "Przetwarzanie płatności",
+      "message": "Proszę czekać, sprawdzamy status Twojej płatności..."
+    },
+    "success": {
+      "title": "Płatność zakończona pomyślnie!",
+      "message": "Dziękujemy za dokonanie płatności.",
+      "orderId": "Numer zamówienia",
+      "amount": "Kwota",
+      "status": "Status",
+      "emailSent": "Na Twój adres e-mail wysłaliśmy potwierdzenie zamówienia.",
+      "viewOrders": "Zobacz zamówienia",
+      "continueShopping": "Kontynuuj zakupy"
+    },
+    "pending": {
+      "title": "Płatność w trakcie",
+      "message": "Twoja płatność jest przetwarzana. Może to potrwać kilka minut.",
+      "orderId": "Numer zamówienia",
+      "checkStatus": "Sprawdź status"
+    },
+    "failed": {
+      "title": "Płatność nie powiodła się",
+      "message": "Niestety, Twoja płatność nie została zrealizowana.",
+      "orderId": "Numer zamówienia",
+      "tryAgain": "Spróbuj ponownie dokonać płatności lub skontaktuj się z naszym działem obsługi klienta.",
+      "retryPayment": "Spróbuj ponownie",
+      "backToShop": "Wróć do sklepu"
+    }
+  },
   "dashboard": {
     "welcomeBack": "Witaj ponownie",
     "statsOverview": "Przegląd statystyk",
