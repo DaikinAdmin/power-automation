@@ -78,6 +78,16 @@
     "priceHigh": "Precio: Alto",
     "name": "Nombre",
     "view": "Vista:",
+    "itemsPerPage": "Productos por página",
+    "viewMode": {
+      "grid": "Cuadrícula",
+      "list": "Lista"
+    },
+    "priceFilter": {
+      "label": "Precio",
+      "from": "Desde",
+      "to": "Hasta"
+    },
     "filters": {
       "categories": "Categorías",
       "brands": "Marcas",
@@ -382,5 +392,10 @@
       "weekdays": "Lun-Vie: 9:00-18:00",
       "saturday": "Sáb: 9:00-16:00"
     }
+  },
+  "errors": {
+    "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
+    "itemNotAvailable": "Artículo {itemName} no disponible en el almacén seleccionado",
+    "itemNotFound": "Artículo {articleId} no encontrado"
   }
 }

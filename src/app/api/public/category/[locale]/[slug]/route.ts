@@ -24,10 +24,16 @@ export async function GET(
     const brandFilters = searchParams.getAll('brand');
     const warehouseFilters = searchParams.getAll('warehouse');
 
+    // Get pagination parameters
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(100, Math.max(5, parseInt(searchParams.get('limit') || '20', 10)));
+
     logger.info('Fetching items for category', {
       endpoint: 'GET /api/public/category/[locale]/[slug]',
       locale,
       slug,
+      page,
+      limit,
       subcategoryFilters: subcategoryFilters.length > 0 ? subcategoryFilters : undefined,
       brandFilters: brandFilters.length > 0 ? brandFilters : undefined,
       warehouseFilters: warehouseFilters.length > 0 ? warehouseFilters : undefined,
@@ -60,6 +66,13 @@ export async function GET(
       );
     }
 
+    // Calculate pagination
+    const totalItems = filteredItems.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
     const duration = Date.now() - startTime;
     logger.info('Category items fetched successfully', {
       endpoint: 'GET /api/public/category/[locale]/[slug]',
@@ -67,11 +80,25 @@ export async function GET(
       slug,
       totalItems: allItems.length,
       filteredCount: filteredItems.length,
+      page,
+      limit,
+      totalPages,
+      returnedItems: paginatedItems.length,
       hasFilters: subcategoryFilters.length > 0 || brandFilters.length > 0 || warehouseFilters.length > 0,
       duration,
     });
 
-    const response = NextResponse.json(filteredItems);
+    const response = NextResponse.json({
+      items: paginatedItems,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=1800, stale-while-revalidate=300');
     return response;
   } catch (error: any) {

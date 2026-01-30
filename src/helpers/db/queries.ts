@@ -196,13 +196,13 @@ export async function getAllWarehouses() {
 }
 
 // ==================== Item Queries ====================
-export async function getItemByArticleId(articleId: string, locale: string): Promise<ItemResponse | null> {
+export async function getItemBySlug(slug: string, locale: string): Promise<ItemResponse | null> {
   const [item] = await db
     .select()
     .from(schema.item)
     .where(
       and(
-        eq(schema.item.articleId, articleId),
+        eq(schema.item.slug, slug),
         eq(schema.item.isDisplayed, true)
       )
     )
@@ -214,7 +214,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
   const itemDetails = await db
     .select()
     .from(schema.itemDetails)
-    .where(eq(schema.itemDetails.itemSlug, articleId));
+    .where(eq(schema.itemDetails.itemSlug, slug));
 
   const detailForLocale = itemDetails.find((d) => d.locale === locale);
   const fallbackDetail = itemDetails.find((d) => d.locale === 'en') || itemDetails[0];
@@ -226,7 +226,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
   const prices = await db
     .select()
     .from(schema.itemPrice)
-    .where(eq(schema.itemPrice.itemSlug, articleId));
+    .where(eq(schema.itemPrice.itemSlug, slug));
 
   // Get warehouses
   const warehouseIds = prices.map((p) => p.warehouseId);
@@ -291,6 +291,7 @@ export async function getItemByArticleId(articleId: string, locale: string): Pro
     .where(eq(schema.subcategoryTranslation.locale, locale));
 
   return {
+    slug: item.slug,
     articleId: item.articleId,
     isDisplayed: item.isDisplayed,
     sellCounter: item.sellCounter,

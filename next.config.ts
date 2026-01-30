@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
     domains: ["powerautomation.pl", "powerautomation.com.ua"],
   },
   serverExternalPackages: ['better-auth'],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Fix module resolution for better-auth with Next.js 16
+      config.resolve.extensionAlias = {
+        '.js': ['.ts', '.tsx', '.js', '.jsx'],
+        '.mjs': ['.mts', '.mjs'],
+        '.cjs': ['.cts', '.cjs'],
+      };
+    }
+    return config;
+  },
   async headers() {
     return [
       {

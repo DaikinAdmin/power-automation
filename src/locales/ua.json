@@ -78,6 +78,16 @@
     "priceHigh": "Ціна: Висока",
     "name": "Назва",
     "view": "Вигляд:",
+    "itemsPerPage": "Товарів на сторінці",
+    "viewMode": {
+      "grid": "Сітка",
+      "list": "Список"
+    },
+    "priceFilter": {
+      "label": "Ціна",
+      "from": "Від",
+      "to": "До"
+    },
     "filters": {
       "title": "Фільтри",
       "categories": "Категорії",
@@ -389,5 +399,10 @@
       "weekdays": "Пн-Пт: 9:00-18:00",
       "saturday": "Сб: 9:00-16:00"
     }
+  },
+  "errors": {
+    "insufficientStock": "Недостатня кількість товару {itemName}. Доступно: {available}, Замовлено: {requested}",
+    "itemNotAvailable": "Товар {itemName} недоступний у обраному складі",
+    "itemNotFound": "Товар {articleId} не знайдено"
   }
 }

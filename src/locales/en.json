@@ -78,6 +78,16 @@
     "priceHigh": "Price: High",
     "name": "Name",
     "view": "View:",
+    "itemsPerPage": "Items per page",
+    "viewMode": {
+      "grid": "Grid",
+      "list": "List"
+    },
+    "priceFilter": {
+      "label": "Price",
+      "from": "From",
+      "to": "To"
+    },
     "filters": {
       "categories": "Categories",
       "brands": "Brands",
@@ -382,5 +392,10 @@
       "weekdays": "Mon-Fri: 9AM-6PM",
       "saturday": "Sat: 9AM-4PM"
     }
+  },
+  "errors": {
+    "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",
+    "itemNotAvailable": "Item {itemName} not available in selected warehouse",
+    "itemNotFound": "Item {articleId} not found"
   }
 }

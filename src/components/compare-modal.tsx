@@ -96,13 +96,13 @@ export default function CompareModal({
                         <div className="relative w-full aspect-square max-w-[220px] mx-auto">
                           {/* Хрестик видалення */}
                           <button
-                            onClick={() => onRemoveItem(item.id)}
+                            onClick={() => onRemoveItem(item.slug)}
                             className="absolute top-1 right-1 z-10 p-1 bg-red-100 hover:bg-red-200 rounded-full transition-colors"
                             title={t('remove')}
                           >
                             <X size={18} className="text-red-600" />
                           </button>
-                          <Link href={`/product/${item.articleId}`} className="block w-full h-full">
+                          <Link href={`/product/${item.slug}`} className="block w-full h-full">
                             {item.image ? (
                               <Image
                                 src={item.image}
@@ -131,7 +131,7 @@ export default function CompareModal({
                     {compareItems.map((item) => (
                       <td key={item.id} className="p-4 min-w-[260px] max-w-[260px] w-[260px]">
                         <Link
-                          href={`/product/${item.articleId}`}
+                          href={`/product/${item.slug}`}
                           className="text-blue-600 hover:underline font-medium"
                         >
                           {item.name}
@@ -146,7 +146,7 @@ export default function CompareModal({
                       {t('brand')}
                     </td>
                     {compareItems.map((item) => (
-                      <td key={item.id} className="p-4 min-w-[260px] max-w-[260px] w-[260px]">
+                      <td key={item.slug} className="p-4 min-w-[260px] max-w-[260px] w-[260px]">
                         {item.brandImage ? (
                           <div className="relative w-24 h-12 mx-auto">
                             <Image
@@ -171,7 +171,7 @@ export default function CompareModal({
                       {t('price')}
                     </td>
                     {compareItems.map((item) => (
-                      <td key={item.id} className="p-4 min-w-[260px] max-w-[260px] w-[260px]">
+                      <td key={item.slug} className="p-4 min-w-[260px] max-w-[260px] w-[260px]">
                         <div className="text-center">
                           {item.specialPrice != null ? (
                             <>
@@ -198,7 +198,7 @@ export default function CompareModal({
                       {t('description')}
                     </td>
                     {compareItems.map((item) => (
-                      <td key={item.id} className="p-4 align-top min-w-[260px] max-w-[260px] w-[260px]">
+                      <td key={item.slug} className="p-4 align-top min-w-[260px] max-w-[260px] w-[260px]">
                         <div className="text-sm text-gray-600 max-h-60 overflow-auto whitespace-pre-line">
                           {parse(item.description || t('noDescription'))}
                         </div>

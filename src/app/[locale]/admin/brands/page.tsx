@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { BrandModal } from '@/components/admin/brand-modal';
 import { DeleteBrandModal } from '@/components/admin/delete-brand-modal';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { usePagination } from '@/hooks/usePagination';
+import { useAdminBrands } from '@/hooks/useAdminBrands';
 import { Eye, EyeOff, ImageIcon } from 'lucide-react';
 import type { Brand as BrandType } from '@/db/schema';
 
@@ -25,11 +26,12 @@ const formatDate = (value: string | Date) => {
 };
 
 export default function BrandsPage() {
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+
+  // Fetch brands using custom hook
+  const { brands, isLoading, refetch: refetchBrands } = useAdminBrands();
 
   const {
     currentPage,
@@ -37,28 +39,7 @@ export default function BrandsPage() {
     goToNextPage,
     goToPreviousPage,
     totalPages,
-  } = usePagination<Brand>({ data: brands, pageSize: 5 });
-
-  useEffect(() => {
-    void fetchBrands();
-  }, []);
-
-  const fetchBrands = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/admin/brands');
-      if (!response.ok) {
-        console.error('Failed to fetch brands');
-        return;
-      }
-      const data = await response.json();
-      setBrands(data);
-    } catch (error) {
-      console.error('Error fetching brands:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } = usePagination<Brand>({ data: brands as Brand[], pageSize: 5 });
 
   const handleCreateBrand = () => {
     setSelectedBrand(null);
@@ -94,7 +75,7 @@ export default function BrandsPage() {
         return;
       }
 
-      await fetchBrands();
+      await refetchBrands();
     } catch (error) {
       console.error('Error toggling brand visibility:', error);
     }
@@ -139,7 +120,7 @@ export default function BrandsPage() {
         }
       }
 
-      await fetchBrands();
+      await refetchBrands();
     } catch (error) {
       console.error('Error saving brand:', error);
     }
@@ -157,7 +138,7 @@ export default function BrandsPage() {
         return;
       }
 
-      await fetchBrands();
+      await refetchBrands();
     } catch (error) {
       console.error('Error deleting brand:', error);
     }

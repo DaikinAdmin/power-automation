@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 // import db from '@/db';
 import { db } from '@/db';
 import { eq, and, ne, sql } from 'drizzle-orm';
@@ -15,7 +14,7 @@ export async function GET(
     const { id } = await params;
     
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -93,7 +92,7 @@ export async function PUT(
     const { id } = await params;
     
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -240,7 +239,7 @@ export async function DELETE(
     const { id } = await params;
     
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {

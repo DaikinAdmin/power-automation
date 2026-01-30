@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { eq, sql } from 'drizzle-orm';
@@ -15,7 +14,7 @@ export async function PUT(
     const { warehouseId } = await params;
     
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -87,7 +86,7 @@ export async function DELETE(
     const { warehouseId } = await params;
     
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {

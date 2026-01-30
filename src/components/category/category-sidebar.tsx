@@ -43,6 +43,7 @@ interface CategorySidebarProps {
   maxPrice: number;
   priceRange: [number, number];
   onPriceChange: (range: [number, number]) => void;
+  totalItems: number;
 }
 
 export function CategorySidebar({
@@ -68,6 +69,7 @@ export function CategorySidebar({
   maxPrice,
   priceRange,
   onPriceChange,
+  totalItems,
 }: CategorySidebarProps) {
   const t = useTranslations("categories");
 
@@ -133,21 +135,23 @@ export function CategorySidebar({
             value={viewMode}
             onChange={(e) => setViewMode(e.target.value as "grid" | "list")}
           >
-            <option value="grid">Сітка</option>
-            <option value="list">Список</option>
+            <option value="grid">{t("viewMode.grid")}</option>
+            <option value="list">{t("viewMode.list")}</option>
           </select>
         </div>
       </div>
 
       {/* Price Filter (Desktop Only) */}
-      <div className="hidden md:block">
-        <PriceFilter
-          min={minPrice}
-          max={maxPrice}
-          value={priceRange}
-          onChange={onPriceChange}
-        />
-      </div>
+      {totalItems > 1 && (
+        <div className="hidden md:block">
+          <PriceFilter
+            min={minPrice}
+            max={maxPrice}
+            value={priceRange}
+            onChange={onPriceChange}
+          />
+        </div>
+      )}
 
       {/* Brands Filter (Desktop Only) */}
       {brands.length > 0 && (

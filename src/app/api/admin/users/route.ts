@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {

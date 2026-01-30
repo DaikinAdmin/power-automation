@@ -15,7 +15,7 @@ COPY src/db ./src/db
 COPY src/resources ./src/resources
 
 # Install dependencies (this will run postinstall which needs prisma)
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Stage 2: Builder
 FROM node:24-alpine AS builder
@@ -83,6 +83,11 @@ COPY --from=builder /app/node_modules/triple-beam ./node_modules/triple-beam
 COPY --from=builder /app/node_modules/@colors ./node_modules/@colors
 COPY --from=builder /app/node_modules/color ./node_modules/color
 COPY --from=builder /app/node_modules/file-stream-rotator ./node_modules/file-stream-rotator
+
+# Patch better-auth for Next.js 16 compatibility (both static and dynamic imports)
+RUN sed -i 's/from "next\/headers"/from "next\/headers.js"/g' ./node_modules/better-auth/dist/integrations/next-js.mjs && \
+    sed -i 's/import("next\/headers")/import("next\/headers.js")/g' ./node_modules/better-auth/dist/integrations/next-js.mjs && \
+    echo "✅ Patched better-auth for Next.js 16 compatibility"
 
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh

@@ -5,6 +5,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { CartProvider } from "@/components/cart-context";
 import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
@@ -64,6 +65,7 @@ export default async function LocaleLayout({
             </CompareProvider>
           </CartProvider>
         </NextIntlClientProvider>
+        <Toaster />
       </body>
     </html>
   );

@@ -15,7 +15,7 @@ export async function PUT(
         const { id } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {
@@ -95,7 +95,7 @@ export async function DELETE(
         const { id } = await params;
 
         const session = await auth.api.getSession({
-            headers: await headers()
+            headers: request.headers
         });
 
         if (!session?.user) {

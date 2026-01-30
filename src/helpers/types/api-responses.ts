@@ -58,6 +58,7 @@ export interface ItemDetailsResponse {
 
 export interface ItemResponse {
   articleId: string;
+  slug: string;
   isDisplayed: boolean;
   sellCounter: number | null;
   itemImageLink: string[];
@@ -76,6 +77,7 @@ export interface ItemResponse {
 
 export interface ItemListResponse {
   articleId: string;
+  slug: string;
   itemName: string;
   description: string;
   itemImageLink: string[];
@@ -123,6 +125,7 @@ export interface WarehouseCountryResponse {
 // ==================== Order Types ====================
 export interface OrderItemResponse {
   articleId: string;
+  slug: string;
   itemName: string;
   quantity: number;
   price: number;
@@ -222,6 +225,7 @@ export interface CurrencyExchangeResponse {
 // ==================== Search Types ====================
 export interface SearchResultItem {
   articleId: string;
+  slug: string;
   itemName: string;
   description: string;
   itemImageLink: string[];
@@ -243,6 +247,7 @@ export interface SearchResponse {
 // ==================== Out of Stock Request Types ====================
 export interface OutOfStockRequestResponse {
   requestId: string;
+  slug: string;
   articleId: string;
   warehouseSlug: string;
   userEmail: string;

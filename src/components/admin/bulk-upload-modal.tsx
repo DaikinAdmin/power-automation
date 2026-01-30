@@ -5,6 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, AlertCircle, CheckCircle, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -19,6 +27,8 @@ interface UploadState {
   details?: string[];
 }
 
+type FileType = 'ARA' | 'Omron' | 'Pilz' | 'Schneider' | 'Encon';
+
 export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalProps) {
   const [uploadState, setUploadState] = useState<UploadState>({
     status: 'idle',
@@ -26,6 +36,7 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
     message: ''
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileType, setFileType] = useState<FileType>('Encon');
   const [isDragActive, setIsDragActive] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -99,43 +110,118 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
   const handleUpload = async () => {
     if (!selectedFile) return;
 
-    setUploadState({ status: 'uploading', progress: 10, message: 'Uploading file...' });
+    setUploadState({ status: 'uploading', progress: 0, message: 'Preparing upload...' });
 
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
+      formData.append('fileType', fileType);
 
-      setUploadState({ status: 'uploading', progress: 30, message: 'Processing file...' });
+      // Use XMLHttpRequest to track upload progress
+      const xhr = new XMLHttpRequest();
 
-      const response = await fetch('/api/admin/items/bulk-upload', {
-        method: 'POST',
-        body: formData,
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 70); // 0-70% for upload
+          setUploadState({ 
+            status: 'uploading', 
+            progress: percentComplete, 
+            message: `Uploading file... ${percentComplete}%` 
+          });
+        }
       });
 
-      const result = await response.json();
+      // Handle response
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadState({ status: 'uploading', progress: 85, message: 'Processing data...' });
+          
+          const result = JSON.parse(xhr.responseText);
+          
+          setUploadState({
+            status: 'success',
+            progress: 100,
+            message: result.message,
+            details: result.duplicates?.length > 0 
+              ? [`Skipped ${result.duplicates.length} duplicate items: ${result.duplicates.join(', ')}`]
+              : undefined
+          });
+          
+          // Show detailed success toast with statistics
+          // The API returns: { results: { created, updated, errors }, message }
+          const created = result.results?.created || result.created || 0;
+          const updated = result.results?.updated || result.updated || 0;
+          const totalRecords = created + updated;
+          const stats: string[] = [];
+          
+          if (totalRecords > 0) {
+            stats.push(`Total: ${totalRecords} record${totalRecords !== 1 ? 's' : ''} uploaded`);
+          }
+          if (created > 0) {
+            stats.push(`New: ${created} created`);
+          }
+          if (updated > 0) {
+            stats.push(`Updated: ${updated} (prices moved to history)`);
+          }
+          
+          if (stats.length > 0) {
+            toast.success('Bulk Upload Completed!', {
+              description: (
+                <div className="space-y-1">
+                  {stats.map((stat, index) => (
+                    <div key={index} className="text-sm">{stat}</div>
+                  ))}
+                </div>
+              ),
+              duration: 10000,
+            });
+          } else {
+            toast.success('Bulk Upload Completed!', {
+              description: result.message || 'Upload completed successfully',
+              duration: 10000,
+            });
+          }
+          
+          setTimeout(() => {
+            onSuccess();
+            handleClose();
+          }, 2000);
+        } else {
+          const result = JSON.parse(xhr.responseText);
+          setUploadState({
+            status: 'error',
+            progress: 0,
+            message: result.error || 'Upload failed',
+            details: result.details || []
+          });
+        }
+      });
 
-      if (response.ok) {
-        setUploadState({
-          status: 'success',
-          progress: 100,
-          message: result.message,
-          details: result.duplicates?.length > 0 
-            ? [`Skipped ${result.duplicates.length} duplicate items: ${result.duplicates.join(', ')}`]
-            : undefined
-        });
-        console.log("UploadState: ", uploadState);
-        setTimeout(() => {
-          onSuccess();
-          handleClose();
-        }, 2000);
-      } else {
+      // Handle network errors
+      xhr.addEventListener('error', () => {
         setUploadState({
           status: 'error',
           progress: 0,
-          message: result.error || 'Upload failed',
-          details: result.details || []
+          message: 'Network error occurred',
+          details: ['Failed to connect to server']
         });
-      }
+      });
+
+      // Handle abort
+      xhr.addEventListener('abort', () => {
+        setUploadState({
+          status: 'error',
+          progress: 0,
+          message: 'Upload cancelled',
+          details: []
+        });
+      });
+
+      // Send the request
+      xhr.open('POST', '/api/admin/items/bulk-upload');
+      xhr.send(formData);
+
     } catch (error: any) {
       setUploadState({
         status: 'error',
@@ -169,6 +255,30 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* File Type Selection */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium">Select File Type</h3>
+            <Select value={fileType} onValueChange={(value) => setFileType(value as FileType)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select file type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ARA">ARA (Siemens, Phoenix, Harting, etc.)</SelectItem>
+                <SelectItem value="Omron">Omron-2025</SelectItem>
+                <SelectItem value="Pilz">Pilz</SelectItem>
+                <SelectItem value="Schneider">Schneider-2024-25</SelectItem>
+                <SelectItem value="Encon">Encon (Default Format)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              {fileType === 'ARA' && 'Multiple sheets: Siemens, Phoenix, MURRELEKTRONIC, SICK, HARTING'}
+              {fileType === 'Omron' && 'Sheet: Hoja1'}
+              {fileType === 'Pilz' && 'Sheet: Price List SE'}
+              {fileType === 'Schneider' && 'Sheet: Hoja1 (starts from row 3)'}
+              {fileType === 'Encon' && 'Default format with all columns'}
+            </p>
+          </div>
+
           {/* Sample Files */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Download Sample Files</h3>
@@ -269,11 +379,15 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 {uploadState.message}
-                {uploadState.details?.map((detail, index) => (
-                  <div key={index} className="mt-1 text-xs text-gray-600">
-                    {detail}
-                  </div>
-                ))}
+                {uploadState.details && uploadState.details.length > 0 && (
+                  uploadState.details
+                    .filter((detail): detail is string => Boolean(detail))
+                    .map((detail, index) => (
+                      <div key={index} className="mt-1 text-xs text-gray-600">
+                        {detail}
+                      </div>
+                    ))
+                )}
               </AlertDescription>
             </Alert>
           )}
@@ -285,11 +399,13 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                 {uploadState.message}
                 {uploadState.details && uploadState.details.length > 0 && (
                   <div className="mt-2 max-h-32 overflow-y-auto">
-                    {uploadState.details.map((error, index) => (
-                      <div key={index} className="text-xs mt-1">
-                        • {error}
-                      </div>
-                    ))}
+                    {uploadState.details
+                      .filter((error): error is string => Boolean(error))
+                      .map((error, index) => (
+                        <div key={index} className="text-xs mt-1">
+                          • {error}
+                        </div>
+                      ))}
                   </div>
                 )}
               </AlertDescription>

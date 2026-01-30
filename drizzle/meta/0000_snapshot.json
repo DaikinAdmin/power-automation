@@ -1,5 +1,5 @@
 {
-  "id": "a2647d8e-9211-4b33-86fb-f2a06702e02a",
+  "id": "fa83ecac-aeba-4c54-a133-088821860b23",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -783,6 +783,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "alias": {
+          "name": "alias",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "isDisplayed": {
           "name": "isDisplayed",
           "type": "boolean",
@@ -814,13 +820,15 @@
           "name": "warrantyLength",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": 12
         },
         "warrantyType": {
           "name": "warrantyType",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "'manufacturer'"
         },
         "brandSlug": {
           "name": "brandSlug",
@@ -865,13 +873,6 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "item_articleId_unique": {
-          "name": "item_articleId_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "articleId"
-          ]
-        },
         "item_slug_unique": {
           "name": "item_slug_unique",
           "nullsNotDistinct": false,

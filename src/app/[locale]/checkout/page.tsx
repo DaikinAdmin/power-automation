@@ -157,7 +157,8 @@ export default function CheckoutPage({
           email: session.data.user.email,
           name: session.data.user.name
         } : checkoutForm,
-        deliveryId: null // You can add delivery selection later
+        deliveryId: null, // You can add delivery selection later
+        locale: locale // Add locale for error messages
       };
 
       const response = await fetch('/api/orders', {

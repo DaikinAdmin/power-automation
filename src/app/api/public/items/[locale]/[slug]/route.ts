@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
-import { getItemByArticleId } from '@/helpers/db/queries';
+import { getItemBySlug } from '@/helpers/db/queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError, NotFoundError } from '@/lib/error-handler';
@@ -26,7 +26,7 @@ export async function GET(
     });
 
     // Drizzle implementation
-    const itemData: ItemResponse | null = await getItemByArticleId(slug, locale.toLowerCase());
+    const itemData: ItemResponse | null = await getItemBySlug(slug, locale.toLowerCase());
 
     if (!itemData) {
       throw new NotFoundError('Item not found');

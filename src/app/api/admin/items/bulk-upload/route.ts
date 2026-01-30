@@ -1,34 +1,97 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
-import { auth } from '@/lib/auth';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import * as XLSX from 'xlsx';
 
-interface BulkUploadItem {
-  articleId: string;          // Column A
-  itemName: string;           // Column D
-  slug: string;               // Column F
-  brandName?: string;         // Column G
-  categoryName?: string;      // Column H
-  subCategoryName?: string;   // Column I
-  price: number;              // Column J
-  isDisplayed?: boolean;      // Column M
-  quantity: number;           // Column N
-  itemImageLink?: string[];   // Column O
-  seller?: string;            // Column P
-  description?: string;       // Column Q
-  specifications?: string;    // Column R
-  metaKeyWords?: string;      // Column U
-  metaDescription?: string;   // Column V
-  warehouseName: string;      // warehouse.name
-  locale: string;             // locale
+type FileType = 'ARA' | 'Omron' | 'Pilz' | 'Schneider' | 'Encon';
+
+interface FileTypeConfig {
+  sheets?: string[]; // For multi-sheet files like ARA
+  sheetName?: string; // For single-sheet files
+  startRow?: number; // Starting row index (0-based)
+  brandSlug?: string; // For single-brand files
+  columnMappings: {
+    articleId: string;
+    price: string;
+    quantity?: string;
+    itemName?: string;
+    itemDescription?: string;
+    alias?: string;
+    specifications?: string;
+  };
+  // Dynamic brand slug from sheet name (for ARA)
+  brandFromSheet?: boolean;
+  // Special handling for different locales
+  localeMapping?: {
+    locale: string;
+    itemNameColumn: string;
+    itemDescriptionColumn?: string;
+  }[];
 }
 
-async function ensureAuthorized() {
+const FILE_CONFIGS: Record<FileType, FileTypeConfig> = {
+  ARA: {
+    sheets: ['SIEMENS', 'PHOENIX', 'MURRELEKTRONIK', 'SICK', 'HARTING'],
+    startRow: 1,
+    brandFromSheet: true,
+    columnMappings: {
+      articleId: 'A',
+      price: 'D', // Default, will be overridden for HARTING
+      quantity: 'B',
+      itemName: 'A',
+    },
+  },
+  Omron: {
+    sheetName: 'Hoja1',
+    startRow: 1,
+    brandSlug: 'omron',
+    columnMappings: {
+      articleId: 'A',
+      price: 'J',
+      itemName: 'A',
+      itemDescription: 'B',
+      alias: 'E',
+      specifications: 'E',
+    },
+  },
+  Pilz: {
+    sheetName: 'Price List SE',
+    startRow: 1,
+    brandSlug: 'pilz',
+    columnMappings: {
+      articleId: 'A',
+      price: 'C',
+      itemName: 'B',
+    },
+  },
+  Schneider: {
+    sheetName: 'Hoja1',
+    startRow: 2, // Starts from row 3
+    brandSlug: 'schneider-electric',
+    columnMappings: {
+      articleId: 'A',
+      price: 'F',
+      itemName: 'A',
+    },
+  },
+  Encon: {
+    sheetName: 'Sheet1',
+    startRow: 0,
+    brandSlug: 'encon',
+    columnMappings: {
+      articleId: 'A',
+      price: 'B',
+      itemName: 'C',
+    },
+  },
+};
+
+async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: request.headers,
   });
 
   if (!session?.user) {
@@ -48,306 +111,377 @@ async function ensureAuthorized() {
   return { session };
 }
 
+function createSlug(brand: string, articleId: string): string {
+  const processedArticleId = articleId
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  return `${brand}_${processedArticleId}`;
+}
+
+function getCellValue(row: any, col: string): any {
+  return row[col] !== undefined && row[col] !== null && row[col] !== '' ? row[col] : null;
+}
+
+async function getOrCreateWarehouse(warehouseName: string) {
+  const [warehouse] = await db
+    .select()
+    .from(schema.warehouse)
+    .where(eq(schema.warehouse.name, warehouseName))
+    .limit(1);
+
+  if (!warehouse) {
+    throw new Error(`Warehouse '${warehouseName}' not found`);
+  }
+
+  return warehouse;
+}
+
+async function processGenericFile(
+  workbook: XLSX.WorkBook,
+  warehouseId: string,
+  fileType: FileType,
+  config: FileTypeConfig
+) {
+  const results = { created: 0, updated: 0, errors: [] as string[] };
+  const now = new Date().toISOString();
+  const defaultCategorySlug = 'low-voltage-components';
+
+  const items: any[] = [];
+  const itemDetails: any[] = [];
+  const itemPrices: any[] = [];
+
+  // Determine sheets to process
+  const sheetsToProcess = config.sheets || [config.sheetName!];
+
+  for (const sheetName of sheetsToProcess) {
+    if (!workbook.SheetNames.includes(sheetName)) {
+      if (config.sheets) {
+        results.errors.push(`Sheet '${sheetName}' not found in workbook`);
+        continue;
+      } else {
+        throw new Error(`Sheet '${sheetName}' not found`);
+      }
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 'A', defval: null });
+
+    // Determine brand slug
+    const brandSlug = config.brandFromSheet
+      ? sheetName.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-')
+      : config.brandSlug!;
+
+    // Special handling for ARA HARTING
+    const isHarting = fileType === 'ARA' && sheetName === 'HARTING';
+    const priceColumn = isHarting ? 'E' : config.columnMappings.price;
+    const quantityColumn = isHarting ? 'C' : config.columnMappings.quantity || 'B';
+
+    for (let i = config.startRow || 0; i < data.length; i++) {
+      const row = data[i] as any;
+
+      try {
+        const articleId = getCellValue(row, config.columnMappings.articleId);
+        if (!articleId) continue;
+
+        const price = getCellValue(row, priceColumn);
+        if (!price) continue;
+
+        const quantity = getCellValue(row, quantityColumn);
+        const itemName = getCellValue(row, config.columnMappings.itemName || 'A');
+        const itemDescription = getCellValue(row, config.columnMappings.itemDescription || 'B');
+        const alias = config.columnMappings.alias ? getCellValue(row, config.columnMappings.alias) : null;
+        const specifications = config.columnMappings.specifications
+          ? getCellValue(row, config.columnMappings.specifications)
+          : null;
+
+        const slug = createSlug(brandSlug, articleId);
+
+        // Prepare item data
+        items.push({
+          articleId,
+          slug,
+          alias: alias || null,
+          isDisplayed: false,
+          brandSlug,
+          categorySlug: defaultCategorySlug,
+          updatedAt: now,
+        });
+
+        // Prepare item details for all locales
+        const locales = isHarting ? ['es', 'pl', 'en', 'ua'] : ['pl', 'en', 'ua', 'es'];
+        for (const locale of locales) {
+          // Special handling for HARTING Spanish locale
+          const localizedItemName = isHarting && locale === 'es'
+            ? getCellValue(row, 'B')
+            : itemName;
+
+          itemDetails.push({
+            id: randomUUID(),
+            itemSlug: slug,
+            locale,
+            itemName: localizedItemName,
+            description: itemDescription || null,
+            specifications: specifications || null,
+          });
+        }
+
+        // Prepare item price
+        itemPrices.push({
+          id: randomUUID(),
+          itemSlug: slug,
+          warehouseId,
+          price: Number(price),
+          quantity: Number(quantity) || 0,
+          badge: 'ABSENT',
+          createdAt: now,
+          updatedAt: now,
+        });
+      } catch (error) {
+        const errorPrefix = config.sheets ? `Sheet ${sheetName}, ` : '';
+        results.errors.push(
+          `${errorPrefix}Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    }
+  }
+
+  // Deduplicate by slug - keep last occurrence (most recent data)
+  const uniqueItems = Array.from(
+    new Map(items.map(item => [item.slug, item])).values()
+  );
+
+  // Deduplicate item details by slug + locale
+  const uniqueDetails = Array.from(
+    new Map(itemDetails.map(detail => [`${detail.itemSlug}_${detail.locale}`, detail])).values()
+  );
+
+  // Deduplicate item prices by slug + warehouse
+  const uniquePrices = Array.from(
+    new Map(itemPrices.map(price => [`${price.itemSlug}_${price.warehouseId}`, price])).values()
+  );
+
+  // Log deduplication stats
+  if (items.length !== uniqueItems.length) {
+    results.errors.push(`Deduplicated ${items.length - uniqueItems.length} duplicate items`);
+  }
+
+  // Check which items already exist in the database
+  const itemSlugs = uniqueItems.map(item => item.slug);
+  const existingItems = await db
+    .select({ slug: schema.item.slug, id: schema.item.id })
+    .from(schema.item)
+    .where(inArray(schema.item.slug, itemSlugs));
+  
+  const existingItemSlugs = new Set(existingItems.map(item => item.slug));
+  const existingItemMap = new Map(existingItems.map(item => [item.slug, item]));
+  
+  // Separate new and existing items
+  const newItems = uniqueItems.filter(item => !existingItemSlugs.has(item.slug));
+  const existingItemsToUpdate = uniqueItems.filter(item => existingItemSlugs.has(item.slug));
+  
+  // Get item details and prices for new items only
+  const newItemSlugs = new Set(newItems.map(item => item.slug));
+  const newItemDetails = uniqueDetails.filter(detail => newItemSlugs.has(detail.itemSlug));
+  const newItemPrices = uniquePrices.filter(price => newItemSlugs.has(price.itemSlug));
+  
+  // Get prices for existing items (we'll only update prices for these)
+  const existingItemPrices = uniquePrices.filter(price => existingItemSlugs.has(price.itemSlug));
+
+  // Batch inserts with optimized chunk sizes
+  // PostgreSQL limit: ROW expressions can have at most 1664 entries (total parameters)
+  // Formula: max_rows = 1664 / number_of_columns
+  
+  // Insert NEW items only
+  if (newItems.length > 0) {
+    const CHUNK_SIZE = 200; // 7-8 columns = 1400-1600 parameters (safe)
+    for (let i = 0; i < newItems.length; i += CHUNK_SIZE) {
+      const chunk = newItems.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.item).values(chunk);
+    }
+    results.created = newItems.length;
+  }
+
+  // Insert item details for NEW items only
+  if (newItemDetails.length > 0) {
+    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
+    for (let i = 0; i < newItemDetails.length; i += CHUNK_SIZE) {
+      const chunk = newItemDetails.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemDetails).values(chunk);
+    }
+  }
+
+  // Insert item prices for NEW items only
+  if (newItemPrices.length > 0) {
+    const CHUNK_SIZE = 100; // 11 columns = 1100 parameters (safe)
+    for (let i = 0; i < newItemPrices.length; i += CHUNK_SIZE) {
+      const chunk = newItemPrices.slice(i, i + CHUNK_SIZE);
+      await db.insert(schema.itemPrice).values(chunk);
+    }
+  }
+
+  // Handle EXISTING items - only update prices
+  if (existingItemPrices.length > 0) {
+    // Fetch current prices for these items
+    const existingPriceSlugs = [...new Set(existingItemPrices.map(p => p.itemSlug))];
+    const currentPrices = await db
+      .select()
+      .from(schema.itemPrice)
+      .where(
+        and(
+          inArray(schema.itemPrice.itemSlug, existingPriceSlugs),
+          eq(schema.itemPrice.warehouseId, warehouseId)
+        )
+      );
+    
+    const currentPriceMap = new Map(
+      currentPrices.map(p => [`${p.itemSlug}_${p.warehouseId}`, p])
+    );
+
+    // Move current prices to history and update with new prices
+    for (const newPrice of existingItemPrices) {
+      const key = `${newPrice.itemSlug}_${newPrice.warehouseId}`;
+      const currentPrice = currentPriceMap.get(key);
+      
+      if (currentPrice) {
+        // Get item ID for history record
+        const itemData = existingItemMap.get(newPrice.itemSlug);
+        
+        if (itemData) {
+          // Insert current price into history
+          await db.insert(schema.itemPriceHistory).values({
+            itemId: itemData.id,
+            warehouseId: currentPrice.warehouseId,
+            price: currentPrice.price,
+            quantity: currentPrice.quantity,
+            promotionPrice: currentPrice.promotionPrice,
+            promoCode: currentPrice.promoCode,
+            promoEndDate: currentPrice.promoEndDate,
+            badge: currentPrice.badge,
+            recordedAt: currentPrice.updatedAt || currentPrice.createdAt,
+          });
+        }
+        
+        // Update with new price
+        await db
+          .update(schema.itemPrice)
+          .set({
+            price: newPrice.price,
+            quantity: newPrice.quantity,
+            updatedAt: now,
+          })
+          .where(eq(schema.itemPrice.id, currentPrice.id));
+        
+        results.updated++;
+      } else {
+        // Price doesn't exist yet for this warehouse, insert it
+        await db.insert(schema.itemPrice).values(newPrice);
+        results.created++;
+      }
+    }
+  }
+
+  return results;
+}
+
+async function processARAFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  return processGenericFile(workbook, warehouseId, 'ARA', FILE_CONFIGS.ARA);
+}
+
+async function processOmronFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  return processGenericFile(workbook, warehouseId, 'Omron', FILE_CONFIGS.Omron);
+}
+
+async function processPilzFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  return processGenericFile(workbook, warehouseId, 'Pilz', FILE_CONFIGS.Pilz);
+}
+
+async function processSchneiderFile(workbook: XLSX.WorkBook, warehouseId: string) {
+  return processGenericFile(workbook, warehouseId, 'Schneider', FILE_CONFIGS.Schneider);
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await ensureAuthorized();
+    const authResult = await ensureAuthorized(request);
     if ('error' in authResult) {
       return authResult.error;
     }
 
-    const body = await request.json();
-    const { items } = body as { items: BulkUploadItem[] };
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const fileType = (formData.get('fileType') as FileType) || 'Encon';
 
-    if (!items || !Array.isArray(items)) {
+    if (!file) {
       return NextResponse.json(
-        { error: 'Invalid request body. Expected items array.' },
+        { error: 'No file provided' },
         { status: 400 }
       );
     }
 
-    const results = {
-      created: 0,
-      updated: 0,
-      errors: [] as string[],
-    };
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    const now = new Date().toISOString();
+    // Parse Excel file
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
 
-    for (const item of items) {
-      try {
-        // Validate required fields
-        if (!item.articleId || !item.itemName || !item.slug || !item.warehouseName || !item.locale) {
-          results.errors.push(
-            `Item skipped: missing required fields (articleId, itemName, slug, warehouseName, or locale)`
-          );
-          continue;
-        }
+    let results;
 
-        // Find warehouse by name
-        const [warehouse] = await db
-          .select()
-          .from(schema.warehouse)
-          .where(eq(schema.warehouse.name, item.warehouseName))
-          .limit(1);
+    // Determine warehouse based on file type
+    let warehouseName: string;
+    if (fileType === 'ARA') {
+      warehouseName = 'warehouse-3';
+    } else if (['Omron', 'Pilz', 'Schneider'].includes(fileType)) {
+      warehouseName = 'warehouse-4';
+    } else {
+      warehouseName = 'warehouse-1'; // Default for Encon
+    }
 
-        if (!warehouse) {
-          results.errors.push(
-            `Item ${item.articleId}: Warehouse '${item.warehouseName}' not found`
-          );
-          continue;
-        }
+    const warehouse = await getOrCreateWarehouse(warehouseName);
 
-        // Determine categorySlug
-        let categorySlug = '';
-        
-        if (item.subCategoryName && item.subCategoryName.trim() !== '') {
-          // Find subcategory by name
-          const [subcategory] = await db
-            .select()
-            .from(schema.subcategories)
-            .where(eq(schema.subcategories.name, item.subCategoryName))
-            .limit(1);
-
-          if (subcategory) {
-            categorySlug = subcategory.slug;
-          } else if (item.categoryName) {
-            // Fallback to category if subcategory not found
-            const [category] = await db
-              .select()
-              .from(schema.category)
-              .where(eq(schema.category.name, item.categoryName))
-              .limit(1);
-            
-            if (category) {
-              categorySlug = category.slug;
-            }
-          }
-        } else if (item.categoryName) {
-          // Use category if no subcategory specified
-          const [category] = await db
-            .select()
-            .from(schema.category)
-            .where(eq(schema.category.name, item.categoryName))
-            .limit(1);
-          
-          if (category) {
-            categorySlug = category.slug;
-          }
-        }
-
-        // Find brand if specified
-        let brandSlug: string | null = null;
-        if (item.brandName && item.brandName.trim() !== '') {
-          const [brand] = await db
-            .select()
-            .from(schema.brand)
-            .where(eq(schema.brand.name, item.brandName))
-            .limit(1);
-          
-          if (brand) {
-            brandSlug = brand.alias;
-          }
-        }
-
-        // Check if item exists
-        const [existingItem] = await db
-          .select()
-          .from(schema.item)
-          .where(eq(schema.item.articleId, item.articleId))
-          .limit(1);
-
-        let itemId: string;
-
-        if (existingItem) {
-          // UPDATE EXISTING ITEM
-          itemId = existingItem.id;
-
-          // Update item record
-          await db
-            .update(schema.item)
-            .set({
-              slug: item.slug,
-              isDisplayed: item.isDisplayed ?? existingItem.isDisplayed,
-              itemImageLink: item.itemImageLink ?? existingItem.itemImageLink,
-              categorySlug: categorySlug || existingItem.categorySlug,
-              brandSlug: brandSlug ?? existingItem.brandSlug,
-              updatedAt: now,
-            })
-            .where(eq(schema.item.id, itemId));
-
-          // Handle itemDetails
-          const [existingDetail] = await db
-            .select()
-            .from(schema.itemDetails)
-            .where(
-              and(
-                eq(schema.itemDetails.itemSlug, item.articleId),
-                eq(schema.itemDetails.locale, item.locale)
-              )
-            )
-            .limit(1);
-
-          if (existingDetail) {
-            // Update existing itemDetails
-            await db
-              .update(schema.itemDetails)
-              .set({
-                itemName: item.itemName,
-                description: item.description ?? existingDetail.description,
-                specifications: item.specifications ?? existingDetail.specifications,
-                seller: item.seller ?? existingDetail.seller,
-                metaKeyWords: item.metaKeyWords ?? existingDetail.metaKeyWords,
-                metaDescription: item.metaDescription ?? existingDetail.metaDescription,
-              })
-              .where(eq(schema.itemDetails.id, existingDetail.id));
-          } else {
-            // Create new itemDetails for this locale
-            await db
-              .insert(schema.itemDetails)
-              .values({
-                id: randomUUID(),
-                itemSlug: item.articleId,
-                locale: item.locale,
-                itemName: item.itemName,
-                description: item.description || '',
-                specifications: item.specifications || null,
-                seller: item.seller || null,
-                metaKeyWords: item.metaKeyWords || null,
-                metaDescription: item.metaDescription || null,
-              });
-          }
-
-          // Handle itemPrice
-          const [existingPrice] = await db
-            .select()
-            .from(schema.itemPrice)
-            .where(
-              and(
-                eq(schema.itemPrice.itemSlug, item.articleId),
-                eq(schema.itemPrice.warehouseId, warehouse.id)
-              )
-            )
-            .limit(1);
-
-          if (existingPrice) {
-            // Create price history record before updating
-            await db
-              .insert(schema.itemPriceHistory)
-              .values({
-                id: randomUUID(),
-                itemId: itemId,
-                warehouseId: warehouse.id,
-                price: existingPrice.price,
-                quantity: existingPrice.quantity,
-                promotionPrice: existingPrice.promotionPrice,
-                promoCode: existingPrice.promoCode,
-                promoEndDate: existingPrice.promoEndDate,
-                badge: existingPrice.badge,
-                recordedAt: now,
-              });
-
-            // Update existing itemPrice
-            await db
-              .update(schema.itemPrice)
-              .set({
-                price: item.price,
-                quantity: item.quantity,
-                updatedAt: now,
-              })
-              .where(eq(schema.itemPrice.id, existingPrice.id));
-          } else {
-            // Create new itemPrice for this warehouse
-            await db
-              .insert(schema.itemPrice)
-              .values({
-                id: randomUUID(),
-                itemSlug: item.articleId,
-                warehouseId: warehouse.id,
-                price: item.price,
-                quantity: item.quantity,
-                promotionPrice: null,
-                promoCode: null,
-                promoEndDate: null,
-                badge: 'ABSENT',
-                createdAt: now,
-                updatedAt: now,
-              });
-          }
-
-          results.updated++;
-        } else {
-          // CREATE NEW ITEM
-          itemId = randomUUID();
-
-          // Create item record
-          await db
-            .insert(schema.item)
-            .values({
-              id: itemId,
-              articleId: item.articleId,
-              slug: item.slug,
-              isDisplayed: item.isDisplayed ?? false,
-              itemImageLink: item.itemImageLink ?? null,
-              categorySlug: categorySlug || '',
-              brandSlug: brandSlug,
-              warrantyType: null,
-              warrantyLength: null,
-              sellCounter: 0,
-              createdAt: now,
-              updatedAt: now,
-            });
-
-          // Create itemDetails record
-          await db
-            .insert(schema.itemDetails)
-            .values({
-              id: randomUUID(),
-              itemSlug: item.articleId,
-              locale: item.locale,
-              itemName: item.itemName,
-              description: item.description || '',
-              specifications: item.specifications || null,
-              seller: item.seller || null,
-              metaKeyWords: item.metaKeyWords || null,
-              metaDescription: item.metaDescription || null,
-            });
-
-          // Create itemPrice record
-          await db
-            .insert(schema.itemPrice)
-            .values({
-              id: randomUUID(),
-              itemSlug: item.articleId,
-              warehouseId: warehouse.id,
-              price: item.price,
-              quantity: item.quantity,
-              promotionPrice: null,
-              promoCode: null,
-              promoEndDate: null,
-              badge: 'ABSENT',
-              createdAt: now,
-              updatedAt: now,
-            });
-
-          results.created++;
-        }
-      } catch (itemError) {
-        console.error(`Error processing item ${item.articleId}:`, itemError);
-        results.errors.push(
-          `Item ${item.articleId}: ${itemError instanceof Error ? itemError.message : 'Unknown error'}`
+    // Process file based on type
+    switch (fileType) {
+      case 'ARA':
+        results = await processARAFile(workbook, warehouse.id);
+        break;
+      case 'Omron':
+        results = await processOmronFile(workbook, warehouse.id);
+        break;
+      case 'Pilz':
+        results = await processPilzFile(workbook, warehouse.id);
+        break;
+      case 'Schneider':
+        results = await processSchneiderFile(workbook, warehouse.id);
+        break;
+      case 'Encon':
+        return NextResponse.json(
+          { error: 'Encon format not yet implemented' },
+          { status: 501 }
         );
-      }
+      default:
+        return NextResponse.json(
+          { error: 'Invalid file type' },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json({
       success: true,
       message: `Bulk upload completed. Created: ${results.created}, Updated: ${results.updated}`,
+      details: results.errors.length > 0 ? results.errors : undefined,
       results,
     });
   } catch (error) {
     console.error('Bulk upload error:', error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Internal server error', 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? [error.message] : ['Unknown error']
+      },
       { status: 500 }
     );
   }

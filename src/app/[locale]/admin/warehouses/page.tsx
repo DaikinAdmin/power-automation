@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WarehouseModal } from '@/components/admin/warehouse-modal';
@@ -8,6 +8,7 @@ import { DeleteWarehouseModal } from '@/components/admin/delete-warehouse-modal'
 import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Warehouse as Warehouses} from '@/db/schema';
 import { usePagination } from '@/hooks/usePagination';
+import { useAdminWarehouses } from '@/hooks/useAdminWarehouses';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 
 interface Warehouse extends Warehouses {
@@ -22,11 +23,12 @@ interface Warehouse extends Warehouses {
 }
 
 export default function WarehousesPage() {
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
+
+  // Fetch warehouses using custom hook
+  const { warehouses, isLoading, refetch: refetchWarehouses } = useAdminWarehouses();
 
   const {
     currentPage,
@@ -36,28 +38,7 @@ export default function WarehousesPage() {
     goToNextPage,
     goToPreviousPage,
     pageSize
-  } = usePagination<Warehouse>({ data: warehouses, pageSize: 5 });
-
-  useEffect(() => {
-    fetchWarehouses();
-  }, []);
-
-  const fetchWarehouses = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/admin/warehouses');
-      if (response.ok) {
-        const data = await response.json();
-        setWarehouses(data);
-      } else {
-        console.error('Failed to fetch warehouses');
-      }
-    } catch (error) {
-      console.error('Error fetching warehouses:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } = usePagination<Warehouse>({ data: warehouses as Warehouse[], pageSize: 5 });
 
   const handleCreateWarehouse = () => {
     setSelectedWarehouse(null);
@@ -88,7 +69,7 @@ export default function WarehousesPage() {
         });
 
         if (response.ok) {
-          await fetchWarehouses();
+          await refetchWarehouses();
         } else {
           console.error('Failed to update warehouse');
         }
@@ -103,7 +84,7 @@ export default function WarehousesPage() {
         });
 
         if (response.ok) {
-          await fetchWarehouses();
+          await refetchWarehouses();
         } else {
           console.error('Failed to create warehouse');
         }
@@ -120,7 +101,7 @@ export default function WarehousesPage() {
       });
 
       if (response.ok) {
-        await fetchWarehouses();
+        await refetchWarehouses();
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to delete warehouse');
@@ -144,7 +125,7 @@ export default function WarehousesPage() {
       });
 
       if (response.ok) {
-        await fetchWarehouses();
+        await refetchWarehouses();
       } else {
         console.error('Failed to update warehouse visibility');
       }

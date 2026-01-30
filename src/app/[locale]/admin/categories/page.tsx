@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CategoryModal } from '@/components/admin/category-modal';
@@ -8,15 +8,17 @@ import { DeleteCategoryModal } from '@/components/admin/delete-category-modal';
 import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Category } from '@/helpers/types/item';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
+import { useAdminCategories } from '@/hooks/useAdminCategories';
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+
+  // Fetch categories using custom hook
+  const { categories, isLoading: loading, refetch: refetchCategories } = useAdminCategories();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,24 +29,6 @@ export default function CategoriesPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentCategories = categories.slice(startIndex, endIndex);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/admin/categories');
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   const handleAddCategory = () => {
     setModalMode('create');
@@ -74,13 +58,13 @@ export default function CategoriesPage() {
   };
 
   const handleSaveSuccess = () => {
-    fetchCategories();
+    refetchCategories();
     // Reset to first page when data changes
     setCurrentPage(1);
   };
 
   const handleDeleteSuccess = () => {
-    fetchCategories();
+    refetchCategories();
     // If current page becomes empty after deletion, go to previous page
     const newTotalPages = Math.ceil((categories.length - 1) / itemsPerPage);
     if (currentPage > newTotalPages && newTotalPages > 0) {

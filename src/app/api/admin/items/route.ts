@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { createHash } from 'crypto';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { Item } from '@/helpers/types/item';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, or, ilike, and, sql, count } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import logger from '@/lib/logger';
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -27,17 +27,109 @@ export async function GET(request: NextRequest) {
       throw new ForbiddenError('Admin access required');
     }
     
-    logger.info('Fetching all items (admin)', { userId: session.user.id });
+    // Extract query parameters
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = parseInt(searchParams.get('pageSize') || '5');
+    const searchTerm = searchParams.get('search') || '';
+    const brandFilter = searchParams.get('brand') || '';
+    const categoryFilter = searchParams.get('category') || '';
+    const hideHidden = searchParams.get('hideHidden') === 'true';
+    
+    logger.info('Fetching items (admin)', { 
+      userId: session.user.id, 
+      page, 
+      pageSize,
+      searchTerm,
+      brandFilter,
+      categoryFilter,
+      hideHidden
+    });
 
-    // Drizzle implementation with new category/subcategory logic
-    const items = await db
+    // Build WHERE conditions for filtering
+    const conditions = [];
+    
+    if (brandFilter) {
+      conditions.push(eq(schema.item.brandSlug, brandFilter));
+    }
+    
+    if (categoryFilter) {
+      conditions.push(eq(schema.item.categorySlug, categoryFilter));
+    }
+    
+    if (hideHidden) {
+      conditions.push(eq(schema.item.isDisplayed, true));
+    }
+    
+    if (searchTerm) {
+      const searchLower = `%${searchTerm.toLowerCase()}%`;
+      const searchConditions = [
+        ilike(schema.item.articleId, searchLower),
+        ilike(schema.item.brandSlug, searchLower)
+      ];
+      
+      // Only add alias search if we're sure the field is searchable
+      searchConditions.push(
+        sql`LOWER(COALESCE(${schema.item.alias}, '')) LIKE ${searchLower}`
+      );
+      
+      conditions.push(or(...searchConditions));
+    }
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    
+    // Get total count for stats and pagination (all items)
+    const [totalCountResult] = await db
+      .select({ count: count() })
+      .from(schema.item);
+    const totalCount = totalCountResult?.count || 0;
+    
+    // Get filtered count
+    const [filteredCountResult] = await db
+      .select({ count: count() })
+      .from(schema.item)
+      .where(whereClause);
+    const filteredCount = filteredCountResult?.count || 0;
+    
+    // Get stats for displayed/hidden items in filtered set
+    const [displayedCountResult] = await db
+      .select({ count: count() })
+      .from(schema.item)
+      .where(whereClause ? and(whereClause, eq(schema.item.isDisplayed, true)) : eq(schema.item.isDisplayed, true));
+    const displayedCount = displayedCountResult?.count || 0;
+    
+    // Get unique brands and categories for filter dropdowns (from all items)
+    const uniqueBrandsResult = await db
+      .selectDistinct({ brandSlug: schema.item.brandSlug })
+      .from(schema.item)
+      .where(sql`${schema.item.brandSlug} IS NOT NULL`);
+    const uniqueBrands = uniqueBrandsResult
+      .map(r => r.brandSlug)
+      .filter((b): b is string => b !== null)
+      .sort();
+    
+    const uniqueCategoriesResult = await db
+      .selectDistinct({ categorySlug: schema.item.categorySlug })
+      .from(schema.item)
+      .where(sql`${schema.item.categorySlug} IS NOT NULL`);
+    const uniqueCategories = uniqueCategoriesResult
+      .map(r => r.categorySlug)
+      .filter((c): c is string => c !== null)
+      .sort();
+
+    // Fetch paginated items with filters
+    const offset = (page - 1) * pageSize;
+    const paginatedItems = await db
       .select()
       .from(schema.item)
-      .orderBy(desc(schema.item.id));
+      .where(whereClause)
+      .orderBy(desc(schema.item.id))
+      .limit(pageSize)
+      .offset(offset);
 
-    // Fetch related data for each item
+    // Fetch related data for paginated items only
     const itemsWithRelations = await Promise.all(
-      items.map(async (item) => {
+      paginatedItems.map(async (item) => {
         let category = null;
         let subCategory = null;
 
@@ -102,6 +194,9 @@ export async function GET(request: NextRequest) {
         return {
           id: item.id,
           articleId: item.articleId,
+          slug: item.slug,
+          alias: item.alias,
+          categorySlug: item.categorySlug,
           isDisplayed: item.isDisplayed,
           sellCounter: item.sellCounter,
           itemImageLink: item.itemImageLink,
@@ -199,11 +294,74 @@ export async function GET(request: NextRequest) {
     });
     */
 
-    const response = NextResponse.json(itemsWithRelations);
-    response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
+    // Calculate stats
+    const stats = {
+      total: totalCount,
+      selected: filteredCount,
+      displayed: displayedCount,
+      hidden: filteredCount - displayedCount,
+    };
+    
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredCount / pageSize);
+
+    // Calculate ETag based on current data + query parameters
+    const dataString = JSON.stringify({
+      items: itemsWithRelations,
+      page,
+      pageSize,
+      searchTerm,
+      brandFilter,
+      categoryFilter,
+      totalCount,
+      filteredCount
+    });
+    const etag = createHash('md5').update(dataString).digest('hex');
+    
+    // Check if client has cached version
+    const clientEtag = request.headers.get('if-none-match');
+    if (clientEtag === etag) {
+      // Data hasn't changed, return 304 Not Modified
+      return new NextResponse(null, { 
+        status: 304,
+        headers: {
+          'ETag': etag,
+          'Cache-Control': 'private, max-age=0, must-revalidate',
+        }
+      });
+    }
+
+    const responseData = {
+      items: itemsWithRelations,
+      pagination: {
+        page,
+        pageSize,
+        totalPages,
+        totalItems: filteredCount,
+      },
+      stats,
+      filters: {
+        brands: uniqueBrands,
+        categories: uniqueCategories,
+      },
+    };
+
+    const response = NextResponse.json(responseData);
+    response.headers.set('ETag', etag);
+    response.headers.set('Cache-Control', 'private, max-age=0, must-revalidate');
+    
+    const duration = Date.now() - startTime;
+    logger.info('Items fetched successfully', { 
+      userId: session.user.id,
+      itemCount: itemsWithRelations.length,
+      totalPages,
+      duration 
+    });
+    
     return response;
   } catch (error) {
     console.error('Error fetching items:', error);
+    logger.error('Error fetching items', { error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -211,7 +369,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
-      headers: await headers()
+      headers: request.headers
     });
 
     if (!session?.user) {
@@ -226,6 +384,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as Item;
     const {
       articleId,
+      alias,
+      slug,
       isDisplayed,
       itemImageLink,
       itemPrice,
@@ -236,8 +396,8 @@ export async function POST(request: NextRequest) {
       warrantyLength,
     } = body;
 
-    if (!articleId) {
-      return NextResponse.json({ error: 'Article ID is required' }, { status: 400 });
+    if (!slug || !articleId) {
+      return NextResponse.json({ error: 'Slug and Article ID are required' }, { status: 400 });
     }
 
     // Drizzle implementation with new category/subcategory logic
@@ -274,7 +434,8 @@ export async function POST(request: NextRequest) {
       .insert(schema.item)
       .values({
         articleId: articleId,
-        slug: articleId, // Add the required slug field
+        slug: slug, // Add the required slug field,
+        alias: alias || '',
         isDisplayed: isDisplayed ?? false,
         itemImageLink: itemImageLink || null,
         categorySlug: finalCategorySlug || "",
@@ -294,7 +455,7 @@ export async function POST(request: NextRequest) {
         .map((price: any) => ({
           id: crypto.randomUUID(),
           itemId: newItem.id,
-          itemSlug: newItem.articleId,
+          itemSlug: newItem.slug,
           warehouseId: price.warehouseId,
           price: price.price,
           quantity: price.quantity,
@@ -330,7 +491,7 @@ export async function POST(request: NextRequest) {
     if (itemDetails && itemDetails.length > 0) {
       const detailRecords = itemDetails.map((detail: any) => ({
         id: crypto.randomUUID(),
-        itemSlug: newItem.articleId,
+        itemSlug: newItem.slug,
         locale: detail.locale,
         itemName: detail.itemName,
         description: detail.description,
@@ -355,7 +516,7 @@ export async function POST(request: NextRequest) {
     const createdItemDetails = await db
       .select()
       .from(schema.itemDetails)
-      .where(eq(schema.itemDetails.itemSlug, createdItem.articleId));
+      .where(eq(schema.itemDetails.itemSlug, createdItem.slug));
 
     const createdItemPrices = await db
       .select({
@@ -374,7 +535,7 @@ export async function POST(request: NextRequest) {
       })
       .from(schema.itemPrice)
       .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-      .where(eq(schema.itemPrice.itemSlug, createdItem.articleId));
+      .where(eq(schema.itemPrice.itemSlug, createdItem.slug));
 
     /* Prisma implementation (commented out)
     const user = await db.user.findUnique({

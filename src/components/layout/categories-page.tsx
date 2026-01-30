@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from "@/components/cart-context";
 import PageLayout from '@/components/layout/page-layout';
 import { CartItemType } from '@/helpers/types/item';
-import { ItemResponse } from '@/helpers/types/api-responses';
 import { useCatalogPricing } from '@/hooks/useCatalogPricing';
+import { useCategoryData } from '@/hooks/useCategoryData';
 import { calculateDiscountPercentage } from '@/helpers/pricing';
 import { useCatalogFilters } from '@/hooks/useCatalogFilters';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -15,14 +15,13 @@ import { CategoryHeader } from '@/components/category/category-header';
 import { CategorySidebar } from '@/components/category/category-sidebar';
 import { ProductsGrid } from '@/components/category/products-grid';
 import { MobileFilterDrawer } from '@/components/category/mobile-filter-drawer';
+import { Pagination } from '@/components/category/pagination';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown } from 'lucide-react';
-
-type Item = ItemResponse;
 
 export default function CategoriesPage({ locale }: { locale: string }) {
   const t = useTranslations('categories');
@@ -32,16 +31,11 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     addToCart,
   } = useCart();
 
-  // All categories page states
-  const [items, setItems] = useState<Item[]>([]);
-  const [brands, setBrands] = useState<{ name: string; slug: string }[]>([]);
-  const [warehouses, setWarehouses] = useState<
-    { id: string; name: string; country: string; displayedName: string }[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
+  const [pageSize, setPageSize] = useState(16);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     viewMode,
@@ -58,16 +52,21 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const urlWarehouses = searchParams?.getAll('warehouse') || [];
   const searchQuery = searchParams?.get('search') || '';
 
-  // Categories data
-  const [categories, setCategories] = useState<
-    {
-      id: string;
-      name: string;
-      slug: string;
-      image: string;
-      subcategories: { id: string; name: string; slug: string }[];
-    }[]
-  >([]);
+  // Use custom hook for fetching all category data
+  const {
+    items,
+    categories,
+    brands,
+    warehouses,
+    isLoading,
+  } = useCategoryData({
+    locale,
+    filters: {
+      brand: urlBrands,
+      warehouse: urlWarehouses,
+      ...(searchQuery && { search: searchQuery }),
+    },
+  });
 
   const { getItemDetails, getItemPrice, getAvailableWarehouses } =
     useCatalogPricing({
@@ -101,6 +100,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlBrands.filter(b => b !== brand);
     
     updateURLParams('brand', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleWarehouseSelectionWithURL = (warehouseId: string, checked: boolean) => {
@@ -109,107 +109,33 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlWarehouses.filter(w => w !== warehouseId);
     
     updateURLParams('warehouse', currentSelected);
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
-  useEffect(() => {
-    fetchAllData();
-  }, [searchParams]);
+  // Handler for page size change
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
 
-  const fetchAllData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Build query string from URL parameters
-      const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
-      urlBrands.forEach(brand => params.append('brand', brand));
-      urlWarehouses.forEach(wh => params.append('warehouse', wh));
-      
-      const queryString = params.toString();
-      const apiUrl = `/api/public/items/${locale}${queryString ? `?${queryString}` : ''}`;
-      
-      console.log('[Categories Page] Fetching from:', apiUrl);
-      const response = await fetch(apiUrl);
-      
-      if (response.ok) {
-        const data = (await response.json()) as Item[];
-        setItems(data);
-        
-        // Also fetch all items to get full category info (for sidebar)
-        const allItemsResponse = await fetch(`/api/public/items/${locale}`);
-        if (allItemsResponse.ok) {
-          const allItems = (await allItemsResponse.json()) as Item[];
-          
-          // Build categories map from all items
-          const categoryMap = new Map();
-          allItems.forEach((item) => {
-            if (item.category && !categoryMap.has(item.category.slug)) {
-              categoryMap.set(item.category.slug, {
-                id: item.category.slug,
-                name: item.category.name,
-                slug: item.category.slug,
-                image: "/placeholder-category.jpg",
-                subcategories: item.category.subCategories.map((sub) => ({
-                  id: sub.slug,
-                  name: sub.name,
-                  slug: sub.slug,
-                })),
-              });
-            }
-          });
-
-          const categoriesArray = Array.from(categoryMap.values());
-          setCategories(categoriesArray);
-
-          // Extract unique brands with name and slug
-          const brandMap = new Map();
-          allItems.forEach((item) => {
-            if (item.brand?.alias && item.brand?.name) {
-              brandMap.set(item.brand.alias, {
-                name: item.brand.name,
-                slug: item.brand.alias,
-              });
-            }
-          });
-          const uniqueBrands = Array.from(brandMap.values());
-          setBrands(uniqueBrands);
-
-          // Extract unique warehouses
-          const warehouseMap = new Map();
-          allItems.forEach((item) => {
-            item.prices.forEach((price) => {
-              if (price.warehouse) {
-                warehouseMap.set(price.warehouse.slug, {
-                  id: price.warehouse.slug,
-                  name: price.warehouse.name || price.warehouse.slug,
-                  country: price.warehouse.country?.name || "Unknown",
-                  displayedName:
-                    price.warehouse.displayedName ||
-                    price.warehouse.name ||
-                    price.warehouse.slug,
-                });
-              }
-            });
-          });
-          const uniqueWarehouses = Array.from(warehouseMap.values());
-          setWarehouses(uniqueWarehouses);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching all data:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  // Handler for page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
-  const minPrice = items.length > 0
+  // If no filters are applied, use full range (0 to 100000)
+  // If filters are applied, use actual min/max from filtered items
+  const hasActiveFilters = urlBrands.length > 0 || urlWarehouses.length > 0 || searchQuery !== '';
+  
+  const minPrice = hasActiveFilters && items.length > 0
     ? Math.floor(Math.min(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
         return convertPrice(price);
       })))
     : 0;
-  const maxPrice = items.length > 0
+  const maxPrice = hasActiveFilters && items.length > 0
     ? Math.ceil(Math.max(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
         return convertPrice(price);
@@ -252,6 +178,20 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       }
     });
 
+  // Apply pagination
+  const totalItems = sortedItems.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedItems = sortedItems.slice(startIndex, endIndex);
+
+  // Reset to page 1 if current page is out of bounds
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
   return (
     <PageLayout>
       <div className="min-h-screen bg-gray-50">
@@ -267,11 +207,13 @@ export default function CategoriesPage({ locale }: { locale: string }) {
             {/* Category Header */}
             <CategoryHeader
               categoryName={searchQuery ? t('searchResults') : t('pageTitle')}
-              productsCount={sortedItems.length}
+              productsCount={totalItems}
               sortBy={sortBy}
               setSortBy={setSortBy}
               viewMode={viewMode}
               setViewMode={setViewMode}
+              pageSize={pageSize}
+              setPageSize={handlePageSizeChange}
             />
 
             {isLoading ? (
@@ -431,7 +373,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                 {/* Products Grid/List */}
                 <div className="lg:col-span-3">
                   <ProductsGrid
-                    items={sortedItems}
+                    items={paginatedItems}
                     viewMode={viewMode}
                     getItemDetails={getItemDetails}
                     getItemPrice={getItemPrice}
@@ -449,8 +391,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                         : null;
 
                       const cartItem: Omit<CartItemType, "quantity"> = {
-                        id: `${item.articleId}-${warehouseId}`,
-                        slug: item.articleId,
+                        id: `${item.slug}-${warehouseId}`,
+                        slug: item.slug,
+                        alias: null,
                         articleId: item.articleId,
                         itemImageLink: item.itemImageLink,
                         categorySlug: item.categorySlug,
@@ -489,13 +432,13 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                               updatedAt: item.brand.updatedAt || now,
                             } as any)
                           : null,
-                        warrantyType: item.warrantyType ?? null,
-                        warrantyLength: item.warrantyLength ?? null,
+                        warrantyType: item.warrantyType ?? 'manufacturer',
+                        warrantyLength: item.warrantyLength ?? 12,
                         itemDetails: [
                           {
                             ...item.details,
                             id: item.articleId,
-                            itemSlug: item.articleId,
+                            itemSlug: item.slug,
                           },
                         ] as any,
                         itemPrice: item.prices as any,
@@ -509,6 +452,17 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       addToCart(cartItem);
                     }}
                   />
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      hasNextPage={currentPage < totalPages}
+                      hasPreviousPage={currentPage > 1}
+                    />
+                  )}
                 </div>
               </div>
             )}
@@ -529,6 +483,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
           maxPrice={maxPrice}
           priceRange={priceRange}
           onPriceChange={setPriceRange}
+          totalItems={items.length}
         />
       </div>
     </PageLayout>

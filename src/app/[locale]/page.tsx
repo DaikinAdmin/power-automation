@@ -1,17 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PageLayout from "@/components/layout/page-layout";
 import Carousel from "@/components/banner-carousel";
-import { ItemResponse } from "@/helpers/types/api-responses";
 import { useLocale, useTranslations } from "next-intl";
 import BrandsCarousel from "@/components/home/brands-carousel";
 import { useCategories } from "@/hooks/useCategories";
+import { usePublicItems } from "@/hooks/usePublicItems";
+import { usePublicBrands } from "@/hooks/usePublicBrands";
 import FeaturesSection from "@/components/home/features-section";
 import ProductsTabsSection from "@/components/home/products-tabs-section";
 import CategoriesSection from "@/components/home/categories-section";
-
-type Item = ItemResponse;
-
 
 export default function Home() {
   const locale = useLocale();
@@ -19,48 +17,20 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<
     "bestsellers" | "discount" | "new"
   >("bestsellers");
-  const [items, setItems] = useState<Item[]>([]);
-  const [brands, setBrands] = useState<
-    { id: string; name: string; logo: string }[]
-  >([]);
-  const [isDataLoading, setIsDataLoading] = useState(true);
 
-  // Use the categories hook
+  // Use custom hooks for data fetching
+  const { items, isLoading: isItemsLoading } = usePublicItems({ locale });
+  const { brands: brandsData, isLoading: isBrandsLoading } = usePublicBrands();
   const { categories, isLoading: isCategoriesLoading } = useCategories(locale);
 
-  const fetchData = async () => {
-    try {
-      setIsDataLoading(true);
-      const [itemsRes, brandsRes] = await Promise.all([
-        fetch(`/api/public/items/${locale}`),
-        fetch(`/api/public/brands`),
-      ]);
+  // Transform brands data for BrandsCarousel component
+  const brands = brandsData.map(b => ({
+    id: b.alias,
+    name: b.name,
+    logo: b.imageLink,
+  }));
 
-      if (itemsRes.ok) {
-        const itemsData = (await itemsRes.json()) as Item[];
-        setItems(itemsData);
-      }
-
-      if (brandsRes.ok) {
-        const brandsData = (await brandsRes.json()) as Array<{
-          alias: string;
-          name: string;
-          imageLink: string;
-        }>;
-        setBrands(
-          brandsData.map((b) => ({ id: b.alias, name: b.name, logo: b.imageLink }))
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsDataLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [locale]);
+  const isDataLoading = isItemsLoading || isBrandsLoading;
 
   return (
     <PageLayout>
