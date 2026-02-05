@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import Image from 'next/image';
+} from "@/components/ui/select";
+import Image from "next/image";
 
 interface Banner {
   id: number;
@@ -39,25 +45,27 @@ interface BannerModalProps {
 }
 
 const POSITIONS = [
-  { value: 'home_top', label: 'Home - Top' },
-  { value: 'home_middle', label: 'Home - Middle' },
-  { value: 'home_bottom', label: 'Home - Bottom' },
-  { value: 'catalog_sidebar', label: 'Catalog - Sidebar' },
-  { value: 'catalog_top', label: 'Catalog - Top' },
-  { value: 'promo', label: 'Promo Section' },
-  { value: 'category_top', label: 'Category - Top' },
+  { value: "home_top", label: "Home - Top" },
+  { value: "home_middle", label: "Home - Middle" },
+  { value: "home_bottom", label: "Home - Bottom" },
+  { value: "catalog_sidebar", label: "Catalog - Sidebar" },
+  { value: "catalog_top", label: "Catalog - Top" },
+  { value: "promo", label: "Promo Section" },
+  { value: "category_top", label: "Category - Top" },
 ];
 
 const DEVICES = [
-  { value: 'desktop', label: 'Desktop' },
-  { value: 'mobile', label: 'Mobile' },
+  { value: "ultrawide", label: "Ultrawide" },
+  { value: "desktop", label: "Desktop" },
+  { value: "laptop", label: "Laptop" },
+  { value: "mobile", label: "Mobile" },
 ];
 
 const LOCALES = [
-  { value: 'pl', label: '🇵🇱 Polski' },
-  { value: 'en', label: '🇬🇧 English' },
-  { value: 'es', label: '🇪🇸 Español' },
-  { value: 'ua', label: '🇺🇦 Українська' },
+  { value: "pl", label: "🇵🇱 Polski" },
+  { value: "en", label: "🇬🇧 English" },
+  { value: "es", label: "🇪🇸 Español" },
+  { value: "ua", label: "🇺🇦 Українська" },
 ];
 
 export function BannerModal({
@@ -70,9 +78,9 @@ export function BannerModal({
   currentLocale,
 }: BannerModalProps) {
   const [formData, setFormData] = useState({
-    title: '',
-    imageUrl: '',
-    linkUrl: '',
+    title: "",
+    imageUrl: "",
+    linkUrl: "",
     position: currentPosition,
     device: currentDevice,
     locale: currentLocale,
@@ -83,9 +91,9 @@ export function BannerModal({
   useEffect(() => {
     if (banner) {
       setFormData({
-        title: banner.title || '',
+        title: banner.title || "",
         imageUrl: banner.imageUrl,
-        linkUrl: banner.linkUrl || '',
+        linkUrl: banner.linkUrl || "",
         position: banner.position,
         device: banner.device,
         locale: banner.locale,
@@ -93,9 +101,9 @@ export function BannerModal({
       });
     } else {
       setFormData({
-        title: '',
-        imageUrl: '',
-        linkUrl: '',
+        title: "",
+        imageUrl: "",
+        linkUrl: "",
         position: currentPosition,
         device: currentDevice,
         locale: currentLocale,
@@ -106,9 +114,9 @@ export function BannerModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.imageUrl.trim()) {
-      alert('Please provide an image URL');
+      alert("Please provide an image URL");
       return;
     }
 
@@ -117,7 +125,7 @@ export function BannerModal({
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving banner:', error);
+      console.error("Error saving banner:", error);
     } finally {
       setIsSaving(false);
     }
@@ -128,7 +136,7 @@ export function BannerModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {banner ? 'Edit Banner' : 'Create New Banner'}
+            {banner ? "Edit Banner" : "Create New Banner"}
           </DialogTitle>
         </DialogHeader>
 
@@ -140,7 +148,9 @@ export function BannerModal({
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Enter banner title"
               />
             </div>
@@ -151,7 +161,9 @@ export function BannerModal({
               <Input
                 id="imageUrl"
                 value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
                 placeholder="https://example.com/banner.jpg"
                 required
               />
@@ -174,7 +186,9 @@ export function BannerModal({
               <Input
                 id="linkUrl"
                 value={formData.linkUrl}
-                onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, linkUrl: e.target.value })
+                }
                 placeholder="https://example.com/promo"
                 type="url"
               />
@@ -185,7 +199,9 @@ export function BannerModal({
               <Label htmlFor="position">Position</Label>
               <Select
                 value={formData.position}
-                onValueChange={(value) => setFormData({ ...formData, position: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, position: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -205,7 +221,9 @@ export function BannerModal({
               <Label htmlFor="device">Device</Label>
               <Select
                 value={formData.device}
-                onValueChange={(value) => setFormData({ ...formData, device: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, device: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -225,7 +243,9 @@ export function BannerModal({
               <Label htmlFor="locale">Locale</Label>
               <Select
                 value={formData.locale}
-                onValueChange={(value) => setFormData({ ...formData, locale: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, locale: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -261,11 +281,20 @@ export function BannerModal({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSaving}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Saving...' : banner ? 'Update Banner' : 'Create Banner'}
+              {isSaving
+                ? "Saving..."
+                : banner
+                  ? "Update Banner"
+                  : "Create Banner"}
             </Button>
           </DialogFooter>
         </form>
