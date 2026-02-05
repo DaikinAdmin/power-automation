@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .where(eq(schema.order.userId, session.user.id))
       .orderBy(desc(schema.order.createdAt));
 
-    // Fetch related items for each order
+    // Fetch related items and payments for each order
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
         // Parse lineItems to get itemIds
@@ -39,8 +39,21 @@ export async function GET(request: NextRequest) {
           ? lineItems.map((item: any) => item.itemId).filter(Boolean)
           : [];
 
+        // Fetch payment data for the order
+        const [paymentData] = await db
+          .select({
+            id: schema.payment.id,
+            status: schema.payment.status,
+            currency: schema.payment.currency,
+            amount: schema.payment.amount,
+            paymentMethod: schema.payment.paymentMethod,
+          })
+          .from(schema.payment)
+          .where(eq(schema.payment.orderId, order.id))
+          .limit(1);
+
         if (itemIds.length === 0) {
-          return { ...order, items: [] };
+          return { ...order, items: [], payment: paymentData || null };
         }
 
         // Fetch items with details and prices
@@ -79,7 +92,7 @@ export async function GET(request: NextRequest) {
           })
         );
 
-        return { ...order, items: itemsWithRelations };
+        return { ...order, items: itemsWithRelations, payment: paymentData || null };
       })
     );
 

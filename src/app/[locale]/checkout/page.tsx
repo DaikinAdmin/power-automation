@@ -10,6 +10,7 @@ import { countryCodes } from "@/helpers/country-codes";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from "@/components/languge-switcher";
+import { useRouter } from 'next/navigation';
 
 interface CheckoutForm {
   firstName: string;
@@ -34,6 +35,7 @@ export default function CheckoutPage({
 }) {
   const { locale } = use(params);
   const t = useTranslations('checkout');
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -179,8 +181,8 @@ export default function CheckoutPage({
       // Clear cart after successful order
       cartItems.forEach(item => removeFromCart(item.id));
       
-      // Show success message
-      alert(`${t('messages.orderCreated')} ${result.order.id}`);
+      // Redirect to payment page instead of showing success message
+      router.push(`/${locale}/payment?orderId=${result.order.id}`);
       
     } catch (error: any) {
       setOrderError(error.message || 'Failed to create order');

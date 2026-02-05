@@ -45,6 +45,21 @@ export async function GET(
       throw new NotFoundError('Order not found');
     }
 
+    // Fetch payment data for the order
+    const [paymentData] = await db
+      .select({
+        id: schema.payment.id,
+        status: schema.payment.status,
+        currency: schema.payment.currency,
+        amount: schema.payment.amount,
+        paymentMethod: schema.payment.paymentMethod,
+        sessionId: schema.payment.sessionId,
+        transactionId: schema.payment.transactionId,
+      })
+      .from(schema.payment)
+      .where(eq(schema.payment.orderId, order.id))
+      .limit(1);
+
     // Parse lineItems to get itemIds
     const lineItems = typeof order.lineItems === 'string' 
       ? JSON.parse(order.lineItems) 
@@ -98,7 +113,7 @@ export async function GET(
       );
     }
 
-    const orderWithItems = { ...order, items };
+    const orderWithItems = { ...order, items, payment: paymentData || null };
 
     /* Prisma implementation (commented out)
     const order = await db.order.findFirst({

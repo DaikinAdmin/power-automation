@@ -166,6 +166,73 @@
       "orderCreated": "Order created successfully! Order ID:"
     }
   },
+  "payment": {
+    "title": "Payment",
+    "backToShop": "Back to Shop",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "errors": {
+      "title": "Error",
+      "noOrder": "No order ID",
+      "noOrderDescription": "No valid order ID provided. Please return to the shop and try again."
+    },
+    "orderSummary": {
+      "title": "Order Summary",
+      "orderId": "Order ID",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total to Pay"
+    },
+    "paymentInfo": {
+      "title": "Secure Payment",
+      "securePayment": "Your payment is protected by Przelewy24. All data is encrypted and secure.",
+      "methods": "Available payment methods:",
+      "creditCard": "Credit/Debit Card",
+      "bankTransfer": "Bank Transfer",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "poweredBy": "Payment powered by"
+    },
+    "buttons": {
+      "proceedToPayment": "Proceed to Payment",
+      "processing": "Processing...",
+      "alreadyPaid": "Already Paid"
+    },
+    "additionalInfo": {
+      "text": "After payment, you will receive a confirmation email. If you have any questions, please contact our customer service."
+    }
+  },
+  "paymentReturn": {
+    "backToShop": "Back to Shop",
+    "processing": {
+      "title": "Processing Payment",
+      "message": "Please wait, we're checking your payment status..."
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "message": "Thank you for your payment.",
+      "orderId": "Order ID",
+      "amount": "Amount",
+      "status": "Status",
+      "emailSent": "We have sent an order confirmation to your email address.",
+      "viewOrders": "View Orders",
+      "continueShopping": "Continue Shopping"
+    },
+    "pending": {
+      "title": "Payment Pending",
+      "message": "Your payment is being processed. This may take a few minutes.",
+      "orderId": "Order ID",
+      "checkStatus": "Check Status"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "message": "Unfortunately, your payment was not completed.",
+      "orderId": "Order ID",
+      "tryAgain": "Please try again or contact our customer service.",
+      "retryPayment": "Try Again",
+      "backToShop": "Back to Shop"
+    }
+  },
   "dashboard": {
     "welcomeBack": "Welcome back",
     "statsOverview": "Stats overview",
@@ -187,6 +254,77 @@
       "visualizeSpending": "Visualize spending over time with monthly charts.",
       "trackOrders": "Track order fulfillment stages in real time.",
       "loyaltyRewards": "Keep an eye on loyalty rewards and upcoming renewals."
+    },
+    "orders": {
+      "title": "Your orders",
+      "subtitle": "Track purchases, check delivery progress, and access receipts.",
+      "stats": {
+        "totalOrders": "Total Orders",
+        "active": "Active",
+        "completed": "Completed",
+        "totalSpend": "Total Spend",
+        "completedOnly": "Completed orders only"
+      },
+      "table": {
+        "title": "Order history",
+        "subtitle": "View recent orders, check statuses, and open detailed receipts.",
+        "orderId": "Order ID",
+        "items": "Items",
+        "total": "Total",
+        "status": "Status",
+        "paymentStatus": "Payment Status",
+        "date": "Date",
+        "actions": "Actions",
+        "view": "View",
+        "refund": "Refund",
+        "itemsCount": "{{count}} item",
+        "itemsCount_other": "{{count}} items",
+        "moreItems": "+{{count}} more",
+        "noOrders": "You haven't placed any orders yet.",
+        "refunding": "Refunding...",
+        "refundConfirm": "Are you sure you want to refund this order? This action cannot be undone.",
+        "refundSuccess": "Refund processed successfully",
+        "refundError": "Failed to process refund"
+      },
+      "detail": {
+        "backToOrders": "Back to Orders",
+        "orderNumber": "Order #{{id}}",
+        "placedOn": "Placed on {{date}}",
+        "payNow": "Pay Now",
+        "proceedWithPayment": "Proceed with Payment",
+        "cancelOrder": "Cancel Order",
+        "refundOrder": "Refund Order",
+        "cancelling": "Cancelling...",
+        "refunding": "Refunding...",
+        "orderNotFound": "Order not found",
+        "orderItems": "Order Items ({{count}})",
+        "articleId": "Article ID",
+        "quantity": "Qty: {{quantity}}",
+        "unit": "Unit: {{price}}",
+        "orderSummary": "Order Summary",
+        "subtotal": "Subtotal:",
+        "totalFormatted": "Total (formatted):",
+        "total": "Total:",
+        "orderTimeline": "Order Timeline",
+        "orderPlaced": "Order Placed",
+        "lastUpdated": "Last Updated",
+        "deliveryInfo": "Delivery Information",
+        "deliveryId": "Delivery ID: {{id}}",
+        "paymentInfo": "Payment Information",
+        "paymentStatus": "Payment Status:",
+        "paidWith": "Paid with:",
+        "cancelConfirm": "Are you sure you want to cancel this order?",
+        "refundConfirm": "Are you sure you want to refund this order? This action cannot be undone."
+      }
+    },
+    "profile": {
+      "title": "Profile settings",
+      "subtitle": "Update your personal information. Your email address stays read-only for security.",
+      "accountDetails": "Account details",
+      "accountDescription": "Editable fields will arrive with the profile management milestone.",
+      "email": "Email:",
+      "name": "Name:",
+      "editNote": "We'll surface editable fields (name, phone, address) here soon, including validation and audit history."
     }
   },
   "product": {

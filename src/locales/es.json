@@ -178,6 +178,100 @@
     },
     "descriptions": {
       "analyticsComingSoon": "Análisis próximamente",
+      "trendingCategories": "Destacaremos categorías populares próximamente",
+      "currencySummaries": "Los resúmenes con divisa aparecerán aquí",
+      "contactSupport": "Comunícate en cualquier momento desde la sección de Contacto"
+    },
+    "whatsNext": {
+      "title": "¿Qué sigue?",
+      "visualizeSpending": "Visualiza el gasto a lo largo del tiempo con gráficos mensuales.",
+      "trackOrders": "Rastrea las etapas de cumplimiento del pedido en tiempo real.",
+      "loyaltyRewards": "Mantente al tanto de las recompensas de fidelidad y las renovaciones próximas."
+    },
+    "orders": {
+      "title": "Tus pedidos",
+      "subtitle": "Rastrea compras, verifica el progreso de entrega y accede a recibos.",
+      "stats": {
+        "totalOrders": "Total de pedidos",
+        "active": "Activos",
+        "completed": "Completados",
+        "totalSpend": "Gasto total",
+        "completedOnly": "Solo pedidos completados"
+      },
+      "table": {
+        "title": "Historial de pedidos",
+        "subtitle": "Ver pedidos recientes, verificar estados y abrir recibos detallados.",
+        "orderId": "ID de pedido",
+        "items": "Artículos",
+        "total": "Total",
+        "status": "Estado",
+        "paymentStatus": "Estado del pago",
+        "date": "Fecha",
+        "actions": "Acciones",
+        "view": "Ver",
+        "refund": "Reembolso",
+        "itemsCount_one": "{{count}} artículo",
+        "itemsCount_other": "{{count}} artículos",
+        "moreItems": "+{{count}} más",
+        "noOrders": "Aún no has realizado ningún pedido.",
+        "refunding": "Reembolsando...",
+        "refundConfirm": "¿Estás seguro de que quieres reembolsar este pedido? Esta acción no se puede deshacer.",
+        "refundSuccess": "Reembolso procesado exitosamente",
+        "refundError": "Error al procesar el reembolso"
+      },
+      "detail": {
+        "backToOrders": "Volver a pedidos",
+        "orderNumber": "Pedido #{{id}}",
+        "placedOn": "Realizado el {{date}}",
+        "payNow": "Pagar ahora",
+        "proceedWithPayment": "Proceder al pago",
+        "cancelOrder": "Cancelar pedido",
+        "refundOrder": "Reembolsar pedido",
+        "cancelling": "Cancelando...",
+        "refunding": "Reembolsando...",
+        "orderNotFound": "Pedido no encontrado",
+        "orderItems": "Artículos del pedido ({{count}})",
+        "articleId": "ID de artículo",
+        "quantity": "Cantidad: {{quantity}}",
+        "unit": "Unidad: {{price}}",
+        "orderSummary": "Resumen del pedido",
+        "subtotal": "Subtotal:",
+        "totalFormatted": "Total (formateado):",
+        "total": "Total:",
+        "orderTimeline": "Línea de tiempo del pedido",
+        "orderPlaced": "Pedido realizado",
+        "lastUpdated": "Última actualización",
+        "deliveryInfo": "Información de entrega",
+        "deliveryId": "ID de entrega: {{id}}",
+        "paymentInfo": "Información del pago",
+        "paymentStatus": "Estado del pago:",
+        "paidWith": "Pagado con:",
+        "cancelConfirm": "¿Estás seguro de que quieres cancelar este pedido?",
+        "refundConfirm": "¿Estás seguro de que quieres reembolsar este pedido? Esta acción no se puede deshacer."
+      }
+    },
+    "profile": {
+      "title": "Configuración del perfil",
+      "subtitle": "Actualiza tu información personal. Tu dirección de correo electrónico permanece de solo lectura por seguridad.",
+      "accountDetails": "Detalles de la cuenta",
+      "accountDescription": "Los campos editables llegarán con el hito de administración de perfil.",
+      "email": "Correo electrónico:",
+      "name": "Nombre:",
+      "editNote": "Pronto mostraremos campos editables (nombre, teléfono, dirección), incluida la validación y el historial de auditoría."
+    }
+  },
+  "dashboard": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "statsOverview": "Resumen de estadísticas",
+    "greeting": "Hola {{name}}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
+    "stats": {
+      "ordersPlaced": "Pedidos realizados",
+      "itemsPurchased": "Artículos comprados",
+      "totalSpend": "Gasto total",
+      "supportTickets": "Tickets de soporte abiertos"
+    },
+    "descriptions": {
+      "analyticsComingSoon": "Análisis próximamente",
       "trendingCategories": "Destacaremos las categorías de tendencia a continuación",
       "currencySummaries": "Aquí aparecerán resúmenes con reconocimiento de moneda",
       "contactSupport": "Comuníquese en cualquier momento desde la sección de Contacto"

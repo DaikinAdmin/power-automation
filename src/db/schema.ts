@@ -45,6 +45,15 @@ export const outOfStockStatus = pgEnum("OutOfStockStatus", [
   "FULFILLED",
   "CANCELLED",
 ]);
+export const paymentStatus = pgEnum("PaymentStatus", [
+  "PENDING",
+  "INITIATED",
+  "PROCESSING",
+  "COMPLETED",
+  "FAILED",
+  "CANCELLED",
+  "REFUNDED",
+]);
 
 // export const prismaMigrations = pgTable("_prisma_migrations", {
 // 	id: varchar({ length: 36 }).primaryKey().notNull(),
@@ -816,12 +825,57 @@ export const banners = pgTable(
     updatedAt: timestamp("updated_at").defaultNow(),
   }
 );
+
+export const payment = pgTable(
+  "payment",
+  {
+    id: text()
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    orderId: text().notNull(),
+    sessionId: text(), // Przelewy24 session ID
+    merchantId: text(), // Przelewy24 merchant ID
+    posId: text(), // Przelewy24 POS ID
+    transactionId: text(), // Przelewy24 transaction ID after payment
+    amount: integer().notNull(), // Amount in grosze/cents
+    currency: text().default("PLN").notNull(),
+    status: paymentStatus().default("PENDING").notNull(),
+    paymentMethod: text(), // Method used (card, transfer, etc.)
+    p24Email: text(), // Email used in Przelewy24
+    p24OrderId: text(), // Order ID sent to Przelewy24
+    description: text(), // Payment description
+    returnUrl: text(), // URL to return after payment
+    statusUrl: text(), // URL for payment status notifications
+    metadata: jsonb(), // Additional metadata
+    errorCode: text(), // Error code if payment failed
+    errorMessage: text(), // Error message if payment failed
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.orderId],
+      foreignColumns: [order.id],
+      name: "payment_orderId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+    index("payment_orderId_idx").on(table.orderId),
+    index("payment_sessionId_idx").on(table.sessionId),
+    index("payment_transactionId_idx").on(table.transactionId),
+  ]
+);
+
 // Type exports for use in the application
 export type Badge = (typeof badge.enumValues)[number];
 export type CartStatus = (typeof cartStatus.enumValues)[number];
 export type Currency = (typeof currency.enumValues)[number];
 export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export type OutOfStockStatus = (typeof outOfStockStatus.enumValues)[number];
+export type PaymentStatus = (typeof paymentStatus.enumValues)[number];
 
 export type Item = typeof item.$inferSelect;
 export type ItemInsert = typeof item.$inferInsert;
@@ -872,3 +926,5 @@ export type CurrencyExchange = typeof currencyExchange.$inferSelect;
 export type CurrencyExchangeInsert = typeof currencyExchange.$inferInsert;
 export type Messages = typeof messages.$inferSelect;
 export type MessagesInsert = typeof messages.$inferInsert;
+export type Payment = typeof payment.$inferSelect;
+export type PaymentInsert = typeof payment.$inferInsert;

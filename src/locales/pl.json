@@ -166,6 +166,73 @@
       "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:"
     }
   },
+  "payment": {
+    "title": "Płatność",
+    "backToShop": "Wróć do sklepu",
+    "loading": "Ładowanie...",
+    "retry": "Spróbuj ponownie",
+    "errors": {
+      "title": "Błąd",
+      "noOrder": "Brak numeru zamówienia",
+      "noOrderDescription": "Nie podano prawidłowego numeru zamówienia. Wróć do sklepu i spróbuj ponownie."
+    },
+    "orderSummary": {
+      "title": "Podsumowanie zamówienia",
+      "orderId": "Numer zamówienia",
+      "date": "Data",
+      "status": "Status",
+      "total": "Razem do zapłaty"
+    },
+    "paymentInfo": {
+      "title": "Bezpieczna płatność",
+      "securePayment": "Twoja płatność jest chroniona przez Przelewy24. Wszystkie dane są szyfrowane i bezpieczne.",
+      "methods": "Dostępne metody płatności:",
+      "creditCard": "Karta kredytowa/debetowa",
+      "bankTransfer": "Przelew bankowy",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "poweredBy": "Płatność obsługiwana przez"
+    },
+    "buttons": {
+      "proceedToPayment": "Przejdź do płatności",
+      "processing": "Przetwarzanie...",
+      "alreadyPaid": "Już opłacone"
+    },
+    "additionalInfo": {
+      "text": "Po dokonaniu płatności otrzymasz e-mail z potwierdzeniem. W razie pytań skontaktuj się z naszym działem obsługi klienta."
+    }
+  },
+  "paymentReturn": {
+    "backToShop": "Wróć do sklepu",
+    "processing": {
+      "title": "Przetwarzanie płatności",
+      "message": "Proszę czekać, sprawdzamy status Twojej płatności..."
+    },
+    "success": {
+      "title": "Płatność zakończona pomyślnie!",
+      "message": "Dziękujemy za dokonanie płatności.",
+      "orderId": "Numer zamówienia",
+      "amount": "Kwota",
+      "status": "Status",
+      "emailSent": "Na Twój adres e-mail wysłaliśmy potwierdzenie zamówienia.",
+      "viewOrders": "Zobacz zamówienia",
+      "continueShopping": "Kontynuuj zakupy"
+    },
+    "pending": {
+      "title": "Płatność w trakcie",
+      "message": "Twoja płatność jest przetwarzana. Może to potrwać kilka minut.",
+      "orderId": "Numer zamówienia",
+      "checkStatus": "Sprawdź status"
+    },
+    "failed": {
+      "title": "Płatność nie powiodła się",
+      "message": "Niestety, Twoja płatność nie została zrealizowana.",
+      "orderId": "Numer zamówienia",
+      "tryAgain": "Spróbuj ponownie dokonać płatności lub skontaktuj się z naszym działem obsługi klienta.",
+      "retryPayment": "Spróbuj ponownie",
+      "backToShop": "Wróć do sklepu"
+    }
+  },
   "dashboard": {
     "welcomeBack": "Witaj ponownie",
     "statsOverview": "Przegląd statystyk",
@@ -187,6 +254,77 @@
       "visualizeSpending": "Wizualizuj wydatki w czasie za pomocą miesięcznych wykresów.",
       "trackOrders": "Śledź etapy realizacji zamówienia w czasie rzeczywistym.",
       "loyaltyRewards": "Miej oko na nagrody lojalnościowe i nadchodzące odnowienia."
+    },
+    "orders": {
+      "title": "Twoje zamówienia",
+      "subtitle": "Śledź zakupy, sprawdzaj postęp dostawy i uzyskaj dostęp do paragonów.",
+      "stats": {
+        "totalOrders": "Wszystkie zamówienia",
+        "active": "Aktywne",
+        "completed": "Zrealizowane",
+        "totalSpend": "Całkowite wydatki",
+        "completedOnly": "Tylko zrealizowane zamówienia"
+      },
+      "table": {
+        "title": "Historia zamówień",
+        "subtitle": "Zobacz ostatnie zamówienia, sprawdź statusy i otwórz szczegółowe paragony.",
+        "orderId": "ID zamówienia",
+        "items": "Przedmioty",
+        "total": "Suma",
+        "status": "Status",
+        "paymentStatus": "Status płatności",
+        "date": "Data",
+        "actions": "Akcje",
+        "view": "Zobacz",
+        "refund": "Zwrot",
+        "itemsCount_one": "{{count}} przedmiot",
+        "itemsCount_other": "{{count}} przedmiotów",
+        "moreItems": "+{{count}} więcej",
+        "noOrders": "Nie złożyłeś jeszcze żadnych zamówień.",
+        "refunding": "Zwracanie...",
+        "refundConfirm": "Czy na pewno chcesz zwrócić to zamówienie? Ta akcja nie może być cofnięta.",
+        "refundSuccess": "Zwrot został pomyślnie przetworzony",
+        "refundError": "Nie udało się przetworzyć zwrotu"
+      },
+      "detail": {
+        "backToOrders": "Powrót do zamówień",
+        "orderNumber": "Zamówienie #{{id}}",
+        "placedOn": "Złożone {{date}}",
+        "payNow": "Zapłać teraz",
+        "proceedWithPayment": "Przejdź do płatności",
+        "cancelOrder": "Anuluj zamówienie",
+        "refundOrder": "Zwróć zamówienie",
+        "cancelling": "Anulowanie...",
+        "refunding": "Zwracanie...",
+        "orderNotFound": "Zamówienie nie znalezione",
+        "orderItems": "Przedmioty zamówienia ({{count}})",
+        "articleId": "ID artykułu",
+        "quantity": "Ilość: {{quantity}}",
+        "unit": "Jednostka: {{price}}",
+        "orderSummary": "Podsumowanie zamówienia",
+        "subtotal": "Suma częściowa:",
+        "totalFormatted": "Suma (sformatowana):",
+        "total": "Suma:",
+        "orderTimeline": "Oś czasu zamówienia",
+        "orderPlaced": "Zamówienie złożone",
+        "lastUpdated": "Ostatnia aktualizacja",
+        "deliveryInfo": "Informacje o dostawie",
+        "deliveryId": "ID dostawy: {{id}}",
+        "paymentInfo": "Informacje o płatności",
+        "paymentStatus": "Status płatności:",
+        "paidWith": "Zapłacono przez:",
+        "cancelConfirm": "Czy na pewno chcesz anulować to zamówienie?",
+        "refundConfirm": "Czy na pewno chcesz zwrócić to zamówienie? Ta akcja nie może być cofnięta."
+      }
+    },
+    "profile": {
+      "title": "Ustawienia profilu",
+      "subtitle": "Zaktualizuj swoje dane osobowe. Twój adres e-mail pozostaje tylko do odczytu ze względów bezpieczeństwa.",
+      "accountDetails": "Szczegóły konta",
+      "accountDescription": "Edytowalne pola pojawią się wraz z kamieniem milowym zarządzania profilem.",
+      "email": "Email:",
+      "name": "Imię:",
+      "editNote": "Wkrótce udostępnimy edytowalne pola (imię, telefon, adres), w tym walidację i historię audytu."
     }
   },
   "product": {
