@@ -54,7 +54,7 @@ services:
       ENV: ${ENV:-production}
       NODE_ENV: production
       IMAGE_SERVICE_URL: ${IMAGE_SERVICE_URL}
-      UPLOAD_DIR: ${UPLOADS_DIR}
+      UPLOAD_DIR: ${UPLOAD_DIR}
 
       # P24
       P24_MERCHANT_ID: ${P24_MERCHANT_ID}
