@@ -53,6 +53,15 @@ services:
       # Environment
       ENV: ${ENV:-production}
       NODE_ENV: production
+      IMAGE_SERVICE_URL: ${IMAGE_SERVICE_URL}
+      UPLOAD_DIR: ${UPLOADS_DIR}
+
+      # P24
+      P24_MERCHANT_ID: ${P24_MERCHANT_ID}
+      P24_POS_ID: ${P24_POS_ID}
+      P24_API_KEY: ${P24_API_KEY}
+      P24_CRC: ${P24_CRC}
+      P24_SANDBOX: ${P24_SANDBOX}
     depends_on:
       postgres:
         condition: service_healthy
