@@ -78,16 +78,40 @@ export async function POST(request: NextRequest) {
         }
 
         // Find the item by articleId
-        const dbItem = await db
+        let dbItem = await db
           .select()
           .from(schema.item)
           .where(eq(schema.item.articleId, item.articleId))
           .limit(1);
 
+        // If item not found, create it
         if (dbItem.length === 0) {
-          notFound++;
-          errors.push(`Item not found: ${item.articleId}`);
-          continue;
+          const slug = 'unknown_' + item.articleId.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          
+          // Create the item
+          const [newItem] = await db
+            .insert(schema.item)
+            .values({
+              articleId: item.articleId,
+              slug,
+              isDisplayed: false,
+              brandSlug: 'unknown',
+              categorySlug: 'unknown',
+              updatedAt: new Date().toISOString(),
+            })
+            .returning();
+          
+          // Create item details for default locale
+          await db
+            .insert(schema.itemDetails)
+            .values({
+              itemSlug: slug,
+              itemName: item.articleId,
+              description: item.articleId,
+              locale: 'pl',
+            });
+          
+          dbItem = [newItem];
         }
 
         const itemId = dbItem[0].id;
@@ -119,6 +143,7 @@ export async function POST(request: NextRequest) {
               quantity: oldPrice.quantity,
               promotionPrice: oldPrice.promotionPrice,
               promoCode: oldPrice.promoCode,
+              promoStartDate: oldPrice.promoStartDate,
               promoEndDate: oldPrice.promoEndDate,
               badge: oldPrice.badge || 'ABSENT',
             })
@@ -141,6 +166,7 @@ export async function POST(request: NextRequest) {
               badge: item.badge || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
+              promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
               updatedAt: new Date().toISOString(),
             })
@@ -159,6 +185,7 @@ export async function POST(request: NextRequest) {
               badge: item.badge || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
+              promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
               updatedAt: new Date().toISOString(),
             });

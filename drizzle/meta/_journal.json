@@ -15,6 +15,13 @@
       "when": 1769759797038,
       "tag": "0001_omniscient_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770758218968,
+      "tag": "0002_heavy_chronomancer",
+      "breakpoints": true
     }
   ]
 }

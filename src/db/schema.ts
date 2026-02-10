@@ -119,6 +119,7 @@ export const itemPrice = pgTable(
     quantity: integer().notNull(),
     promotionPrice: doublePrecision(),
     promoCode: text(),
+    promoStartDate: timestamp({ precision: 3, mode: "string" }),
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -533,6 +534,7 @@ export const itemPriceHistory = pgTable(
     quantity: integer().notNull(),
     promotionPrice: doublePrecision(),
     promoCode: text(),
+    promoStartDate: timestamp({ precision: 3, mode: "string" }),
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
     badge: badge().default("ABSENT"),
     recordedAt: timestamp({ precision: 3, mode: "string" })
