@@ -467,12 +467,12 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className={`${fileType === 'Generic' && parsedData ? 'max-w-7xl' : 'max-w-2xl'} max-h-[90vh] flex flex-col`}>
         <DialogHeader>
           <DialogTitle>Bulk Upload Items</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
           {/* File Type Selection */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Select File Type</h3>
@@ -608,10 +608,10 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
 
           {/* Column Mapping for Generic type */}
           {fileType === 'Generic' && parsedData && (
-            <div className="space-y-4">
+            <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
               <div className="space-y-2">
                 <h3 className="text-sm font-medium">Map Columns</h3>
-                <p className="text-xs text-gray-500">Drag labels to the corresponding column headers</p>
+                <p className="text-xs text-gray-500">Drag labels to the corresponding column headers in the table below</p>
                 
                 {/* Draggable Labels */}
                 <div className="flex gap-2 flex-wrap">
@@ -621,20 +621,20 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                       draggable
                       onDragStart={() => handleLabelDragStart(label)}
                       onDragEnd={handleLabelDragEnd}
-                      className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 ${
+                      className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
                         columnMapping[label] !== null
                           ? 'bg-green-100 border-green-500 text-green-700'
                           : 'bg-blue-100 border-blue-500 text-blue-700 hover:bg-blue-200'
                       }`}
                     >
                       <GripVertical className="w-4 h-4" />
-                      <span className="font-medium capitalize">
+                      <span className="font-medium capitalize whitespace-nowrap">
                         {label === 'articleId' ? 'Article ID' : label}
                       </span>
                       {columnMapping[label] !== null && (
                         <button
                           onClick={() => removeColumnMapping(label)}
-                          className="ml-1 text-xs hover:text-red-600"
+                          className="ml-1 text-xs hover:text-red-600 font-bold"
                         >
                           ✕
                         </button>
@@ -646,9 +646,15 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
 
               {/* Data Preview Table */}
               <div className="border rounded-lg overflow-hidden">
-                <div className="max-h-96 overflow-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
+                <div 
+                  className="overflow-auto"
+                  style={{
+                    maxHeight: 'min(60vh, 500px)',
+                    minHeight: '300px',
+                  }}
+                >
+                  <table className="w-full text-sm border-collapse">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
                       <tr>
                         {parsedData.headers.map((header, index) => {
                           const assignedLabel = Object.entries(columnMapping).find(
@@ -660,16 +666,16 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                               key={index}
                               onDragOver={handleColumnDragOver}
                               onDrop={() => handleColumnDrop(index)}
-                              className={`px-4 py-3 text-left font-medium border-b ${
+                              className={`px-4 py-3 text-left font-medium border-b border-r whitespace-nowrap ${
                                 assignedLabel
                                   ? 'bg-green-100 border-green-500'
                                   : draggedLabel
-                                  ? 'bg-blue-50 hover:bg-blue-100'
+                                  ? 'bg-blue-50 hover:bg-blue-100 cursor-pointer'
                                   : 'bg-gray-50'
                               }`}
                             >
-                              <div className="space-y-1">
-                                <div className="font-normal text-gray-600">{header}</div>
+                              <div className="space-y-1 min-w-[120px]">
+                                <div className="font-normal text-gray-600">{header || `Column ${index + 1}`}</div>
                                 {assignedLabel && (
                                   <div className="text-xs font-semibold text-green-700 capitalize">
                                     → {assignedLabel === 'articleId' ? 'Article ID' : assignedLabel}
@@ -682,11 +688,11 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                       </tr>
                     </thead>
                     <tbody>
-                      {parsedData.rows.slice(0, 10).map((row, rowIndex) => (
+                      {parsedData.rows.map((row, rowIndex) => (
                         <tr key={rowIndex} className="border-b hover:bg-gray-50">
                           {row.map((cell, cellIndex) => (
-                            <td key={cellIndex} className="px-4 py-2">
-                              {cell}
+                            <td key={cellIndex} className="px-4 py-2 border-r whitespace-nowrap">
+                              {cell !== null && cell !== undefined ? String(cell) : ''}
                             </td>
                           ))}
                         </tr>
@@ -694,11 +700,9 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
                     </tbody>
                   </table>
                 </div>
-                {parsedData.rows.length > 10 && (
-                  <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t">
-                    Showing 10 of {parsedData.rows.length} rows
-                  </div>
-                )}
+                <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t">
+                  Total rows: {parsedData.rows.length}
+                </div>
               </div>
             </div>
           )}
@@ -759,11 +763,13 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button 
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4 border-t mt-4">
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button 
               onClick={handleUpload}
               disabled={
                 !selectedFile || 
@@ -779,7 +785,6 @@ export function BulkUploadModal({ isOpen, onClose, onSuccess }: BulkUploadModalP
             >
               {uploadState.status === 'uploading' ? 'Uploading...' : 'Upload Items'}
             </Button>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
