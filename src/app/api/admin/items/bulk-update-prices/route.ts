@@ -11,6 +11,12 @@ interface BulkUpdateItem {
   articleId: string;
   price: number;
   quantity: number;
+  currency?: string;
+  badge?: string;
+  promoCode?: string;
+  promoPrice?: number;
+  promoStartDate?: string;
+  promoEndDate?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -132,6 +138,10 @@ export async function POST(request: NextRequest) {
             .set({
               price: item.price,
               quantity: item.quantity,
+              badge: item.badge || 'ABSENT',
+              promoCode: item.promoCode || null,
+              promotionPrice: item.promoPrice || null,
+              promoEndDate: item.promoEndDate || null,
               updatedAt: new Date().toISOString(),
             })
             .where(eq(schema.itemPrice.id, oldPrice.id));
@@ -146,6 +156,10 @@ export async function POST(request: NextRequest) {
               warehouseId,
               price: item.price,
               quantity: item.quantity,
+              badge: item.badge || 'ABSENT',
+              promoCode: item.promoCode || null,
+              promotionPrice: item.promoPrice || null,
+              promoEndDate: item.promoEndDate || null,
               updatedAt: new Date().toISOString(),
             });
           
