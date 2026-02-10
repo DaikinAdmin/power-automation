@@ -285,9 +285,7 @@ export default function BulkUploadPage() {
         message: result.message || 'Upload completed successfully',
       });
 
-      const warehouseName = warehouses.find(w => w.id === selectedWarehouse)?.displayedName || 
-                           warehouses.find(w => w.id === selectedWarehouse)?.name || 
-                           'warehouse';
+      const warehouseName = warehouses.find(w => w.id === selectedWarehouse)?.name || 'warehouse';
 
       toast.success('Prices Updated!', {
         description: `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
@@ -396,7 +394,7 @@ export default function BulkUploadPage() {
                 <SelectContent>
                   {warehouses.map((warehouse) => (
                     <SelectItem key={warehouse.id} value={warehouse.id}>
-                      {warehouse.displayedName || warehouse.name}
+                      {warehouse.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
