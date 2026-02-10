@@ -73,7 +73,10 @@ export async function POST(request: NextRequest) {
     // Process each item
     for (const item of items) {
       try {
-        if (!item.articleId) {
+        // Trim articleId to remove whitespace
+        const articleId = item.articleId?.toString().trim();
+        
+        if (!articleId) {
           errors.push('Missing articleId in row');
           continue;
         }
@@ -82,15 +85,15 @@ export async function POST(request: NextRequest) {
         let dbItem = await db
           .select()
           .from(schema.item)
-          .where(eq(schema.item.articleId, item.articleId))
+          .where(eq(schema.item.articleId, articleId))
           .limit(1);
 
         // If item not found, create it
         if (dbItem.length === 0) {
-          const slug = 'unknown_' + item.articleId.toLowerCase().replace(/[^a-z0-9]/g, '_');
+          const slug = 'unknown_' + articleId.toLowerCase().replace(/[^a-z0-9]/g, '_');
           
           // Check if brand exists
-          let brandSlug = 'unknown';
+          let brandSlug: string | null = null;
           if (item.brand) {
             const brandResult = await db
               .select({ alias: schema.brand.alias })
@@ -103,15 +106,26 @@ export async function POST(request: NextRequest) {
             }
           }
           
+          // Get a default category (use first available category)
+          const defaultCategory = await db
+            .select({ slug: schema.category.slug })
+            .from(schema.category)
+            .limit(1);
+          
+          if (defaultCategory.length === 0) {
+            errors.push(`No categories found in database. Cannot create item ${articleId}`);
+            continue;
+          }
+          
           // Create the item
           const [newItem] = await db
             .insert(schema.item)
             .values({
-              articleId: item.articleId,
+              articleId,
               slug,
               isDisplayed: false,
               brandSlug,
-              categorySlug: 'uncategorized',
+              categorySlug: defaultCategory[0].slug,
               updatedAt: new Date().toISOString(),
             })
             .returning();
@@ -121,8 +135,8 @@ export async function POST(request: NextRequest) {
             .insert(schema.itemDetails)
             .values({
               itemSlug: slug,
-              itemName: item.articleId,
-              description: item.articleId,
+              itemName: articleId,
+              description: articleId,
               locale: 'pl',
             });
           
@@ -208,11 +222,15 @@ export async function POST(request: NextRequest) {
           created++;
         }
       } catch (error: any) {
+        const articleId = item.articleId?.toString().trim() || 'unknown';
+        const errorMsg = error.cause?.message || error.message || 'Unknown error';
+        
         logger.error('Error processing item', {
-          articleId: item.articleId,
-          error: error.message,
+          articleId,
+          error: errorMsg,
+          stack: error.stack,
         });
-        errors.push(`Error processing ${item.articleId}: ${error.message}`);
+        errors.push(`Error processing ${articleId}: ${errorMsg}`);
       }
     }
 
