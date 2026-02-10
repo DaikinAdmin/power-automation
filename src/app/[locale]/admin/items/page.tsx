@@ -584,6 +584,7 @@ export default function ItemsPage() {
                   <th className="text-left py-3 px-4 font-semibold text-sm">Article ID</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Brand</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Category</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">Quantity</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
                 </tr>
@@ -591,6 +592,7 @@ export default function ItemsPage() {
               <tbody>
                 {items.map((item) => {
                   const details = item.itemDetails[0];
+                  const totalQuantity = item.itemPrice?.reduce((sum, price) => sum + (price.quantity || 0), 0) || 0;
 
                   return (
                     <tr key={item.id} className="border-b hover:bg-gray-50">
@@ -629,6 +631,11 @@ export default function ItemsPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          {totalQuantity}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
@@ -659,7 +666,7 @@ export default function ItemsPage() {
                 })}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-gray-500">
+                    <td colSpan={8} className="py-8 text-center text-gray-500">
                       {searchTerm || selectedBrand || selectedCategory ? 'No items match your filters.' : 'No items found. Add your first item to get started.'}
                     </td>
                   </tr>
