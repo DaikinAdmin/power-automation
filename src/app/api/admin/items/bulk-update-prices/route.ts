@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
           const slug = 'unknown_' + articleId.toLowerCase().replace(/[^a-z0-9]/g, '_');
           
           // Check if brand exists
-          let brandSlug: string | null = null;
+          let brandSlug = 'unknown';
           if (item.brand) {
             const brandResult = await db
               .select({ alias: schema.brand.alias })
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
               slug,
               isDisplayed: false,
               brandSlug,
-              categorySlug: defaultCategory[0].slug,
+              categorySlug: 'uncategorized',
               updatedAt: new Date().toISOString(),
             })
             .returning();
