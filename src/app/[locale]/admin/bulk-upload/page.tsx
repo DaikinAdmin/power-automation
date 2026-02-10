@@ -28,7 +28,7 @@ interface ParsedData {
 }
 
 type MandatoryField = 'articleId' | 'price' | 'quantity';
-type OptionalField = 'badge' | 'promoCode' | 'promoStartDate' | 'promoEndDate' | 'promoPrice';
+type OptionalField = 'badge' | 'brand' | 'promoCode' | 'promoStartDate' | 'promoEndDate' | 'promoPrice';
 type FieldType = MandatoryField | OptionalField;
 
 interface ColumnMapping {
@@ -36,6 +36,7 @@ interface ColumnMapping {
   quantity: number | null;
   price: number | null;
   badge: number | null;
+  brand: number | null;
   promoCode: number | null;
   promoStartDate: number | null;
   promoEndDate: number | null;
@@ -64,6 +65,7 @@ export default function BulkUploadPage() {
     quantity: null,
     price: null,
     badge: null,
+    brand: null,
     promoCode: null,
     promoStartDate: null,
     promoEndDate: null,
@@ -243,6 +245,9 @@ export default function BulkUploadPage() {
         if (columnMapping.badge !== null && row[columnMapping.badge] !== undefined) {
           item.badge = row[columnMapping.badge];
         }
+        if (columnMapping.brand !== null && row[columnMapping.brand] !== undefined) {
+          item.brand = row[columnMapping.brand];
+        }
         if (columnMapping.promoCode !== null && row[columnMapping.promoCode] !== undefined) {
           item.promoCode = row[columnMapping.promoCode];
         }
@@ -301,6 +306,7 @@ export default function BulkUploadPage() {
           quantity: null,
           price: null,
           badge: null,
+          brand: null,
           promoCode: null,
           promoStartDate: null,
           promoEndDate: null,
@@ -358,6 +364,7 @@ export default function BulkUploadPage() {
 
   const optionalFields: { key: OptionalField; label: string }[] = [
     { key: 'badge', label: 'Badge' },
+    { key: 'brand', label: 'Brand' },
     { key: 'promoCode', label: 'Promo Code' },
     { key: 'promoPrice', label: 'Promo Price' },
     { key: 'promoStartDate', label: 'Promo Start Date' },
@@ -372,6 +379,77 @@ export default function BulkUploadPage() {
           Upload CSV or Excel files to update item prices and inventory
         </p>
       </div>
+
+      {/* Column Mapping Labels - Horizontal Layout */}
+      {parsedData && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Map Columns</CardTitle>
+            <CardDescription>Drag labels to table headers below</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-red-600">Required Fields</h4>
+              <div className="flex flex-wrap gap-2">
+                {mandatoryFields.map(({ key, label }) => (
+                  <div
+                    key={key}
+                    draggable
+                    onDragStart={() => handleLabelDragStart(key)}
+                    onDragEnd={handleLabelDragEnd}
+                    className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
+                      columnMapping[key] !== null
+                        ? 'bg-red-100 border-red-500 text-red-700'
+                        : 'bg-red-50 border-red-400 text-red-700 hover:bg-red-100'
+                    }`}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                    <span className="font-medium whitespace-nowrap">{label}</span>
+                    {columnMapping[key] !== null && (
+                      <button
+                        onClick={() => removeColumnMapping(key)}
+                        className="text-xs hover:text-red-800 font-bold ml-1"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-blue-600">Optional Fields</h4>
+              <div className="flex flex-wrap gap-2">
+                {optionalFields.map(({ key, label }) => (
+                  <div
+                    key={key}
+                    draggable
+                    onDragStart={() => handleLabelDragStart(key)}
+                    onDragEnd={handleLabelDragEnd}
+                    className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
+                      columnMapping[key] !== null
+                        ? 'bg-blue-100 border-blue-500 text-blue-700'
+                        : 'bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100'
+                    }`}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                    <span className="font-medium whitespace-nowrap">{label}</span>
+                    {columnMapping[key] !== null && (
+                      <button
+                        onClick={() => removeColumnMapping(key)}
+                        className="text-xs hover:text-blue-800 font-bold ml-1"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Configuration */}
@@ -473,77 +551,6 @@ export default function BulkUploadPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Column Mapping Labels */}
-          {parsedData && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Map Columns</CardTitle>
-                <CardDescription>Drag labels to table headers</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-semibold mb-2 text-red-600">Required Fields</h4>
-                  <div className="flex flex-col gap-2">
-                    {mandatoryFields.map(({ key, label }) => (
-                      <div
-                        key={key}
-                        draggable
-                        onDragStart={() => handleLabelDragStart(key)}
-                        onDragEnd={handleLabelDragEnd}
-                        className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
-                          columnMapping[key] !== null
-                            ? 'bg-red-100 border-red-500 text-red-700'
-                            : 'bg-red-50 border-red-400 text-red-700 hover:bg-red-100'
-                        }`}
-                      >
-                        <GripVertical className="w-4 h-4" />
-                        <span className="font-medium whitespace-nowrap flex-1">{label}</span>
-                        {columnMapping[key] !== null && (
-                          <button
-                            onClick={() => removeColumnMapping(key)}
-                            className="text-xs hover:text-red-800 font-bold"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-semibold mb-2 text-blue-600">Optional Fields</h4>
-                  <div className="flex flex-col gap-2">
-                    {optionalFields.map(({ key, label }) => (
-                      <div
-                        key={key}
-                        draggable
-                        onDragStart={() => handleLabelDragStart(key)}
-                        onDragEnd={handleLabelDragEnd}
-                        className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
-                          columnMapping[key] !== null
-                            ? 'bg-blue-100 border-blue-500 text-blue-700'
-                            : 'bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100'
-                        }`}
-                      >
-                        <GripVertical className="w-4 h-4" />
-                        <span className="font-medium whitespace-nowrap flex-1">{label}</span>
-                        {columnMapping[key] !== null && (
-                          <button
-                            onClick={() => removeColumnMapping(key)}
-                            className="text-xs hover:text-blue-800 font-bold"
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Right Column - Data Preview */}

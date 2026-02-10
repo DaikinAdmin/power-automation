@@ -13,6 +13,7 @@ interface BulkUpdateItem {
   quantity: number;
   currency?: string;
   badge?: string;
+  brand?: string;
   promoCode?: string;
   promoPrice?: number;
   promoStartDate?: string;
@@ -88,6 +89,20 @@ export async function POST(request: NextRequest) {
         if (dbItem.length === 0) {
           const slug = 'unknown_' + item.articleId.toLowerCase().replace(/[^a-z0-9]/g, '_');
           
+          // Check if brand exists
+          let brandSlug = 'unknown';
+          if (item.brand) {
+            const brandResult = await db
+              .select({ alias: schema.brand.alias })
+              .from(schema.brand)
+              .where(eq(schema.brand.name, item.brand))
+              .limit(1);
+            
+            if (brandResult.length > 0) {
+              brandSlug = brandResult[0].alias;
+            }
+          }
+          
           // Create the item
           const [newItem] = await db
             .insert(schema.item)
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest) {
               articleId: item.articleId,
               slug,
               isDisplayed: false,
-              brandSlug: 'unknown',
+              brandSlug,
               categorySlug: 'uncategorized',
               updatedAt: new Date().toISOString(),
             })
