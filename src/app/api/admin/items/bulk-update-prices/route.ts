@@ -6,7 +6,6 @@ import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
-import { randomUUID } from 'crypto';
 
 interface BulkUpdateItem {
   articleId: string;
@@ -101,7 +100,33 @@ export async function POST(request: NextRequest) {
           .limit(1);
 
         if (existingPrice.length > 0) {
-          // Update existing price
+          // Save old price to history before updating
+          const oldPrice = existingPrice[0];
+          
+          // Insert into item_price_history
+          const [historyRecord] = await db
+            .insert(schema.itemPriceHistory)
+            .values({
+              itemId,
+              warehouseId,
+              price: oldPrice.price,
+              quantity: oldPrice.quantity,
+              promotionPrice: oldPrice.promotionPrice,
+              promoCode: oldPrice.promoCode,
+              promoEndDate: oldPrice.promoEndDate,
+              badge: oldPrice.badge || 'ABSENT',
+            })
+            .returning();
+
+          // Create relationship in join table
+          await db
+            .insert(schema.itemPriceToItemPriceHistory)
+            .values({
+              a: oldPrice.id, // itemPrice.id
+              b: historyRecord.id, // itemPriceHistory.id
+            });
+
+          // Update existing price with new values
           await db
             .update(schema.itemPrice)
             .set({
@@ -109,7 +134,7 @@ export async function POST(request: NextRequest) {
               quantity: item.quantity,
               updatedAt: new Date().toISOString(),
             })
-            .where(eq(schema.itemPrice.id, existingPrice[0].id));
+            .where(eq(schema.itemPrice.id, oldPrice.id));
           
           updated++;
         } else {
@@ -158,7 +183,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    const req = new NextRequest('http://localhost/api/admin/items/bulk-update-prices');
+    const req = new NextRequest(`${process.env.NEXT_PUBLIC_APP_URL}/api/admin/items/bulk-update-prices`);
     return apiErrorHandler(error, req, { 
       endpoint: 'POST /api/admin/items/bulk-update-prices',
       duration: Date.now() - startTime,
