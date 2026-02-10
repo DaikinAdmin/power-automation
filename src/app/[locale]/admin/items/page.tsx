@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ItemModal } from '@/components/admin/item-modal';
 import { DeleteItemModal } from '@/components/admin/delete-item-modal';
-import { BulkUploadModal } from '@/components/admin/bulk-upload-modal';
-import { Eye, EyeOff, ChevronLeft, ChevronRight, Upload, Download } from 'lucide-react';
+import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Item } from '@/helpers/types/item';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { useAdminItems } from '@/hooks/useAdminItems';
@@ -18,9 +17,7 @@ export default function ItemsPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [searchInput, setSearchInput] = useState(''); // User's input
   const [searchTerm, setSearchTerm] = useState(''); // Actual search term sent to API
   const [selectedBrand, setSelectedBrand] = useState<string>('');
@@ -285,35 +282,7 @@ export default function ItemsPage() {
     }
   };
 
-  const handleBulkUploadSuccess = () => {
-    refetchItems(); // Refresh the items list
-  };
 
-  const handleDownloadItems = async (format: 'json' | 'csv') => {
-    try {
-      setIsDownloading(true);
-      const response = await fetch(`/api/admin/items/export?format=${format}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to download items');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `items_export_${new Date().toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading items:', error);
-      alert('Failed to download items');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const goToNextPage = () => {
     if (currentPage < pagination.totalPages) {
@@ -348,53 +317,6 @@ export default function ItemsPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="relative">
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                const dropdown = document.getElementById('download-dropdown');
-                dropdown?.classList.toggle('hidden');
-              }}
-              disabled={isDownloading}
-              className="border-green-600 text-green-600 hover:bg-green-50"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {isDownloading ? 'Downloading...' : 'Download Items'}
-            </Button>
-            <div 
-              id="download-dropdown" 
-              className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10 hidden"
-            >
-              <div className="py-1">
-                <button
-                  onClick={() => {
-                    handleDownloadItems('json');
-                    document.getElementById('download-dropdown')?.classList.add('hidden');
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Download as JSON
-                </button>
-                <button
-                  onClick={() => {
-                    handleDownloadItems('csv');
-                    document.getElementById('download-dropdown')?.classList.add('hidden');
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Download as CSV
-                </button>
-              </div>
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            onClick={() => setIsBulkUploadOpen(true)}
-            className="border-blue-600 text-blue-600 hover:bg-blue-50"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Bulk Upload
-          </Button>
           <Button onClick={handleCreateItem} className="bg-blue-600 text-white hover:bg-blue-700">
             Add New Item
           </Button>
@@ -793,12 +715,6 @@ export default function ItemsPage() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         item={selectedItem}
-      />
-
-      <BulkUploadModal
-        isOpen={isBulkUploadOpen}
-        onClose={() => setIsBulkUploadOpen(false)}
-        onSuccess={handleBulkUploadSuccess}
       />
     </div>
   );

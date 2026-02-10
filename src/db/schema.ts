@@ -22,6 +22,7 @@ export const badge = pgEnum("Badge", [
   "HOT_DEALS",
   "LIMITED_EDITION",
   "ABSENT",
+  "USED"
 ]);
 export const cartStatus = pgEnum("CartStatus", [
   "PENDING",
