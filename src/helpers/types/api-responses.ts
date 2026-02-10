@@ -41,6 +41,7 @@ export interface ItemPriceResponse {
   promoCode: string | null;
   promoEndDate: string | null;
   badge: string | null;
+  margin: number | null;
   warehouse: WarehouseResponse;
 }
 

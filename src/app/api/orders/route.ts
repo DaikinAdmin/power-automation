@@ -207,6 +207,7 @@ async function priceRequestHandler(body: any, userId: string) {
       id: schema.itemPrice.id,
       price: schema.itemPrice.price,
       promotionPrice: schema.itemPrice.promotionPrice,
+      margin: schema.itemPrice.margin,
       warehouse: schema.warehouse,
     })
     .from(schema.itemPrice)
@@ -218,6 +219,7 @@ async function priceRequestHandler(body: any, userId: string) {
     return NextResponse.json({ error: 'Item not available in selected warehouse' }, { status: 404 });
   }
 
+  const singleMarginMultiplier = 1 + ((itemPrice.margin ?? 20) / 100);
   const orderLineItems = [{
       itemId: itemId,
       articleId: item.articleId,
@@ -227,8 +229,8 @@ async function priceRequestHandler(body: any, userId: string) {
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
       warehouseCountry: itemPrice.warehouse.countrySlug,
-      basePrice: itemPrice.price,
-      baseSpecialPrice: itemPrice.promotionPrice,
+      basePrice: +(itemPrice.price * singleMarginMultiplier).toFixed(2),
+      baseSpecialPrice: itemPrice.promotionPrice ? +(itemPrice.promotionPrice * singleMarginMultiplier).toFixed(2) : null,
       unitPrice: 0,
       lineTotal: 0,
     }];
@@ -376,6 +378,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
           price: schema.itemPrice.price,
           quantity: schema.itemPrice.quantity,
           promotionPrice: schema.itemPrice.promotionPrice,
+          margin: schema.itemPrice.margin,
           warehouse: schema.warehouse,
         })
           .from(schema.itemPrice)
@@ -456,7 +459,13 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       );
     }
 
-    const baseUnitPrice = (itemPrice.promotionPrice ?? itemPrice.price) || 0;
+    const marginMultiplier = 1 + ((itemPrice.margin ?? 20) / 100);
+    const priceWithMargin = +(itemPrice.price * marginMultiplier).toFixed(2);
+    const promoPriceWithMargin = itemPrice.promotionPrice
+      ? +(itemPrice.promotionPrice * marginMultiplier).toFixed(2)
+      : null;
+
+    const baseUnitPrice = (promoPriceWithMargin ?? priceWithMargin) || 0;
     computedOriginalTotal += baseUnitPrice * cartItem.quantity;
 
     orderLineItems.push({
@@ -472,8 +481,8 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
       warehouseCountry: itemPrice.warehouse.countrySlug,
-      basePrice: itemPrice.price,
-      baseSpecialPrice: itemPrice.promotionPrice,
+      basePrice: priceWithMargin,
+      baseSpecialPrice: promoPriceWithMargin,
       unitPrice: baseUnitPrice,
       lineTotal: baseUnitPrice * cartItem.quantity,
     });

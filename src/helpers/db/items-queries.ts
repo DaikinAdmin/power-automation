@@ -205,6 +205,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
           promoCode: price.promoCode,
           promoEndDate: price.promoEndDate || null,
           badge: price.badge || null,
+          margin: price.margin ?? 20,
           warehouse: {
             slug: warehouse?.id || '',
             name: warehouse?.name || null,

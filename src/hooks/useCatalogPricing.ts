@@ -49,8 +49,13 @@ export const useCatalogPricing = (
       };
     }
 
-    const price = prioritizedPrice.promotionPrice ?? prioritizedPrice.price;
-    const originalPrice = prioritizedPrice.promotionPrice ? prioritizedPrice.price : null;
+    const basePrice = prioritizedPrice.promotionPrice ?? prioritizedPrice.price;
+    const baseOriginalPrice = prioritizedPrice.promotionPrice ? prioritizedPrice.price : null;
+
+    // Apply margin: price + (price * margin / 100)
+    const margin = ('margin' in prioritizedPrice ? (prioritizedPrice as any).margin : null) ?? 20;
+    const price = basePrice * (1 + margin / 100);
+    const originalPrice = baseOriginalPrice ? baseOriginalPrice * (1 + margin / 100) : null;
 
     return {
       price,
@@ -67,16 +72,21 @@ export const useCatalogPricing = (
   const getAvailableWarehouses = useCallback((item: ItemType) => {
     const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
     
-    return prices.map((priceInfo) => ({
-      warehouseId: priceInfo.warehouse.id,
-      warehouseName: priceInfo.warehouse.name || priceInfo.warehouse.displayedName || 'Unknown Warehouse',
-      warehouseCountry: priceInfo.warehouse.countrySlug || 'Unknown Country',
-      displayName: priceInfo.warehouse.displayedName || undefined,
-      price: priceInfo.promotionPrice ?? priceInfo.price,
-      specialPrice: priceInfo.promotionPrice || undefined,
-      inStock: priceInfo.quantity > 0,
-      quantity: priceInfo.quantity
-    })) as AvailableWarehouse[];
+    return prices.map((priceInfo) => {
+      const margin = ('margin' in priceInfo ? (priceInfo as any).margin : null) ?? 20;
+      const basePrice = priceInfo.promotionPrice ?? priceInfo.price;
+      const marginMultiplier = 1 + margin / 100;
+      return {
+        warehouseId: priceInfo.warehouse.id,
+        warehouseName: priceInfo.warehouse.name || priceInfo.warehouse.displayedName || 'Unknown Warehouse',
+        warehouseCountry: priceInfo.warehouse.countrySlug || 'Unknown Country',
+        displayName: priceInfo.warehouse.displayedName || undefined,
+        price: basePrice * marginMultiplier,
+        specialPrice: priceInfo.promotionPrice ? priceInfo.promotionPrice * marginMultiplier : undefined,
+        inStock: priceInfo.quantity > 0,
+        quantity: priceInfo.quantity
+      };
+    }) as AvailableWarehouse[];
   }, []);
 
   return {

@@ -18,6 +18,7 @@ interface BulkUpdateItem {
   promoPrice?: number;
   promoStartDate?: string;
   promoEndDate?: string;
+  margin?: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -175,6 +176,7 @@ export async function POST(request: NextRequest) {
               promoStartDate: oldPrice.promoStartDate,
               promoEndDate: oldPrice.promoEndDate,
               badge: oldPrice.badge || 'ABSENT',
+              margin: oldPrice.margin ?? 20,
             })
             .returning();
 
@@ -197,6 +199,7 @@ export async function POST(request: NextRequest) {
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
+              margin: item.margin ?? 20,
               updatedAt: new Date().toISOString(),
             })
             .where(eq(schema.itemPrice.id, oldPrice.id));
@@ -216,6 +219,7 @@ export async function POST(request: NextRequest) {
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
+              margin: item.margin ?? 20,
               updatedAt: new Date().toISOString(),
             });
           
