@@ -31,6 +31,7 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
     price: 0,
     quantity: 0,
     promotionPrice: null,
+    promoStartDate: null,
     promoEndDate: null,
     promoCode: '',
     createdAt: new Date().toISOString(),

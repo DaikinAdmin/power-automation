@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
               slug,
               isDisplayed: false,
               brandSlug: 'unknown',
-              categorySlug: 'unknown',
+              categorySlug: 'uncategorized',
               updatedAt: new Date().toISOString(),
             })
             .returning();
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
             .set({
               price: item.price,
               quantity: item.quantity,
-              badge: item.badge || 'ABSENT',
+              badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
               warehouseId,
               price: item.price,
               quantity: item.quantity,
-              badge: item.badge || 'ABSENT',
+              badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
