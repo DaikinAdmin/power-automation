@@ -16,7 +16,8 @@ import {
   BadgeCheck,
   FileText,
   Wallpaper,
-  Upload
+  Upload,
+  ImageUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -83,6 +84,11 @@ export function AdminSidebar({ className }: SidebarProps) {
       title: 'Banners',
       href: '/admin/banners',
       icon: <Wallpaper className="h-5 w-5" />
+    },
+    {
+      title: 'Uploads',
+      href: '/admin/uploads',
+      icon: <ImageUp className="h-5 w-5" />
     },
     {
       title: 'Currency Exchange',
