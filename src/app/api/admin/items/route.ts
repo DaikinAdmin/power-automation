@@ -439,7 +439,7 @@ export async function POST(request: NextRequest) {
         slug: slug, // Add the required slug field,
         alias: alias || '',
         isDisplayed: isDisplayed ?? false,
-        itemImageLink: itemImageLink || null,
+        itemImageLink: Array.isArray(itemImageLink) ? itemImageLink : itemImageLink ? [itemImageLink] : null,
         categorySlug: finalCategorySlug || "",
         brandSlug: brandSlug || "",
         warrantyType: warrantyType || "",

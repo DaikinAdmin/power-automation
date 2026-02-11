@@ -111,16 +111,65 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Here you would typically upload the file to your storage service
-      // For now, we'll just store the file name
+    if (!file) return;
+
+    const articleId = formData.articleId;
+    if (!articleId) {
+      alert('Please fill in Article ID first before uploading an image.');
+      return;
+    }
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('path', `products/${articleId}`);
+
+      const res = await fetch('/api/admin/uploads', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      const uploaded = await res.json();
+      const imageUrl = uploaded.url; // e.g. /api/public/uploads/products/articleId/filename.jpg
+
       setFormData((prev: any) => ({
         ...prev,
-        itemImageLink: file.name
+        itemImageLink: [...(Array.isArray(prev.itemImageLink) ? prev.itemImageLink : prev.itemImageLink ? [prev.itemImageLink] : []), imageUrl],
       }));
+    } catch (error: any) {
+      alert(error.message || 'Failed to upload image');
+      console.error('Image upload error:', error);
     }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const [imageUrlInput, setImageUrlInput] = useState('');
+
+  const handleAddImageUrl = () => {
+    if (!imageUrlInput.trim()) return;
+    setFormData((prev: any) => ({
+      ...prev,
+      itemImageLink: [...(Array.isArray(prev.itemImageLink) ? prev.itemImageLink : prev.itemImageLink ? [prev.itemImageLink] : []), imageUrlInput.trim()],
+    }));
+    setImageUrlInput('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      itemImageLink: (Array.isArray(prev.itemImageLink) ? prev.itemImageLink : []).filter((_: string, i: number) => i !== index),
+    }));
   };
 
   const getSelectedCategory = () => {
@@ -302,27 +351,66 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
 
           {/* Image Upload */}
           <div className="col-span-2">
-            <Label>Item Image</Label>
-            <div className="mt-1 flex items-center space-x-2">
-              <Input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                accept="image/*"
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center space-x-2"
-              >
-                <Upload className="w-4 h-4" />
-                <span>Upload Image</span>
-              </Button>
-              {formData.itemImageLink && (
-                <span className="text-sm text-gray-600">{formData.itemImageLink}</span>
+            <Label>Item Images</Label>
+            <div className="mt-1 space-y-3">
+              {/* Current images */}
+              {Array.isArray(formData.itemImageLink) && formData.itemImageLink.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.itemImageLink.map((img: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-1 bg-gray-100 rounded px-2 py-1 text-sm">
+                      <span className="text-gray-700 max-w-[200px] truncate" title={img}>{img}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="text-red-500 hover:text-red-700 ml-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
+
+              {/* Upload button */}
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center space-x-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Upload Image</span>
+                </Button>
+              </div>
+
+              {/* Or add image URL */}
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Or paste an image URL..."
+                  value={imageUrlInput}
+                  onChange={(e) => setImageUrlInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddImageUrl(); } }}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddImageUrl}
+                  disabled={!imageUrlInput.trim()}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="ml-1">Add URL</span>
+                </Button>
+              </div>
             </div>
           </div>
 

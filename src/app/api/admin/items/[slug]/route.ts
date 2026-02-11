@@ -236,12 +236,15 @@ export async function PUT(
             .delete(schema.itemDetails)
             .where(eq(schema.itemDetails.itemSlug, slug));
         // Update the item
+        const imageLinks = Array.isArray(data.itemImageLink) 
+            ? data.itemImageLink 
+            : data.itemImageLink ? [data.itemImageLink] : null;
         const [updatedItem] = await db
             .update(schema.item)
             .set({
                 articleId: data.articleId,
                 isDisplayed: data.isDisplayed,
-                itemImageLink: data.itemImageLink || null,
+                itemImageLink: imageLinks,
                 categorySlug: finalCategorySlug || '',
                 brandSlug: data.brandSlug || null,
                 warrantyType: data.warrantyType || '',
