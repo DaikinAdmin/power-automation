@@ -41,13 +41,26 @@ test.describe('Auth API — Sign Up', () => {
     expect(data.user.userType ?? data.user.user_type ?? 'private').toBe('private');
   });
 
-  test('Company user signup returns 200 with userType=company', async ({ request }) => {
-    const res = await request.post(SIGN_UP_URL, { data: companyPayload });
+  test('Company owner signup returns 200 with userType=company and role=company_owner', async ({ request }) => {
+    const res = await request.post(SIGN_UP_URL, { data: { ...companyPayload, companyPosition: 'owner' } });
     expect([200, 201]).toContain(res.status());
     const data = await res.json();
     validateUserResponse(data);
-    const ut = data.user.userType ?? data.user.user_type ?? 'company';
-    expect(ut).toBe('company');
+    expect(data.user.userType ?? data.user.user_type ?? 'company').toBe('company');
+  });
+
+  test('Company employee signup returns 200 with userType=company and role=company_employee', async ({ request }) => {
+    const res = await request.post(SIGN_UP_URL, {
+      data: {
+        ...companyPayload,
+        email: `company.emp.${suffix}@test.example`,
+        companyPosition: 'employee',
+      },
+    });
+    expect([200, 201]).toContain(res.status());
+    const data = await res.json();
+    validateUserResponse(data);
+    expect(data.user.userType ?? data.user.user_type ?? 'company').toBe('company');
   });
 
   test('Validation — missing email returns 4xx', async ({ request }) => {

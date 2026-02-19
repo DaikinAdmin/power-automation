@@ -84,7 +84,7 @@ const SignUp = () => {
             companyName: values.userType === 'company' ? (values as any).companyName : '',
             vatNumber: values.userType === 'company' ? (values as any).vatNumber : '',
             companyPosition: values.userType === 'company' ? (values as any).companyPosition : '',
-            callbackURL: '/',
+            callbackURL: '/signin',
         };
 
         try {

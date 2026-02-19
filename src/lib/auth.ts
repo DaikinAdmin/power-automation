@@ -182,7 +182,7 @@ export const auth = betterAuth({
         user,
         employee
       },
-      allowedRoles: ["user", "employee", "admin"],
+      allowedRoles: ["user", "company_owner", "company_employee", "employee", "admin"],
       adminRoles: ["admin"],
       adminUserIds: [process.env.ADMIN_USER || ""]
     }),

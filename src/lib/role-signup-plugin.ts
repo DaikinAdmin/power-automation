@@ -20,9 +20,10 @@ export const roleSignupPlugin = () => {
             const body = ctx.body as any;
             const userType = body?.userType;
 
-            // Derive role from userType and store for after hook
+            // Derive role from userType + companyPosition
             if (userType === "company") {
-              ctx.requestedRole = "employee";
+              const position = body?.companyPosition;
+              ctx.requestedRole = position === "employee" ? "company_employee" : "company_owner";
             } else {
               ctx.requestedRole = "user";
             }
