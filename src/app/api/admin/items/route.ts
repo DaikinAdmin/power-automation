@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
           item.brandSlug
             ? db.select().from(schema.brand).where(eq(schema.brand.alias, item.brandSlug)).limit(1).then(r => r[0])
             : null,
-          db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.articleId)),
+          db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.slug)),
           db.select({
             id: schema.itemPrice.id,
             itemSlug: schema.itemPrice.itemSlug,
@@ -179,16 +179,18 @@ export async function GET(request: NextRequest) {
             price: schema.itemPrice.price,
             quantity: schema.itemPrice.quantity,
             promotionPrice: schema.itemPrice.promotionPrice,
+            promoStartDate: schema.itemPrice.promoStartDate,
             promoEndDate: schema.itemPrice.promoEndDate,
             promoCode: schema.itemPrice.promoCode,
             badge: schema.itemPrice.badge,
+            margin: schema.itemPrice.margin,
             createdAt: schema.itemPrice.createdAt,
             updatedAt: schema.itemPrice.updatedAt,
             warehouse: schema.warehouse,
           })
             .from(schema.itemPrice)
             .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-            .where(eq(schema.itemPrice.itemSlug, item.articleId)),
+            .where(eq(schema.itemPrice.itemSlug, item.slug)),
         ]);
 
         return {
@@ -437,7 +439,7 @@ export async function POST(request: NextRequest) {
         slug: slug, // Add the required slug field,
         alias: alias || '',
         isDisplayed: isDisplayed ?? false,
-        itemImageLink: itemImageLink || null,
+        itemImageLink: Array.isArray(itemImageLink) ? itemImageLink : itemImageLink ? [itemImageLink] : null,
         categorySlug: finalCategorySlug || "",
         brandSlug: brandSlug || "",
         warrantyType: warrantyType || "",
@@ -463,6 +465,7 @@ export async function POST(request: NextRequest) {
           promoEndDate: price.promoEndDate ? new Date(price.promoEndDate).toISOString() : null,
           promoCode: price.promoCode || null,
           badge: price.badge || "ABSENT",
+          margin: price.margin ?? 20,
           createdAt: now,
           updatedAt: now,
         }));
@@ -480,6 +483,7 @@ export async function POST(request: NextRequest) {
         promoEndDate: price.promoEndDate,
         promoCode: price.promoCode,
         badge: price.badge,
+        margin: price.margin ?? 20,
         createdAt: now,
         updatedAt: now,
       }));
@@ -529,6 +533,7 @@ export async function POST(request: NextRequest) {
         promoEndDate: schema.itemPrice.promoEndDate,
         promoCode: schema.itemPrice.promoCode,
         badge: schema.itemPrice.badge,
+        margin: schema.itemPrice.margin,
         createdAt: schema.itemPrice.createdAt,
         updatedAt: schema.itemPrice.updatedAt,
         warehouse: schema.warehouse,

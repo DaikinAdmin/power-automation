@@ -95,6 +95,7 @@ export async function GET(
                 promoEndDate: schema.itemPrice.promoEndDate,
                 promoCode: schema.itemPrice.promoCode,
                 badge: schema.itemPrice.badge,
+                margin: schema.itemPrice.margin,
                 createdAt: schema.itemPrice.createdAt,
                 updatedAt: schema.itemPrice.updatedAt,
                 warehouse: schema.warehouse,
@@ -235,12 +236,15 @@ export async function PUT(
             .delete(schema.itemDetails)
             .where(eq(schema.itemDetails.itemSlug, slug));
         // Update the item
+        const imageLinks = Array.isArray(data.itemImageLink) 
+            ? data.itemImageLink 
+            : data.itemImageLink ? [data.itemImageLink] : null;
         const [updatedItem] = await db
             .update(schema.item)
             .set({
                 articleId: data.articleId,
                 isDisplayed: data.isDisplayed,
-                itemImageLink: data.itemImageLink || null,
+                itemImageLink: imageLinks,
                 categorySlug: finalCategorySlug || '',
                 brandSlug: data.brandSlug || null,
                 warrantyType: data.warrantyType || '',
@@ -265,6 +269,7 @@ export async function PUT(
                     promoEndDate: price.promoEndDate ? new Date(price.promoEndDate).toISOString() : null,
                     promoCode: price.promoCode || null,
                     badge: price.badge || 'ABSENT',
+                    margin: price.margin ?? 20,
                     createdAt: now,
                     updatedAt: now,
                 }));
@@ -282,6 +287,7 @@ export async function PUT(
                 promoEndDate: price.promoEndDate,
                 promoCode: price.promoCode,
                 badge: price.badge,
+                margin: price.margin ?? 20,
                 createdAt: now,
                 updatedAt: now,
             }));

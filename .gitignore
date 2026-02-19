@@ -8,3 +8,6 @@ pa_*
 # Logging infrastructure
 logs/
 .env.example.payment
+
+# Uploaded files
+public/uploads/

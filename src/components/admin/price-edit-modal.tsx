@@ -31,11 +31,13 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
     price: 0,
     quantity: 0,
     promotionPrice: null,
+    promoStartDate: null,
     promoEndDate: null,
     promoCode: '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     badge: "ABSENT",
+    margin: 20,
     history: [],
     warehouse: {
       id: '',
@@ -196,6 +198,20 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 value={formData.promoEndDate ? new Date(formData.promoEndDate).toISOString().split('T')[0] : ''}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
                 className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label>Margin (%)</Label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={formData.margin ?? 20}
+                onChange={(e) => setFormData((prev: any) => ({ ...prev, margin: parseFloat(e.target.value) || 0 }))}
+                className="mt-1"
+                placeholder="20"
               />
             </div>
           </div>

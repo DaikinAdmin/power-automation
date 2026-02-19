@@ -44,7 +44,7 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
           articleId: item.articleId || '',
           alias: item.alias || '',
           isDisplayed: Boolean(item.isDisplayed),
-          itemImageLink: item.itemImageLink || '',
+          itemImageLink: Array.isArray(item.itemImageLink) ? item.itemImageLink : item.itemImageLink ? [item.itemImageLink] : [],
           createdAt: item.createdAt || new Date().toISOString(),
           updatedAt: item.updatedAt || new Date().toISOString(),
           categorySlug: item.categorySlug || '',

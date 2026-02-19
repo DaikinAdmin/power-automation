@@ -15,6 +15,7 @@ const brandsData = [
   "MURRELEKTRONIK",
   "SICK",
   "Omron",
+  "Unknown"
 ];
 
 function createAlias(brandName: string): string {

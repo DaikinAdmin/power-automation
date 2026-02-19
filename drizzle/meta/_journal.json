@@ -15,6 +15,27 @@
       "when": 1769759797038,
       "tag": "0001_omniscient_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770758218968,
+      "tag": "0002_heavy_chronomancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770763406887,
+      "tag": "0003_unique_gertrude_yorkes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1770801741272,
+      "tag": "0004_curious_iron_man",
+      "breakpoints": true
     }
   ]
 }

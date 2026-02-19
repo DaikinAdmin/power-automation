@@ -43,8 +43,10 @@ export async function GET(
             country: recommendedPrice.warehouse.country?.name || '',
             displayedName: recommendedPrice.warehouse.displayedName,
           },
-          price: recommendedPrice.price,
-          promotionPrice: recommendedPrice.promotionPrice,
+          price: +(recommendedPrice.price * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2),
+          promotionPrice: recommendedPrice.promotionPrice
+            ? +(recommendedPrice.promotionPrice * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2)
+            : null,
           quantity: recommendedPrice.quantity,
           badge: recommendedPrice.badge || null,
         }
@@ -73,19 +75,26 @@ export async function GET(
       warrantyType: itemData.warrantyType || null,
 
       // Format warehouses for display
-      warehouses: itemData.prices.map((price) => ({
-        warehouseId: price.warehouseSlug,
-        warehouseName: price.warehouse.name || '',
-        warehouseCountry: price.warehouse.country?.name || '',
-        displayedName: price.warehouse.displayedName,
-        price: `${price.price} €`,
-        specialPrice: price.promotionPrice ? `${price.promotionPrice} €` : null,
-        inStock: price.quantity > 0,
-        quantity: price.quantity,
-        badge: price.badge || null,
-        promoEndDate: price.promoEndDate,
-        promoCode: price.promoCode || null,
-      })),
+      warehouses: itemData.prices.map((price) => {
+        const marginMultiplier = 1 + ((price.margin ?? 20) / 100);
+        const priceWithMargin = +(price.price * marginMultiplier).toFixed(2);
+        const promoPriceWithMargin = price.promotionPrice
+          ? +(price.promotionPrice * marginMultiplier).toFixed(2)
+          : null;
+        return {
+          warehouseId: price.warehouseSlug,
+          warehouseName: price.warehouse.name || '',
+          warehouseCountry: price.warehouse.country?.name || '',
+          displayedName: price.warehouse.displayedName,
+          price: `${priceWithMargin} €`,
+          specialPrice: promoPriceWithMargin ? `${promoPriceWithMargin} €` : null,
+          inStock: price.quantity > 0,
+          quantity: price.quantity,
+          badge: price.badge || null,
+          promoEndDate: price.promoEndDate,
+          promoCode: price.promoCode || null,
+        };
+      }),
 
       // Include item details for all locales
       itemDetails: [

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from "@/components/languge-switcher";
+import { useCurrency } from "@/hooks/useCurrency";
 
 interface PaymentPageProps {
   params: Promise<{ locale: string }>;
@@ -18,6 +19,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const { orderId } = use(searchParams);
   const t = useTranslations('payment');
   const router = useRouter();
+  const { formatPriceFromBase } = useCurrency();
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -93,10 +95,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pl-PL', {
-      style: 'currency',
-      currency: 'PLN',
-    }).format(price);
+    return formatPriceFromBase(price);
   };
 
   if (!orderId) {

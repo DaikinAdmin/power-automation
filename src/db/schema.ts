@@ -22,6 +22,7 @@ export const badge = pgEnum("Badge", [
   "HOT_DEALS",
   "LIMITED_EDITION",
   "ABSENT",
+  "USED"
 ]);
 export const cartStatus = pgEnum("CartStatus", [
   "PENDING",
@@ -118,7 +119,9 @@ export const itemPrice = pgTable(
     quantity: integer().notNull(),
     promotionPrice: doublePrecision(),
     promoCode: text(),
+    promoStartDate: timestamp({ precision: 3, mode: "string" }),
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
+    margin: doublePrecision().default(20),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -532,7 +535,9 @@ export const itemPriceHistory = pgTable(
     quantity: integer().notNull(),
     promotionPrice: doublePrecision(),
     promoCode: text(),
+    promoStartDate: timestamp({ precision: 3, mode: "string" }),
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
+    margin: doublePrecision().default(20),
     badge: badge().default("ABSENT"),
     recordedAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -869,6 +874,32 @@ export const payment = pgTable(
   ]
 );
 
+export const uploadedImage = pgTable(
+  "uploaded_image",
+  {
+    id: text()
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    fileName: text("file_name").notNull(),
+    originalName: text("original_name").notNull(),
+    path: text("path").notNull(), // e.g. "products/omron" — relative directory inside uploads
+    mimeType: text("mime_type").notNull(),
+    size: integer("size").notNull(), // bytes
+    uploadedBy: text("uploaded_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { precision: 3, mode: "string" }).notNull(),
+  },
+  (table) => [
+    index("uploaded_image_path_idx").on(table.path),
+    index("uploaded_image_uploadedBy_idx").on(table.uploadedBy),
+  ]
+);
+
 // Type exports for use in the application
 export type Badge = (typeof badge.enumValues)[number];
 export type CartStatus = (typeof cartStatus.enumValues)[number];
@@ -928,3 +959,5 @@ export type Messages = typeof messages.$inferSelect;
 export type MessagesInsert = typeof messages.$inferInsert;
 export type Payment = typeof payment.$inferSelect;
 export type PaymentInsert = typeof payment.$inferInsert;
+export type UploadedImage = typeof uploadedImage.$inferSelect;
+export type UploadedImageInsert = typeof uploadedImage.$inferInsert;
