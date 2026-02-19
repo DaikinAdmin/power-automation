@@ -301,6 +301,8 @@
       "errors": {
         "addFailed": "Error al añadir empleado",
         "deleteFailed": "Error al eliminar empleado"
+      },
+      "limitReached": "Has alcanzado el límite máximo de 5 empleados"
       }
     }
   },

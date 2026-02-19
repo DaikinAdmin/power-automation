@@ -115,9 +115,19 @@ export function EmployeesClient({ initialEmployees, ownerId }: Props) {
       {/* Add Employee Form */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('addTitle')}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('addTitle')}</CardTitle>
+            <span className="text-sm text-gray-500">
+              {employees.length} / 5
+            </span>
+          </div>
         </CardHeader>
         <CardContent>
+          {employees.length >= 5 ? (
+            <p className="text-sm text-amber-600 font-medium">
+              {t('limitReached')}
+            </p>
+          ) : (
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
@@ -207,6 +217,7 @@ export function EmployeesClient({ initialEmployees, ownerId }: Props) {
               {adding ? t('adding') : t('addButton')}
             </Button>
           </form>
+          )}
         </CardContent>
       </Card>
 

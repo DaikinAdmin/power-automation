@@ -11,7 +11,10 @@ import {
   ConflictError,
   ForbiddenError,
   UnauthorizedError,
+  AppError,
 } from '@/lib/error-handler';
+
+const MAX_EMPLOYEES = 5;
 
 const CreateEmployeeSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -71,6 +74,16 @@ export async function POST(request: NextRequest) {
     }
 
     const { name, email, password, phoneNumber } = result.data;
+
+    // Enforce maximum employee limit
+    const currentEmployees = await db
+      .select({ id: schema.user.id })
+      .from(schema.user)
+      .where(eq(schema.user.ownerId, session.user.id));
+
+    if (currentEmployees.length >= MAX_EMPLOYEES) {
+      throw new AppError(`You have reached the maximum limit of ${MAX_EMPLOYEES} employees`, 422);
+    }
 
     // Check if email is already taken
     const [existing] = await db

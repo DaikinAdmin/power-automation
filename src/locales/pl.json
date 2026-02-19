@@ -368,6 +368,8 @@
       "errors": {
         "addFailed": "Nie udało się dodać pracownika",
         "deleteFailed": "Nie udało się usunąć pracownika"
+      },
+      "limitReached": "Osiągnięto maksymalny limit 5 pracowników"
       }
     }
   },
