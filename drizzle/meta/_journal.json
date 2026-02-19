@@ -36,6 +36,13 @@
       "when": 1770801741272,
       "tag": "0004_curious_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771286400000,
+      "tag": "0005_signup_refactor",
+      "breakpoints": true
     }
   ]
 }

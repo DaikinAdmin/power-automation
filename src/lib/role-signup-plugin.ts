@@ -4,8 +4,8 @@ import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 /**
- * Plugin to allow setting role during sign-up
- * This plugin stores the role from the request and applies it after user creation
+ * Plugin to derive role from userType during sign-up.
+ * company → employee, private → user
  */
 export const roleSignupPlugin = () => {
   return {
@@ -18,21 +18,15 @@ export const roleSignupPlugin = () => {
           },
           handler: async (ctx: any) => {
             const body = ctx.body as any;
-            const role = body?.role;
-            
-            // Store the role in context for later use
-            if (role && typeof role === "string") {
-              const allowedRoles = ["user", "employee"];
-              if (allowedRoles.includes(role)) {
-                ctx.requestedRole = role;
-              }
+            const userType = body?.userType;
+
+            // Derive role from userType and store for after hook
+            if (userType === "company") {
+              ctx.requestedRole = "employee";
+            } else {
+              ctx.requestedRole = "user";
             }
-            
-            // Remove role from body to prevent admin plugin from blocking
-            if (body?.role) {
-              delete body.role;
-            }
-            
+
             return { context: ctx };
           },
         },
@@ -44,26 +38,24 @@ export const roleSignupPlugin = () => {
           },
           handler: async (ctx: any) => {
             const requestedRole = ctx.requestedRole;
-            
+
             if (requestedRole && ctx.context.returned) {
               const returned = ctx.context.returned as any;
-              
-              // Update the user's role in the database using Drizzle
+
               if (returned.user?.id) {
                 try {
                   await db
                     .update(user)
                     .set({ role: requestedRole })
                     .where(eq(user.id, returned.user.id));
-                  
-                  // Update the returned user object
+
                   returned.user.role = requestedRole;
                 } catch (error) {
                   console.error("Error updating user role:", error);
                 }
               }
             }
-            
+
             return ctx;
           },
         },

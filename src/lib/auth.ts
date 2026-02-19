@@ -51,17 +51,32 @@ export const auth = betterAuth({
         required: true,
         defaultValue: countryCodes[0].code,
       },
-      companyWebpage: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
       companyName: {
         type: "string",
         required: false,
         defaultValue: "",
       },
-      companyRole: {
+      userType: {
+        type: "string",
+        required: true,
+        defaultValue: "private",
+      },
+      vatNumber: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      addressLine: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      country: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      companyPosition: {
         type: "string",
         required: false,
         defaultValue: "",

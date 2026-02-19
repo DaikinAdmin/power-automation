@@ -193,9 +193,12 @@ export const user = pgTable("user", {
   phoneNumber: text("phone_number").default("555-555-555").notNull(),
   userAgreement: boolean("user_agreement").default(false).notNull(),
   countryCode: text("country_code").default("+48").notNull(),
-  companyWebpage: text("company_webpage").default(""),
   companyName: text("company_name").default(""),
-  companyRole: text("company_role").default(""),
+  userType: text("user_type").default("private").notNull(),
+  vatNumber: text("vat_number").default(""),
+  addressLine: text("address_line").default(""),
+  country: text("country").default(""),
+  companyPosition: text("company_position").default(""),
 });
 
 export const session = pgTable(
