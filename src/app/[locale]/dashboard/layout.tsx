@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
       <div className="mx-auto flex w-full max-w-8xl flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:px-8">
         <aside className="w-full max-w-xs shrink-0 rounded-lg border bg-white p-4 shadow-sm lg:h-fit">
-          <DashboardSidebar />
+          <DashboardSidebar role={session.user.role ?? undefined} />
         </aside>
         <main className="flex-1 rounded-lg border bg-white p-6 shadow-sm lg:p-8">
           {children}

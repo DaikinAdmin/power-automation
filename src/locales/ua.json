@@ -309,6 +309,39 @@
       "email": "Email:",
       "name": "Ім'я:",
       "editNote": "Ми незабаром надамо поля для редагування (ім'я, телефон, адреса), включаючи валідацію та історію аудиту."
+    },
+    "employees": {
+      "title": "Співробітники",
+      "subtitle": "Керуйте співробітниками компанії",
+      "addTitle": "Додати нового співробітника",
+      "nameLabel": "Повне ім'я",
+      "namePlaceholder": "Іван Петренко",
+      "emailLabel": "Email",
+      "emailPlaceholder": "ivan@kompania.ua",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Мін. 8 символів",
+      "phoneLabel": "Номер телефону",
+      "phonePlaceholder": "512345678",
+      "addButton": "Додати співробітника",
+      "adding": "Додавання...",
+      "deleteButton": "Видалити",
+      "deleting": "Видалення...",
+      "noEmployees": "Немає співробітників. Додайте першого вище.",
+      "tableHead": {
+        "name": "Ім'я",
+        "email": "Email",
+        "phone": "Телефон",
+        "joined": "Приєднався",
+        "actions": "Дії"
+      },
+      "success": {
+        "added": "Співробітника успішно додано",
+        "deleted": "Співробітника успішно видалено"
+      },
+      "errors": {
+        "addFailed": "Не вдалося додати співробітника",
+        "deleteFailed": "Не вдалося видалити співробітника"
+      }
     }
   },
   "paymentReturn": {

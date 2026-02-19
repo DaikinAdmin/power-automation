@@ -269,6 +269,39 @@
       "email": "Correo electrónico:",
       "name": "Nombre:",
       "editNote": "Pronto mostraremos campos editables (nombre, teléfono, dirección), incluida la validación y el historial de auditoría."
+    },
+    "employees": {
+      "title": "Empleados",
+      "subtitle": "Gestiona los empleados de tu empresa",
+      "addTitle": "Añadir nuevo empleado",
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "Juan Pérez",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "juan@empresa.es",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Mín. 8 caracteres",
+      "phoneLabel": "Número de teléfono",
+      "phonePlaceholder": "512345678",
+      "addButton": "Añadir empleado",
+      "adding": "Añadiendo...",
+      "deleteButton": "Eliminar",
+      "deleting": "Eliminando...",
+      "noEmployees": "Sin empleados. Añade tu primer empleado arriba.",
+      "tableHead": {
+        "name": "Nombre",
+        "email": "Correo",
+        "phone": "Teléfono",
+        "joined": "Incorporación",
+        "actions": "Acciones"
+      },
+      "success": {
+        "added": "Empleado añadido con éxito",
+        "deleted": "Empleado eliminado con éxito"
+      },
+      "errors": {
+        "addFailed": "Error al añadir empleado",
+        "deleteFailed": "Error al eliminar empleado"
+      }
     }
   },
   "dashboard": {

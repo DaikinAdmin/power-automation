@@ -336,6 +336,39 @@
       "email": "Email:",
       "name": "Imię:",
       "editNote": "Wkrótce udostępnimy edytowalne pola (imię, telefon, adres), w tym walidację i historię audytu."
+    },
+    "employees": {
+      "title": "Pracownicy",
+      "subtitle": "Zarządzaj pracownikami firmy",
+      "addTitle": "Dodaj nowego pracownika",
+      "nameLabel": "Imię i nazwisko",
+      "namePlaceholder": "Jan Kowalski",
+      "emailLabel": "Email",
+      "emailPlaceholder": "jan@firma.pl",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "Min. 8 znaków",
+      "phoneLabel": "Numer telefonu",
+      "phonePlaceholder": "512345678",
+      "addButton": "Dodaj pracownika",
+      "adding": "Dodawanie...",
+      "deleteButton": "Usuń",
+      "deleting": "Usuwanie...",
+      "noEmployees": "Brak pracowników. Dodaj pierwszego pracownika powyżej.",
+      "tableHead": {
+        "name": "Imię",
+        "email": "Email",
+        "phone": "Telefon",
+        "joined": "Dołączył",
+        "actions": "Akcje"
+      },
+      "success": {
+        "added": "Pracownik dodany pomyślnie",
+        "deleted": "Pracownik usunięty pomyślnie"
+      },
+      "errors": {
+        "addFailed": "Nie udało się dodać pracownika",
+        "deleteFailed": "Nie udało się usunąć pracownika"
+      }
     }
   },
   "product": {

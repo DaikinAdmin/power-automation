@@ -336,6 +336,39 @@
       "email": "Email:",
       "name": "Name:",
       "editNote": "We'll surface editable fields (name, phone, address) here soon, including validation and audit history."
+    },
+    "employees": {
+      "title": "Employees",
+      "subtitle": "Manage your company employees",
+      "addTitle": "Add New Employee",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "john@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Min. 8 characters",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "512345678",
+      "addButton": "Add Employee",
+      "adding": "Adding...",
+      "deleteButton": "Delete",
+      "deleting": "Deleting...",
+      "noEmployees": "No employees yet. Add your first employee above.",
+      "tableHead": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "success": {
+        "added": "Employee added successfully",
+        "deleted": "Employee deleted successfully"
+      },
+      "errors": {
+        "addFailed": "Failed to add employee",
+        "deleteFailed": "Failed to delete employee"
+      }
     }
   },
   "product": {

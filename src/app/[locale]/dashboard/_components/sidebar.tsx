@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-const navItems = [
+const BASE_NAV_ITEMS = [
   { label: 'Stats', href: '/dashboard' },
   { label: 'User Info', href: '/dashboard/profile' },
   { label: 'Orders', href: '/dashboard/orders' },
@@ -12,15 +12,28 @@ const navItems = [
   { label: 'Contact', href: '/dashboard/contact' },
 ];
 
-export function DashboardSidebar() {
+type Props = {
+  role?: string;
+};
+
+export function DashboardSidebar({ role }: Props) {
   const pathname = usePathname();
+
+  const navItems =
+    role === 'company_owner'
+      ? [
+          ...BASE_NAV_ITEMS,
+          { label: 'Employees', href: '/dashboard/employees' },
+        ]
+      : BASE_NAV_ITEMS;
 
   return (
     <nav className="space-y-1">
       {navItems.map((item) => {
-        const isActive = item.href === '/dashboard'
-          ? pathname === '/dashboard'
-          : pathname.startsWith(item.href);
+        const isActive =
+          item.href === '/dashboard'
+            ? pathname === '/dashboard'
+            : pathname.startsWith(item.href);
 
         return (
           <Link
