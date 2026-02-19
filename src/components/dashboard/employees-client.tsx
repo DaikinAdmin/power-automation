@@ -14,7 +14,7 @@ type Employee = {
   email: string;
   phoneNumber: string;
   countryCode: string;
-  createdAt: Date;
+  createdAt: string;
 };
 
 type Props = {
@@ -39,7 +39,7 @@ const EMPTY_FORM: FormState = {
 export function EmployeesClient({ initialEmployees, ownerId }: Props) {
   const t = useTranslations('dashboard.employees');
 
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees ?? []);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [showPassword, setShowPassword] = useState(false);
   const [adding, setAdding] = useState(false);

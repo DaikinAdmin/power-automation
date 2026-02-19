@@ -29,6 +29,11 @@ export default async function EmployeesPage() {
     .from(schema.user)
     .where(eq(schema.user.ownerId, session.user.id));
 
+  const serializedEmployees = employees.map((e) => ({
+    ...e,
+    createdAt: e.createdAt ? e.createdAt.toISOString() : new Date().toISOString(),
+  }));
+
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -37,7 +42,7 @@ export default async function EmployeesPage() {
       </header>
 
       <EmployeesClient
-        initialEmployees={employees}
+        initialEmployees={serializedEmployees}
         ownerId={session.user.id}
       />
     </div>
