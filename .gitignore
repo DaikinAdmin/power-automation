@@ -1,5 +1,6 @@
 .next/
 .vscode/
+.claude/
 .env
 node_modules/
 *.pem
@@ -11,3 +12,5 @@ logs/
 
 # Uploaded files
 public/uploads/
+
+CLAUDE.md

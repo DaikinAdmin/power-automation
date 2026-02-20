@@ -81,6 +81,15 @@ export const auth = betterAuth({
         required: false,
         defaultValue: "",
       },
+      ownerId: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
     },
   },
   appName: "power-automation",

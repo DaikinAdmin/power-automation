@@ -43,6 +43,13 @@
       "when": 1771286400000,
       "tag": "0005_signup_refactor",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771344000000,
+      "tag": "0006_add_owner_id",
+      "breakpoints": true
     }
   ]
 }

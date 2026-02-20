@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { auth } from '@/lib/auth';
 import MainHeader from '@/components/layout/main-header';
 import SecondaryHeader from '@/components/layout/secondary-header';
-import { DashboardSidebar } from './_components/sidebar';
+import { DashboardSidebar } from '@/components/dashboard/sidebar';
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() });

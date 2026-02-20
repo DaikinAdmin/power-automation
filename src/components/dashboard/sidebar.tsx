@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useSession } from '@/lib/auth-client';
 
-const navItems = [
+const baseNavItems = [
   { label: 'Stats', href: '/dashboard' },
   { label: 'User Info', href: '/dashboard/profile' },
   { label: 'Orders', href: '/dashboard/orders' },
@@ -12,8 +13,18 @@ const navItems = [
   { label: 'Contact', href: '/dashboard/contact' },
 ];
 
+const ownerNavItems = [
+  { label: 'User Management', href: '/dashboard/employees' },
+];
+
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role;
+
+  const navItems = role === 'company_owner'
+    ? [...baseNavItems, ...ownerNavItems]
+    : baseNavItems;
 
   return (
     <nav className="space-y-1">
