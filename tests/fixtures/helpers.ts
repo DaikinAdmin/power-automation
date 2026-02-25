@@ -82,5 +82,16 @@ export function validateOrderResponse(order: any) {
   expect(typeof order.status).toBe('string');
 }
 
+// Helper to validate sign-up / user response from better-auth
+export function validateUserResponse(data: any) {
+  expect(data).toHaveProperty('user');
+  expect(data.user).toHaveProperty('id');
+  expect(data.user).toHaveProperty('email');
+  expect(data.user).toHaveProperty('name');
+  expect(typeof data.user.id).toBe('string');
+  expect(typeof data.user.email).toBe('string');
+  expect(typeof data.user.name).toBe('string');
+}
+
 export const test = base;
 export { expect };

@@ -51,21 +51,45 @@ export const auth = betterAuth({
         required: true,
         defaultValue: countryCodes[0].code,
       },
-      companyWebpage: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
       companyName: {
         type: "string",
         required: false,
         defaultValue: "",
       },
-      companyRole: {
+      userType: {
+        type: "string",
+        required: true,
+        defaultValue: "private",
+      },
+      vatNumber: {
         type: "string",
         required: false,
         defaultValue: "",
       },
+      addressLine: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      country: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      companyPosition: {
+        type: "string",
+        required: false,
+        defaultValue: "",
+      },
+      ownerId: {
+        type: "string",
+        required: false,
+        defaultValue: null,
+        input: false,
+      },
+    },
+    deleteUser: {
+      enabled: true,
     },
   },
   appName: "power-automation",
@@ -167,7 +191,7 @@ export const auth = betterAuth({
         user,
         employee
       },
-      allowedRoles: ["user", "employee", "admin"],
+      allowedRoles: ["user", "company_owner", "company_employee", "employee", "admin"],
       adminRoles: ["admin"],
       adminUserIds: [process.env.ADMIN_USER || ""]
     }),
