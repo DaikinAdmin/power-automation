@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
-import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import { CartProvider } from "@/components/cart-context";
 import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-}
+};
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -36,12 +36,11 @@ export function generateStaticParams() {
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-
   // Ensure that the incoming `locale` is valid
   const { locale } = await params;
 
@@ -59,13 +58,37 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
-              <CurrencyProvider>
-                {children}
-              </CurrencyProvider>
+              <CurrencyProvider>{children}</CurrencyProvider>
             </CompareProvider>
           </CartProvider>
         </NextIntlClientProvider>
         <Toaster />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(d, w, s) {
+      var widgetHash = '4dwo56b2g413yzwxtkuk',
+      gcw = d.createElement(s);
+      gcw.type = 'text/javascript';
+      gcw.async = true;
+      gcw.src = '//widgets.binotel.com/getcall/widgets/' + widgetHash + '.js';
+      var sn = d.getElementsByTagName(s)[0];
+      sn.parentNode.insertBefore(gcw, sn);
+    })(document, window, 'script');`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(d, w, s) {
+      var widgetHash = 'GcDTf4yHGBF3OHLyulIi',
+      bch = d.createElement(s);
+      bch.type = 'text/javascript';
+      bch.async = true;
+      bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
+      var sn = d.getElementsByTagName(s)[0];
+      sn.parentNode.insertBefore(bch, sn);
+    })(document, window, 'script');`,
+          }}
+        />
       </body>
     </html>
   );
