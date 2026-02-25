@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale } from "next-intl";
 
 interface BannerData {
-  id?: string;
+  id: string;
   src: string;
   alt: string;
   href?: string;
@@ -18,7 +18,9 @@ interface BannerData {
 }
 
 interface BannersConfig {
+  ultrawide: BannerData[];
   desktop: BannerData[];
+  laptop: BannerData[];
   mobile: BannerData[];
 }
 
@@ -32,70 +34,69 @@ interface ApiBanner {
   title: string | null;
   imageUrl: string;
   linkUrl: string | null;
-  position: string;
   device: string;
-  locale: string;
   sortOrder: number | null;
-  isActive: boolean | null;
 }
 
 const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fallbackBanners }) => {
   const locale = useLocale();
-  const autoplay = Autoplay({ delay: 6000, stopOnInteraction: false });
+  const autoplay = useMemo(() => Autoplay({ delay: 6000, stopOnInteraction: false }), []);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Fade(), autoplay]);
+  
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const [apiBanners, setApiBanners] = useState<BannersConfig>({ desktop: [], mobile: [] });
+  const [deviceType, setDeviceType] = useState<'ultrawide' | 'desktop' | 'laptop' | 'mobile'>('desktop');
+  const [apiBanners, setApiBanners] = useState<BannersConfig>({ 
+    ultrawide: [], desktop: [], laptop: [], mobile: [] 
+  });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Detect mobile on mount and resize
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+  const getDeviceTag = useCallback(() => {
+    if (typeof window === 'undefined') return 'desktop';
+    const width = window.innerWidth;
+    
+    if (width >= 2000) return 'ultrawide';
+    if (width >= 1280) return 'desktop';
+    if (width >= 640) return 'laptop';
+    
+    return 'mobile';
   }, []);
 
-  // Fetch banners from API
   useEffect(() => {
-    const fetchBanners = async () => {
+    const handleResize = () => setDeviceType(getDeviceTag());
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [getDeviceTag]);
+
+  useEffect(() => {
+    const fetchAllBanners = async () => {
       try {
         setIsLoading(true);
-        const [desktopRes, mobileRes] = await Promise.all([
-          fetch(`/api/banners?position=${position}&device=desktop&locale=${locale}`),
-          fetch(`/api/banners?position=${position}&device=mobile&locale=${locale}`)
-        ]);
+        const devices = ['ultrawide', 'desktop', 'laptop', 'mobile'];
+        
+        const responses = await Promise.all(
+          devices.map(d => fetch(`/api/banners?position=${position}&device=${d}&locale=${locale}`))
+        );
 
-        if (desktopRes.ok && mobileRes.ok) {
-          const desktopData: ApiBanner[] = await desktopRes.json();
-          const mobileData: ApiBanner[] = await mobileRes.json();
+        const data = await Promise.all(responses.map(res => res.ok ? res.json() : []));
 
-          // Transform API data to component format
-          const transformedBanners: BannersConfig = {
-            desktop: desktopData
-              .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-              .map((banner, idx) => ({
-                id: banner.id.toString(),
-                src: banner.imageUrl,
-                alt: banner.title || `Banner ${idx + 1}`,
-                href: banner.linkUrl || undefined,
-                priority: idx === 0,
-              })),
-            mobile: mobileData
-              .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-              .map((banner, idx) => ({
-                id: banner.id.toString(),
-                src: banner.imageUrl,
-                alt: banner.title || `Banner ${idx + 1}`,
-                href: banner.linkUrl || undefined,
-                priority: idx === 0,
-              })),
-          };
+        const transform = (items: ApiBanner[]) => 
+          items
+            .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+            .map((b, idx) => ({
+              id: b.id.toString(),
+              src: b.imageUrl,
+              alt: b.title || `Banner ${idx + 1}`,
+              href: b.linkUrl || undefined,
+              priority: idx === 0,
+            }));
 
-          setApiBanners(transformedBanners);
-        }
+        setApiBanners({
+          ultrawide: transform(data[0]),
+          desktop: transform(data[1]),
+          laptop: transform(data[2]),
+          mobile: transform(data[3]),
+        });
       } catch (error) {
         console.error('Error fetching banners:', error);
       } finally {
@@ -103,31 +104,13 @@ const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fal
       }
     };
 
-    fetchBanners();
+    fetchAllBanners();
   }, [position, locale]);
 
-  // Use API banners if available, otherwise fallback to prop banners
-  const banners = (apiBanners.desktop.length > 0 || apiBanners.mobile.length > 0) 
-    ? apiBanners 
-    : fallbackBanners || { desktop: [], mobile: [] };
-
-  // Get the appropriate banner list
-  const activeBanners = isMobile ? banners.mobile : banners.desktop;
-
-  const scrollTo = useCallback(
-    (index: number) => {
-      emblaApi?.scrollTo(index);
-    },
-    [emblaApi]
-  );
-
-  const scrollPrev = useCallback(() => {
-    emblaApi?.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    emblaApi?.scrollNext();
-  }, [emblaApi]);
+  const activeBanners = useMemo(() => {
+    const current = (apiBanners[deviceType].length > 0) ? apiBanners : (fallbackBanners || apiBanners);
+    return current[deviceType] || [];
+  }, [apiBanners, fallbackBanners, deviceType]);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -140,82 +123,83 @@ const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fal
     onSelect();
   }, [emblaApi, onSelect]);
 
-  // Show loading state or empty state
   if (isLoading) {
     return (
-      <div className="relative w-full h-40 md:h-[560px] overflow-hidden bg-gray-200 animate-pulse">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-gray-400">Loading banners...</div>
-        </div>
-      </div>
+      <div className="w-full aspect-[1080/900] sm:aspect-[3.2/1] [@media(min-width:2000px)]:aspect-[3.583/1] bg-gray-200 animate-pulse" />
     );
   }
 
-  if (activeBanners.length === 0) {
-    return null;
-  }
+  if (activeBanners.length === 0) return null;
 
   return (
-    <div className="relative w-full h-40 md:h-[560px] overflow-hidden">
-      {/* Carousel viewport */}
-      <div className="overflow-hidden h-full" ref={emblaRef}>
-        <div className="flex h-full">
-          {activeBanners.map((banner, idx) => {
-            const content = (
-              <div className="relative w-full h-full cursor-pointer">
-                <Image
-                  src={banner.src}
-                  alt={banner.alt}
-                  fill
-                  priority={banner.priority}
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              </div>
-            );
-
-            return (
-              <div key={banner.id || `banner-${idx}`} className="flex-[0_0_100%] h-full relative">
+    <section className="relative w-full group">
+      <div className="relative w-full overflow-hidden 
+        aspect-[1080/900] 
+        sm:aspect-[3.2/1] 
+        [@media(min-width:2000px)]:aspect-[3.583/1]"
+      >
+        <div className="h-full" ref={emblaRef}>
+          <div className="flex h-full">
+            {activeBanners.map((banner) => (
+              <div key={banner.id} className="flex-[0_0_100%] min-w-0 h-full relative">
                 {banner.href ? (
-                  <Link href={banner.href} className="block h-full w-full">
-                    {content}
+                  <Link href={banner.href} className="block w-full h-full relative">
+                    <Image
+                      src={banner.src}
+                      alt={banner.alt}
+                      fill
+                      priority={banner.priority}
+                      // For ultrawide screens we want the entire image visible (no horizontal crop)
+                      className={`${deviceType === 'ultrawide' ? 'object-contain' : 'object-cover'} object-center`}
+                      sizes="(max-width: 640px) 100vw, (max-width: 2000px) 100vw, 3440px"
+                    />
                   </Link>
                 ) : (
-                  content
+                  <Image
+                    src={banner.src}
+                    alt={banner.alt}
+                    fill
+                    priority={banner.priority}
+                    className={`${deviceType === 'ultrawide' ? 'object-contain' : 'object-cover'} object-center`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 2000px) 100vw, 3440px"
+                  />
                 )}
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Arrows */}
-      <button
-        onClick={scrollPrev}
-        className="absolute top-1/2 left-4 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2 rounded-full"
-      >
-        <ChevronLeft size={24} className="text-white" />
-      </button>
-      <button
-        onClick={scrollNext}
-        className="absolute top-1/2 right-4 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2 rounded-full"
-      >
-        <ChevronRight size={24} className="text-white" />
-      </button>
-
-      {/* Dots */}
-      <div className="flex justify-center gap-2 mt-2 absolute bottom-4 left-1/2 -translate-x-1/2">
-        {activeBanners.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => scrollTo(index)}
-            className={`w-3 h-3 rounded-full transition-colors border-2 border-white ${
-              index === selectedIndex ? "bg-red-600" : "bg-white"
-            }`}
-          />
-        ))}
+        {/* Навігація */}
+        {activeBanners.length > 1 && (
+          <>
+            <button
+              onClick={() => emblaApi?.scrollPrev()}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/20 hover:bg-black/40 p-2 rounded-full text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={() => emblaApi?.scrollNext()}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/20 hover:bg-black/40 p-2 rounded-full text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ChevronRight size={24} />
+            </button>
+            
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+              {activeBanners.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => emblaApi?.scrollTo(i)}
+                  className={`h-1.5 rounded-full transition-all border border-white/50 ${
+                    i === selectedIndex ? "w-6 bg-red-600" : "w-1.5 bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
-    </div>
+    </section>
   );
 };
 

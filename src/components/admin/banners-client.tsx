@@ -40,7 +40,9 @@ const POSITIONS = [
 ];
 
 const DEVICES = [
+  { value: 'ultrawide', label: 'Ultrawide' },
   { value: 'desktop', label: 'Desktop' },
+  { value: 'laptop', label: 'Laptop' },
   { value: 'mobile', label: 'Mobile' },
 ];
 
