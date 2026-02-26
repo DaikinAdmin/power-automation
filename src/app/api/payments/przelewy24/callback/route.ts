@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
@@ -38,16 +38,16 @@ interface P24VerifyRequest {
 }
 
 /**
- * POST /api/payments/callback
+ * POST /api/payments/przelewy24/callback
  * Handles payment status notifications from Przelewy24
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
-    const body = await request.json() as P24NotificationData;
-    
-    logger.info('Received payment callback', {
+    const body = (await request.json()) as P24NotificationData;
+
+    logger.info('Received Przelewy24 payment callback', {
       sessionId: body.sessionId,
       amount: body.amount,
       orderId: body.orderId,
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const expectedSign = crypto.createHash('sha384').update(signString).digest('hex');
 
     if (body.sign !== expectedSign) {
-      logger.error('Invalid signature in payment callback', {
+      logger.error('Invalid signature in Przelewy24 callback', {
         sessionId: body.sessionId,
         receivedSign: body.sign,
         expectedSign,
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString('base64')}`,
       },
       body: JSON.stringify(verifyRequest),
     });
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         status: verifyResponse.status,
         error: verifyData,
       });
-      
+
       // Update payment status to FAILED
       const now = new Date().toISOString();
       await db
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
           errorCode: verifyData.code?.toString(),
           errorMessage: verifyData.error || 'Transaction verification failed',
           metadata: {
-            ...payment.metadata as any,
+            ...(payment.metadata as any),
             verifyResponse: verifyData,
             callbackData: body,
           },
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Transaction verification failed: ${JSON.stringify(verifyData)}`);
     }
 
-    logger.info('Transaction verified successfully', {
+    logger.info('Przelewy24 transaction verified successfully', {
       sessionId: body.sessionId,
     });
 
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
         transactionId: body.orderId.toString(),
         paymentMethod: body.statement,
         metadata: {
-          ...payment.metadata as any,
+          ...(payment.metadata as any),
           methodId: body.methodId,
           verifyResponse: verifyData,
           callbackData: body,
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
       .where(eq(schema.order.id, payment.orderId));
 
     const duration = Date.now() - startTime;
-    logger.info('Payment callback processed successfully', {
+    logger.info('Przelewy24 callback processed successfully', {
       paymentId: payment.id,
       orderId: payment.orderId,
       duration,
@@ -187,21 +187,18 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return apiErrorHandler(error, request, {
-      endpoint: 'POST /api/payments/callback',
+      endpoint: 'POST /api/payments/przelewy24/callback',
     });
   }
 }
 
 /**
- * GET /api/payments/callback
- * Handles payment return from Przelewy24 (user redirect)
+ * GET /api/payments/przelewy24/callback
+ * Handles payment return redirect from Przelewy24 (user browser redirect)
  */
 export async function GET(request: NextRequest) {
   try {
-    // This endpoint is for when the user returns from Przelewy24
-    // The actual payment verification is done via POST webhook
-    
-    logger.info('User returned from payment gateway', {
+    logger.info('User returned from Przelewy24', {
       url: request.url,
     });
 
@@ -211,7 +208,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     return apiErrorHandler(error, request, {
-      endpoint: 'GET /api/payments/callback',
+      endpoint: 'GET /api/payments/przelewy24/callback',
     });
   }
 }
