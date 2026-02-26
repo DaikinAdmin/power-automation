@@ -49,7 +49,7 @@ export function CategoryPageClient({
   
   const { convertPrice, currencyCode } = useCurrency();
 
-  const { getItemDetails, getItemPrice, getAvailableWarehouses } =
+  const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
     useCatalogPricing({
       preferredCountryCode: locale ? locale.toUpperCase() : "PL",
     });
@@ -317,6 +317,7 @@ export function CategoryPageClient({
             viewMode={viewMode}
             getItemDetails={getItemDetails}
             getItemPrice={getItemPrice}
+            getMinPrice={getMinPrice}
             getAvailableWarehouses={getAvailableWarehouses}
             convertPrice={convertPrice}
             currencyCode={currencyCode}

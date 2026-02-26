@@ -4,20 +4,18 @@ import { useLocale } from "next-intl"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { usePathname, useRouter } from "@/i18n/navigation"
-import { FlagIcon, FlagIconCode } from "react-flag-kit"
 
 interface Language {
   code: string
   name: string
-  countryCode: FlagIconCode // тепер строго під тип прапора
+  flag: string
 }
 
-// Список мов з кодами країн для прапорів
 const languages: Language[] = [
-  { code: "pl", name: "Polski", countryCode: "PL" },
-  { code: "en", name: "English", countryCode: "GB" },
-  { code: "ua", name: "Українська", countryCode: "UA" },
-  { code: "es", name: "Español", countryCode: "ES" },
+  { code: "pl", name: "Polski",     flag: "🇵🇱" },
+  { code: "en", name: "English",    flag: "🇬🇧" },
+  { code: "ua", name: "Українська", flag: "🇺🇦" },
+  { code: "es", name: "Español",    flag: "🇪🇸" },
 ]
 
 export default function LanguageSwitcher() {
@@ -36,8 +34,8 @@ export default function LanguageSwitcher() {
     <div className="flex items-center justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2">
-            <FlagIcon code={currentLang.countryCode} size={20} />
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xl leading-none">
+            {currentLang.flag}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -47,7 +45,7 @@ export default function LanguageSwitcher() {
               onClick={() => handleLanguageChange(language.code)}
               className={`flex items-center gap-2 ${language.code === locale ? "bg-accent font-medium" : ""}`}
             >
-              <FlagIcon code={language.countryCode} size={20} />
+              <span className="text-xl leading-none">{language.flag}</span>
               <span>{language.name}</span>
             </DropdownMenuItem>
           ))}

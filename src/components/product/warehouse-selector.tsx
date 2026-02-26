@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { requestOutOfStockItem } from '@/lib/actions/products';
 import { Badge as UiBadge } from '@/components/ui/badge';
+import { useTranslations } from 'next-intl';
 
 interface WarehousePrice {
   id: string;
@@ -34,6 +35,9 @@ export default function WarehouseSelector({
   itemId,
   itemName
 }: WarehouseSelectorProps) {
+  const t = useTranslations('product.warehouseSelector');
+  const tBadges = useTranslations('product.price.badges');
+
   const [showOutOfStockForm, setShowOutOfStockForm] = useState(false);
   const [outOfStockForm, setOutOfStockForm] = useState({
     email: '',
@@ -56,31 +60,31 @@ export default function WarehouseSelector({
       );
 
       if (result.success) {
-        alert('Your request has been submitted! We will contact you when the item becomes available.');
+        alert(t('successMessage'));
         setShowOutOfStockForm(false);
         setOutOfStockForm({ email: '', name: '', message: '' });
       } else {
-        alert('Failed to submit request. Please try again.');
+        alert(t('errorMessage'));
       }
     } catch (error) {
       console.error('Error submitting out of stock request:', error);
-      alert('Failed to submit request. Please try again.');
+      alert(t('errorMessage'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const badgeLabels: Record<string, string> = {
-    BESTSELLER: 'Bestseller',
-    HOT_DEALS: 'Hot Deal',
-    NEW_ARRIVALS: 'New',
-    LIMITED_EDITION: 'Limited',
-    ABSENT: 'Standard',
+    BESTSELLER: tBadges('bestseller'),
+    HOT_DEALS: tBadges('hotDeal'),
+    NEW_ARRIVALS: tBadges('new'),
+    LIMITED_EDITION: tBadges('limited'),
+    ABSENT: tBadges('standard'),
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Select Warehouse</h3>
+      <h3 className="text-lg font-semibold">{t('title')}</h3>
       
       <div className="grid gap-3">
         {warehouses.map((warehouse) => (
@@ -102,39 +106,50 @@ export default function WarehouseSelector({
               </div>
               
               <div className="text-right">
-                <div className="flex items-center gap-2">
-                  {warehouse.specialPrice ? (
-                    <>
-                      <span className="text-lg font-bold text-red-600">
-                        {warehouse.specialPrice}
+                {warehouse.inStock ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      {warehouse.specialPrice ? (
+                        <>
+                          <span className="text-lg font-bold text-red-600">
+                            {warehouse.specialPrice}
+                          </span>
+                          <span className="text-sm text-gray-400 line-through">
+                            {warehouse.price}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-lg font-bold text-red-600">
+                          {warehouse.price}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Package className="h-4 w-4" />
+                      <span className="text-sm text-green-600">
+                        {t('inStock', { quantity: warehouse.quantity })}
                       </span>
-                      <span className="text-sm text-gray-400 line-through">
-                        {warehouse.price}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-lg font-bold text-red-600">
-                      {warehouse.price}
-                    </span>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-2 mt-1">
-                  <Package className="h-4 w-4" />
-                  <span className={`text-sm ${
-                    warehouse.inStock ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {warehouse.inStock 
-                      ? `${warehouse.quantity} in stock`
-                      : 'Out of stock'
-                    }
-                  </span>
-                  {warehouse.badge && (
-                    <UiBadge variant="secondary">
-                      {badgeLabels[warehouse.badge] || warehouse.badge}
-                    </UiBadge>
-                  )}
-                </div>
+                      {warehouse.badge && (
+                        <UiBadge variant="secondary">
+                          {badgeLabels[warehouse.badge] || warehouse.badge}
+                        </UiBadge>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-right space-y-1">
+                    <p className="text-sm font-semibold text-red-600">
+                      {t('outOfStockTitle')}
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      <span className="text-gray-500">{t('lastPrice')}: </span>
+                      <span className="font-bold text-gray-800">{warehouse.price}</span>
+                    </p>
+                    <p className="text-xs text-gray-400 max-w-[200px]">
+                      {t('contactManager')}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -146,12 +161,7 @@ export default function WarehouseSelector({
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-medium text-yellow-800">Item Not Available</h4>
-              <p className="text-sm text-yellow-700 mt-1">
-                This item is currently out of stock at the selected warehouse.
-              </p>
-              
-              <div className="mt-3 space-y-2">
+              <div className="mt-0 flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -161,12 +171,11 @@ export default function WarehouseSelector({
                       onWarehouseChange(inStockWarehouse);
                     }
                   }}
-                  className="mr-2"
                   disabled={!warehouses.some(w => w.inStock)}
                 >
-                  {warehouses.some(w => w.inStock) 
-                    ? 'Switch to Available Warehouse'
-                    : 'No Stock Available'
+                  {warehouses.some(w => w.inStock)
+                    ? t('switchToAvailable')
+                    : t('noStockAvailable')
                   }
                 </Button>
                 
@@ -176,7 +185,7 @@ export default function WarehouseSelector({
                   onClick={() => setShowOutOfStockForm(true)}
                 >
                   <Mail className="h-4 w-4 mr-2" />
-                  Request When Available
+                  {t('requestWhenAvailable')}
                 </Button>
               </div>
             </div>
@@ -186,11 +195,11 @@ export default function WarehouseSelector({
 
       {showOutOfStockForm && (
         <Card className="p-6 border-blue-200">
-          <h4 className="font-semibold mb-4">Request "{itemName}" When Available</h4>
+          <h4 className="font-semibold mb-4">{t('requestFormTitle', { itemName })}</h4>
           <form onSubmit={handleOutOfStockSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name
+                {t('yourName')}
               </label>
               <input
                 type="text"
@@ -203,7 +212,7 @@ export default function WarehouseSelector({
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+                {t('email')}
               </label>
               <input
                 type="email"
@@ -216,12 +225,12 @@ export default function WarehouseSelector({
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message (Optional)
+                {t('messageOptional')}
               </label>
               <textarea
                 value={outOfStockForm.message}
                 onChange={(e) => setOutOfStockForm({...outOfStockForm, message: e.target.value})}
-                placeholder="Any specific requirements or questions..."
+                placeholder={t('messagePlaceholder')}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
@@ -233,14 +242,14 @@ export default function WarehouseSelector({
                 disabled={submitting}
                 className="bg-red-500 hover:bg-red-600"
               >
-                {submitting ? 'Submitting...' : 'Submit Request'}
+                {submitting ? t('submitting') : t('submit')}
               </Button>
               <Button 
                 type="button" 
                 variant="outline"
                 onClick={() => setShowOutOfStockForm(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
             </div>
           </form>

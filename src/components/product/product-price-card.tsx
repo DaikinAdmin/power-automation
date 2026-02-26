@@ -59,7 +59,7 @@ export function ProductPriceCard({
         {discountLabel && (
           <UiBadge variant="destructive">-{discountLabel}%</UiBadge>
         )}
-        {badgeLabel && (
+        {badgeLabel && badgeLabel !== 'ABSENT' && (
           <UiBadge variant="secondary">
             {getBadgeText(badgeLabel)}
           </UiBadge>

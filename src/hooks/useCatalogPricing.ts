@@ -69,6 +69,30 @@ export const useCatalogPricing = (
     };
   }, [preferredCountryCode]);
 
+  const getMinPrice = useCallback((item: ItemType) => {
+    const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
+
+    if (!prices || prices.length === 0) {
+      return { price: 0, inStock: false };
+    }
+
+    const inStockPrices = prices.filter((p: any) => p.quantity > 0);
+    const pool = inStockPrices.length > 0 ? inStockPrices : prices;
+
+    let minPrice = Infinity;
+    for (const p of pool) {
+      const margin = ('margin' in p ? (p as any).margin : null) ?? 20;
+      const base = (p as any).promotionPrice ?? (p as any).price;
+      const final = base * (1 + margin / 100);
+      if (final < minPrice) minPrice = final;
+    }
+
+    return {
+      price: minPrice === Infinity ? 0 : minPrice,
+      inStock: inStockPrices.length > 0,
+    };
+  }, []);
+
   const getAvailableWarehouses = useCallback((item: ItemType) => {
     const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
     
@@ -92,6 +116,7 @@ export const useCatalogPricing = (
   return {
     getItemDetails,
     getItemPrice,
+    getMinPrice,
     getAvailableWarehouses
   };
 };

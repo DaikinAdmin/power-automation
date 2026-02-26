@@ -346,8 +346,8 @@
       "backToHome": "Back to Home"
     },
     "articleId": "Article",
-    "from": "From {{warehouse}}",
-    "moreLocations": "+{{count}} more locations",
+    "from": "From {warehouse}",
+    "moreLocations": "+{count} more locations",
     "price": {
       "discount": "-{{percent}}%",
       "badges": {
@@ -367,6 +367,11 @@
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison"
     },
+    "availability": {
+      "inStock": "In stock",
+      "inStockQty": "{quantity} in stock",
+      "outOfStock": "Out of stock"
+    },
     "tabs": {
       "delivery": "Delivery & Availability",
       "warranty": "Warranty",
@@ -375,7 +380,7 @@
     "tabContent": {
       "deliveryAvailable": "Delivery available within 3-5 business days from the selected warehouse.",
       "fasterShipping": "Need faster shipping? Contact our logistics team for express options.",
-      "manufacturerWarranty": "Manufacturer warranty: {{months}} months.",
+      "manufacturerWarranty": "Manufacturer warranty: {months} months.",
       "warrantyNotSpecified": "Manufacturer warranty: Not specified.",
       "additionalContracts": "Additional service contracts available upon request.",
       "datasheets": "Datasheets and certificates are available upon request. Contact support for more information."
@@ -416,11 +421,32 @@
       "success": "Price request submitted successfully! We will contact you soon.",
       "error": "Failed to submit price request. Please try again."
     },
+    "warehouseSelector": {
+      "title": "Select Warehouse",
+      "inStock": "{quantity} in stock",
+      "outOfStockTitle": "Item not in stock",
+      "lastPrice": "Last price",
+      "contactManager": "Contact manager to place an order",
+      "switchToAvailable": "Switch to available warehouse",
+      "noStockAvailable": "No stock available",
+      "requestWhenAvailable": "Notify when available",
+      "requestFormTitle": "Request {itemName} when available",
+      "yourName": "Your Name",
+      "email": "Email Address",
+      "messageOptional": "Message (Optional)",
+      "messagePlaceholder": "Any specific requirements or questions...",
+      "submit": "Submit Request",
+      "submitting": "Submitting...",
+      "cancel": "Cancel",
+      "successMessage": "Your request has been submitted! We will contact you when the item becomes available.",
+      "errorMessage": "Failed to submit request. Please try again."
+    },
     "productCatalogCard":{
       "buy":"Buy",
       "outOfStock":"Out of Stock",
       "addToCompare": "Add to Compare",
-      "inCompare": "In Comparison"
+      "inCompare": "In Comparison",
+      "from": "from"
     },
     "compare": {
       "alreadyAdded": "This product is already in the comparison list",
@@ -509,6 +535,13 @@
     "enter": "Enter",
     "cart": "Cart",
     "dashboard": "Dashboard"
+  },
+  "staticPages": {
+    "about": "About us",
+    "brands": "Brands",
+    "purchaseDelivery": "Purchase and Delivery",
+    "refunding": "Refunding",
+    "contacts": "Contacts"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved",

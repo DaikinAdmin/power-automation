@@ -24,7 +24,7 @@ export default function ProductsTabsSection({
   const t = useTranslations("home");
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
-  const { getItemDetails, getItemPrice, getAvailableWarehouses } =
+  const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
     useCatalogPricing({
       preferredCountryCode: "PL",
     });
@@ -177,6 +177,8 @@ export default function ProductsTabsSection({
               const convertedPrice = convertPrice(price);
               const convertedOriginalPrice =
                 originalPrice != null ? convertPrice(originalPrice) : null;
+              const { price: minPrice } = getMinPrice(item);
+              const convertedMinPrice = convertPrice(minPrice);
               const warehouseLabel = displayedName
                 ? `From ${displayedName}`
                 : undefined;
@@ -270,7 +272,7 @@ export default function ProductsTabsSection({
                   imageSrc={item.itemImageLink}
                   imageAlt={details?.itemName || "Product"}
                   name={details?.itemName || "Unnamed Product"}
-                  price={convertedPrice}
+                  price={convertedMinPrice}
                   originalPrice={convertedOriginalPrice ?? undefined}
                   currency={currencyCode}
                   inStock={inStock}
@@ -281,6 +283,7 @@ export default function ProductsTabsSection({
                   addToCartDisabled={!inStock}
                   itemId={item.slug}
                   isInCompare={isInCompare(item.slug)}
+                  priceFrom={true}
                 />
               );
             })}
@@ -301,6 +304,8 @@ export default function ProductsTabsSection({
                   const convertedPrice = convertPrice(price);
                   const convertedOriginalPrice =
                     originalPrice != null ? convertPrice(originalPrice) : null;
+                  const { price: minPrice } = getMinPrice(item);
+                  const convertedMinPrice = convertPrice(minPrice);
                   const warehouseLabel = displayedName
                     ? `From ${displayedName}`
                     : undefined;
@@ -399,7 +404,7 @@ export default function ProductsTabsSection({
                         imageSrc={item.itemImageLink}
                         imageAlt={details?.itemName || "Product"}
                         name={details?.itemName || "Unnamed Product"}
-                        price={convertedPrice}
+                        price={convertedMinPrice}
                         originalPrice={convertedOriginalPrice ?? undefined}
                         currency={currencyCode}
                         inStock={inStock}
@@ -410,6 +415,7 @@ export default function ProductsTabsSection({
                         addToCartDisabled={!inStock}
                         itemId={item.slug}
                         isInCompare={isInCompare(item.slug)}
+                        priceFrom={true}
                       />
                     </div>
                   );

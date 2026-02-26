@@ -346,8 +346,8 @@
       "backToHome": "Powrót do strony głównej"
     },
     "articleId": "Artykuł",
-    "from": "Z {{warehouse}}",
-    "moreLocations": "+{{count}} więcej lokalizacji",
+    "from": "Z {warehouse}",
+    "moreLocations": "+{count} więcej lokalizacji",
     "price": {
       "discount": "-{{percent}}%",
       "badges": {
@@ -367,6 +367,11 @@
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu"
     },
+    "availability": {
+      "inStock": "Dostępny",
+      "inStockQty": "{quantity} szt. w magazynie",
+      "outOfStock": "Brak w magazynie"
+    },
     "tabs": {
       "delivery": "Dostawa i dostępność",
       "warranty": "Gwarancja",
@@ -375,7 +380,7 @@
     "tabContent": {
       "deliveryAvailable": "Dostawa dostępna w ciągu 3-5 dni roboczych z wybranego magazynu.",
       "fasterShipping": "Potrzebujesz szybszej wysyłki? Skontaktuj się z naszym zespołem logistycznym w sprawie opcji ekspresowych.",
-      "manufacturerWarranty": "Gwarancja producenta: {{months}} miesięcy.",
+      "manufacturerWarranty": "Gwarancja producenta: {months} miesięcy.",
       "warrantyNotSpecified": "Gwarancja producenta: Nie określono.",
       "additionalContracts": "Dodatkowe umowy serwisowe dostępne na żądanie.",
       "datasheets": "Karty katalogowe i certyfikaty dostępne na żądanie. Skontaktuj się ze wsparciem, aby uzyskać więcej informacji."
@@ -416,11 +421,32 @@
       "success": "Zapytanie o cenę zostało wysłane pomyślnie! Wkrótce się z Tobą skontaktujemy.",
       "error": "Nie udało się przesłać zapytania o cenę. Spróbuj ponownie."
     },
+    "warehouseSelector": {
+      "title": "Wybierz magazyn",
+      "inStock": "{quantity} w magazynie",
+      "outOfStockTitle": "Towar niedostępny w magazynie",
+      "lastPrice": "Ostatnia cena",
+      "contactManager": "W celu zamówienia skontaktuj się z menedżerem",
+      "switchToAvailable": "Przejdź do dostępnego magazynu",
+      "noStockAvailable": "Brak w magazynie",
+      "requestWhenAvailable": "Powiadom o dostępności",
+      "requestFormTitle": "Zamów {itemName} gdy dostępny",
+      "yourName": "Twoje imię",
+      "email": "Adres e-mail",
+      "messageOptional": "Wiadomość (opcjonalnie)",
+      "messagePlaceholder": "Wszelkie konkretne wymagania lub pytania...",
+      "submit": "Wyślij zapytanie",
+      "submitting": "Wysyłanie...",
+      "cancel": "Anuluj",
+      "successMessage": "Twoje zapytanie zostało przesłane! Skontaktujemy się gdy produkt będzie dostępny.",
+      "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie."
+    },
     "productCatalogCard":{
       "buy":"Kup",
       "outOfStock":"Brak",
       "addToCompare": "Dodaj do porównania",
-      "inCompare": "W porównaniu"
+      "inCompare": "W porównaniu",
+      "from": "od"
     },
     "compare": {
       "alreadyAdded": "Ten produkt jest już na liście porównania",
@@ -493,6 +519,13 @@
         }
       ]
     }
+  },
+  "staticPages": {
+    "about": "O nas",
+    "brands": "Marki",
+    "purchaseDelivery": "Zakup i dostawa",
+    "refunding": "Zwroty",
+    "contacts": "Kontakt"
   },
   "header": {
     "nav": {

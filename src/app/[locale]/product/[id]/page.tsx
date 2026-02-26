@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import PageLayout from "@/components/layout/page-layout";
-import WarehouseSelector from "@/components/warehouse-selector";
+import WarehouseSelector from "@/components/product/warehouse-selector";
 import { ProductImageViewer } from "@/components/product/product-image-viewer";
 import { ProductInfoTabs } from "@/components/product/product-info-tabs";
 import { ProductHeader } from "@/components/product/product-header";

@@ -373,8 +373,8 @@
       "backToHome": "Повернутися на головну"
     },
     "articleId": "Артикул",
-    "from": "Від {{warehouse}}",
-    "moreLocations": "+{{count}} більше локацій",
+    "from": "Від {warehouse}",
+    "moreLocations": "+{count} більше локацій",
     "price": {
       "discount": "-{{percent}}%",
       "badges": {
@@ -394,6 +394,11 @@
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні"
     },
+    "availability": {
+      "inStock": "В наявності",
+      "inStockQty": "{quantity} шт. в наявності",
+      "outOfStock": "Немає в наявності"
+    },
     "tabs": {
       "delivery": "Доставка та наявність",
       "warranty": "Гарантія",
@@ -402,7 +407,7 @@
     "tabContent": {
       "deliveryAvailable": "Доставка доступна протягом 3-5 робочих днів з обраного складу.",
       "fasterShipping": "Потрібна швидша доставка? Зв'яжіться з нашою логістичною командою для експрес-варіантів.",
-      "manufacturerWarranty": "Гарантія виробника: {{months}} місяців.",
+      "manufacturerWarranty": "Гарантія виробника: {months} місяців.",
       "warrantyNotSpecified": "Гарантія виробника: Не вказано.",
       "additionalContracts": "Додаткові сервісні контракти доступні за запитом.",
       "datasheets": "Технічні паспорти та сертифікати доступні за запитом. Зв'яжіться з підтримкою для отримання додаткової інформації."
@@ -443,11 +448,32 @@
       "success": "Запит на ціну успішно відправлено! Ми зв'яжемося з вами найближчим часом.",
       "error": "Не вдалося надіслати запит на ціну. Будь ласка, спробуйте ще раз."
     },
+    "warehouseSelector": {
+      "title": "Оберіть склад",
+      "inStock": "{quantity} в наявності",
+      "outOfStockTitle": "Товар відсутній на складі",
+      "lastPrice": "Остання ціна",
+      "contactManager": "Для замовлення уточнюйте у менеджера",
+      "switchToAvailable": "Перейти до доступного складу",
+      "noStockAvailable": "Немає в наявності",
+      "requestWhenAvailable": "Сповістити про наявність",
+      "requestFormTitle": "Замовити {itemName} при наявності",
+      "yourName": "Ваше ім'я",
+      "email": "E-mail",
+      "messageOptional": "Повідомлення (необов'язково)",
+      "messagePlaceholder": "Будь-які додаткові побажання або запитання...",
+      "submit": "Надіслати запит",
+      "submitting": "Надсилання...",
+      "cancel": "Скасувати",
+      "successMessage": "Ваш запит подано! Ми зв'яжемося з вами, коли товар з'явиться в наявності.",
+      "errorMessage": "Не вдалося надіслати запит. Будь ласка, спробуйте ще раз."
+    },
     "productCatalogCard":{
       "buy":"Купити",
       "outOfStock":"Немає в наявності",
       "addToCompare": "Додати до порівняння",
-      "inCompare": "У порівнянні"
+      "inCompare": "У порівнянні",
+      "from": "від"
     },
     "compare": {
       "alreadyAdded": "Цей товар вже є у списку порівняння",
@@ -520,6 +546,13 @@
         }
       ]
     }
+  },
+  "staticPages": {
+    "about": "Про нас",
+    "brands": "Бренди",
+    "purchaseDelivery": "Покупка та доставка",
+    "refunding": "Повернення",
+    "contacts": "Контакти"
   },
   "header": {
     "nav": {

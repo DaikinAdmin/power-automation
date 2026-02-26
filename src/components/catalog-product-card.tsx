@@ -39,6 +39,7 @@ interface CatalogProductCardProps {
   extraContent?: ReactNode;
   itemId?: string;
   isInCompare?: boolean;
+  priceFrom?: boolean;
 }
 
 const CatalogProductCard = ({
@@ -66,6 +67,7 @@ const CatalogProductCard = ({
   extraContent,
   itemId,
   isInCompare = false,
+  priceFrom = false,
 }: CatalogProductCardProps) => {
   const t = useTranslations("product.productCatalogCard");
   const isList = viewMode === "list";
@@ -280,7 +282,7 @@ const CatalogProductCard = ({
         <div className={`${isList ? "flex items-center justify-between" : ""}`}>
           <div className="flex items-center gap-2">
             <span className="text-red-600 text-product-price">
-              {priceDisplay}
+              {priceFrom && <span className="text-sm font-normal">{t("from")} </span>}{priceDisplay}
             </span>
             {originalPriceDisplay && (
               <span className="text-gray-400 line-through text-sm">

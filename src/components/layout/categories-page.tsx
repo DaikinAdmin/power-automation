@@ -68,7 +68,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     },
   });
 
-  const { getItemDetails, getItemPrice, getAvailableWarehouses } =
+  const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
     useCatalogPricing({
       preferredCountryCode: locale ? locale.toUpperCase() : "PL",
     });
@@ -377,6 +377,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                     viewMode={viewMode}
                     getItemDetails={getItemDetails}
                     getItemPrice={getItemPrice}
+                    getMinPrice={getMinPrice}
                     getAvailableWarehouses={getAvailableWarehouses}
                     convertPrice={convertPrice}
                     currencyCode={currencyCode}
