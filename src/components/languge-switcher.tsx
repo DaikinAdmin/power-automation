@@ -3,7 +3,7 @@
 import { useLocale } from "next-intl"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { usePathname, useRouter } from "@/i18n/navigation"
+import { usePathname } from "@/i18n/navigation" // useRouter більше не потрібен
 
 interface Language {
   code: string
@@ -20,12 +20,21 @@ const languages: Language[] = [
 
 export default function LanguageSwitcher() {
   const locale = useLocale()
-  const router = useRouter()
   const pathname = usePathname()
 
   const handleLanguageChange = (newLocale: string) => {
-    if (newLocale === locale) return
-    router.replace(pathname, { locale: newLocale })
+    if (newLocale === locale) return;
+
+    // Зберігаємо поточні параметри запиту (наприклад, ?sort=price_asc)
+    const searchParams = window.location.search;
+    
+    // Формуємо новий URL. 
+    // Хук usePathname від next-intl повертає шлях БЕЗ локалі (наприклад, /products)
+    // Тому ми просто підставляємо нову локаль на початок
+    const newPath = pathname === '/' ? `/${newLocale}` : `/${newLocale}${pathname}`;
+    
+    // Виконуємо жорстке перезавантаження (Hard Reload)
+    window.location.href = `${newPath}${searchParams}`;
   }
 
   const currentLang = languages.find((lang) => lang.code === locale) || languages[0]
