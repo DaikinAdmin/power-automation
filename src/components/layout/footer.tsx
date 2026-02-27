@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import { useCategories } from '@/hooks/useCategories';
+import { useLocale } from 'next-intl';
 
 const ACCEPTED_CARDS = [
   {
@@ -12,11 +14,18 @@ const ACCEPTED_CARDS = [
 
 export default function Footer() {
   const t = useTranslations('footer');
+  const locale = useLocale();
+  const { categories, isLoading } = useCategories(locale);
+
+  // Two columns of 6; the 6th slot of col2 is always "+X more" link
+  const col1 = categories.slice(0, 6);
+  const col2 = categories.slice(6, 11); // max 5 items; 6th will be the link
+  const remainingCount = Math.max(0, categories.length - 11);
   
   return (
     <footer style={{ backgroundColor: '#404040' }} className="text-white py-12 z-20">
       <div className="max-w-[90rem] mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           {/* Column 1: Logo & Company Info */}
           <div>
             <Link href="/" className="mb-4 block" aria-label="Go to homepage">
@@ -47,33 +56,55 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Categories 1 */}
+          {/* Column 2: Categories — first 6 */}
           <div>
             <h3 className="text-red-500 font-semibold text-lg mb-4">{t('categories')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.electronics')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.fashion')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.homeGarden')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories1.sports')}</a></li>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              {!isLoading && col1.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/categories/${category.slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Column 3: Categories 2 */}
+          {/* Column 3: Categories — next 5 + "+X more" as 6th */}
           <div>
-            <h3 className="text-red-500 font-semibold text-lg mb-4">{t('moreCategories')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.books')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.healthBeauty')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.automotive')}</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">{t('categories2.toysGames')}</a></li>
+            <h3 className="text-red-500 font-semibold text-lg mb-4">&nbsp;</h3>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              {!isLoading && col2.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/categories/${category.slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
+              {!isLoading && (
+                <li>
+                  <Link
+                    href="/categories"
+                    className="hover:text-white transition-colors text-red-400 font-medium"
+                  >
+                    +{remainingCount} {t('moreCategories')}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
           {/* Column 4: For Clients */}
           <div>
             <h3 className="text-red-500 font-semibold text-lg mb-4">{t('forClients')}</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="/sign-in" className="hover:text-white transition-colors">{t('links.enterShop')}</a></li>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              <li><a href="/signin" className="hover:text-white transition-colors">{t('links.enterShop')}</a></li>
               <li><Link href="/about" className="hover:text-white transition-colors">{t('links.about')}</Link></li>
               <li><Link href="/brands" className="hover:text-white transition-colors">{t('links.brands')}</Link></li>
               <li><Link href="/purchase-delivery" className="hover:text-white transition-colors">{t('links.purchaseDelivery')}</Link></li>
