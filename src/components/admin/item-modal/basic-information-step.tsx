@@ -50,6 +50,12 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const computeSlug = (articleId: string, brandSlug: string | null): string => {
+    const base = articleId.trim().toLowerCase().replace(/\s+/g, '-');
+    const prefix = brandSlug ? brandSlug : 'unbranded';
+    return `${prefix}_${base}`;
+  };
+
   const warrantyTypeOptions = [
     { value: 'manufacturer', label: 'Manufacturer' },
     { value: 'seller', label: 'Seller' },
@@ -306,7 +312,14 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Input
               id="articleId"
               value={formData.articleId}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, articleId: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((prev: any) => ({
+                  ...prev,
+                  articleId: val,
+                  slug: computeSlug(val, prev.brandSlug),
+                }));
+              }}
               className="mt-1"
               placeholder="Enter article ID"
               required
@@ -336,6 +349,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   brandSlug: brandSlug ? brandSlug : null,
                   brandName: brand?.name || '',
                   brand,
+                  slug: computeSlug(prev.articleId, brandSlug || null),
                 }));
               }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
@@ -699,6 +713,19 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, promoCode: e.target.value }))}
                   className="mt-1"
                   placeholder="Enter promo code"
+                />
+              </div>
+
+              <div>
+                <Label>Margin (%)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={newPriceEntry.margin ?? 20}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, margin: parseFloat(e.target.value) || 0 }))}
+                  className="mt-1"
+                  placeholder="20"
                 />
               </div>
             </div>

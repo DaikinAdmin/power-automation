@@ -100,10 +100,14 @@
       "to": "Hasta"
     },
     "filters": {
+      "title": "Filtros",
       "categories": "Categorías",
       "brands": "Marcas",
       "warehouses": "Almacenes",
-      "subcategories": "Subcategorías"
+      "subcategories": "Subcategorías",
+      "apply": "Aplicar",
+      "allCategories": "Todas las categorías",
+      "hideCategories": "Ocultar"
     },
     "noResults": "No se encontraron productos",
     "noResultsSearch": "No se encontraron resultados de búsqueda",
@@ -271,29 +275,6 @@
       "editNote": "Pronto mostraremos campos editables (nombre, teléfono, dirección), incluida la validación y el historial de auditoría."
     }
   },
-  "dashboard": {
-    "welcomeBack": "Bienvenido de nuevo",
-    "statsOverview": "Resumen de estadísticas",
-    "greeting": "Hola {{name}}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
-    "stats": {
-      "ordersPlaced": "Pedidos realizados",
-      "itemsPurchased": "Artículos comprados",
-      "totalSpend": "Gasto total",
-      "supportTickets": "Tickets de soporte abiertos"
-    },
-    "descriptions": {
-      "analyticsComingSoon": "Análisis próximamente",
-      "trendingCategories": "Destacaremos las categorías de tendencia a continuación",
-      "currencySummaries": "Aquí aparecerán resúmenes con reconocimiento de moneda",
-      "contactSupport": "Comuníquese en cualquier momento desde la sección de Contacto"
-    },
-    "whatsNext": {
-      "title": "¿Qué sigue?",
-      "visualizeSpending": "Visualice el gasto a lo largo del tiempo con gráficos mensuales.",
-      "trackOrders": "Rastree las etapas de cumplimiento de pedidos en tiempo real.",
-      "loyaltyRewards": "Esté atento a las recompensas de lealtad y las próximas renovaciones."
-    }
-  },
   "product": {
     "loading": "Cargando producto…",
     "notFound": {
@@ -347,8 +328,8 @@
       "warranty": "Garantía",
       "category": "Categoría",
       "subcategory": "Subcategoría",
-      "months": "{{count}} meses",
-      "warrantyMonths": "{{count}} meses",
+      "months": "{count} meses",
+      "warrantyMonths": "{count} meses",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -479,12 +460,15 @@
   "header": {
     "nav": {
       "about": "Sobre nosotros",
+      "main": "Principal",
       "brands": "Marcas",
       "purchaseDelivery": "Compra y entrega",
       "refunding": "Devoluciones",
       "contacts": "Contactos",
       "other": "Otros",
-      "menu": "Menú"
+      "menu": "Menú",
+      "compare": "Comparar productos",
+      "login": "Iniciar sesión"
     },
     "categories": "Categorías",
     "search": "Buscar productos...",

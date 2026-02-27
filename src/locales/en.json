@@ -100,10 +100,14 @@
       "to": "To"
     },
     "filters": {
+      "title": "Filters",
       "categories": "Categories",
       "brands": "Brands",
       "warehouses": "Warehouses",
-      "subcategories": "Subcategories"
+      "subcategories": "Subcategories",
+      "apply": "Apply",
+      "allCategories": "All Categories",
+      "hideCategories": "Hide"
     },
     "noResults": "No products found",
     "noResultsSearch": "No search results found",
@@ -391,8 +395,8 @@
       "warranty": "Warranty",
       "category": "Category",
       "subcategory": "Subcategory",
-      "months": "{{count}} months",
-      "warrantyMonths": "{{count}} months",
+      "months": "{count} months",
+      "warrantyMonths": "{count} months",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -523,12 +527,15 @@
   "header": {
     "nav": {
       "about": "About us",
+      "main": "Main",
       "brands": "Brands",
       "purchaseDelivery": "Purchase and Delivery",
       "refunding": "Refunding",
       "contacts": "Contacts",
       "other": "Other",
-      "menu": "Menu"
+      "menu": "Menu",
+      "compare": "Compare Products",
+      "login": "Login"
     },
     "categories": "Categories",
     "search": "Search products...",

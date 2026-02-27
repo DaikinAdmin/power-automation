@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ItemModal } from '@/components/admin/item-modal';
@@ -15,18 +15,35 @@ import { toast } from 'sonner';
 
 export default function ItemsPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Read initial state from URL
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [searchInput, setSearchInput] = useState(''); // User's input
-  const [searchTerm, setSearchTerm] = useState(''); // Actual search term sent to API
-  const [selectedBrand, setSelectedBrand] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [hideHidden, setHideHidden] = useState(false);
-  
+  const [searchInput, setSearchInput] = useState(() => searchParams.get('q') ?? '');
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') ?? '');
+  const [selectedBrand, setSelectedBrand] = useState(() => searchParams.get('brand') ?? '');
+  const [selectedCategory, setSelectedCategory] = useState(() => searchParams.get('category') ?? '');
+  const [hideHidden, setHideHidden] = useState(() => searchParams.get('hideHidden') === '1');
+
   // Server-side pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(() => parseInt(searchParams.get('page') ?? '1') || 1);
+  const [pageSize, setPageSize] = useState(() => parseInt(searchParams.get('limit') ?? '5') || 5);
+
+  // Sync filter state back to URL
+  const updateUrl = useCallback((params: Record<string, string>) => {
+    const current = new URLSearchParams(searchParams.toString());
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === '' || value === '0' || value === 'false') {
+        current.delete(key);
+      } else {
+        current.set(key, value);
+      }
+    });
+    router.replace(`${pathname}?${current.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams]);
   
   // Selection state
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -54,15 +71,14 @@ export default function ItemsPage() {
   // Debounce search input - only search after user stops typing for 500ms and has 3+ chars
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Only trigger search if input is empty (clear search) or has 3+ characters
       if (searchInput === '' || searchInput.length >= 3) {
         setSearchTerm(searchInput);
-        setCurrentPage(1); // Reset to first page on search
-        setSelectedItems(new Set()); // Clear selection on search
+        setCurrentPage(1);
+        setSelectedItems(new Set());
         setSelectAllMode('none');
+        updateUrl({ q: searchInput, page: '1' });
       }
     }, 500);
-
     return () => clearTimeout(timer);
   }, [searchInput]);
 
@@ -286,13 +302,17 @@ export default function ItemsPage() {
 
   const goToNextPage = () => {
     if (currentPage < pagination.totalPages) {
-      setCurrentPage(currentPage + 1);
+      const next = currentPage + 1;
+      setCurrentPage(next);
+      updateUrl({ page: String(next) });
     }
   };
 
   const goToPreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      const prev = currentPage - 1;
+      setCurrentPage(prev);
+      updateUrl({ page: String(prev) });
     }
   };
 
@@ -406,6 +426,7 @@ export default function ItemsPage() {
                   onChange={(e) => {
                     setSelectedBrand(e.target.value);
                     setCurrentPage(1);
+                    updateUrl({ brand: e.target.value, page: '1' });
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -425,6 +446,7 @@ export default function ItemsPage() {
                   onChange={(e) => {
                     setSelectedCategory(e.target.value);
                     setCurrentPage(1);
+                    updateUrl({ category: e.target.value, page: '1' });
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -441,8 +463,10 @@ export default function ItemsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Hide Hidden</label>
                 <button
                   onClick={() => {
-                    setHideHidden(!hideHidden);
+                    const next = !hideHidden;
+                    setHideHidden(next);
                     setCurrentPage(1);
+                    updateUrl({ hideHidden: next ? '1' : '', page: '1' });
                   }}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center gap-2 ${
                     hideHidden
@@ -471,6 +495,7 @@ export default function ItemsPage() {
                   onChange={(e) => {
                     setPageSize(parseInt(e.target.value));
                     setCurrentPage(1);
+                    updateUrl({ limit: e.target.value, page: '1' });
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -494,6 +519,7 @@ export default function ItemsPage() {
                   setSelectedCategory('');
                   setHideHidden(false);
                   setCurrentPage(1);
+                  updateUrl({ q: '', brand: '', category: '', hideHidden: '', page: '1' });
                 }}
                 className="text-gray-600"
               >

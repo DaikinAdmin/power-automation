@@ -100,10 +100,14 @@
       "to": "Do"
     },
     "filters": {
+      "title": "Filtry",
       "categories": "Kategorie",
       "brands": "Marki",
       "warehouses": "Magazyny",
-      "subcategories": "Podkategorie"
+      "subcategories": "Podkategorie",
+      "apply": "Zastosuj",
+      "allCategories": "Wszystkie kategorie",
+      "hideCategories": "Ukryj"
     },
     "noResults": "Nie znaleziono produktów",
     "noResultsSearch": "Nie znaleziono wyników wyszukiwania",
@@ -391,8 +395,8 @@
       "warranty": "Gwarancja",
       "category": "Kategoria",
       "subcategory": "Podkategoria",
-      "months": "{{count}} miesięcy",
-      "warrantyMonths": "{{count}} miesięcy",
+      "months": "{count} miesięcy",
+      "warrantyMonths": "{count} miesięcy",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -530,12 +534,15 @@
   "header": {
     "nav": {
       "about": "O nas",
+      "main": "Strona główna",
       "brands": "Marki",
       "purchaseDelivery": "Zakup i dostawa",
       "refunding": "Zwroty",
       "contacts": "Kontakt",
       "other": "Inne",
-      "menu": "Menu"
+      "menu": "Menu",
+      "compare": "Porównaj produkty",
+      "login": "Zaloguj się"
     },
     "categories": "Kategorie",
     "search": "Szukaj produktów...",

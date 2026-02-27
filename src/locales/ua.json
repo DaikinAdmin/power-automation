@@ -342,29 +342,6 @@
       "backToShop": "Повернутися до магазину"
     }
   },
-  "dashboard": {
-    "welcomeBack": "Ласкаво просимо",
-    "statsOverview": "Огляд статистики",
-    "greeting": "Привіт {{name}}, ось швидкий огляд вашої останньої активності. Детальні звіти в дорозі.",
-    "stats": {
-      "ordersPlaced": "Розміщені замовлення",
-      "itemsPurchased": "Куплені товари",
-      "totalSpend": "Загальні витрати",
-      "supportTickets": "Відкриті заявки підтримки"
-    },
-    "descriptions": {
-      "analyticsComingSoon": "Аналітика незабаром",
-      "trendingCategories": "Наступними ми виділимо популярні категорії",
-      "currencySummaries": "Тут з'являться підсумки з урахуванням валюти",
-      "contactSupport": "Звертайтеся в будь-який час з розділу Контакти"
-    },
-    "whatsNext": {
-      "title": "Що далі?",
-      "visualizeSpending": "Візуалізуйте витрати в часі за допомогою місячних графіків.",
-      "trackOrders": "Відстежуйте етапи виконання замовлення в реальному часі.",
-      "loyaltyRewards": "Слідкуйте за нагородами лояльності та майбутніми поновленнями."
-    }
-  },
   "product": {
     "loading": "Завантаження товару…",
     "notFound": {
@@ -418,8 +395,8 @@
       "warranty": "Гарантія",
       "category": "Категорія",
       "subcategory": "Підкатегорія",
-      "months": "{{count}} місяців",
-      "warrantyMonths": "{{count}} місяців",
+      "months": "{count} місяців",
+      "warrantyMonths": "{count} місяців",
       "notSpecified": "—",
       "notAvailable": "—"
     },
