@@ -27,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Category } from '@/helpers/types/item';
+import { ImagePickerModal } from '@/components/admin/image-picker-modal';
 
 const LOCALES = ['pl', 'en', 'es', 'ua'] as const;
 type Locale = typeof LOCALES[number];
@@ -66,6 +67,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [expandedSubIndex, setExpandedSubIndex] = useState<number | null>(null);
   const [categoryTranslations, setCategoryTranslations] = useState<TranslationMap>(emptyTranslations());
+  const [imageLink, setImageLink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -99,6 +101,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
           slug: category.slug,
           isVisible: category.isVisible ?? true,
         });
+        setImageLink(category.imageLink ?? '');
 
         // Load category translations
         const transMap = emptyTranslations();
@@ -129,6 +132,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
         form.reset({ name: '', slug: '', isVisible: true });
         setCategoryTranslations(emptyTranslations());
         setSubcategories([]);
+        setImageLink('');
       }
     }
   }, [isOpen, mode, category, form]);
@@ -203,6 +207,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          imageLink: imageLink.trim() || null,
           translations: translationsArr,
           subcategory: subcategoryPayload,
         }),
@@ -241,6 +246,27 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+
+            {/* Image */}
+            <div className="space-y-1">
+              <Label>Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com/image.png or pick from library"
+                  value={imageLink}
+                  onChange={(e) => setImageLink(e.target.value)}
+                  disabled={isLoading}
+                />
+                <ImagePickerModal
+                  label="Library"
+                  onSelect={(url) => setImageLink(url)}
+                />
+              </div>
+              {imageLink && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageLink} alt="preview" className="mt-1 h-16 w-16 object-cover rounded border" />
+              )}
+            </div>
 
             {/* Category Name + Slug */}
             <div className="grid grid-cols-2 gap-4">

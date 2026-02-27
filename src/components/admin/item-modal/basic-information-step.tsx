@@ -9,6 +9,7 @@ import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
 import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
+import { ImagePickerModal } from '@/components/admin/image-picker-modal';
 
 interface BasicInformationStepProps {
   formData: Item;
@@ -372,7 +373,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               )}
 
               {/* Upload button */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Input
                   type="file"
                   ref={fileInputRef}
@@ -389,6 +390,22 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   <Upload className="w-4 h-4" />
                   <span>Upload Image</span>
                 </Button>
+                <ImagePickerModal
+                  label="Pick from library"
+                  onSelect={(url) =>
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      itemImageLink: [
+                        ...(Array.isArray(prev.itemImageLink)
+                          ? prev.itemImageLink
+                          : prev.itemImageLink
+                          ? [prev.itemImageLink]
+                          : []),
+                        url,
+                      ],
+                    }))
+                  }
+                />
               </div>
 
               {/* Or add image URL */}

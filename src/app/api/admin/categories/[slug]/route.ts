@@ -162,7 +162,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, slug: newSlug, subcategory, isVisible, translations, } = body;
+    const { name, slug: newSlug, subcategory, isVisible, translations, imageLink } = body;
 
     logger.info('Updating category', {
       endpoint: 'PUT /api/admin/categories/[slug]',
@@ -198,6 +198,7 @@ export async function PUT(
         name,
         slug: newSlug,
         isVisible: isVisible !== undefined ? isVisible : true,
+        imageLink: imageLink ?? null,
         updatedAt: new Date().toISOString(),
       })
       .where(eq(schema.category.slug, slug))

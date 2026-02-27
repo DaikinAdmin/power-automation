@@ -8,6 +8,7 @@ interface UseCategoryDataParams {
     brand?: string[];
     warehouse?: string[];
     subcategory?: string[];
+    search?: string;
   };
   pagination?: {
     page?: number;
@@ -79,6 +80,7 @@ export function useCategoryData({
       filters?.brand?.forEach(b => params.append('brand', b));
       filters?.warehouse?.forEach(w => params.append('warehouse', w));
       filters?.subcategory?.forEach(s => params.append('subcategory', s));
+      if (filters?.search?.trim()) params.append('search', filters.search.trim());
       if (pagination?.page) params.append('page', pagination.page.toString());
       if (pagination?.limit) params.append('limit', pagination.limit.toString());
       
