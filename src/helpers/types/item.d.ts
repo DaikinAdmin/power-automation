@@ -1,4 +1,4 @@
-import { Item as ItemType, ItemPrice as ItemPriceType, ItemPriceHistory as ItemPriceHistoryType, ItemDetails as ItemDetailsType, Category as CategoryType, Warehouse, SubCategories, CategoryTranslation, Brand } from '@/db/schema';
+import { Item as ItemType, ItemPrice as ItemPriceType, ItemPriceHistory as ItemPriceHistoryType, ItemDetails as ItemDetailsType, Category as CategoryType, Warehouse, SubCategories, CategoryTranslation, SubcategoryTranslation, Brand } from '@/db/schema';
 
 export type ItemPrice = ItemPriceType & {
   warehouse: Warehouse;
@@ -11,8 +11,12 @@ export type ItemPriceHistory = ItemPriceHistoryType & {
 
 export type ItemDetail = ItemDetailsType;
 
+export type SubCategoryWithTranslations = SubCategories & {
+  translations: SubcategoryTranslation[];
+}
+
 export type Category = CategoryType & {
-  subCategories: SubCategories[]
+  subCategories: SubCategoryWithTranslations[]
   categoryTranslations: CategoryTranslation[]
 }
 
