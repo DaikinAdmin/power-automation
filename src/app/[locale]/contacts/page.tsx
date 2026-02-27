@@ -75,11 +75,6 @@ export default async function DynamicPage({
             {/* Карта з міткою */}
             <ContactMap />
 
-            {page.updatedAt && (
-              <p className="text-sm text-gray-500 mt-6">
-                Last updated: {new Date(page.updatedAt).toLocaleDateString()}
-              </p>
-            )}
           </div>
         </div>
       </div>
