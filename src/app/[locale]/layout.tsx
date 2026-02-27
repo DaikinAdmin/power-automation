@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
+import BinotelScripts from "@/components/binotel-scripts";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -63,32 +64,7 @@ export default async function LocaleLayout({
           </CartProvider>
         </NextIntlClientProvider>
         <Toaster />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(d, w, s) {
-      var widgetHash = '4dwo56b2g413yzwxtkuk',
-      gcw = d.createElement(s);
-      gcw.type = 'text/javascript';
-      gcw.async = true;
-      gcw.src = '//widgets.binotel.com/getcall/widgets/' + widgetHash + '.js';
-      var sn = d.getElementsByTagName(s)[0];
-      sn.parentNode.insertBefore(gcw, sn);
-    })(document, window, 'script');`,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(d, w, s) {
-      var widgetHash = 'GcDTf4yHGBF3OHLyulIi',
-      bch = d.createElement(s);
-      bch.type = 'text/javascript';
-      bch.async = true;
-      bch.src = '//widgets.binotel.com/chat/widgets/' + widgetHash + '.js';
-      var sn = d.getElementsByTagName(s)[0];
-      sn.parentNode.insertBefore(bch, sn);
-    })(document, window, 'script');`,
-          }}
-        />
+        <BinotelScripts />
       </body>
     </html>
   );

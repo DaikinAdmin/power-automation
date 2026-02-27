@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     });
 
     const response = NextResponse.json(brands);
-    response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
+    response.headers.set('Cache-Control', 'no-store');
     return response;
   } catch (error: any) {
     return apiErrorHandler(error, request, { endpoint: 'GET /api/public/brands' });

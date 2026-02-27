@@ -64,7 +64,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
         <>
           {/* Desktop grid */}
           <div className="hidden md:grid grid-cols-5 gap-5">
-            {brands.slice(0, 10).map((brand) => (
+            {brands.map((brand) => (
               <div
                 key={brand.id}
                 className="bg-white overflow-hidden cursor-pointer"
@@ -91,7 +91,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
           <div className="md:hidden">
             <div className="embla overflow-hidden" ref={emblaRef}>
               <div className="embla__container flex gap-2">
-                {brands.slice(0, 10).map((brand) => (
+                {brands.map((brand) => (
                   <div
                     key={brand.id}
                     className="embla__slide flex-[0_0_calc(33.333%-0.5rem)]" // 3 елементи на рядок
