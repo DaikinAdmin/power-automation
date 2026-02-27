@@ -13,6 +13,7 @@ import Accordion from "@/components/ui/Accordion";
 import { slideLeft } from "@/lib/animations";
 import { IoIosArrowDown } from "react-icons/io";
 import LanguageSwitcher from "../languge-switcher";
+import { useSession } from "@/lib/auth-client";
 
 export default function MobileHeader() {
   const t = useTranslations("header");
@@ -21,6 +22,7 @@ export default function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { categories, isLoading: isCategoriesLoading } = useCategories(locale);
+  const { data: session } = useSession();
 
   return (
     <div className="md:hidden bg-white border-b">
@@ -261,7 +263,15 @@ export default function MobileHeader() {
                     {t("nav.about") || "About"}
                   </Link>
                   <div className="py-5">
-                    <button className="w-full center">
+                    {session?.user ? (
+                      <Link
+                        href="/dashboard"
+                        className="block px-3 py-2 rounded bg-blue-600 text-white text-center"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {t("dashboard") || "Dashboard"}
+                      </Link>
+                    ) : (
                       <Link
                         href="/login"
                         className="block px-3 py-2 rounded bg-red-600 text-white text-center"
@@ -269,7 +279,7 @@ export default function MobileHeader() {
                       >
                         {t("nav.login") || "Login"}
                       </Link>
-                    </button>
+                    )}
                   </div>
                 </nav>
               </motion.div>

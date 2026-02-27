@@ -17,10 +17,54 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Power Automation",
-  description: "Best deals on electronics, fashion, and more!",
+const SITE_META: Record<string, { title: string; description: string }> = {
+  ua: {
+    title: "Power Automation — промислова автоматизація в Україні",
+    description:
+      "Інтернет-магазин промислового обладнання. Siemens, Pilz, Atlas Copco та інші бренди. Наявність на складі, швидка доставка по Україні.",
+  },
+  pl: {
+    title: "Power Automation — automatyka przemysłowa",
+    description:
+      "Sklep internetowy z osprzętem przemysłowym. Siemens, Pilz, Atlas Copco i inne marki. Szybka dostawa.",
+  },
+  en: {
+    title: "Power Automation — Industrial Automation",
+    description:
+      "Online store for industrial equipment. Siemens, Pilz, Atlas Copco and more. Fast delivery.",
+  },
+  es: {
+    title: "Power Automation — Automatización Industrial",
+    description:
+      "Tienda online de equipos industriales. Siemens, Pilz, Atlas Copco y más. Entrega rápida.",
+  },
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const meta = SITE_META[locale] ?? SITE_META.ua;
+  return {
+    title: {
+      default: meta.title,
+      template: "%s | Power Automation",
+    },
+    description: meta.description,
+    metadataBase: new URL("https://powerautomation.com.ua"),
+    alternates: {
+      canonical: `https://powerautomation.com.ua/${locale}`,
+    },
+    openGraph: {
+      siteName: "Power Automation",
+      locale: locale === "ua" ? "uk_UA" : locale,
+      type: "website",
+    },
+    robots: locale === "ua" ? "index, follow" : "noindex, nofollow",
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

@@ -110,6 +110,7 @@ export default function Footer() {
               <li><Link href="/purchase-delivery" className="hover:text-white transition-colors">{t('links.purchaseDelivery')}</Link></li>
               <li><Link href="/refunding" className="hover:text-white transition-colors">{t('links.refunding')}</Link></li>
               <li><Link href="/contacts" className="hover:text-white transition-colors">{t('links.contacts')}</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white transition-colors">{t('links.privacyPolicy')}</Link></li>
             </ul>
           </div>
 
