@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /feed/products.xml
 
 Disallow: /admin/
 Disallow: /api/

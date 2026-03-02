@@ -516,6 +516,17 @@
       "saturday": "Sáb: 9:00-16:00"
     }
   },
+  "cart": {
+    "title": "Carrito",
+    "empty": "Tu carrito está vacío",
+    "itemName": "ARTÍCULO",
+    "warehouse": "Almacén",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "total": "Total:",
+    "payment": "Proceder al Pago",
+    "backToShopping": "Continuar Comprando"
+  },
   "errors": {
     "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
     "itemNotAvailable": "Artículo {itemName} no disponible en el almacén seleccionado",

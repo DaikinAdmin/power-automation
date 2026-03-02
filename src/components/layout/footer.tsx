@@ -7,8 +7,13 @@ import { useLocale } from 'next-intl';
 const ACCEPTED_CARDS = [
   {
     id: "visa",
-    src: "/imgs/cards/visa.webp",
+    src: "/imgs/cards/visa.svg",
     alt: "Visa logo",
+  },
+  {
+    id: "mastercard",
+    src: "/imgs/cards/mastercard.svg",
+    alt: "Mastercard logo",
   }
 ];
 
@@ -46,9 +51,9 @@ export default function Footer() {
                     <Image
                       src={card.src}
                       alt={card.alt}
-                      width={40}
-                      height={24}
-                      className="h-6 w-auto"
+                      width={56}
+                      height={32}
+                      className="h-8 w-auto"
                     />
                   </div>
                 ))}

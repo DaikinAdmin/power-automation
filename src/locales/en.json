@@ -583,6 +583,17 @@
       "saturday": "Sat: 9AM-4PM"
     }
   },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "itemName": "ITEM",
+    "warehouse": "Warehouse",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total:",
+    "payment": "Proceed to Payment",
+    "backToShopping": "Continue Shopping"
+  },
   "errors": {
     "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",
     "itemNotAvailable": "Item {itemName} not available in selected warehouse",

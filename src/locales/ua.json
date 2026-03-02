@@ -583,6 +583,17 @@
       "saturday": "Сб: 9:00-16:00"
     }
   },
+  "cart": {
+    "title": "Кошик",
+    "empty": "Ваш кошик порожній",
+    "itemName": "ПРЕДМЕТ",
+    "warehouse": "Склад",
+    "quantity": "Кількість",
+    "price": "Ціна",
+    "total": "Разом:",
+    "payment": "Перейти до оплати",
+    "backToShopping": "Продовжити покупки"
+  },
   "errors": {
     "insufficientStock": "Недостатня кількість товару {itemName}. Доступно: {available}, Замовлено: {requested}",
     "itemNotAvailable": "Товар {itemName} недоступний у обраному складі",

@@ -6,6 +6,7 @@ import { CartItemType } from '@/helpers/types/item';
 import { useCurrency } from '@/hooks/useCurrency';
 import { parsePriceString } from '@/helpers/currency';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 
 interface CartModalProps {
@@ -186,11 +187,12 @@ function CartContent({
   onUpdateQuantity, onRemoveItem, onUpdateWarehouse,
   onClose, onProceed, mobile,
 }: ContentProps) {
+  const t = useTranslations('cart');
   return (
     <>
       {/* Header */}
       <div className="flex justify-between items-center p-4 md:p-8 border-b shrink-0">
-        <h2 className="text-xl md:text-2xl font-bold">Cart</h2>
+        <h2 className="text-xl md:text-2xl font-bold">{t('title')}</h2>
         <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <X size={22} />
         </button>
@@ -201,17 +203,17 @@ function CartContent({
         {cartItems.length === 0 ? (
           <div className="text-center py-12">
             <ShoppingBag size={48} className="mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-500 text-lg">Your cart is empty</p>
+            <p className="text-gray-500 text-lg">{t('empty')}</p>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Column headers â€” desktop only */}
             {!mobile && (
               <div className="grid grid-cols-12 gap-4 mb-4 text-sm font-semibold text-gray-600 uppercase">
-                <div className="col-span-4">Item Name</div>
-                <div className="col-span-3">Warehouse</div>
-                <div className="col-span-2 text-center">Quantity</div>
-                <div className="col-span-3 text-right">Price</div>
+                <div className="col-span-4">{t('itemName')}</div>
+                <div className="col-span-3">{t('warehouse')}</div>
+                <div className="col-span-2 text-center">{t('quantity')}</div>
+                <div className="col-span-3 text-right">{t('price')}</div>
               </div>
             )}
 
@@ -355,9 +357,9 @@ function CartContent({
       {cartItems.length > 0 && (
         <div className="border-t p-4 md:p-8 shrink-0">
           <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4 md:mb-6 flex justify-between items-center md:justify-end">
-            <div className="text-sm font-semibold text-gray-600 md:hidden">Total</div>
+            <div className="text-sm font-semibold text-gray-600 md:hidden">{t('total')}</div>
             <div className="text-right">
-              <div className="hidden md:block text-lg font-semibold text-gray-600">Total</div>
+              <div className="hidden md:block text-lg font-semibold text-gray-600">{t('total')}</div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{formatPriceFromBase(cartTotal)}</div>
             </div>
           </div>
@@ -367,13 +369,13 @@ function CartContent({
               className="flex items-center gap-2 px-4 md:px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-sm"
             >
               <ArrowLeft size={18} />
-              <span className="hidden sm:inline">Back to Shop</span>
+              <span className="hidden sm:inline">{t('backToShopping')}</span>
             </button>
             <button
               onClick={onProceed}
               className="bg-red-500 text-white hover:bg-red-600 px-5 md:px-8 py-2.5 md:py-3 rounded-lg font-semibold transition-colors text-sm md:text-base"
             >
-              Proceed to Payment
+              {t('payment')}
             </button>
           </div>
         </div>

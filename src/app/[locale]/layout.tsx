@@ -10,6 +10,7 @@ import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import BinotelScripts from "@/components/binotel-scripts";
+import { GoogleTagManager } from '@next/third-parties/google';
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -97,9 +98,18 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   return (
     <html lang={locale} className="overflow-x-hidden">
+      <GoogleTagManager gtmId="GTM-TNWRJ8MC" />
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-TNWRJ8MC"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
