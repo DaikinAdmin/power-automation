@@ -39,7 +39,9 @@ export default function ProductsTabsSection({
     switch (category) {
       case "bestsellers":
         return displayedItems
-          .filter((item) => item.sellCounter && item.sellCounter >= 0)
+          .filter((item) => 
+            item.prices.some((price) => price.badge === "BESTSELLER")
+          )
           .sort((a, b) => (b.sellCounter || 0) - (a.sellCounter || 0))
           .slice(0, 8);
       case "discount":
