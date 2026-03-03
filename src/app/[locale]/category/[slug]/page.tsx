@@ -3,6 +3,7 @@ import PageLayout from "@/components/layout/page-layout";
 import { CategoryBreadcrumb } from "@/components/category/category-breadcrumb";
 import { CategoryPageClient } from "@/components/category/category-page-client";
 import { getCategoryPageData } from "@/helpers/db/category-data-queries";
+import { getBaseUrl } from "@/lib/domain-config";
 
 interface CategoryPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -122,7 +123,7 @@ export async function generateMetadata({
     title: `${categoryName} — ${suffix}`,
     description: descFn(categoryName),
     alternates: {
-      canonical: `https://powerautomation.com.ua/${locale}/category/${slug}`,
+      canonical: `${getBaseUrl()}/${locale}/category/${slug}`,
     },
     openGraph: {
       title: `${categoryName} — ${suffix}`,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CategoriesPage from '@/components/layout/categories-page'
 import { Suspense, use } from 'react'
+import { getBaseUrl } from "@/lib/domain-config";
 
 const CATEGORIES_META: Record<string, { title: string; description: string }> = {
   ua: {
@@ -32,7 +33,7 @@ export async function generateMetadata({
   return {
     title: meta.title,
     description: meta.description,
-    alternates: { canonical: `https://powerautomation.com.ua/${locale}/categories` },
+    alternates: { canonical: `${getBaseUrl()}/${locale}/categories` },
   };
 }
 

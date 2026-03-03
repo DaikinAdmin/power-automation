@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { getItemBySlug } from "@/helpers/db/queries";
 import ProductPageClient from "@/components/product/product-page-client";
+import { getBaseUrl } from "@/lib/domain-config";
 
 export async function generateMetadata({
   params,
@@ -33,7 +34,7 @@ export async function generateMetadata({
     description,
     keywords,
     alternates: {
-      canonical: `https://powerautomation.com.ua/${locale}/product/${id}`,
+      canonical: `${getBaseUrl()}/${locale}/product/${id}`,
     },
     openGraph: {
       title,

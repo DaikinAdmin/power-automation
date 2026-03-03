@@ -3,9 +3,7 @@ import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getExchangeRate } from "@/lib/server-currency";
-
-const BASE_URL = "https://powerautomation.com.ua";
-const LOCALE = "ua";
+import { getBaseUrl, getDefaultLocale } from "@/lib/domain-config";
 
 /**
  * Google Merchant Center product feed (RSS 2.0 / Google Shopping)
@@ -14,6 +12,9 @@ const LOCALE = "ua";
  */
 export async function GET() {
   try {
+    const BASE_URL = getBaseUrl();
+    const LOCALE = getDefaultLocale();
+
     // 0. Fetch EUR → UAH exchange rate once
     const eurToUah = await getExchangeRate("EUR", "UAH");
 

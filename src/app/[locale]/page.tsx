@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import HomePageClient from "@/components/home/home-page-client";
+import { getBaseUrl } from "@/lib/domain-config";
 
 const HOME_META: Record<string, { title: string; description: string; keywords: string }> = {
   ua: {
@@ -36,17 +37,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const meta = HOME_META[locale] ?? HOME_META.ua;
+  const baseUrl = getBaseUrl();
   return {
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
     alternates: {
-      canonical: `https://powerautomation.com.ua/${locale}`,
+      canonical: `${baseUrl}/${locale}`,
     },
     openGraph: {
       title: meta.title,
       description: meta.description,
-      url: `https://powerautomation.com.ua/${locale}`,
+      url: `${baseUrl}/${locale}`,
       images: ["/imgs/Logo.webp"],
     },
   };

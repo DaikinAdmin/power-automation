@@ -22,13 +22,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Next.js Application
+  # ─── Next.js — powerautomation.pl (primary) ───
   app:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     container_name: powerautomation-app
     restart: unless-stopped
     ports:
@@ -56,6 +54,13 @@ services:
       IMAGE_SERVICE_URL: ${IMAGE_SERVICE_URL}
       UPLOAD_DIR: ${UPLOAD_DIR}
 
+      # Domain / SEO / Analytics
+      APP_DEFAULT_LOCALE: ${APP_DEFAULT_LOCALE:-pl}
+      APP_SITE_LOCALES: ${APP_SITE_LOCALES:-pl,en,es}
+      APP_GTM_ID: ${APP_GTM_ID:-GTM-TNWRJ8MC}
+      APP_BINOTEL_ENABLED: ${APP_BINOTEL_ENABLED:-true}
+      APP_SITE_NAME: ${APP_SITE_NAME:-Power Automation}
+
       # P24
       P24_MERCHANT_ID: ${P24_MERCHANT_ID}
       P24_POS_ID: ${P24_POS_ID}
@@ -70,6 +75,60 @@ services:
     volumes:
       - uploads_data:/app/public/uploads
       - ./logs:/app/logs  # Application logs for Promtail
+
+  # ─── Next.js — daikinwroclaw.pl (second domain) ───
+  app-daikin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: daikinwroclaw-app
+    restart: unless-stopped
+    ports:
+      - "3061:3000"
+    environment:
+      # Database (same DB — shared catalogue)
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Auth
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${DAIKIN_BETTER_AUTH_URL:-https://daikinwroclaw.pl}
+      NEXT_PUBLIC_APP_URL: ${DAIKIN_APP_URL:-https://daikinwroclaw.pl}
+      ADMIN_USER_ID: ${ADMIN_USER_ID}
+
+      # Mail (can override per domain)
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${DAIKIN_MAIL_USER:-info@daikinwroclaw.pl}
+      MAIL_FROM: ${DAIKIN_MAIL_FROM:-Daikin Wrocław <info@daikinwroclaw.pl>}
+      MAIL_PASSWORD: ${DAIKIN_MAIL_PASSWORD:-${MAIL_PASSWORD}}
+
+      # Environment
+      ENV: ${ENV:-production}
+      NODE_ENV: production
+      IMAGE_SERVICE_URL: ${IMAGE_SERVICE_URL}
+      UPLOAD_DIR: ${UPLOAD_DIR}
+
+      # Domain / SEO / Analytics
+      APP_DEFAULT_LOCALE: ${DAIKIN_DEFAULT_LOCALE:-ua}
+      APP_SITE_LOCALES: ${DAIKIN_SITE_LOCALES:-ua}
+      APP_GTM_ID: ${DAIKIN_GTM_ID:-}
+      APP_BINOTEL_ENABLED: ${DAIKIN_BINOTEL_ENABLED:-false}
+      APP_SITE_NAME: ${DAIKIN_SITE_NAME:-Daikin Wrocław}
+
+      # P24
+      P24_MERCHANT_ID: ${P24_MERCHANT_ID}
+      P24_POS_ID: ${P24_POS_ID}
+      P24_API_KEY: ${P24_API_KEY}
+      P24_CRC: ${P24_CRC}
+      P24_SANDBOX: ${P24_SANDBOX}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - powerautomation-network
+    volumes:
+      - uploads_data_daikin:/app/public/uploads
+      - ./logs-daikin:/app/logs
 
   # Loki - Log aggregation system
   loki:
@@ -100,7 +159,8 @@ services:
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./logs:/app/logs:ro  # Application logs
+      - ./logs:/app/logs:ro  # Application logs (primary)
+      - ./logs-daikin:/app/logs-daikin:ro  # Application logs (daikin)
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
       - powerautomation-network
@@ -141,6 +201,8 @@ volumes:
   postgres_data:
     driver: local
   uploads_data:
+    driver: local
+  uploads_data_daikin:
     driver: local
   loki_data:
     driver: local

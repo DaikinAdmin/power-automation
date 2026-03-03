@@ -11,6 +11,7 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import BinotelScripts from "@/components/binotel-scripts";
 import { GoogleTagManager } from '@next/third-parties/google';
+import { getBaseUrl, getGtmId, isBinotelEnabled, getSiteName, getIndexedLocales } from "@/lib/domain-config";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -48,22 +49,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const meta = SITE_META[locale] ?? SITE_META.ua;
+  const baseUrl = getBaseUrl();
+  const siteName = getSiteName();
+  const indexedLocales = getIndexedLocales();
   return {
     title: {
       default: meta.title,
-      template: "%s | Power Automation",
+      template: `%s | ${siteName}`,
     },
     description: meta.description,
-    metadataBase: new URL("https://powerautomation.com.ua"),
+    metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: `https://powerautomation.com.ua/${locale}`,
+      canonical: `${baseUrl}/${locale}`,
     },
     openGraph: {
-      siteName: "Power Automation",
+      siteName,
       locale: locale === "ua" ? "uk_UA" : locale,
       type: "website",
     },
-    robots: locale === "ua" ? "index, follow" : "noindex, nofollow",
+    robots: indexedLocales.includes(locale) ? "index, follow" : "noindex, nofollow",
   };
 }
 
@@ -98,18 +102,20 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   return (
     <html lang={locale} className="overflow-x-hidden">
-      <GoogleTagManager gtmId="GTM-TNWRJ8MC" />
+      {getGtmId() && <GoogleTagManager gtmId={getGtmId()} />}
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-TNWRJ8MC"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
+        {getGtmId() && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${getGtmId()}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
@@ -118,7 +124,7 @@ export default async function LocaleLayout({
           </CartProvider>
         </NextIntlClientProvider>
         <Toaster />
-        <BinotelScripts />
+        {isBinotelEnabled() && <BinotelScripts />}
       </body>
     </html>
   );
