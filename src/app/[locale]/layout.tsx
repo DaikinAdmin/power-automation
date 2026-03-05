@@ -9,7 +9,6 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import BinotelScripts from "@/components/binotel-scripts";
 import { GoogleTagManager } from '@next/third-parties/google';
 import { getBaseUrl, getGtmId, isBinotelEnabled, getSiteName, getIndexedLocales } from "@/lib/domain-config";
 
@@ -124,7 +123,6 @@ export default async function LocaleLayout({
           </CartProvider>
         </NextIntlClientProvider>
         <Toaster />
-        {isBinotelEnabled() && <BinotelScripts />}
       </body>
     </html>
   );
