@@ -118,7 +118,6 @@ export default async function LocaleLayout({
           </CartProvider>
         </NextIntlClientProvider>
         <Toaster />
-        <BinotelScripts />
       </body>
     </html>
   );
