@@ -11,15 +11,6 @@ export default function ContactMap() {
 
   return (
     <div className="mt-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Ми на карті</h2>
-        <button
-          onClick={handleOpenMaps}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
-        >
-          Відкрити в картах
-        </button>
-      </div>
       <div className={`rounded-lg overflow-hidden shadow-md ${styles.mapWrapper}`}>
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2506.8776305794245!2d16.95278877656008!3d51.073808942285964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc1458656af5b%3A0xbec4ec597bd6c63e!2sAMM%20Project%20Sp.%20z%20o.o.!5e0!3m2!1suk!2spl!4v1772190543375!5m2!1suk!2spl"

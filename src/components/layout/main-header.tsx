@@ -276,7 +276,7 @@ export default function MainHeader() {
               className="hidden items-center gap-2 text-contact-phone text-[#474747] transition-colors hover:text-blue-600 sm:flex"
             >
               <FaPhone size={23} className="text-white bg-[#474747] rounded-full p-[5px]" />
-              +1 (234) 567-890
+              +48 690 997 944
             </a>
             <button
               type="button"
@@ -340,7 +340,7 @@ export default function MainHeader() {
                 className="flex items-center gap-2 text-base font-semibold text-gray-800 transition-colors hover:text-blue-600"
               >
                 <FaPhone size={20} />
-                +1 (234) 567-890
+                +48 690 997 944
               </a>
             </div>
           </div>
