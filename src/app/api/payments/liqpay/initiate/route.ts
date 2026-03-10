@@ -100,7 +100,10 @@ export async function POST(request: NextRequest) {
     // ------------------------------------------------------------------
     // 5. Build LiqPay payload
     // ------------------------------------------------------------------
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Беремо baseUrl з реального запиту, щоб callback йшов на той самий домен
+    const proto = request.headers.get('x-forwarded-proto') ?? 'https';
+    const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
+    const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
 
     /**
      * Unique session identifier for this payment attempt.
