@@ -8,14 +8,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "powerautomation.pl",
-      },
-      {
-        protocol: "https",
-        hostname: "powerautomation.com.ua",
-      },
+      { protocol: "https", hostname: "powerautomation.pl" },
+      { protocol: "https", hostname: "www.powerautomation.pl" },
+      { protocol: "https", hostname: "powerautomation.com.ua" },
+      { protocol: "https", hostname: "www.powerautomation.com.ua" },
+      { protocol: "https", hostname: "pa.daikinkobierzyce.pl" },
+      { protocol: "https", hostname: "www.pa.daikinkobierzyce.pl" },
+      { protocol: "http", hostname: "localhost" },
     ],
   },
   serverExternalPackages: ['better-auth'],
