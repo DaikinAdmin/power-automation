@@ -11,6 +11,7 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import BinotelScripts from "@/components/binotel-scripts";
 import { GoogleTagManager } from '@next/third-parties/google';
+import { getServerDomainConfig } from '@/lib/server-domain';
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -47,23 +48,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const domainConfig = await getServerDomainConfig();
   const meta = SITE_META[locale] ?? SITE_META.ua;
+  const isIndexed = domainConfig.indexedLocales.includes(locale);
   return {
     title: {
       default: meta.title,
       template: "%s | Power Automation",
     },
     description: meta.description,
-    metadataBase: new URL("https://powerautomation.com.ua"),
+    metadataBase: new URL(domainConfig.baseUrl),
     alternates: {
-      canonical: `https://powerautomation.com.ua/${locale}`,
+      canonical: `${domainConfig.baseUrl}/${locale}`,
     },
     openGraph: {
-      siteName: "Power Automation",
+      siteName: domainConfig.siteName,
       locale: locale === "ua" ? "uk_UA" : locale,
       type: "website",
     },
-    robots: locale === "ua" ? "index, follow" : "noindex, nofollow",
+    robots: isIndexed ? "index, follow" : "noindex, nofollow",
   };
 }
 
@@ -96,15 +99,20 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
+
+  // Domain-specific GTM ID
+  const domainConfig = await getServerDomainConfig();
+  const gtmId = domainConfig.gtmId;
+
   return (
     <html lang={locale} className="overflow-x-hidden">
-      <GoogleTagManager gtmId="GTM-TNWRJ8MC" />
+      <GoogleTagManager gtmId={gtmId} />
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
         <noscript>
           <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-TNWRJ8MC"
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
             height="0"
             width="0"
             style={{ display: 'none', visibility: 'hidden' }}

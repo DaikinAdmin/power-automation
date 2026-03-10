@@ -1,8 +1,6 @@
 import { MetadataRoute } from 'next';
-
-const BASE_URL = 'https://powerautomation.com.ua';
-const LOCALES = ['ua'];
-const DEFAULT_LOCALE = 'ua';
+import { headers } from 'next/headers';
+import { getDomainConfigByHost } from '@/lib/domain-config';
 
 const STATIC_PAGES = [
   '',
@@ -15,10 +13,11 @@ const STATIC_PAGES = [
   '/privacy-policy',
 ];
 
-async function fetchCategories(locale: string): Promise<{ slug: string }[]> {
+async function fetchCategories(baseUrl: string, locale: string): Promise<{ slug: string }[]> {
   try {
+    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
     const res = await fetch(
-      `${BASE_URL}/api/public/categories/${locale}`,
+      `${internalUrl}/api/public/categories/${locale}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -29,10 +28,11 @@ async function fetchCategories(locale: string): Promise<{ slug: string }[]> {
   }
 }
 
-async function fetchItems(locale: string): Promise<{ articleId: string }[]> {
+async function fetchItems(baseUrl: string, locale: string): Promise<{ articleId: string }[]> {
   try {
+    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
     const res = await fetch(
-      `${BASE_URL}/api/public/items/${locale}?limit=5000`,
+      `${internalUrl}/api/public/items/${locale}?limit=5000`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -43,11 +43,25 @@ async function fetchItems(locale: string): Promise<{ articleId: string }[]> {
   }
 }
 
+/**
+ * Динамічний sitemap залежно від домену.
+ *
+ * powerautomation.com.ua — тільки /ua/ сторінки
+ * powerautomation.pl     — тільки /pl/ сторінки
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const headersList = await headers();
+  const host = headersList.get('x-forwarded-host') || headersList.get('host');
+  const domainConfig = getDomainConfigByHost(host);
+
+  const BASE_URL = domainConfig.baseUrl;
+  const LOCALES = domainConfig.indexedLocales;
+  const DEFAULT_LOCALE = domainConfig.defaultLocale;
+
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static pages for all locales
+  // Static pages for indexed locales
   for (const locale of LOCALES) {
     for (const page of STATIC_PAGES) {
       entries.push({
@@ -59,8 +73,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic categories (use default locale to avoid multiple requests)
-  const categories = await fetchCategories(DEFAULT_LOCALE);
+  // Dynamic categories
+  const categories = await fetchCategories(BASE_URL, DEFAULT_LOCALE);
   for (const locale of LOCALES) {
     for (const cat of categories) {
       if (cat.slug) {
@@ -74,8 +88,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic products (use default locale)
-  const items = await fetchItems(DEFAULT_LOCALE);
+  // Dynamic products
+  const items = await fetchItems(BASE_URL, DEFAULT_LOCALE);
   for (const locale of LOCALES) {
     for (const item of items) {
       if (item.articleId) {

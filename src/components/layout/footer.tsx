@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useCategories } from '@/hooks/useCategories';
 import { useLocale } from 'next-intl';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 const ACCEPTED_CARDS = [
   {
@@ -21,6 +22,8 @@ export default function Footer() {
   const t = useTranslations('footer');
   const locale = useLocale();
   const { categories, isLoading } = useCategories(locale);
+  const domainConfig = useDomainConfig();
+  const { contacts } = domainConfig;
 
   // Two columns of 6; the 6th slot of col2 is always "+X more" link
   const col1 = categories.slice(0, 6);
@@ -126,20 +129,23 @@ export default function Footer() {
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 flex items-center justify-center">📍</div>
                 <div>
-                  <p className="text-sm">Tyniecka 2, 52-407 </p>
-                  <p className="text-sm">Wrocław, Polska</p>
+                  {contacts.address.map((line, i) => (
+                    <p key={i} className="text-sm">{line}</p>
+                  ))}
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 flex items-center justify-center">📞</div>
-                <a href="tel:+48690997944" className="text-sm hover:text-white transition-colors">
-                  +48 690 997 944
+                <a href={`tel:${contacts.phone}`} className="text-sm hover:text-white transition-colors">
+                  {contacts.phoneFormatted}
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 flex items-center justify-center">📧</div>
-                <a href="mailto:m.sokolowska@ammproject.com" className="text-sm hover:text-white transition-colors">
-                  m.sokolowska@ammproject.com<br />Maria Sokołowska<br />Manager ds. sprzedaży
+                <a href={`mailto:${contacts.email}`} className="text-sm hover:text-white transition-colors">
+                  {contacts.email}
+                  {contacts.contactPerson && <><br />{contacts.contactPerson}</>}
+                  {contacts.contactRole && <><br />{contacts.contactRole}</>}
                 </a>
               </div>
               <div className="flex items-center gap-3">
