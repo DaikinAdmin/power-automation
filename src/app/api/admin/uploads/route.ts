@@ -15,14 +15,7 @@ import {
 } from '@/lib/uploads';
 import path from 'path';
 import fs from 'fs/promises';
-import { getDomainConfigByHost } from '@/lib/domain-config';
 
-/** Завантаження зображень дозволено тільки з PL домену (powerautomation.pl) */
-function isUploadAllowed(request: NextRequest): boolean {
-  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
-  const domainConfig = getDomainConfigByHost(host);
-  return domainConfig.key === 'pl';
-}
 
 // GET /api/admin/uploads — list all uploaded images
 export async function GET(request: NextRequest) {
@@ -100,13 +93,6 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/uploads — upload a new image
 export async function POST(request: NextRequest) {
   try {
-    if (!isUploadAllowed(request)) {
-      return NextResponse.json(
-        { error: 'Image uploads are only allowed from the main domain (powerautomation.pl)' },
-        { status: 403 }
-      );
-    }
-
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

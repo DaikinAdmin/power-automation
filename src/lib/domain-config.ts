@@ -60,7 +60,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['ua', 'en', 'es', 'pl'],
     indexedLocales: ['ua'],
     paymentProviders: ['liqpay'],
-    gtmId: 'GTM-TNWRJ8MC', // TODO: вставити реальний GTM ID для UA
+    gtmId: process.env.APP_GTM_ID_UA ?? '',
     binotelEnabled: true,
     contacts: {
       address: ['Україна, м. Київ'], // TODO: уточнити адресу
@@ -78,7 +78,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['pl', 'en', 'es', 'ua'],
     indexedLocales: ['pl'],
     paymentProviders: ['przelewy24'],
-    gtmId: '',
+    gtmId: process.env.APP_GTM_ID_PL ?? '',
     binotelEnabled: true,
     contacts: {
       address: ['Tyniecka 2, 52-407', 'Wrocław, Polska'],

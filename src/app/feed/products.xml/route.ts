@@ -1,23 +1,62 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { getExchangeRate } from "@/lib/server-currency";
+import { getDomainConfigByHost, type DomainConfig, DOMAIN_CONFIGS } from "@/lib/domain-config";
+import { toAbsoluteImageUrl } from "@/lib/image-utils";
 
-const BASE_URL = "https://powerautomation.com.ua";
-const LOCALE = "ua";
+/** Domain-specific feed configuration */
+interface FeedConfig {
+  baseUrl: string;
+  locale: string;
+  currency: string;
+  exchangeTarget: string;
+  title: string;
+  description: string;
+}
+
+function getFeedConfig(domainConfig: DomainConfig): FeedConfig {
+  if (domainConfig.key === 'ua') {
+    return {
+      baseUrl: domainConfig.baseUrl,
+      locale: 'ua',
+      currency: 'UAH',
+      exchangeTarget: 'UAH',
+      title: 'Power Automation — промислова автоматизація',
+      description: 'Інтернет-магазин промислового обладнання. Siemens, Pilz, Atlas Copco та інші бренди.',
+    };
+  }
+  // PL (default)
+  return {
+    baseUrl: domainConfig.baseUrl,
+    locale: 'pl',
+    currency: 'PLN',
+    exchangeTarget: 'PLN',
+    title: 'Power Automation — automatyzacja przemysłowa',
+    description: 'Sklep internetowy z urządzeniami przemysłowymi. Siemens, Pilz, Atlas Copco i inne marki.',
+  };
+}
 
 /**
  * Google Merchant Center product feed (RSS 2.0 / Google Shopping)
  * URL: /feed/products.xml
  * Public, no auth, auto-updated on every request.
+ *
+ * The feed is domain-aware: PL domain → PLN prices, PL locale;
+ *                           UA domain → UAH prices, UA locale.
  */
-export async function GET() {
-  try {
-    // 0. Fetch EUR → UAH exchange rate once
-    const eurToUah = await getExchangeRate("EUR", "UAH");
+export async function GET(request: NextRequest) {
+  // --- Detect domain ---
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const domainConfig = getDomainConfigByHost(host);
+  const feedCfg = getFeedConfig(domainConfig);
 
-    // 1. Fetch all displayed items with UA details, brand, and prices
+  try {
+    // 0. Fetch EUR → target currency exchange rate once
+    const eurToTarget = await getExchangeRate("EUR", feedCfg.exchangeTarget);
+
+    // 1. Fetch all displayed items
     const items = await db
       .select({
         articleId: schema.item.articleId,
@@ -29,11 +68,11 @@ export async function GET() {
       .from(schema.item)
       .where(eq(schema.item.isDisplayed, true));
 
-    // 2. For each item, fetch details (UA), brand, and best price
+    // 2. For each item, fetch localised details, brand, and best price
     const feedItems: string[] = [];
 
     for (const item of items) {
-      // Get UA locale details
+      // Get locale-specific details
       const [details] = await db
         .select({
           itemName: schema.itemDetails.itemName,
@@ -43,7 +82,7 @@ export async function GET() {
         .where(
           and(
             eq(schema.itemDetails.itemSlug, item.slug),
-            eq(schema.itemDetails.locale, LOCALE)
+            eq(schema.itemDetails.locale, feedCfg.locale)
           )
         )
         .limit(1);
@@ -85,12 +124,12 @@ export async function GET() {
       const inStock = inStockPrices.length > 0;
       const availability = inStock ? "in stock" : "out of stock";
 
-      // Apply margin and convert EUR → UAH
+      // Apply margin and convert EUR → target currency
       const marginRate = 1 + (bestPrice.margin ?? 20) / 100;
       const eurPrice = bestPrice.price * marginRate;
-      const uahPrice = Math.round(eurPrice * eurToUah);
+      const targetPrice = Math.round(eurPrice * eurToTarget);
 
-      // Images
+      // Images — always absolute, pointing to powerautomation.pl
       const images = item.itemImageLink ?? [];
       const mainImage = images[0] ?? "";
       if (!mainImage) continue; // Skip items without images per spec
@@ -104,8 +143,8 @@ export async function GET() {
       // Description — strip HTML, limit length
       const description = stripHtml(details.description).slice(0, 5000);
 
-      // Price formatting: "1234 UAH"
-      const priceFormatted = `${uahPrice} UAH`;
+      // Price formatting
+      const priceFormatted = `${targetPrice} ${feedCfg.currency}`;
 
       // Sale price — only if active promo
       let salePriceXml = "";
@@ -115,25 +154,23 @@ export async function GET() {
           : null;
         const isPromoActive = !promoEnd || promoEnd > new Date();
         if (isPromoActive && bestPrice.promotionPrice < bestPrice.price) {
-          const uahPromoPrice = Math.round(bestPrice.promotionPrice * marginRate * eurToUah);
-          salePriceXml = `      <g:sale_price>${uahPromoPrice} UAH</g:sale_price>`;
+          const targetPromoPrice = Math.round(bestPrice.promotionPrice * marginRate * eurToTarget);
+          salePriceXml = `      <g:sale_price>${targetPromoPrice} ${feedCfg.currency}</g:sale_price>`;
         }
       }
 
-      // Additional images
+      // Additional images — absolute URLs via powerautomation.pl
       const additionalImages = images
         .slice(1)
         .map((img) => {
-          const imgUrl = img.startsWith("http") ? img : `${BASE_URL}${img}`;
+          const imgUrl = toAbsoluteImageUrl(img);
           return `      <g:additional_image_link>${escapeXml(imgUrl)}</g:additional_image_link>`;
         })
         .join("\n");
 
-      const mainImageUrl = mainImage.startsWith("http")
-        ? mainImage
-        : `${BASE_URL}${mainImage}`;
+      const mainImageUrl = toAbsoluteImageUrl(mainImage);
 
-      const productLink = `${BASE_URL}/ua/product/${encodeURIComponent(item.articleId)}`;
+      const productLink = `${feedCfg.baseUrl}/${feedCfg.locale}/product/${encodeURIComponent(item.articleId)}`;
 
       feedItems.push(`    <item>
       <g:id>${escapeXml(item.articleId)}</g:id>
@@ -153,9 +190,9 @@ ${salePriceXml ? salePriceXml + "\n" : ""}      <g:availability>${availability}<
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
-    <title>Power Automation — промислова автоматизація</title>
-    <link>${BASE_URL}</link>
-    <description>Інтернет-магазин промислового обладнання. Siemens, Pilz, Atlas Copco та інші бренди.</description>
+    <title>${feedCfg.title}</title>
+    <link>${feedCfg.baseUrl}</link>
+    <description>${feedCfg.description}</description>
 ${feedItems.join("\n")}
   </channel>
 </rss>`;
@@ -173,8 +210,8 @@ ${feedItems.join("\n")}
       `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
-    <title>Power Automation</title>
-    <link>${BASE_URL}</link>
+    <title>${feedCfg.title}</title>
+    <link>${feedCfg.baseUrl}</link>
     <description>Feed temporarily unavailable</description>
   </channel>
 </rss>`,

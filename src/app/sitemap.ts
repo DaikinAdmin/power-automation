@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next';
 import { headers } from 'next/headers';
 import { getDomainConfigByHost } from '@/lib/domain-config';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const STATIC_PAGES = [
   '',
@@ -13,32 +16,27 @@ const STATIC_PAGES = [
   '/privacy-policy',
 ];
 
-async function fetchCategories(baseUrl: string, locale: string): Promise<{ slug: string }[]> {
+/** Fetch category slugs directly from the database */
+async function fetchCategories(): Promise<{ slug: string }[]> {
   try {
-    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
-    const res = await fetch(
-      `${internalUrl}/api/public/categories/${locale}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.categories ?? [];
-  } catch {
+    return await db
+      .select({ slug: schema.category.slug })
+      .from(schema.category);
+  } catch (e) {
+    console.error('Sitemap: failed to fetch categories', e);
     return [];
   }
 }
 
-async function fetchItems(baseUrl: string, locale: string): Promise<{ articleId: string }[]> {
+/** Fetch displayed item slugs directly from the database */
+async function fetchItems(): Promise<{ slug: string }[]> {
   try {
-    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
-    const res = await fetch(
-      `${internalUrl}/api/public/items/${locale}?limit=5000`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.items ?? [];
-  } catch {
+    return await db
+      .select({ slug: schema.item.slug })
+      .from(schema.item)
+      .where(eq(schema.item.isDisplayed, true));
+  } catch (e) {
+    console.error('Sitemap: failed to fetch items', e);
     return [];
   }
 }
@@ -74,12 +72,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Dynamic categories
-  const categories = await fetchCategories(BASE_URL, DEFAULT_LOCALE);
+  const categories = await fetchCategories();
   for (const locale of LOCALES) {
     for (const cat of categories) {
       if (cat.slug) {
         entries.push({
-          url: `${BASE_URL}/${locale}/categories/${cat.slug}`,
+          url: `${BASE_URL}/${locale}/category/${cat.slug}`,
           lastModified: now,
           changeFrequency: 'daily',
           priority: 0.8,
@@ -89,12 +87,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Dynamic products
-  const items = await fetchItems(BASE_URL, DEFAULT_LOCALE);
+  const items = await fetchItems();
   for (const locale of LOCALES) {
     for (const item of items) {
-      if (item.articleId) {
+      if (item.slug) {
         entries.push({
-          url: `${BASE_URL}/${locale}/product/${item.articleId}`,
+          url: `${BASE_URL}/${locale}/product/${item.slug}`,
           lastModified: now,
           changeFrequency: 'weekly',
           priority: 0.6,

@@ -3,6 +3,7 @@ import { routing } from './i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getDomainConfigByHost,
+  DOMAIN_CONFIGS,
   DOMAIN_HEADER,
   DOMAIN_COOKIE,
   type DomainConfig,
@@ -17,7 +18,7 @@ function createIntlMiddlewareForDomain(domainConfig: DomainConfig) {
     locales: routing.locales,
     defaultLocale: domainConfig.defaultLocale as typeof routing.defaultLocale,
     localePrefix: 'always',
-    localeDetection: false, // не читати Accept-Language браузера — тільки domain defaultLocale
+    localeDetection: true, // дозволяємо зберігати вибір локалі через cookie NEXT_LOCALE
   });
 }
 
@@ -32,6 +33,13 @@ export default function middleware(request: NextRequest) {
   // --- Domain detection ---
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
   const domainConfig = getDomainConfigByHost(host);
+
+  // --- Проксі зображень: на не-PL доменах редіректимо завантаження до PL ---
+  if (pathname.startsWith('/api/public/uploads/') && domainConfig.key !== 'pl') {
+    const plBaseUrl = DOMAIN_CONFIGS.pl.baseUrl;
+    const imageUrl = `${plBaseUrl}${pathname}${request.nextUrl.search}`;
+    return NextResponse.redirect(imageUrl, { status: 301 });
+  }
 
   // --- API routes: CORS ---
   if (pathname.startsWith('/api')) {
