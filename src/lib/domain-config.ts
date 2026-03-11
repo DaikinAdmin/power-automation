@@ -60,12 +60,12 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['ua', 'en', 'es', 'pl'],
     indexedLocales: ['ua'],
     paymentProviders: ['liqpay'],
-    gtmId: 'GTM-XXXXXXXX', // TODO: вставити реальний GTM ID для UA
+    gtmId: 'GTM-TNWRJ8MC', // TODO: вставити реальний GTM ID для UA
     binotelEnabled: true,
     contacts: {
       address: ['Україна, м. Київ'], // TODO: уточнити адресу
-      phone: '+380XXXXXXXXX', // TODO: уточнити телефон
-      phoneFormatted: '+380 XX XXX XX XX',
+      phone: '+380678202785', // TODO: уточнити телефон
+      phoneFormatted: '+380 67 820 27 85',
       email: 'info@powerautomation.com.ua',
     },
     siteName: 'Power Automation Україна',
@@ -78,7 +78,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['pl', 'en', 'es', 'ua'],
     indexedLocales: ['pl'],
     paymentProviders: ['przelewy24'],
-    gtmId: 'GTM-TNWRJ8MC',
+    gtmId: '',
     binotelEnabled: true,
     contacts: {
       address: ['Tyniecka 2, 52-407', 'Wrocław, Polska'],

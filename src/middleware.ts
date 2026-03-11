@@ -17,6 +17,7 @@ function createIntlMiddlewareForDomain(domainConfig: DomainConfig) {
     locales: routing.locales,
     defaultLocale: domainConfig.defaultLocale as typeof routing.defaultLocale,
     localePrefix: 'always',
+    localeDetection: false, // не читати Accept-Language браузера — тільки domain defaultLocale
   });
 }
 

@@ -90,10 +90,10 @@ dig daikinwroclaw.com +short
 
 ```bash
 # Скопіювати конфіг з репозиторію
-sudo cp nginx/daikinwroclaw.com.conf /etc/nginx/sites-available/daikinwroclaw.com
+sudo cp nginx/daikinwroclaw.com.conf /etc/nginx/sites-available/pa.daikinkobierzyce.pl
 
 # Створити symlink
-sudo ln -s /etc/nginx/sites-available/daikinwroclaw.com /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/pa.daikinkobierzyce.pl /etc/nginx/sites-enabled/
 
 # Перевірити синтаксис
 sudo nginx -t
@@ -101,7 +101,7 @@ sudo nginx -t
 
 Якщо `nginx -t` показав помилку SSL (бо сертифіката ще немає) — тимчасово **закоментуйте** SSL-рядки у конфізі і перезавантажте:
 ```bash
-sudo nano /etc/nginx/sites-available/daikinwroclaw.com
+sudo nano /etc/nginx/sites-available/pa.daikinkobierzyce.pl
 # Закоментуйте ці 4 рядки:
 #   ssl_certificate ...
 #   ssl_certificate_key ...
@@ -119,7 +119,7 @@ sudo nginx -t && sudo systemctl reload nginx
 ### Крок 6. Отримати SSL-сертифікат
 
 ```bash
-sudo certbot --nginx -d daikinwroclaw.com -d www.daikinwroclaw.com
+sudo certbot --nginx -d pa.daikinkobierzyce.pl -d www.pa.daikinkobierzyce.pl
 ```
 
 Certbot автоматично:
