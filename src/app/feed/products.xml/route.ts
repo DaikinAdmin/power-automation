@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
 
       const mainImageUrl = toAbsoluteImageUrl(mainImage);
 
-      const productLink = `${feedCfg.baseUrl}/${feedCfg.locale}/product/${encodeURIComponent(item.articleId)}`;
+      const productLink = `${feedCfg.baseUrl}/${feedCfg.locale}/product/${encodeURIComponent(item.slug)}`;
 
       feedItems.push(`    <item>
       <g:id>${escapeXml(item.articleId)}</g:id>
