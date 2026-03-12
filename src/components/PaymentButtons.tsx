@@ -85,39 +85,3 @@ export function LiqPayButton({
   );
 }
 
-/* ──────────────────────────────────────────── Privat24 ── */
-export function Privat24Button({
-  isThisLoading,
-  disabled,
-  isCompleted,
-  onClick,
-  processingLabel,
-  alreadyPaidLabel,
-}: PaymentButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled || isCompleted}
-      className="w-full bg-[#1d4289] text-white py-4 px-6 rounded-lg font-semibold hover:bg-[#163268] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-    >
-      {isThisLoading ? (
-        <>
-          <Loader2 className="w-5 h-5 animate-spin" />
-          {processingLabel}
-        </>
-      ) : isCompleted ? (
-        <>
-          <CheckCircle2 className="w-5 h-5" />
-          {alreadyPaidLabel}
-        </>
-      ) : (
-        <>
-          <Lock className="w-5 h-5" />
-          {/* Privat24 branding */}
-          <span>Оплата частинами в</span>
-          <span className="font-black tracking-tight">Privat24</span>
-        </>
-      )}
-    </button>
-  );
-}

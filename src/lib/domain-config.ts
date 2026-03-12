@@ -59,7 +59,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     defaultLocale: 'ua',
     availableLocales: ['ua', 'en', 'es', 'pl'],
     indexedLocales: ['ua'],
-    paymentProviders: ['liqpay'],
+    paymentProviders: ['liqpay', 'liqpay_installments'],
     gtmId: process.env.APP_GTM_ID_UA ?? '',
     binotelEnabled: true,
     contacts: {
@@ -106,7 +106,12 @@ const ALL_HOSTS = Object.values(DOMAIN_CONFIGS).map((c) => c.host);
  * 3. Fallback → PL конфіг
  */
 export function getDomainConfigByHost(host: string | null | undefined): DomainConfig {
-  if (!host) return DOMAIN_CONFIGS.pl;
+  const fallback = (() => {
+    const key = process.env.APP_DOMAIN_KEY as DomainKey | undefined;
+    return (key && DOMAIN_CONFIGS[key]) ? DOMAIN_CONFIGS[key] : DOMAIN_CONFIGS.pl;
+  })();
+
+  if (!host) return fallback;
   // Забираємо порт (напр. localhost:3000)
   const cleanHost = host.split(':')[0].toLowerCase();
 
@@ -130,8 +135,8 @@ export function getDomainConfigByHost(host: string | null | undefined): DomainCo
     return DOMAIN_CONFIGS.pl;
   }
 
-  // 3. Fallback
-  return DOMAIN_CONFIGS.pl;
+  // 3. Fallback → APP_DOMAIN_KEY or 'pl'
+  return fallback;
 }
 
 /**

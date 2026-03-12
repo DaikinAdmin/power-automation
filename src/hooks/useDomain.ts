@@ -27,7 +27,9 @@ export function useDomainConfig(): DomainConfig {
     const host = window.location.hostname;
     if (host.includes('powerautomation.com.ua')) return 'ua';
     if (host.includes('powerautomation.pl')) return 'pl';
-    // Для localhost використовуємо PL за замовчуванням
+    // Для localhost використовуємо NEXT_PUBLIC_DOMAIN_KEY якщо задано
+    const envKey = process.env.NEXT_PUBLIC_DOMAIN_KEY as DomainKey | undefined;
+    if (envKey && DOMAIN_CONFIGS[envKey]) return envKey;
     return 'pl';
   }, []);
 

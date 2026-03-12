@@ -11,7 +11,6 @@ import { useCurrency } from "@/hooks/useCurrency";
 import {
   Przelewy24Button,
   LiqPayButton,
-  Privat24Button,
 } from "@/components/PaymentButtons";
 import { useDomainConfig } from "@/hooks/useDomain";
 
@@ -34,7 +33,9 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const [error, setError] = useState('');
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
-  const isLoading = loadingProvider !== null;
+  const [installmentModalOpen, setInstallmentModalOpen] = useState(false);
+  const [installmentLoading, setInstallmentLoading] = useState(false);
+  const isLoading = loadingProvider !== null || installmentLoading;
 
   useEffect(() => {
     if (!orderId) {
@@ -99,6 +100,39 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
       setError(err.message || 'Failed to initiate payment');
       setPaymentStatus('error');
       setLoadingProvider(null);
+    }
+  };
+
+  const handleInstallment = async (installmentType: 'paypart' | 'moment_part', months: number) => {
+    if (!orderId) return;
+
+    setInstallmentLoading(true);
+    setError('');
+    setPaymentStatus('processing');
+
+    try {
+      const response = await fetch('/api/payments/liqpay-installments/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, installmentType, months }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to initiate installment payment');
+      }
+
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('Payment URL not received');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to initiate installment payment');
+      setPaymentStatus('error');
+    } finally {
+      setInstallmentLoading(false);
     }
   };
 
@@ -280,16 +314,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                       alreadyPaidLabel={t('buttons.alreadyPaid')}
                     />
                   )}
-                  {allowedProviders.includes('privat24') && (
-                    <Privat24Button
-                      onClick={() => handlePayment('privat24')}
-                      isThisLoading={loadingProvider === 'privat24'}
-                      disabled={isLoading}
-                      isCompleted={orderData.status === 'COMPLETED'}
-                      processingLabel={t('buttons.processing')}
-                      alreadyPaidLabel={t('buttons.alreadyPaid')}
-                    />
-                  )}
+
                 </div>
               </div>
 

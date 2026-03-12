@@ -27,8 +27,8 @@ export interface LiqPayParams {
   version: 3;
   /** Your LiqPay public key (from merchant dashboard). */
   public_key: string;
-  /** Operation type. "pay" for a one-time payment. */
-  action: 'pay' | 'hold' | 'subscribe' | 'paydonate';
+  /** Operation type. "pay" for a one-time payment, "paypart" for installments. */
+  action: 'pay' | 'hold' | 'subscribe' | 'paydonate' | 'paypart';
   /** Payment amount, e.g. 100 or 99.99. LiqPay uses actual units, NOT cents. */
   amount: number;
   /** ISO currency code: USD | EUR | UAH. */
@@ -49,6 +49,9 @@ export interface LiqPayParams {
    * If omitted, the merchant's dashboard settings are used.
    */
   paytypes?: string;
+
+  /** Number of installment parts (months) for paypart action. */
+  payparts_count?: number;
   /**
    * ISO 8601 expiry datetime (UTC) until which the invoice can be paid.
    * Format: "2024-12-31 23:59:59"
