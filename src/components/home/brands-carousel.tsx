@@ -22,6 +22,9 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
   isDataLoading,
   t,
 }) => {
+   const filteredBrands = brands.filter(
+    (brand) => brand.name.toLowerCase() !== "unknown"
+  );
   const [emblaRef] = useEmblaCarousel(
     {
       loop: true,
@@ -64,7 +67,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
         <>
           {/* Desktop grid */}
           <div className="hidden md:grid grid-cols-5 gap-5">
-            {brands.map((brand) => (
+            {filteredBrands.map((brand) => (
               <div
                 key={brand.id}
                 className="bg-white overflow-hidden cursor-pointer"
@@ -91,7 +94,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
           <div className="md:hidden">
             <div className="embla overflow-hidden" ref={emblaRef}>
               <div className="embla__container flex gap-2">
-                {brands.map((brand) => (
+                {filteredBrands.map((brand) => (
                   <div
                     key={brand.id}
                     className="embla__slide flex-[0_0_calc(33.333%-0.5rem)]" // 3 елементи на рядок
@@ -108,7 +111,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                   </div>
                 ))}
 
-                {brands.length === 0 && (
+                {filteredBrands.length === 0 && (
                   <div className="col-span-2 text-center py-8 text-gray-500">
                     {t("messages.noBrands")}
                   </div>

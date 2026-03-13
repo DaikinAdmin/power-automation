@@ -39,7 +39,8 @@ export function useCategories(locale: string) {
           name: sub.name,
           slug: sub.slug,
         })) || [],
-      }));
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, locale));
 
       setCategories(mappedCategories);
     } catch (err) {
