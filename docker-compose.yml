@@ -78,7 +78,7 @@ services:
     networks:
       - powerautomation-network
     volumes:
-      - uploads_data:/app/public/uploads
+      - uploads_data:/uploads
       - ./logs:/app/logs  # Application logs for Promtail
 
   # Loki - Log aggregation system
