@@ -376,7 +376,8 @@
       "submitting": "Enviando...",
       "cancel": "Cancelar",
       "successMessage": "Tu solicitud ha sido enviada. Te contactaremos cuando el artículo esté disponible.",
-      "errorMessage": "No se pudo enviar la solicitud. Por favor, inténtelo de nuevo."
+      "errorMessage": "No se pudo enviar la solicitud. Por favor, inténtelo de nuevo.",
+      "deliveryDays": "Entrega estimada: {days} días"
     },
     "productCatalogCard":{
       "buy":"Comprar",

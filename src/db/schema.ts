@@ -162,6 +162,9 @@ export const warehouse = pgTable(
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
     isVisible: boolean().default(true),
     countrySlug: text(),
+    deliveryDaysPoland: integer(),
+    deliveryDaysUkraine: integer(),
+    deliveryDaysEurope: integer(),
   },
   (table) => [
     foreignKey({

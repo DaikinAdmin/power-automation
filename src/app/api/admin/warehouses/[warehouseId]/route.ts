@@ -27,9 +27,9 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, country, isVisible, displayedName } = body;
+    const { name, countrySlug, isVisible, displayedName, deliveryDaysPoland, deliveryDaysUkraine, deliveryDaysEurope } = body;
 
-    if (!name || !country) {
+    if (!name || !countrySlug) {
       return NextResponse.json({ error: 'Name and country are required' }, { status: 400 });
     }
 
@@ -38,9 +38,12 @@ export async function PUT(
       .update(schema.warehouse)
       .set({
         name,
-        countrySlug: country,
+        countrySlug,
         isVisible,
         displayedName,
+        deliveryDaysPoland,
+        deliveryDaysUkraine,
+        deliveryDaysEurope,
         updatedAt: new Date().toISOString(),
       })
       .where(eq(schema.warehouse.id, warehouseId))

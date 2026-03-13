@@ -443,7 +443,8 @@
       "submitting": "Wysyłanie...",
       "cancel": "Anuluj",
       "successMessage": "Twoje zapytanie zostało przesłane! Skontaktujemy się gdy produkt będzie dostępny.",
-      "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie."
+      "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie.",
+      "deliveryDays": "Przybliżony czas dostawy: {days} dni"
     },
     "productCatalogCard":{
       "buy":"Kup",

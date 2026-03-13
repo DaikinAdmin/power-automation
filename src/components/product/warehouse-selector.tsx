@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Package, AlertCircle, Mail } from 'lucide-react';
+import { MapPin, Package, AlertCircle, Mail, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { requestOutOfStockItem } from '@/lib/actions/products';
 import { Badge as UiBadge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import { useDomainKey } from '@/hooks/useDomain';
+import type { DomainKey } from '@/lib/domain-config';
 
 interface WarehousePrice {
   id: string;
@@ -18,6 +20,9 @@ interface WarehousePrice {
   quantity: number;
   inStock: boolean;
   badge?: string | null;
+  deliveryDaysPoland?: number | null;
+  deliveryDaysUkraine?: number | null;
+  deliveryDaysEurope?: number | null;
 }
 
 interface WarehouseSelectorProps {
@@ -37,6 +42,13 @@ export default function WarehouseSelector({
 }: WarehouseSelectorProps) {
   const t = useTranslations('product.warehouseSelector');
   const tBadges = useTranslations('product.price.badges');
+  const domainKey = useDomainKey();
+
+  const getDeliveryDays = (warehouse: WarehousePrice): number | null => {
+    if (domainKey === 'pl') return warehouse.deliveryDaysPoland ?? null;
+    if (domainKey === 'ua') return warehouse.deliveryDaysUkraine ?? null;
+    return warehouse.deliveryDaysEurope ?? null;
+  };
 
   const [showOutOfStockForm, setShowOutOfStockForm] = useState(false);
   const [outOfStockForm, setOutOfStockForm] = useState({
@@ -102,6 +114,15 @@ export default function WarehouseSelector({
                 <MapPin className="h-5 w-5 text-gray-500" />
                 <div>
                   <div className="font-medium">{warehouse.displayedName}</div>
+                  {(() => {
+                    const days = getDeliveryDays(warehouse);
+                    return days != null ? (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                        <Truck className="h-3 w-3" />
+                        <span>{t('deliveryDays', { days })}</span>
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </div>
               

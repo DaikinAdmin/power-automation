@@ -41,6 +41,9 @@ export type ProductWarehouse = {
   inStock: boolean;
   quantity: number;
   badge: string | null;
+  deliveryDaysPoland: number | null;
+  deliveryDaysUkraine: number | null;
+  deliveryDaysEurope: number | null;
 };
 
 export type ProductRecommendedWarehouse = {

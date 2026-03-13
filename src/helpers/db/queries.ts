@@ -334,6 +334,9 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
           isVisible: warehouse?.isVisible ?? true,
           createdAt: warehouse?.createdAt || '',
           updatedAt: warehouse?.updatedAt || '',
+          deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
+          deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
+          deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
           country: country
             ? {
                 slug: country.slug,

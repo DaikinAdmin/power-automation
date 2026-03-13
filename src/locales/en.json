@@ -443,7 +443,8 @@
       "submitting": "Submitting...",
       "cancel": "Cancel",
       "successMessage": "Your request has been submitted! We will contact you when the item becomes available.",
-      "errorMessage": "Failed to submit request. Please try again."
+      "errorMessage": "Failed to submit request. Please try again.",
+      "deliveryDays": "Estimated delivery: {days} days"
     },
     "productCatalogCard":{
       "buy":"Buy",

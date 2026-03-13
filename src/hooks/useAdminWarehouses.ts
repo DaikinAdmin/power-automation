@@ -6,6 +6,9 @@ interface Warehouse {
   displayedName: string;
   name: string | null;
   countrySlug: string | null;
+  deliveryDaysPoland: number | null;
+  deliveryDaysUkraine: number | null;
+  deliveryDaysEurope: number | null;
   _count?: {
     item_price: number;
   };

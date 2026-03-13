@@ -113,6 +113,9 @@ export interface WarehouseResponse {
   createdAt: string;
   updatedAt: string;
   country: WarehouseCountryResponse | null;
+  deliveryDaysPoland: number | null;
+  deliveryDaysUkraine: number | null;
+  deliveryDaysEurope: number | null;
 }
 
 export interface WarehouseCountryResponse {

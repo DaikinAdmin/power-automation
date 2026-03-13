@@ -93,6 +93,9 @@ export async function GET(
           badge: price.badge || null,
           promoEndDate: price.promoEndDate,
           promoCode: price.promoCode || null,
+          deliveryDaysPoland: price.warehouse.deliveryDaysPoland ?? null,
+          deliveryDaysUkraine: price.warehouse.deliveryDaysUkraine ?? null,
+          deliveryDaysEurope: price.warehouse.deliveryDaysEurope ?? null,
         };
       }),
 
@@ -292,6 +295,9 @@ export async function GET_PRISMA(
         badge: price.badge || null,
         promoEndDate: price.promoEndDate,
         promoCode: price.promoCode || null,
+        deliveryDaysPoland: price.warehouse.deliveryDaysPoland ?? null,
+        deliveryDaysUkraine: price.warehouse.deliveryDaysUkraine ?? null,
+        deliveryDaysEurope: price.warehouse.deliveryDaysEurope ?? null,
       })),
 
       // Get the first available details or empty object
