@@ -4,6 +4,7 @@ import EditorJSRenderer from "@/components/EditorJSRenderer";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
 import ContactMap from "@/components/ContactMap";
 import "leaflet/dist/leaflet.css";
+import { getServerDomainConfig } from "@/lib/server-domain";
 
 interface PageData {
   id: number;
@@ -19,9 +20,18 @@ interface PageData {
   updatedAt: string;
 }
 
-async function getPageContent(
-  locale: string,
-): Promise<PageData | null> {
+function getLocation(domainKey: string) {
+  switch (domainKey) {
+    case "pl":
+      return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2506.8776305794254!2d16.95278877656008!3d51.07380894228596!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc1458656af5b%3A0xbec4ec597bd6c63e!2sAMM%20Project%20Sp.%20z%20o.o.!5e0!3m2!1spl!2spl!4v1773407810382!5m2!1spl!2spl";
+    case "ua":
+      return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2550.3597287982648!2d28.68782229999999!3d50.26654149999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x472c64afa722b89d%3A0xa26f4bc142c9960!2sKyivska%20St%2C%2077%2C%20Zhytomyr%2C%20Zhytomyrs%27ka%20oblast%2C%20Ukraina%2C%2010000!5e0!3m2!1spl!2spl!4v1773407378233!5m2!1spl!2spl";
+    default:
+      return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2506.8776305794254!2d16.95278877656008!3d51.07380894228596!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470fc1458656af5b%3A0xbec4ec597bd6c63e!2sAMM%20Project%20Sp.%20z%20o.o.!5e0!3m2!1spl!2spl!4v1773407810382!5m2!1spl!2spl";
+  }
+}
+
+async function getPageContent(locale: string): Promise<PageData | null> {
   try {
     const res = await fetch(
       `${
@@ -29,7 +39,7 @@ async function getPageContent(
       }/api/public/pages/${locale}/contacts`,
       {
         next: { revalidate: 3600 }, // Cache for 1 hour
-      }
+      },
     );
 
     if (!res.ok) {
@@ -49,7 +59,8 @@ export default async function DynamicPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale } = await params;
-  const page = await getPageContent(locale);
+  const domainConfig = await getServerDomainConfig();
+  const [page] = await Promise.all([getPageContent(locale)]);
 
   if (!page || !page.isPublished) {
     notFound();
@@ -73,8 +84,19 @@ export default async function DynamicPage({
             </div>
 
             {/* Карта з міткою */}
-            <ContactMap />
-
+            <div className="mt-8">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <iframe
+                  src={getLocation(domainConfig.key)}
+                  width="100%"
+                  height="400"
+                  style={{ border: 0, display: "block" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -101,7 +123,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; }>;
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   const page = await getPageContent(locale);

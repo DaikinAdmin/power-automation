@@ -4,6 +4,7 @@ import { useLocale } from "next-intl"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "@/i18n/navigation" // useRouter більше не потрібен
+import { useDomainConfig } from "@/hooks/useDomain"
 
 interface Language {
   code: string
@@ -11,7 +12,7 @@ interface Language {
   flag: string
 }
 
-const languages: Language[] = [
+const ALL_LANGUAGES: Language[] = [
   { code: "pl", name: "Polski",     flag: "🇵🇱" },
   { code: "en", name: "English",    flag: "🇬🇧" },
   { code: "ua", name: "Українська", flag: "🇺🇦" },
@@ -20,6 +21,8 @@ const languages: Language[] = [
 
 export default function LanguageSwitcher() {
   const locale = useLocale()
+  const domainConfig = useDomainConfig()
+  const languages = ALL_LANGUAGES.filter((lang) => domainConfig.availableLocales.includes(lang.code))
   const pathname = usePathname()
 
   const handleLanguageChange = (newLocale: string) => {
