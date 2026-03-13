@@ -15,7 +15,7 @@ import {
  */
 function createIntlMiddlewareForDomain(domainConfig: DomainConfig) {
   return createMiddleware({
-    locales: domainConfig.availableLocales as unknown as typeof routing.locales,
+    locales: routing.locales,
     defaultLocale: domainConfig.defaultLocale as typeof routing.defaultLocale,
     localePrefix: 'always',
     localeDetection: true, // дозволяємо зберігати вибір локалі через cookie NEXT_LOCALE
