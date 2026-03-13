@@ -44,6 +44,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       displayedName: '',
       isVisible: true,
       countrySlug: 'other',
+      deliveryDaysPoland: null,
+      deliveryDaysUkraine: null,
+      deliveryDaysEurope: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -218,6 +221,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
         displayedName: 'Unknown',
         isVisible: true,
         countrySlug: 'other',
+        deliveryDaysPoland: null,
+        deliveryDaysUkraine: null,
+        deliveryDaysEurope: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -250,6 +256,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
         displayedName: '',
         isVisible: true,
         countrySlug: 'other',
+        deliveryDaysPoland: null,
+        deliveryDaysUkraine: null,
+        deliveryDaysEurope: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
