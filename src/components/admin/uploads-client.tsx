@@ -137,8 +137,10 @@ export function UploadsClient() {
       formData.append('path', uploadPath);
       if (uploadFileName) formData.append('fileName', uploadFileName);
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch('/api/admin/uploads', {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
 
@@ -171,9 +173,13 @@ export function UploadsClient() {
     if (!editImage) return;
     setIsEditing(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch(`/api/admin/uploads/${editImage.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ fileName: editFileName, path: editPath }),
       });
 
@@ -198,8 +204,10 @@ export function UploadsClient() {
     if (!deleteImage) return;
     setIsDeleting(true);
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch(`/api/admin/uploads/${deleteImage.id}`, {
         method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (!res.ok) throw new Error('Delete failed');

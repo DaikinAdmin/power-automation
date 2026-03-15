@@ -136,8 +136,10 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       uploadFormData.append('file', file);
       uploadFormData.append('path', `products/${articleId}`);
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch('/api/admin/uploads', {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: uploadFormData,
       });
 
