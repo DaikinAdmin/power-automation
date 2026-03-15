@@ -68,6 +68,7 @@ services:
       LIQPAY_PRIVATE_KEY: ${LIQPAY_PRIVATE_KEY}
 
       # Multi-domain
+      APP_DOMAIN_KEY: ${APP_DOMAIN_KEY:-pl}
       APP_UA_TEST_HOST: ${APP_UA_TEST_HOST:-}
       APP_PL_TEST_HOST: ${APP_PL_TEST_HOST:-}
       APP_GTM_ID_PL: ${APP_GTM_ID_PL:-GTM-TNWRJ8MC}

@@ -143,8 +143,10 @@ export function UploadsClient() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Upload failed');
+        const text = await res.text();
+        let msg = 'Upload failed';
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
       }
 
       toast.success('Image uploaded successfully');
@@ -176,8 +178,10 @@ export function UploadsClient() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Update failed');
+        const text = await res.text();
+        let msg = 'Update failed';
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
       }
 
       toast.success('Image updated successfully');

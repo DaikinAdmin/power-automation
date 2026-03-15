@@ -142,8 +142,10 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Upload failed');
+        const text = await res.text();
+        let msg = 'Upload failed';
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
       }
 
       const uploaded = await res.json();

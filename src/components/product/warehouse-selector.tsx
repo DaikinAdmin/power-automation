@@ -8,7 +8,6 @@ import { requestOutOfStockItem } from '@/lib/actions/products';
 import { Badge as UiBadge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import { useDomainKey } from '@/hooks/useDomain';
-import type { DomainKey } from '@/lib/domain-config';
 
 interface WarehousePrice {
   id: string;
