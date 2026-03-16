@@ -251,7 +251,7 @@
   "dashboard": {
     "welcomeBack": "Welcome back",
     "statsOverview": "Stats overview",
-    "greeting": "Hi {{name}}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
+    "greeting": "Hi {name}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
     "stats": {
       "ordersPlaced": "Orders placed",
       "itemsPurchased": "Items purchased",
@@ -292,9 +292,9 @@
         "actions": "Actions",
         "view": "View",
         "refund": "Refund",
-        "itemsCount": "{{count}} item",
-        "itemsCount_other": "{{count}} items",
-        "moreItems": "+{{count}} more",
+        "itemsCount": "{count} item",
+        "itemsCount_other": "{count} items",
+        "moreItems": "+{count} more",
         "noOrders": "You haven't placed any orders yet.",
         "refunding": "Refunding...",
         "refundConfirm": "Are you sure you want to refund this order? This action cannot be undone.",
@@ -303,8 +303,8 @@
       },
       "detail": {
         "backToOrders": "Back to Orders",
-        "orderNumber": "Order #{{id}}",
-        "placedOn": "Placed on {{date}}",
+        "orderNumber": "Order #{id}",
+        "placedOn": "Placed on {date}",
         "payNow": "Pay Now",
         "proceedWithPayment": "Proceed with Payment",
         "cancelOrder": "Cancel Order",

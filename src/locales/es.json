@@ -184,7 +184,7 @@
   "dashboard": {
     "welcomeBack": "Bienvenido de nuevo",
     "statsOverview": "Resumen de estadísticas",
-    "greeting": "Hola {{name}}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
+    "greeting": "Hola {name}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
     "stats": {
       "ordersPlaced": "Pedidos realizados",
       "itemsPurchased": "Artículos comprados",

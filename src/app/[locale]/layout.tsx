@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { CartProvider } from "@/components/cart-context";
 import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
+import type { SupportedCurrency } from "@/helpers/currency";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
@@ -101,9 +102,11 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  // Domain-specific GTM ID
+  // Domain-specific GTM ID and currency
   const domainConfig = await getServerDomainConfig();
   const gtmId = domainConfig.gtmId;
+  const domainCurrencyMap: Record<string, SupportedCurrency> = { pl: 'PLN', ua: 'UAH' };
+  const initialCurrency: SupportedCurrency = domainCurrencyMap[domainConfig.key] ?? 'EUR';
 
   return (
     <html lang={locale} className="overflow-x-hidden">
@@ -122,7 +125,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
-              <CurrencyProvider>{children}</CurrencyProvider>
+              <CurrencyProvider initialCurrency={initialCurrency}>{children}</CurrencyProvider>
             </CompareProvider>
           </CartProvider>
           <Toaster />

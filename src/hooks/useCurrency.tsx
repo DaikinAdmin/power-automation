@@ -23,15 +23,9 @@ const fallbackRates: Record<SupportedCurrency, number> = {
   UAH: 40,
 };
 
-export const CurrencyProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(BASE_CURRENCY);
+export const CurrencyProvider = ({ children, initialCurrency }: { children: React.ReactNode; initialCurrency?: SupportedCurrency }) => {
+  const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(initialCurrency ?? BASE_CURRENCY);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
-
-  useEffect(() => {
-    const locale = typeof navigator !== 'undefined' ? navigator.language : undefined;
-    const detected = detectCurrencyFromLocale(locale);
-    setCurrencyCode(detected);
-  }, []);
 
   useEffect(() => {
     let ignore = false;

@@ -84,7 +84,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
       address: ['Tyniecka 2, 52-407', 'Wrocław, Polska'],
       phone: '+48690997944',
       phoneFormatted: '+48 690 997 944',
-      email: 'sales@ammproject.com',
+      email: 'sales@powerautomation.pl',
       contactPerson: 'Maria',
       contactRole: 'Manager ds. sprzedaży',
     },
