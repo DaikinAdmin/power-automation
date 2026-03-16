@@ -532,5 +532,55 @@
     "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
     "itemNotAvailable": "Artículo {itemName} no disponible en el almacén seleccionado",
     "itemNotFound": "Artículo {articleId} no encontrado"
+  },
+  "cookieConsent": {
+    "title": "Usamos cookies",
+    "description": "Usamos cookies para mejorar su experiencia en nuestro sitio, analizar el tráfico y personalizar el contenido. Puede aceptar todas las cookies o gestionar sus preferencias.",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "learnMore": "Más información"
+  },
+  "privacyPolicy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización: enero de 2025",
+    "s1": {
+      "title": "1. Información general",
+      "body": "Esta Política de privacidad define los principios de procesamiento y protección de datos personales proporcionados por los Usuarios en relación con el uso de los servicios ofrecidos por Power Automation."
+    },
+    "s2": {
+      "title": "2. Responsable del tratamiento",
+      "body": "El responsable del tratamiento de datos personales es Power Automation. Los datos personales se procesan de acuerdo con la legislación vigente, en particular el Reglamento General de Protección de Datos (RGPD)."
+    },
+    "s3": {
+      "title": "3. Datos que recopilamos",
+      "intro": "Recopilamos las siguientes categorías de datos:",
+      "item1": "Datos de identificación (nombre, apellidos, dirección de correo electrónico)",
+      "item2": "Datos de contacto (número de teléfono, dirección de entrega)",
+      "item3": "Datos de transacciones (historial de pedidos, pagos)",
+      "item4": "Datos técnicos (dirección IP, cookies, datos del navegador)"
+    },
+    "s4": {
+      "title": "4. Finalidad del tratamiento",
+      "intro": "Sus datos personales se procesan con los siguientes fines:",
+      "item1": "Procesamiento de pedidos y atención al cliente",
+      "item2": "Comunicaciones de marketing (con su consentimiento)",
+      "item3": "Análisis y mejora de nuestros servicios"
+    },
+    "s5": {
+      "title": "5. Cookies",
+      "body": "Nuestro sitio utiliza cookies para garantizar el correcto funcionamiento, analizar el tráfico y personalizar el contenido. Puede gestionar la configuración de cookies a través de la configuración de su navegador o mediante nuestro panel de consentimiento."
+    },
+    "s6": {
+      "title": "6. Compartir datos",
+      "body": "No vendemos ni compartimos sus datos personales con terceros sin su consentimiento, excepto cuando lo exija la ley o sea necesario para la prestación de servicios (por ejemplo, empresas de mensajería, operadores de pago)."
+    },
+    "s7": {
+      "title": "7. Sus derechos",
+      "body": "Tiene derecho a acceder a sus datos, rectificarlos, suprimirlos, limitar su tratamiento, a la portabilidad de los datos y a oponerse al tratamiento. Para ejercer sus derechos, contáctenos en la dirección de correo electrónico indicada en la página de contacto."
+    },
+    "s8": {
+      "title": "8. Contacto",
+      "body": "Si tiene alguna pregunta sobre esta Política de privacidad o el tratamiento de sus datos personales, contáctenos a través del formulario disponible en la página de Contacto."
+    }
   }
 }

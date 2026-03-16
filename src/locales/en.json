@@ -599,5 +599,55 @@
     "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",
     "itemNotAvailable": "Item {itemName} not available in selected warehouse",
     "itemNotFound": "Item {articleId} not found"
+  },
+  "cookieConsent": {
+    "title": "We use cookies",
+    "description": "We use cookies to improve your experience on our site, analyze traffic, and personalize content. You can accept all cookies or manage your preferences.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "learnMore": "Learn more"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: January 2025",
+    "s1": {
+      "title": "1. General Information",
+      "body": "This Privacy Policy defines the principles of processing and protecting personal data provided by Users in connection with using the services offered by Power Automation."
+    },
+    "s2": {
+      "title": "2. Data Controller",
+      "body": "The data controller is Power Automation. Personal data is processed in accordance with applicable law, in particular the General Data Protection Regulation (GDPR)."
+    },
+    "s3": {
+      "title": "3. Data We Collect",
+      "intro": "We collect the following categories of data:",
+      "item1": "Identification data (name, surname, email address)",
+      "item2": "Contact data (phone number, delivery address)",
+      "item3": "Transaction data (order history, payments)",
+      "item4": "Technical data (IP address, cookies, browser data)"
+    },
+    "s4": {
+      "title": "4. Purpose of Data Processing",
+      "intro": "Your personal data is processed for the following purposes:",
+      "item1": "Processing orders and customer service",
+      "item2": "Marketing communications (with your consent)",
+      "item3": "Analysis and improvement of our services"
+    },
+    "s5": {
+      "title": "5. Cookies",
+      "body": "Our site uses cookies to ensure proper functionality, analyze traffic, and personalize content. You can manage cookie settings through your browser settings or via our consent panel."
+    },
+    "s6": {
+      "title": "6. Data Sharing",
+      "body": "We do not sell or share your personal data with third parties without your consent, except as required by law or necessary for service delivery (e.g., courier companies, payment operators)."
+    },
+    "s7": {
+      "title": "7. Your Rights",
+      "body": "You have the right to access your data, rectify it, erase it, restrict processing, data portability, and object to processing. To exercise your rights, contact us at the email address provided on the contact page."
+    },
+    "s8": {
+      "title": "8. Contact",
+      "body": "If you have any questions regarding this Privacy Policy or the processing of your personal data, please contact us via the form on the Contact page."
+    }
   }
 }

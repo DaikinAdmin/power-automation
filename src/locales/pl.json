@@ -599,5 +599,55 @@
     "insufficientStock": "Niewystarczająca ilość towaru {itemName}. Dostępne: {available}, Zamówione: {requested}",
     "itemNotAvailable": "Towar {itemName} niedostępny w wybranym magazynie",
     "itemNotFound": "Towar {articleId} nie znaleziony"
+  },
+  "cookieConsent": {
+    "title": "Używamy plików cookie",
+    "description": "Używamy plików cookie, aby poprawić Twoje doświadczenia na naszej stronie, analizować ruch oraz personalizować treści. Możesz zaakceptować wszystkie pliki cookie lub zarządzać swoimi preferencjami.",
+    "accept": "Akceptuj",
+    "decline": "Odrzuć",
+    "learnMore": "Dowiedz się więcej"
+  },
+  "privacyPolicy": {
+    "title": "Polityka prywatności",
+    "lastUpdated": "Ostatnia aktualizacja: styczeń 2025",
+    "s1": {
+      "title": "1. Informacje ogólne",
+      "body": "Niniejsza Polityka prywatności określa zasady przetwarzania i ochrony danych osobowych przekazanych przez Użytkowników w związku z korzystaniem przez nich z usług oferowanych przez Power Automation."
+    },
+    "s2": {
+      "title": "2. Administrator danych",
+      "body": "Administratorem danych osobowych jest Power Automation. Dane osobowe przetwarzane są zgodnie z obowiązującymi przepisami prawa, w szczególności z Rozporządzeniem Ogólnym o Ochronie Danych (RODO)."
+    },
+    "s3": {
+      "title": "3. Dane, które zbieramy",
+      "intro": "Zbieramy następujące kategorie danych:",
+      "item1": "Dane identyfikacyjne (imię, nazwisko, adres e-mail)",
+      "item2": "Dane kontaktowe (numer telefonu, adres dostawy)",
+      "item3": "Dane transakcyjne (historia zamówień, płatności)",
+      "item4": "Dane techniczne (adres IP, pliki cookie, dane przeglądarki)"
+    },
+    "s4": {
+      "title": "4. Cel przetwarzania danych",
+      "intro": "Twoje dane osobowe są przetwarzane w następujących celach:",
+      "item1": "Realizacja zamówień i obsługa klienta",
+      "item2": "Komunikacja marketingowa (za Twoją zgodą)",
+      "item3": "Analiza i poprawa działania naszych usług"
+    },
+    "s5": {
+      "title": "5. Pliki cookie",
+      "body": "Nasza strona używa plików cookie w celu zapewnienia prawidłowego działania, analizy ruchu oraz personalizacji treści. Możesz zarządzać ustawieniami plików cookie za pomocą ustawień swojej przeglądarki lub korzystając z naszego panelu zgód."
+    },
+    "s6": {
+      "title": "6. Udostępnianie danych",
+      "body": "Nie sprzedajemy ani nie udostępniamy Twoich danych osobowych osobom trzecim bez Twojej zgody, z wyjątkiem przypadków wymaganych przez prawo lub niezbędnych do realizacji usług (np. firmy kurierskie, operatorzy płatności)."
+    },
+    "s7": {
+      "title": "7. Twoje prawa",
+      "body": "Masz prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Aby skorzystać ze swoich praw, skontaktuj się z nami pod adresem e-mail podanym na stronie kontaktowej."
+    },
+    "s8": {
+      "title": "8. Kontakt",
+      "body": "W przypadku pytań dotyczących niniejszej Polityki prywatności lub przetwarzania Twoich danych osobowych, prosimy o kontakt za pośrednictwem formularza dostępnego na stronie Kontakt."
+    }
   }
 }

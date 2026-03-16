@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import BinotelScripts from "@/components/binotel-scripts";
 import { GoogleTagManager } from '@next/third-parties/google';
 import { getServerDomainConfig } from '@/lib/server-domain';
+import CookieConsent from "@/components/cookie-consent";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -124,8 +125,9 @@ export default async function LocaleLayout({
               <CurrencyProvider>{children}</CurrencyProvider>
             </CompareProvider>
           </CartProvider>
+          <Toaster />
+          <CookieConsent />
         </NextIntlClientProvider>
-        <Toaster />
       </body>
     </html>
   );
