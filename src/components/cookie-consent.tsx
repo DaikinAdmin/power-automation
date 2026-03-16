@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -10,8 +11,10 @@ export default function CookieConsent() {
   const t = useTranslations("cookieConsent");
   const locale = useLocale();
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const stored = localStorage.getItem(CONSENT_KEY);
     if (!stored) {
       setVisible(true);
@@ -45,9 +48,9 @@ export default function CookieConsent() {
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!mounted || !visible) return null;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-live="polite"
@@ -84,6 +87,7 @@ export default function CookieConsent() {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
