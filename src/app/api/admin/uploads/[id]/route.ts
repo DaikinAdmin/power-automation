@@ -17,7 +17,9 @@ import { getDomainConfigByHost } from '@/lib/domain-config';
 
 function isUploadAllowed(request: NextRequest): boolean {
   const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
-  return getDomainConfigByHost(host).key === 'pl';
+  const key = getDomainConfigByHost(host).key;
+  // Allow from any recognized domain (pl or ua)
+  return key === 'pl' || key === 'ua';
 }
 
 interface RouteParams {
@@ -62,7 +64,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     if (!isUploadAllowed(request)) {
       return NextResponse.json(
-        { error: 'Image management is only allowed from the main domain (powerautomation.pl)' },
+        { error: 'Image management is only allowed from recognized domains' },
         { status: 403 }
       );
     }
@@ -163,7 +165,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     if (!isUploadAllowed(request)) {
       return NextResponse.json(
-        { error: 'Image management is only allowed from the main domain (powerautomation.pl)' },
+        { error: 'Image management is only allowed from recognized domains' },
         { status: 403 }
       );
     }
