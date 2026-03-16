@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import PageLayout from "@/components/layout/page-layout";
 import EditorJSRenderer from "@/components/EditorJSRenderer";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
+import { processEditorJSContent } from "@/lib/content-placeholders";
+import { getServerDomainConfig } from "@/lib/server-domain";
+
 
 interface PageData {
   id: number;
@@ -48,11 +51,17 @@ export default async function DynamicPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const page = await getPageContent(locale, slug);
+  const [page, domainConfig] = await Promise.all([
+    getPageContent(locale, slug),
+    getServerDomainConfig(),
+  ]);
 
   if (!page || !page.isPublished) {
     notFound();
   }
+
+  // Process placeholders in the page content
+  const processedContent = processEditorJSContent(page.content, domainConfig);
 
   return (
     <PageLayout>
@@ -68,7 +77,7 @@ export default async function DynamicPage({
             </h1>
 
             <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
-              <EditorJSRenderer data={page.content} />
+              <EditorJSRenderer data={processedContent} />
             </div>
           </div>
         </div>

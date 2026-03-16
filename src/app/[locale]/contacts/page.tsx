@@ -5,6 +5,7 @@ import PageSidebarNav from "@/components/static-pages/side-bar-nav";
 import ContactMap from "@/components/ContactMap";
 import "leaflet/dist/leaflet.css";
 import { getServerDomainConfig } from "@/lib/server-domain";
+import { processEditorJSContent } from "@/lib/content-placeholders";
 
 interface PageData {
   id: number;
@@ -66,6 +67,8 @@ export default async function DynamicPage({
     notFound();
   }
 
+  const processedContent = processEditorJSContent(page.content, domainConfig);
+
   return (
     <PageLayout>
       <div className="max-w-[90rem] mx-auto px-4 py-8">
@@ -80,7 +83,7 @@ export default async function DynamicPage({
             </h1>
 
             <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
-              <EditorJSRenderer data={page.content} />
+              <EditorJSRenderer data={processedContent} />
             </div>
 
             {/* Карта з міткою */}

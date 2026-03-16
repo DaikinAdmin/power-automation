@@ -63,10 +63,10 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     gtmId: process.env.APP_GTM_ID_UA ?? '',
     binotelEnabled: true,
     contacts: {
-      address: ['Україна, м. Київ'], // TODO: уточнити адресу
+      address: ['Україна, м. Житомир, вул. Київська 77, оф.605'], // TODO: уточнити адресу
       phone: '+380678202785', // TODO: уточнити телефон
       phoneFormatted: '+380 67 820 27 85',
-      email: 'info@powerautomation.com.ua',
+      email: 'sale@powerautomation.com.ua',
     },
     siteName: 'Power Automation Україна',
   },
@@ -84,8 +84,8 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
       address: ['Tyniecka 2, 52-407', 'Wrocław, Polska'],
       phone: '+48690997944',
       phoneFormatted: '+48 690 997 944',
-      email: 'm.sokolowska@ammproject.com',
-      contactPerson: 'Maria Sokołowska',
+      email: 'sales@ammproject.com',
+      contactPerson: 'Maria',
       contactRole: 'Manager ds. sprzedaży',
     },
     siteName: 'Power Automation',
