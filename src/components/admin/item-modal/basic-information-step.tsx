@@ -136,18 +136,14 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       uploadFormData.append('file', file);
       uploadFormData.append('path', `products/${articleId}`);
 
-      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch('/api/admin/uploads', {
         method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: uploadFormData,
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        let msg = 'Upload failed';
-        try { msg = JSON.parse(text).error || msg; } catch {}
-        throw new Error(msg);
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
       }
 
       const uploaded = await res.json();

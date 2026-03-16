@@ -137,18 +137,14 @@ export function UploadsClient() {
       formData.append('path', uploadPath);
       if (uploadFileName) formData.append('fileName', uploadFileName);
 
-      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch('/api/admin/uploads', {
         method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        let msg = 'Upload failed';
-        try { msg = JSON.parse(text).error || msg; } catch {}
-        throw new Error(msg);
+        const data = await res.json();
+        throw new Error(data.error || 'Upload failed');
       }
 
       toast.success('Image uploaded successfully');
@@ -173,21 +169,15 @@ export function UploadsClient() {
     if (!editImage) return;
     setIsEditing(true);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch(`/api/admin/uploads/${editImage.id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName: editFileName, path: editPath }),
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        let msg = 'Update failed';
-        try { msg = JSON.parse(text).error || msg; } catch {}
-        throw new Error(msg);
+        const data = await res.json();
+        throw new Error(data.error || 'Update failed');
       }
 
       toast.success('Image updated successfully');
@@ -204,10 +194,8 @@ export function UploadsClient() {
     if (!deleteImage) return;
     setIsDeleting(true);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('bearer_token') : null;
       const res = await fetch(`/api/admin/uploads/${deleteImage.id}`, {
         method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (!res.ok) throw new Error('Delete failed');
