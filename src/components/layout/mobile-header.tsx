@@ -266,14 +266,14 @@ export default function MobileHeader() {
                     {session?.user ? (
                       <Link
                         href="/dashboard"
-                        className="block px-3 py-2 rounded bg-blue-600 text-white text-center"
+                        className="block px-3 py-2 rounded bg-red-600 text-white text-center"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {t("dashboard") || "Dashboard"}
                       </Link>
                     ) : (
                       <Link
-                        href="/login"
+                        href="/signin"
                         className="block px-3 py-2 rounded bg-red-600 text-white text-center"
                         onClick={() => setIsMenuOpen(false)}
                       >
