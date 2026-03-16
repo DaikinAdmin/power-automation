@@ -227,6 +227,14 @@
       "totalSpend": "Загальні витрати",
       "supportTickets": "Відкриті запити підтримки"
     },
+    "sidebar": {
+      "stats": "Статистика",
+      "userInfo": "Інформація про користувача",
+      "orders": "Замовлення",
+      "favorites": "Улюблені",
+      "contact": "Підтримка",
+      "userManagement": "Управління користувачами"
+    },
     "descriptions": {
       "analyticsComingSoon": "Аналітика незабаром",
       "trendingCategories": "Далі ми виділимо популярні категорії",
@@ -269,6 +277,24 @@
         "refundConfirm": "Ви впевнені, що хочете повернути це замовлення? Цю дію неможливо скасувати.",
         "refundSuccess": "Повернення успішно оброблено",
         "refundError": "Не вдалося обробити повернення"
+      },
+      "orderStatuses": {
+        "NEW": "Нове",
+        "WAITING_FOR_PAYMENT": "Очікує оплати",
+        "PROCESSING": "В обробці",
+        "DELIVERY": "Доставка",
+        "COMPLETED": "Виконано",
+        "CANCELLED": "Скасовано",
+        "REFUND": "Повернення"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Оплачено",
+        "PENDING": "Очікується",
+        "INITIATED": "Ініційовано",
+        "FAILED": "Помилка",
+        "CANCELLED": "Скасовано",
+        "REFUNDED": "Повернено",
+        "PROCESSING": "Обробляється"
       },
       "detail": {
         "backToOrders": "Назад до замовлень",
@@ -353,7 +379,7 @@
     "from": "Від {warehouse}",
     "moreLocations": "+{count} більше локацій",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Бестселер",
         "hotDeal": "Гаряча пропозиція",
@@ -446,9 +472,9 @@
       "errorMessage": "Не вдалося надіслати запит. Будь ласка, спробуйте ще раз.",
       "deliveryDays": "Приблизний час доставки: {days} дн."
     },
-    "productCatalogCard":{
-      "buy":"Купити",
-      "outOfStock":"Немає в наявності",
+    "productCatalogCard": {
+      "buy": "Купити",
+      "outOfStock": "Немає в наявності",
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні",
       "from": "від"
@@ -549,7 +575,10 @@
     "search": "Пошук товарів...",
     "enter": "Увійти",
     "cart": "Кошик",
-    "dashboard": "Панель"
+    "dashboard": "Мій кабінет",
+    "logout": "Вийти",
+    "login": "Увійти",
+    "settings": "Налаштування"
   },
   "footer": {
     "copyright": "© 2024 Всі права захищені",

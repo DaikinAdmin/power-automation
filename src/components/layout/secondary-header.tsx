@@ -22,6 +22,7 @@ import { useLocale, useTranslations } from "next-intl";
 import HeaderSearch from "../searchInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInOut } from "@/lib/animations";
+import { Button } from "../ui/button";
 
 export default function SecondaryHeader() {
   const [sessionData, setSessionData] = useState<any>(null);
@@ -158,7 +159,7 @@ export default function SecondaryHeader() {
                               >
                                 {subcategory.name}
                               </Link>
-                            )
+                            ),
                           )}
                         </div>
                       )}
@@ -221,19 +222,19 @@ export default function SecondaryHeader() {
                         <>
                           <Link
                             href="/dashboard"
-                            className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors"
+                            className="flex items-center pl-4 hover:text-opacity-60 transition-colors"
                             onClick={() => setIsDropdownOpen(false)}
                           >
                             <LayoutGrid size={16} />
-                            <span>{t("dashboard")}</span>
+                            <Button variant="ghost">{t("dashboard")}</Button>
                           </Link>
-                          <div className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors">
+                          <div className="flex items-center pl-4 hover:text-opacity-60 transition-colors">
                             <SettingsIcon size={16} />
                             <Settings />
                           </div>
                         </>
                       )}
-                      <div className="flex items-center gap-3 px-4 py-2 hover:text-opacity-60 transition-colors">
+                      <div className="flex items-center pl-4 hover:text-opacity-60 transition-colors">
                         <LogOut size={16} />
                         <SignOut />
                       </div>

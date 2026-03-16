@@ -258,6 +258,14 @@
       "totalSpend": "Total spend",
       "supportTickets": "Open support tickets"
     },
+    "sidebar": {
+      "stats": "Stats",
+      "userInfo": "User Info",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "contact": "Contact Support",
+      "userManagement": "User Management"
+    },
     "descriptions": {
       "analyticsComingSoon": "Analytics coming soon",
       "trendingCategories": "We'll highlight trending categories next",
@@ -301,6 +309,24 @@
         "refundSuccess": "Refund processed successfully",
         "refundError": "Failed to process refund"
       },
+      "orderStatuses": {
+        "NEW": "New",
+        "WAITING_FOR_PAYMENT": "Waiting for payment",
+        "PROCESSING": "Processing",
+        "DELIVERY": "Delivery",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "REFUND": "Refund"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Paid",
+        "PENDING": "Pending",
+        "INITIATED": "Initiated",
+        "FAILED": "Failed",
+        "CANCELLED": "Cancelled",
+        "REFUNDED": "Refunded",
+        "PROCESSING": "Processing"
+      },
       "detail": {
         "backToOrders": "Back to Orders",
         "orderNumber": "Order #{id}",
@@ -312,10 +338,10 @@
         "cancelling": "Cancelling...",
         "refunding": "Refunding...",
         "orderNotFound": "Order not found",
-        "orderItems": "Order Items ({{count}})",
+        "orderItems": "Order Items ({count})",
         "articleId": "Article ID",
-        "quantity": "Qty: {{quantity}}",
-        "unit": "Unit: {{price}}",
+        "quantity": "Qty: {quantity}",
+        "unit": "Unit: {price}",
         "orderSummary": "Order Summary",
         "subtotal": "Subtotal:",
         "totalFormatted": "Total (formatted):",
@@ -324,7 +350,7 @@
         "orderPlaced": "Order Placed",
         "lastUpdated": "Last Updated",
         "deliveryInfo": "Delivery Information",
-        "deliveryId": "Delivery ID: {{id}}",
+        "deliveryId": "Delivery ID: {id}",
         "paymentInfo": "Payment Information",
         "paymentStatus": "Payment Status:",
         "paidWith": "Paid with:",
@@ -353,7 +379,7 @@
     "from": "From {warehouse}",
     "moreLocations": "+{count} more locations",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Hot Deal",
@@ -542,7 +568,10 @@
     "search": "Search products...",
     "enter": "Enter",
     "cart": "Cart",
-    "dashboard": "Dashboard"
+    "dashboard": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "settings": "Settings"
   },
   "staticPages": {
     "about": "About us",

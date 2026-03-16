@@ -191,6 +191,14 @@
       "totalSpend": "Gasto total",
       "supportTickets": "Tickets de soporte abiertos"
     },
+    "sidebar": {
+      "stats": "Stats",
+      "userInfo": "User Info",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "contact": "Contact Support",
+      "userManagement": "User Management"
+    },
     "descriptions": {
       "analyticsComingSoon": "Análisis próximamente",
       "trendingCategories": "Destacaremos categorías populares próximamente",
@@ -225,19 +233,37 @@
         "actions": "Acciones",
         "view": "Ver",
         "refund": "Reembolso",
-        "itemsCount_one": "{{count}} artículo",
-        "itemsCount_other": "{{count}} artículos",
-        "moreItems": "+{{count}} más",
+        "itemsCount_one": "{count} artículo",
+        "itemsCount_other": "{count} artículos",
+        "moreItems": "+{count} más",
         "noOrders": "Aún no has realizado ningún pedido.",
         "refunding": "Reembolsando...",
         "refundConfirm": "¿Estás seguro de que quieres reembolsar este pedido? Esta acción no se puede deshacer.",
         "refundSuccess": "Reembolso procesado exitosamente",
         "refundError": "Error al procesar el reembolso"
       },
+      "orderStatuses": {
+        "NEW": "Nuevo",
+        "WAITING_FOR_PAYMENT": "Esperando pago",
+        "PROCESSING": "En proceso",
+        "DELIVERY": "Entrega",
+        "COMPLETED": "Completado",
+        "CANCELLED": "Cancelado",
+        "REFUND": "Reembolso"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Pagado",
+        "PENDING": "Pendiente",
+        "INITIATED": "Iniciado",
+        "FAILED": "Fallido",
+        "CANCELLED": "Cancelado",
+        "REFUNDED": "Reembolsado",
+        "PROCESSING": "Procesando"
+      },
       "detail": {
         "backToOrders": "Volver a pedidos",
-        "orderNumber": "Pedido #{{id}}",
-        "placedOn": "Realizado el {{date}}",
+        "orderNumber": "Pedido #{id}",
+        "placedOn": "Realizado el {date}",
         "payNow": "Pagar ahora",
         "proceedWithPayment": "Proceder al pago",
         "cancelOrder": "Cancelar pedido",
@@ -245,10 +271,10 @@
         "cancelling": "Cancelando...",
         "refunding": "Reembolsando...",
         "orderNotFound": "Pedido no encontrado",
-        "orderItems": "Artículos del pedido ({{count}})",
+        "orderItems": "Artículos del pedido ({count})",
         "articleId": "ID de artículo",
-        "quantity": "Cantidad: {{quantity}}",
-        "unit": "Unidad: {{price}}",
+        "quantity": "Cantidad: {quantity}",
+        "unit": "Unidad: {price}",
         "orderSummary": "Resumen del pedido",
         "subtotal": "Subtotal:",
         "totalFormatted": "Total (formateado):",
@@ -257,7 +283,7 @@
         "orderPlaced": "Pedido realizado",
         "lastUpdated": "Última actualización",
         "deliveryInfo": "Información de entrega",
-        "deliveryId": "ID de entrega: {{id}}",
+        "deliveryId": "ID de entrega: {id}",
         "paymentInfo": "Información del pago",
         "paymentStatus": "Estado del pago:",
         "paidWith": "Pagado con:",
@@ -286,7 +312,7 @@
     "from": "De {warehouse}",
     "moreLocations": "+{count} ubicaciones más",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Más vendido",
         "hotDeal": "Oferta caliente",
@@ -379,9 +405,9 @@
       "errorMessage": "No se pudo enviar la solicitud. Por favor, inténtelo de nuevo.",
       "deliveryDays": "Entrega estimada: {days} días"
     },
-    "productCatalogCard":{
-      "buy":"Comprar",
-      "outOfStock":"Agotado",
+    "productCatalogCard": {
+      "buy": "Comprar",
+      "outOfStock": "Agotado",
       "addToCompare": "Añadir a comparación",
       "inCompare": "En comparación",
       "from": "desde"
@@ -475,7 +501,10 @@
     "search": "Buscar productos...",
     "enter": "Entrar",
     "cart": "Carrito",
-    "dashboard": "Panel"
+    "dashboard": "Profil",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "settings": "Configuración"
   },
   "staticPages": {
     "about": "Sobre nosotros",

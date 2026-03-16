@@ -284,13 +284,13 @@ export default function DashboardOrdersPage() {
                       </td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusBadgeStyle(order.status)}`}>
-                          {order.status.replace(/_/g, ' ')}
+                          {t(`orderStatuses.${order.status}`, { default: order.status.replace(/_/g, ' ') })}
                         </span>
                       </td>
                       <td className="py-3 px-4">
                         {order.payment ? (
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusBadgeStyle(order.payment.status)}`}>
-                            {order.payment.status}
+                            {t(`paymentStatuses.${order.payment.status}`, { default: order.payment.status })}
                           </span>
                         ) : (
                           <span className="text-xs text-gray-400">N/A</span>

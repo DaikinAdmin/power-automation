@@ -15,12 +15,15 @@ import { FormSuccess } from '../form-success'
 import FormError from '../form-error'
 import { useAuthState } from '@/hooks/useAuthState'
 import { Settings as UserSettings } from "lucide-react"
+import { useTranslations } from 'next-intl'
 
 
 const Settings = () => {
     const { data } = useSession();
     const [open, setOpen] = useState<boolean>(false);
     const { error, success, loading, setLoading, setSuccess, setError, resetState } = useAuthState()
+    const t = useTranslations("header")
+
 
     const form = useForm<z.infer<typeof PasswordSchema>>({
         resolver: zodResolver(PasswordSchema),
@@ -134,7 +137,7 @@ const Settings = () => {
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button variant={"ghost"}>
-                            Settings
+                            {t("settings")}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>

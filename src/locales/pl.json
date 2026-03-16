@@ -258,6 +258,14 @@
       "totalSpend": "Całkowite wydatki",
       "supportTickets": "Otwarte zgłoszenia wsparcia"
     },
+    "sidebar": {
+      "stats": "Statystyki",
+      "userInfo": "Informacje o użytkowniku",
+      "orders": "Zamówienia",
+      "favorites": "Ulubione",
+      "contact": "Kontakt z obsługą",
+      "userManagement": "Zarządzanie użytkownikami"
+    },
     "descriptions": {
       "analyticsComingSoon": "Wkrótce dostępne analizy",
       "trendingCategories": "Następnie wyróżnimy popularne kategorie",
@@ -300,6 +308,24 @@
         "refundConfirm": "Czy na pewno chcesz zwrócić to zamówienie? Ta akcja nie może być cofnięta.",
         "refundSuccess": "Zwrot został pomyślnie przetworzony",
         "refundError": "Nie udało się przetworzyć zwrotu"
+      },
+      "orderStatuses": {
+        "NEW": "Nowe",
+        "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
+        "PROCESSING": "W realizacji",
+        "DELIVERY": "Dostawa",
+        "COMPLETED": "Zrealizowane",
+        "CANCELLED": "Anulowane",
+        "REFUND": "Zwrot"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Opłacone",
+        "PENDING": "Oczekuje",
+        "INITIATED": "Zainicjowano",
+        "FAILED": "Błąd",
+        "CANCELLED": "Anulowane",
+        "REFUNDED": "Zwrócone",
+        "PROCESSING": "Przetwarzanie"
       },
       "detail": {
         "backToOrders": "Powrót do zamówień",
@@ -353,7 +379,7 @@
     "from": "Z {warehouse}",
     "moreLocations": "+{count} więcej lokalizacji",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Gorąca oferta",
@@ -446,9 +472,9 @@
       "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie.",
       "deliveryDays": "Przybliżony czas dostawy: {days} dni"
     },
-    "productCatalogCard":{
-      "buy":"Kup",
-      "outOfStock":"Brak",
+    "productCatalogCard": {
+      "buy": "Kup",
+      "outOfStock": "Brak",
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu",
       "from": "od"
@@ -549,7 +575,10 @@
     "search": "Szukaj produktów...",
     "enter": "Zaloguj",
     "cart": "Koszyk",
-    "dashboard": "Panel"
+    "dashboard": "Konto",
+    "logout": "Wyloguj się",
+    "login": "Zaloguj się",
+    "settings": "Ustawienia"
   },
   "footer": {
     "copyright": "© 2024 Wszelkie prawa zastrzeżone",

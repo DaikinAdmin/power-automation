@@ -11,6 +11,7 @@ import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import BinotelScripts from "@/components/binotel-scripts";
+import Script from 'next/script';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { getServerDomainConfig } from '@/lib/server-domain';
 import CookieConsent from "@/components/cookie-consent";
@@ -110,6 +111,34 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className="overflow-x-hidden">
+      <Script
+        id="consent-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer=window.dataLayer||[];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag=gtag;
+            try{
+              var c=localStorage.getItem('cookie_consent');
+              var s=c==='accepted'?'granted':'denied';
+              gtag('consent','default',{
+                analytics_storage:s,ad_storage:s,
+                ad_user_data:s,ad_personalization:s,
+                functionality_storage:'granted',security_storage:'granted',
+                wait_for_update:c?0:500
+              });
+            }catch(e){
+              gtag('consent','default',{
+                analytics_storage:'denied',ad_storage:'denied',
+                ad_user_data:'denied',ad_personalization:'denied',
+                functionality_storage:'granted',security_storage:'granted',
+                wait_for_update:500
+              });
+            }
+          `,
+        }}
+      />
       <GoogleTagManager gtmId={gtmId} />
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}

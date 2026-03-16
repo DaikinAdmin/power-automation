@@ -4,16 +4,18 @@ import { Button } from '../ui/button'
 import { authClient, signOut } from '@/lib/auth-client'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 const SignOut = () => {
   const locale = useLocale();
     const router = useRouter()
     const session = authClient.useSession()
+    const t = useTranslations("header")
 
     if(!session.data) {
       return (
         <Button variant="ghost" onClick={() => {router.push(`/${locale}/signin`)}}>
-          Login
+          {t("login")}
         </Button>
       )
     }
@@ -27,7 +29,7 @@ const SignOut = () => {
         }
       }
     })}}
-    >Logout</Button>
+    >{t("logout")}</Button>
   )
 }
 
