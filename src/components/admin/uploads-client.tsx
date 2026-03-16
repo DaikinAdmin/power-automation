@@ -137,21 +137,37 @@ export function UploadsClient() {
       formData.append('path', uploadPath);
       if (uploadFileName) formData.append('fileName', uploadFileName);
 
+      console.log('[upload] sending POST /api/admin/uploads', {
+        fileName: uploadFile.name,
+        size: uploadFile.size,
+        type: uploadFile.type,
+        path: uploadPath,
+      });
+
       const res = await fetch('/api/admin/uploads', {
         method: 'POST',
         body: formData,
       });
 
+      console.log('[upload] response status:', res.status, res.statusText);
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Upload failed');
+        const text = await res.text();
+        console.error('[upload] error response body:', text);
+        let msg = `Upload failed (HTTP ${res.status})`;
+        try { msg = JSON.parse(text).error || msg; } catch {}
+        throw new Error(msg);
       }
+
+      const uploaded = await res.json();
+      console.log('[upload] success:', uploaded);
 
       toast.success('Image uploaded successfully');
       setIsUploadOpen(false);
       resetUploadForm();
       fetchImages(pagination.page);
     } catch (error: any) {
+      console.error('[upload] caught error:', error);
       toast.error(error.message || 'Upload failed');
     } finally {
       setIsUploading(false);

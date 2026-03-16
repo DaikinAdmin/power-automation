@@ -93,11 +93,23 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/uploads — upload a new image
 export async function POST(request: NextRequest) {
   try {
+    console.log('[uploads POST] incoming request', {
+      url: request.url,
+      method: request.method,
+      contentType: request.headers.get('content-type'),
+      origin: request.headers.get('origin'),
+      referer: request.headers.get('referer'),
+      cookie: request.headers.get('cookie') ? '(present)' : '(missing)',
+      authorization: request.headers.get('authorization') ? '(present)' : '(missing)',
+    });
+
     const session = await auth.api.getSession({ headers: request.headers });
+    console.log('[uploads POST] session:', session ? `userId=${session.user.id}` : 'null');
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const admin = await isUserAdmin(session.user.id);
+    console.log('[uploads POST] isAdmin:', admin);
     if (!admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -150,6 +162,7 @@ export async function POST(request: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(filePath, buffer);
+    console.log('[uploads POST] file written to disk:', filePath);
 
     // Save to database
     const now = new Date().toISOString();
@@ -168,7 +181,7 @@ export async function POST(request: NextRequest) {
       url: getImagePublicUrl(newImage.path, newImage.fileName),
     }, { status: 201 });
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('[uploads POST] unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
