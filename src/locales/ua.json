@@ -200,16 +200,23 @@
     },
     "paymentInfo": {
       "title": "Безпечна оплата",
-      "securePayment": "Ваш платіж захищений Przelewy24. Усі дані зашифровані та безпечні.",
+      "securePayment": "Ваш платіж захищений платіжною системою. Усі дані зашифровані та безпечні.",
       "methods": "Доступні методи оплати:",
       "creditCard": "Кредитна/дебетова картка",
       "bankTransfer": "Банківський переказ",
       "blik": "BLIK",
       "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Оплата частинами від ПриватБанку",
       "poweredBy": "Оплата через"
     },
     "buttons": {
       "proceedToPayment": "Перейти до оплати",
+      "payWithLiqPay": "Оплата LiqPay",
+      "payWithPrzelewy24": "Оплата Przelewy24",
+      "issueInvoice": "Виставити рахунок",
+      "issuingInvoice": "Виставляємо рахунок...",
       "processing": "Обробка...",
       "alreadyPaid": "Вже оплачено"
     },

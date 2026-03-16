@@ -200,16 +200,23 @@
     },
     "paymentInfo": {
       "title": "Bezpieczna płatność",
-      "securePayment": "Twoja płatność jest chroniona przez Przelewy24. Wszystkie dane są szyfrowane i bezpieczne.",
+      "securePayment": "Twoja płatność jest chroniona przez system płatności. Wszystkie dane są szyfrowane i bezpieczne.",
       "methods": "Dostępne metody płatności:",
       "creditCard": "Karta kredytowa/debetowa",
       "bankTransfer": "Przelew bankowy",
       "blik": "BLIK",
       "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Płatności ratalne od PrivatBank",
       "poweredBy": "Płatność obsługiwana przez"
     },
     "buttons": {
       "proceedToPayment": "Przejdź do płatności",
+      "payWithLiqPay": "Zapłać przez LiqPay",
+      "payWithPrzelewy24": "Zapłać przez Przelewy24",
+      "issueInvoice": "Wystaw fakturę",
+      "issuingInvoice": "Wystawiamy fakturę...",
       "processing": "Przetwarzanie...",
       "alreadyPaid": "Już opłacone"
     },

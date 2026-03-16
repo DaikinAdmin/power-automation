@@ -11,6 +11,7 @@ import { useCurrency } from "@/hooks/useCurrency";
 import {
   Przelewy24Button,
   LiqPayButton,
+  IssueInvoiceButton,
 } from "@/components/PaymentButtons";
 import { useDomainConfig } from "@/hooks/useDomain";
 
@@ -277,10 +278,22 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                   </div>
                   <div className="ml-8 text-sm text-gray-600">
                     <ul className="list-disc list-inside space-y-1">
-                      <li>{t('paymentInfo.creditCard')}</li>
-                      <li>{t('paymentInfo.bankTransfer')}</li>
-                      <li>{t('paymentInfo.blik')}</li>
-                      <li>{t('paymentInfo.paypal')}</li>
+                      {domainConfig.key === 'ua' ? (
+                        <>
+                          <li>{t('paymentInfo.creditCard')}</li>
+                          <li>{t('paymentInfo.bankTransfer')}</li>
+                          <li>{t('paymentInfo.applePay')}</li>
+                          <li>{t('paymentInfo.googlePay')}</li>
+                          <li>{t('paymentInfo.privatInstallment')}</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>{t('paymentInfo.creditCard')}</li>
+                          <li>{t('paymentInfo.bankTransfer')}</li>
+                          <li>{t('paymentInfo.blik')}</li>
+                          <li>{t('paymentInfo.paypal')}</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -302,6 +315,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                       isCompleted={orderData.status === 'COMPLETED'}
                       processingLabel={t('buttons.processing')}
                       alreadyPaidLabel={t('buttons.alreadyPaid')}
+                      label={t('buttons.payWithPrzelewy24')}
                     />
                   )}
                   {allowedProviders.includes('liqpay') && (
@@ -312,9 +326,15 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                       isCompleted={orderData.status === 'COMPLETED'}
                       processingLabel={t('buttons.processing')}
                       alreadyPaidLabel={t('buttons.alreadyPaid')}
+                      label={t('buttons.payWithLiqPay')}
                     />
                   )}
-
+                  <IssueInvoiceButton
+                    orderId={orderId!}
+                    disabled={isLoading || orderData.status === 'COMPLETED'}
+                    label={t('buttons.issueInvoice')}
+                    processingLabel={t('buttons.issuingInvoice')}
+                  />
                 </div>
               </div>
 

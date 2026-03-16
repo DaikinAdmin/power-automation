@@ -200,16 +200,23 @@
     },
     "paymentInfo": {
       "title": "Secure Payment",
-      "securePayment": "Your payment is protected by Przelewy24. All data is encrypted and secure.",
+      "securePayment": "Your payment is protected by the payment system. All data is encrypted and secure.",
       "methods": "Available payment methods:",
       "creditCard": "Credit/Debit Card",
       "bankTransfer": "Bank Transfer",
       "blik": "BLIK",
       "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Installment payments from PrivatBank",
       "poweredBy": "Payment powered by"
     },
     "buttons": {
       "proceedToPayment": "Proceed to Payment",
+      "payWithLiqPay": "Pay with LiqPay",
+      "payWithPrzelewy24": "Pay with Przelewy24",
+      "issueInvoice": "Issue Invoice",
+      "issuingInvoice": "Issuing Invoice...",
       "processing": "Processing...",
       "alreadyPaid": "Already Paid"
     },
