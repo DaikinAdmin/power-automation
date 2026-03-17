@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import MainHeader from "./main-header";
 import SecondaryHeader from "./secondary-header";
-import MobileHeader from "./mobile-header";
+
+const MobileHeader = dynamic(() => import("./mobile-header"), { ssr: false });
 import Footer from "./footer";
 import CartModal from "@/components/cart-modal";
 import CompareModal from "@/components/compare-modal";

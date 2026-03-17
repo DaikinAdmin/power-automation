@@ -71,7 +71,7 @@ export default function Footer() {
               {!isLoading && col1.map((category) => (
                 <li key={category.id}>
                   <Link
-                    href={`/categories/${category.slug}`}
+                    href={`/category/${category.slug}`}
                     className="hover:text-white transition-colors"
                   >
                     {category.name}
@@ -88,7 +88,7 @@ export default function Footer() {
               {!isLoading && col2.map((category) => (
                 <li key={category.id}>
                   <Link
-                    href={`/categories/${category.slug}`}
+                    href={`/category/${category.slug}`}
                     className="hover:text-white transition-colors"
                   >
                     {category.name}

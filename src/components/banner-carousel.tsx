@@ -140,8 +140,8 @@ const Carousel: React.FC<CarouselProps> = ({ position = 'home_top', banners: fal
       >
         <div className="h-full" ref={emblaRef}>
           <div className="flex h-full">
-            {activeBanners.map((banner) => (
-              <div key={banner.id} className="flex-[0_0_100%] min-w-0 h-full relative">
+            {activeBanners.map((banner, index) => (
+              <div key={banner.id ?? String(index)} className="flex-[0_0_100%] min-w-0 h-full relative">
                 {banner.href ? (
                   <Link href={banner.href} className="block w-full h-full relative">
                     <Image

@@ -46,6 +46,7 @@ export default function MobileHeader() {
             alt="Shop logo"
             width={140}
             height={44}
+            loading="eager"
             className="h-11 w-auto"
           />
         </Link>

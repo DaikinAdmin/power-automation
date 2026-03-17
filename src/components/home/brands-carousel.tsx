@@ -80,6 +80,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                     src={brand.logo}
                     alt={brand.name}
                     className="max-w-full max-h-full object-contain"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/imgs/brands/default.svg'; }}
                   />
                 </Link>
               </div>
@@ -105,6 +106,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                           src={brand.logo}
                           alt={brand.name}
                           className="max-w-full max-h-full object-contain"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/imgs/brands/default.svg'; }}
                         />
                       </div>
                     </div>
