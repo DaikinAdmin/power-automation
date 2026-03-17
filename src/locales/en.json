@@ -461,6 +461,7 @@
     "warehouseSelector": {
       "title": "Select Warehouse",
       "inStock": "{quantity} in stock",
+      "warehouse": "Warehouse",
       "outOfStockTitle": "Item not in stock",
       "lastPrice": "Last price",
       "contactManager": "Contact manager to place an order",

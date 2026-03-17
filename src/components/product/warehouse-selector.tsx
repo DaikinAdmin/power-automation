@@ -112,7 +112,7 @@ export default function WarehouseSelector({
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-gray-500" />
                 <div>
-                  <div className="font-medium">{warehouse.displayedName}</div>
+                  <div className="font-medium">{t('warehouse')} №{warehouse.displayedName}</div>
                   {(() => {
                     const days = getDeliveryDays(warehouse);
                     return days != null ? (

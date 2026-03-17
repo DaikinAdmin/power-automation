@@ -461,6 +461,7 @@
     "warehouseSelector": {
       "title": "Оберіть склад",
       "inStock": "{quantity} в наявності",
+      "warehouse": "Склад",
       "outOfStockTitle": "Товар відсутній на складі",
       "lastPrice": "Остання ціна",
       "contactManager": "Для замовлення уточнюйте у менеджера",

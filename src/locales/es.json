@@ -387,6 +387,7 @@
     "warehouseSelector": {
       "title": "Seleccionar almacén",
       "inStock": "{quantity} en stock",
+      "warehouse": "Almacén",
       "outOfStockTitle": "Artículo no disponible en almacén",
       "lastPrice": "Último precio",
       "contactManager": "Consulte al gerente para hacer un pedido",

@@ -461,6 +461,7 @@
     "warehouseSelector": {
       "title": "Wybierz magazyn",
       "inStock": "{quantity} w magazynie",
+      "warehouse": "Magazyn",
       "outOfStockTitle": "Towar niedostępny w magazynie",
       "lastPrice": "Ostatnia cena",
       "contactManager": "W celu zamówienia skontaktuj się z menedżerem",
