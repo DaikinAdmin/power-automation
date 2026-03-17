@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { DOMAIN_CONFIGS } from "@/lib/domain-config";
 import {
   Card,
   CardContent,
@@ -313,7 +314,7 @@ export function UploadsClient() {
   };
 
   const copyUrl = (url: string) => {
-    const fullUrl = `${window.location.origin}${url}`;
+    const fullUrl = `${DOMAIN_CONFIGS.pl.baseUrl}${url}`;
     navigator.clipboard.writeText(fullUrl);
     toast.success("URL copied to clipboard");
   };

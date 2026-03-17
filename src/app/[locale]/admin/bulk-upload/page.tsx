@@ -28,8 +28,15 @@ interface ParsedData {
 }
 
 type MandatoryField = 'articleId' | 'price' | 'quantity';
-type OptionalField = 'badge' | 'brand' | 'promoCode' | 'promoStartDate' | 'promoEndDate' | 'promoPrice';
-type FieldType = MandatoryField | OptionalField;
+type OptionalField = 'badge' | 'promoCode' | 'promoStartDate' | 'promoEndDate' | 'promoPrice';
+type TranslationField = 
+  | 'name_pl' | 'name_ua' | 'name_en' | 'name_es'
+  | 'description_pl' | 'description_ua' | 'description_en' | 'description_es'
+  | 'specifications_pl' | 'specifications_ua' | 'specifications_en' | 'specifications_es'
+  | 'metaDescription_pl' | 'metaDescription_ua' | 'metaDescription_en' | 'metaDescription_es'
+  | 'metaKeywords_pl' | 'metaKeywords_ua' | 'metaKeywords_en' | 'metaKeywords_es';
+type ItemField = 'imageUrl' | 'seller' | 'alias' | 'isDisplayed' | 'brand';
+type FieldType = MandatoryField | OptionalField | TranslationField | ItemField;
 
 interface ColumnMapping {
   articleId: number | null;
@@ -41,6 +48,30 @@ interface ColumnMapping {
   promoStartDate: number | null;
   promoEndDate: number | null;
   promoPrice: number | null;
+  name_pl: number | null;
+  name_ua: number | null;
+  name_en: number | null;
+  name_es: number | null;
+  description_pl: number | null;
+  description_ua: number | null;
+  description_en: number | null;
+  description_es: number | null;
+  specifications_pl: number | null;
+  specifications_ua: number | null;
+  specifications_en: number | null;
+  specifications_es: number | null;
+  metaDescription_pl: number | null;
+  metaDescription_ua: number | null;
+  metaDescription_en: number | null;
+  metaDescription_es: number | null;
+  metaKeywords_pl: number | null;
+  metaKeywords_ua: number | null;
+  metaKeywords_en: number | null;
+  metaKeywords_es: number | null;
+  imageUrl: number | null;
+  seller: number | null;
+  alias: number | null;
+  isDisplayed: number | null;
 }
 
 interface Warehouse {
@@ -50,6 +81,7 @@ interface Warehouse {
 }
 
 type Currency = 'EUR' | 'PLN' | 'UAH';
+type UploadMode = 'prices' | 'descriptions';
 
 export default function BulkUploadPage() {
   const [uploadState, setUploadState] = useState<UploadState>({
@@ -61,15 +93,14 @@ export default function BulkUploadPage() {
   const [isDragActive, setIsDragActive] = useState(false);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [columnMapping, setColumnMapping] = useState<ColumnMapping>({
-    articleId: null,
-    quantity: null,
-    price: null,
-    badge: null,
-    brand: null,
-    promoCode: null,
-    promoStartDate: null,
-    promoEndDate: null,
-    promoPrice: null,
+    articleId: null, quantity: null, price: null, badge: null, brand: null,
+    promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
+    name_pl: null, name_ua: null, name_en: null, name_es: null,
+    description_pl: null, description_ua: null, description_en: null, description_es: null,
+    specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
+    metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
+    metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
+    imageUrl: null, seller: null, alias: null, isDisplayed: null,
   });
   const [draggedLabel, setDraggedLabel] = useState<FieldType | null>(null);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -77,6 +108,24 @@ export default function BulkUploadPage() {
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(false);
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [margin, setMargin] = useState<number>(20);
+  const [uploadMode, setUploadMode] = useState<UploadMode>('prices');
+
+  const handleModeChange = (mode: UploadMode) => {
+    setUploadMode(mode);
+    setSelectedFile(null);
+    setParsedData(null);
+    setColumnMapping({
+      articleId: null, quantity: null, price: null, badge: null, brand: null,
+      promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
+      name_pl: null, name_ua: null, name_en: null, name_es: null,
+      description_pl: null, description_ua: null, description_en: null, description_es: null,
+      specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
+      metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
+      metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
+      imageUrl: null, seller: null, alias: null, isDisplayed: null,
+    });
+    setUploadState({ status: 'idle', progress: 0, message: '' });
+  };
 
   // Fetch warehouses when page loads
   useEffect(() => {
@@ -221,13 +270,19 @@ export default function BulkUploadPage() {
     if (!selectedFile || !parsedData) return;
 
     // Validate mandatory fields
-    if (columnMapping.articleId === null || columnMapping.price === null || columnMapping.quantity === null) {
-      toast.error('Please map all required fields: Article ID, Price, and Quantity');
+    if (columnMapping.articleId === null) {
+      toast.error('Please map the Article ID field');
       return;
     }
-    if (!selectedWarehouse) {
-      toast.error('Please select a warehouse');
-      return;
+    if (uploadMode === 'prices') {
+      if (columnMapping.price === null || columnMapping.quantity === null) {
+        toast.error('Please map all required fields: Article ID, Price, and Quantity');
+        return;
+      }
+      if (!selectedWarehouse) {
+        toast.error('Please select a warehouse');
+        return;
+      }
     }
 
     setUploadState({ status: 'uploading', progress: 10, message: 'Processing data...' });
@@ -263,20 +318,60 @@ export default function BulkUploadPage() {
           item.promoEndDate = row[columnMapping.promoEndDate];
         }
 
+        // Build translations object from mapped translation columns
+        const translations: Record<string, { name?: string; description?: string; specifications?: string; metaDescription?: string; metaKeywords?: string }> = {};
+        const transLocales = ['pl', 'ua', 'en', 'es'] as const;
+        for (const locale of transLocales) {
+          const nameCol = columnMapping[`name_${locale}` as TranslationField];
+          const descCol = columnMapping[`description_${locale}` as TranslationField];
+          const specsCol = columnMapping[`specifications_${locale}` as TranslationField];
+          const metaDescCol = columnMapping[`metaDescription_${locale}` as TranslationField];
+          const metaKwCol = columnMapping[`metaKeywords_${locale}` as TranslationField];
+          if (nameCol !== null || descCol !== null || specsCol !== null || metaDescCol !== null || metaKwCol !== null) {
+            translations[locale] = {};
+            if (nameCol !== null && row[nameCol] !== undefined) translations[locale].name = String(row[nameCol]);
+            if (descCol !== null && row[descCol] !== undefined) translations[locale].description = String(row[descCol]);
+            if (specsCol !== null && row[specsCol] !== undefined) translations[locale].specifications = String(row[specsCol]);
+            if (metaDescCol !== null && row[metaDescCol] !== undefined) translations[locale].metaDescription = String(row[metaDescCol]);
+            if (metaKwCol !== null && row[metaKwCol] !== undefined) translations[locale].metaKeywords = String(row[metaKwCol]);
+          }
+        }
+        if (Object.keys(translations).length > 0) {
+          item.translations = translations;
+        }
+        if (columnMapping.seller !== null && row[columnMapping.seller] !== undefined) {
+          item.seller = String(row[columnMapping.seller]);
+        }
+        if (columnMapping.imageUrl !== null && row[columnMapping.imageUrl] !== undefined) {
+          item.imageUrl = String(row[columnMapping.imageUrl]);
+        }
+        if (columnMapping.alias !== null && row[columnMapping.alias] !== undefined) {
+          item.alias = String(row[columnMapping.alias]);
+        }
+        if (columnMapping.isDisplayed !== null && row[columnMapping.isDisplayed] !== undefined) {
+          const val = String(row[columnMapping.isDisplayed]).toLowerCase().trim();
+          item.isDisplayed = val === 'true' || val === '1' || val === 'yes';
+        }
+
         return item;
       }).filter(item => item.articleId); // Filter out rows without articleId
 
       setUploadState({ status: 'uploading', progress: 30, message: 'Uploading to server...' });
 
-      const response = await fetch('/api/admin/items/bulk-update-prices', {
+      const endpoint = uploadMode === 'descriptions'
+        ? '/api/admin/items/bulk-update-descriptions'
+        : '/api/admin/items/bulk-update-prices';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          items,
-          warehouseId: selectedWarehouse,
-        }),
+        body: JSON.stringify(
+          uploadMode === 'descriptions'
+            ? { items }
+            : { items, warehouseId: selectedWarehouse }
+        ),
       });
 
       if (!response.ok) {
@@ -294,8 +389,11 @@ export default function BulkUploadPage() {
 
       const warehouseName = warehouses.find(w => w.id === selectedWarehouse)?.name || 'warehouse';
 
-      toast.success('Prices Updated!', {
-        description: `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
+      const toastTitle = uploadMode === 'descriptions' ? 'Descriptions Updated!' : 'Prices Updated!';
+      toast.success(toastTitle, {
+        description: uploadMode === 'descriptions'
+          ? `Updated ${result.results?.updated || 0} item descriptions`
+          : `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
         duration: 5000,
       });
 
@@ -304,15 +402,14 @@ export default function BulkUploadPage() {
         setSelectedFile(null);
         setParsedData(null);
         setColumnMapping({
-          articleId: null,
-          quantity: null,
-          price: null,
-          badge: null,
-          brand: null,
-          promoCode: null,
-          promoStartDate: null,
-          promoEndDate: null,
-          promoPrice: null,
+          articleId: null, quantity: null, price: null, badge: null, brand: null,
+          promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
+          name_pl: null, name_ua: null, name_en: null, name_es: null,
+          description_pl: null, description_ua: null, description_en: null, description_es: null,
+          specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
+          metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
+          metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
+          imageUrl: null, seller: null, alias: null, isDisplayed: null,
         });
         setUploadState({ status: 'idle', progress: 0, message: '' });
       }, 3000);
@@ -366,11 +463,41 @@ export default function BulkUploadPage() {
 
   const optionalFields: { key: OptionalField; label: string }[] = [
     { key: 'badge', label: 'Badge' },
-    { key: 'brand', label: 'Brand' },
     { key: 'promoCode', label: 'Promo Code' },
     { key: 'promoPrice', label: 'Promo Price' },
     { key: 'promoStartDate', label: 'Promo Start Date' },
     { key: 'promoEndDate', label: 'Promo End Date' },
+  ];
+
+  const translationFields: { key: TranslationField; label: string }[] = [
+    { key: 'name_pl', label: 'Name (PL)' },
+    { key: 'name_ua', label: 'Name (UA)' },
+    { key: 'name_en', label: 'Name (EN)' },
+    { key: 'name_es', label: 'Name (ES)' },
+    { key: 'description_pl', label: 'Description (PL)' },
+    { key: 'description_ua', label: 'Description (UA)' },
+    { key: 'description_en', label: 'Description (EN)' },
+    { key: 'description_es', label: 'Description (ES)' },
+    { key: 'specifications_pl', label: 'Specifications (PL)' },
+    { key: 'specifications_ua', label: 'Specifications (UA)' },
+    { key: 'specifications_en', label: 'Specifications (EN)' },
+    { key: 'specifications_es', label: 'Specifications (ES)' },
+    { key: 'metaDescription_pl', label: 'Meta Desc (PL)' },
+    { key: 'metaDescription_ua', label: 'Meta Desc (UA)' },
+    { key: 'metaDescription_en', label: 'Meta Desc (EN)' },
+    { key: 'metaDescription_es', label: 'Meta Desc (ES)' },
+    { key: 'metaKeywords_pl', label: 'Meta KW (PL)' },
+    { key: 'metaKeywords_ua', label: 'Meta KW (UA)' },
+    { key: 'metaKeywords_en', label: 'Meta KW (EN)' },
+    { key: 'metaKeywords_es', label: 'Meta KW (ES)' },
+  ];
+
+  const itemFields: { key: ItemField; label: string }[] = [
+    { key: 'brand', label: 'Brand' },
+    { key: 'imageUrl', label: 'Image URLs' },
+    { key: 'seller', label: 'Seller' },
+    { key: 'alias', label: 'Alias' },
+    { key: 'isDisplayed', label: 'Is Displayed' },
   ];
 
   return (
@@ -380,6 +507,30 @@ export default function BulkUploadPage() {
         <p className="text-gray-600">
           Upload CSV or Excel files to update item prices and inventory
         </p>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => handleModeChange('prices')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            uploadMode === 'prices'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Prices & Inventory
+        </button>
+        <button
+          onClick={() => handleModeChange('descriptions')}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            uploadMode === 'descriptions'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Product Descriptions
+        </button>
       </div>
 
       {/* Column Mapping Labels - Horizontal Layout */}
@@ -393,7 +544,10 @@ export default function BulkUploadPage() {
             <div>
               <h4 className="text-sm font-semibold mb-3 text-red-600">Required Fields</h4>
               <div className="flex flex-wrap gap-2">
-                {mandatoryFields.map(({ key, label }) => (
+                {(uploadMode === 'descriptions'
+                  ? mandatoryFields.filter(f => f.key === 'articleId')
+                  : mandatoryFields
+                ).map(({ key, label }) => (
                   <div
                     key={key}
                     draggable
@@ -420,6 +574,7 @@ export default function BulkUploadPage() {
               </div>
             </div>
 
+            {uploadMode === 'prices' && (
             <div>
               <h4 className="text-sm font-semibold mb-3 text-blue-600">Optional Fields</h4>
               <div className="flex flex-wrap gap-2">
@@ -448,6 +603,69 @@ export default function BulkUploadPage() {
                   </div>
                 ))}
               </div>
+            </div>            )}
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-green-600">Translation Fields</h4>
+              <div className="space-y-2">
+                {([
+                  { group: 'Name', prefix: 'name' },
+                  { group: 'Description', prefix: 'description' },
+                  { group: 'Specifications', prefix: 'specifications' },
+                  { group: 'Meta Description', prefix: 'metaDescription' },
+                  { group: 'Meta Keywords', prefix: 'metaKeywords' },
+                ] as const).map(({ group, prefix }) => (
+                  <div key={group} className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-green-700 font-semibold w-[130px] shrink-0">{group}:</span>
+                    {(['pl', 'ua', 'en', 'es'] as const).map(locale => {
+                      const key = `${prefix}_${locale}` as TranslationField;
+                      return (
+                        <div
+                          key={key}
+                          draggable
+                          onDragStart={() => handleLabelDragStart(key)}
+                          onDragEnd={handleLabelDragEnd}
+                          className={`px-3 py-1.5 rounded-lg border-2 cursor-move flex items-center gap-1.5 transition-colors ${
+                            columnMapping[key] !== null
+                              ? 'bg-green-100 border-green-500 text-green-700'
+                              : 'bg-green-50 border-green-400 text-green-700 hover:bg-green-100'
+                          }`}
+                        >
+                          <GripVertical className="w-3 h-3" />
+                          <span className="font-medium text-xs">{locale.toUpperCase()}</span>
+                          {columnMapping[key] !== null && (
+                            <button onClick={() => removeColumnMapping(key)} className="text-xs hover:text-green-800 font-bold">✕</button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-3 text-purple-600">Item Fields</h4>
+              <div className="flex flex-wrap gap-2">
+                {itemFields.map(({ key, label }) => (
+                  <div
+                    key={key}
+                    draggable
+                    onDragStart={() => handleLabelDragStart(key)}
+                    onDragEnd={handleLabelDragEnd}
+                    className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
+                      columnMapping[key] !== null
+                        ? 'bg-purple-100 border-purple-500 text-purple-700'
+                        : 'bg-purple-50 border-purple-400 text-purple-700 hover:bg-purple-100'
+                    }`}
+                  >
+                    <GripVertical className="w-4 h-4" />
+                    <span className="font-medium whitespace-nowrap">{label}</span>
+                    {columnMapping[key] !== null && (
+                      <button onClick={() => removeColumnMapping(key)} className="text-xs hover:text-purple-800 font-bold ml-1">✕</button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -456,8 +674,8 @@ export default function BulkUploadPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - Configuration */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Warehouse Selection */}
-          <Card>
+          {/* Warehouse Selection - prices mode only */}
+          {uploadMode === 'prices' && <Card>
             <CardHeader>
               <CardTitle>Warehouse</CardTitle>
               <CardDescription>Select target warehouse</CardDescription>
@@ -480,10 +698,10 @@ export default function BulkUploadPage() {
                 </SelectContent>
               </Select>
             </CardContent>
-          </Card>
+          </Card>}
 
-          {/* Currency Selection */}
-          <Card>
+          {/* Currency Selection - prices mode only */}
+          {uploadMode === 'prices' && <Card>
             <CardHeader>
               <CardTitle>Price Currency</CardTitle>
               <CardDescription>Select currency for prices</CardDescription>
@@ -500,10 +718,10 @@ export default function BulkUploadPage() {
                 </SelectContent>
               </Select>
             </CardContent>
-          </Card>
+          </Card>}
 
-          {/* Margin */}
-          <Card>
+          {/* Margin - prices mode only */}
+          {uploadMode === 'prices' && <Card>
             <CardHeader>
               <CardTitle>Margin (%)</CardTitle>
               <CardDescription>Markup percentage applied to prices</CardDescription>
@@ -522,7 +740,7 @@ export default function BulkUploadPage() {
                 <span className="text-sm text-gray-500 font-medium">%</span>
               </div>
             </CardContent>
-          </Card>
+          </Card>}
 
           {/* File Upload */}
           <Card>
@@ -605,6 +823,8 @@ export default function BulkUploadPage() {
                             )?.[0] as FieldType | undefined;
                             
                             const isMandatory = mandatoryFields.some(f => f.key === assignedLabel);
+                            const isTranslation = translationFields.some(f => f.key === assignedLabel);
+                            const isItemField = itemFields.some(f => f.key === assignedLabel);
 
                             return (
                               <th
@@ -614,6 +834,10 @@ export default function BulkUploadPage() {
                                 className={`px-4 py-3 text-left font-medium border-b border-r whitespace-nowrap ${
                                   assignedLabel && isMandatory
                                     ? 'bg-red-100 border-red-500'
+                                    : assignedLabel && isTranslation
+                                    ? 'bg-green-100 border-green-500'
+                                    : assignedLabel && isItemField
+                                    ? 'bg-purple-100 border-purple-500'
                                     : assignedLabel
                                     ? 'bg-blue-100 border-blue-500'
                                     : draggedLabel
@@ -625,10 +849,12 @@ export default function BulkUploadPage() {
                                   <div className="font-normal text-gray-600">{header || `Column ${index + 1}`}</div>
                                   {assignedLabel && (
                                     <div className={`text-xs font-semibold capitalize ${
-                                      isMandatory ? 'text-red-700' : 'text-blue-700'
+                                      isMandatory ? 'text-red-700' : isTranslation ? 'text-green-700' : isItemField ? 'text-purple-700' : 'text-blue-700'
                                     }`}>
                                       → {mandatoryFields.find(f => f.key === assignedLabel)?.label || 
-                                          optionalFields.find(f => f.key === assignedLabel)?.label}
+                                          optionalFields.find(f => f.key === assignedLabel)?.label ||
+                                          translationFields.find(f => f.key === assignedLabel)?.label ||
+                                          itemFields.find(f => f.key === assignedLabel)?.label}
                                     </div>
                                   )}
                                 </div>
@@ -716,13 +942,11 @@ export default function BulkUploadPage() {
               <Button 
                 onClick={handleUpload}
                 disabled={
-                  !selectedFile || 
+                  !selectedFile ||
                   uploadState.status === 'uploading' ||
-                  !parsedData || 
-                  columnMapping.articleId === null || 
-                  columnMapping.price === null || 
-                  columnMapping.quantity === null ||
-                  !selectedWarehouse
+                  !parsedData ||
+                  columnMapping.articleId === null ||
+                  (uploadMode === 'prices' && (columnMapping.price === null || columnMapping.quantity === null || !selectedWarehouse))
                 }
                 size="lg"
                 className="bg-blue-600 text-white hover:bg-blue-700"

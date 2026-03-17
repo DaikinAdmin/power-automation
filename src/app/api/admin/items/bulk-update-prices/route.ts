@@ -19,6 +19,11 @@ interface BulkUpdateItem {
   promoStartDate?: string;
   promoEndDate?: string;
   margin?: number;
+  seller?: string;
+  imageUrl?: string;
+  alias?: string;
+  isDisplayed?: boolean;
+  translations?: Record<string, { name?: string; description?: string; specifications?: string; metaDescription?: string; metaKeywords?: string }>;
 }
 
 export async function POST(request: NextRequest) {
@@ -124,9 +129,13 @@ export async function POST(request: NextRequest) {
             .values({
               articleId,
               slug,
-              isDisplayed: false,
+              isDisplayed: item.isDisplayed ?? false,
               brandSlug,
               categorySlug: 'uncategorized',
+              alias: item.alias || null,
+              itemImageLink: item.imageUrl
+                ? item.imageUrl.split(',').map((u: string) => u.trim()).filter(Boolean)
+                : null,
               updatedAt: new Date().toISOString(),
             })
             .returning();
@@ -139,6 +148,7 @@ export async function POST(request: NextRequest) {
               itemName: articleId,
               description: articleId,
               locale: 'pl',
+              seller: item.seller || null,
             });
           
           dbItem = [newItem];
@@ -146,6 +156,23 @@ export async function POST(request: NextRequest) {
 
         const itemId = dbItem[0].id;
         const itemSlug = dbItem[0].slug;
+
+        // Update item-level fields if provided
+        const itemFieldsUpdate: Record<string, any> = {};
+        if (item.imageUrl !== undefined) {
+          itemFieldsUpdate.itemImageLink = item.imageUrl.split(',').map((u: string) => u.trim()).filter(Boolean);
+        }
+        if (item.alias !== undefined) itemFieldsUpdate.alias = item.alias;
+        if (item.isDisplayed !== undefined) itemFieldsUpdate.isDisplayed = item.isDisplayed;
+        if (Object.keys(itemFieldsUpdate).length > 0) {
+          itemFieldsUpdate.updatedAt = new Date().toISOString();
+          await db.update(schema.item).set(itemFieldsUpdate).where(eq(schema.item.slug, itemSlug));
+        }
+        if (item.seller !== undefined) {
+          await db.update(schema.itemDetails)
+            .set({ seller: item.seller })
+            .where(eq(schema.itemDetails.itemSlug, itemSlug));
+        }
 
         // Check if itemPrice already exists for this item and warehouse
         const existingPrice = await db
@@ -224,6 +251,49 @@ export async function POST(request: NextRequest) {
             });
           
           created++;
+        }
+
+        // Process translations if provided
+        if (item.translations && Object.keys(item.translations).length > 0) {
+          for (const [locale, data] of Object.entries(item.translations)) {
+            if (!data.name && !data.description && !data.specifications && !data.metaDescription && !data.metaKeywords) continue;
+
+            const existing = await db
+              .select()
+              .from(schema.itemDetails)
+              .where(
+                and(
+                  eq(schema.itemDetails.itemSlug, itemSlug),
+                  eq(schema.itemDetails.locale, locale)
+                )
+              )
+              .limit(1);
+
+            if (existing.length > 0) {
+              const updateData: Record<string, any> = {};
+              if (data.name) updateData.itemName = data.name;
+              if (data.description) updateData.description = data.description;
+              if (data.specifications !== undefined) updateData.specifications = data.specifications;
+              if (data.metaDescription !== undefined) updateData.metaDescription = data.metaDescription;
+              if (data.metaKeywords !== undefined) updateData.metaKeyWords = data.metaKeywords;
+              await db
+                .update(schema.itemDetails)
+                .set(updateData)
+                .where(eq(schema.itemDetails.id, existing[0].id));
+            } else {
+              await db
+                .insert(schema.itemDetails)
+                .values({
+                  itemSlug,
+                  locale,
+                  itemName: data.name || articleId,
+                  description: data.description || '',
+                  specifications: data.specifications || null,
+                  metaDescription: data.metaDescription || null,
+                  metaKeyWords: data.metaKeywords || null,
+                });
+            }
+          }
         }
       } catch (error: any) {
         const articleId = item.articleId?.toString().trim() || 'unknown';
