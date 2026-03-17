@@ -67,6 +67,16 @@ services:
       P24_API_KEY: ${P24_API_KEY}
       P24_CRC: ${P24_CRC}
       P24_SANDBOX: ${P24_SANDBOX}
+
+      # LiqPay
+      LIQPAY_PUBLIC_KEY: ${LIQPAY_PUBLIC_KEY}
+      LIQPAY_PRIVATE_KEY: ${LIQPAY_PRIVATE_KEY}
+
+      # Multi-domain
+      APP_UA_TEST_HOST: ${APP_UA_TEST_HOST:-}
+      APP_PL_TEST_HOST: ${APP_PL_TEST_HOST:-}
+      APP_GTM_ID_PL: ${APP_GTM_ID_PL:-GTM-TNWRJ8MC}
+      APP_GTM_ID_UA: ${APP_GTM_ID_UA:-GTM-XXXXXXXX}
     depends_on:
       postgres:
         condition: service_healthy

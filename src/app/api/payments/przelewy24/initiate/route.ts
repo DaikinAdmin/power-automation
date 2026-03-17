@@ -105,7 +105,11 @@ export async function POST(request: NextRequest) {
     const sessionId = `${orderId}_${Date.now()}`;
 
     // Prepare return and status URLs
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Беремо baseUrl з реального запиту, щоб callback йшов на той самий домен
+    // (powerautomation.pl → pl callback, daikinwroclaw.com → ua callback і т.д.)
+    const proto = request.headers.get('x-forwarded-proto') ?? 'https';
+    const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
+    const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
     const returnUrl = `${baseUrl}/payment/return?orderId=${orderId}`;
     const statusUrl = `${baseUrl}/api/payments/przelewy24/callback`;
 

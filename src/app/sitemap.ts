@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { getBaseUrl, getDefaultLocale, getIndexedLocales } from '@/lib/domain-config';
+import { headers } from 'next/headers';
+import { getDomainConfigByHost } from '@/lib/domain-config';
 
 const STATIC_PAGES = [
   '',
@@ -14,8 +15,9 @@ const STATIC_PAGES = [
 
 async function fetchCategories(baseUrl: string, locale: string): Promise<{ slug: string }[]> {
   try {
+    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
     const res = await fetch(
-      `${baseUrl}/api/public/categories/${locale}`,
+      `${internalUrl}/api/public/categories/${locale}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -28,8 +30,9 @@ async function fetchCategories(baseUrl: string, locale: string): Promise<{ slug:
 
 async function fetchItems(baseUrl: string, locale: string): Promise<{ articleId: string }[]> {
   try {
+    const internalUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
     const res = await fetch(
-      `${baseUrl}/api/public/items/${locale}?limit=5000`,
+      `${internalUrl}/api/public/items/${locale}?limit=5000`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -40,14 +43,25 @@ async function fetchItems(baseUrl: string, locale: string): Promise<{ articleId:
   }
 }
 
+/**
+ * Динамічний sitemap залежно від домену.
+ *
+ * powerautomation.com.ua — тільки /ua/ сторінки
+ * powerautomation.pl     — тільки /pl/ сторінки
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const BASE_URL = getBaseUrl();
-  const LOCALES = getIndexedLocales();
-  const DEFAULT_LOCALE = getDefaultLocale();
+  const headersList = await headers();
+  const host = headersList.get('x-forwarded-host') || headersList.get('host');
+  const domainConfig = getDomainConfigByHost(host);
+
+  const BASE_URL = domainConfig.baseUrl;
+  const LOCALES = domainConfig.indexedLocales;
+  const DEFAULT_LOCALE = domainConfig.defaultLocale;
+
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  // Static pages for all indexed locales
+  // Static pages for indexed locales
   for (const locale of LOCALES) {
     for (const page of STATIC_PAGES) {
       entries.push({
@@ -59,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic categories (use default locale to avoid multiple requests)
+  // Dynamic categories
   const categories = await fetchCategories(BASE_URL, DEFAULT_LOCALE);
   for (const locale of LOCALES) {
     for (const cat of categories) {
@@ -74,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic products (use default locale)
+  // Dynamic products
   const items = await fetchItems(BASE_URL, DEFAULT_LOCALE);
   for (const locale of LOCALES) {
     for (const item of items) {

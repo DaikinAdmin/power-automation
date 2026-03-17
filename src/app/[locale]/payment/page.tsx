@@ -13,6 +13,7 @@ import {
   LiqPayButton,
   Privat24Button,
 } from "@/components/PaymentButtons";
+import { useDomainConfig } from "@/hooks/useDomain";
 
 interface PaymentPageProps {
   params: Promise<{ locale: string }>;
@@ -25,6 +26,8 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const t = useTranslations('payment');
   const router = useRouter();
   const { formatPriceFromBase } = useCurrency();
+  const domainConfig = useDomainConfig();
+  const allowedProviders = domainConfig.paymentProviders;
 
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [isFetchingOrder, setIsFetchingOrder] = useState(false);
@@ -257,30 +260,36 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
 
                 {/* Payment Buttons */}
                 <div className="space-y-3">
-                  <Przelewy24Button
-                    onClick={() => handlePayment('przelewy24')}
-                    isThisLoading={loadingProvider === 'przelewy24'}
-                    disabled={isLoading}
-                    isCompleted={orderData.status === 'COMPLETED'}
-                    processingLabel={t('buttons.processing')}
-                    alreadyPaidLabel={t('buttons.alreadyPaid')}
-                  />
-                  <LiqPayButton
-                    onClick={() => handlePayment('liqpay')}
-                    isThisLoading={loadingProvider === 'liqpay'}
-                    disabled={isLoading}
-                    isCompleted={orderData.status === 'COMPLETED'}
-                    processingLabel={t('buttons.processing')}
-                    alreadyPaidLabel={t('buttons.alreadyPaid')}
-                  />
-                  <Privat24Button
-                    onClick={() => handlePayment('privat24')}
-                    isThisLoading={loadingProvider === 'privat24'}
-                    disabled={isLoading}
-                    isCompleted={orderData.status === 'COMPLETED'}
-                    processingLabel={t('buttons.processing')}
-                    alreadyPaidLabel={t('buttons.alreadyPaid')}
-                  />
+                  {allowedProviders.includes('przelewy24') && (
+                    <Przelewy24Button
+                      onClick={() => handlePayment('przelewy24')}
+                      isThisLoading={loadingProvider === 'przelewy24'}
+                      disabled={isLoading}
+                      isCompleted={orderData.status === 'COMPLETED'}
+                      processingLabel={t('buttons.processing')}
+                      alreadyPaidLabel={t('buttons.alreadyPaid')}
+                    />
+                  )}
+                  {allowedProviders.includes('liqpay') && (
+                    <LiqPayButton
+                      onClick={() => handlePayment('liqpay')}
+                      isThisLoading={loadingProvider === 'liqpay'}
+                      disabled={isLoading}
+                      isCompleted={orderData.status === 'COMPLETED'}
+                      processingLabel={t('buttons.processing')}
+                      alreadyPaidLabel={t('buttons.alreadyPaid')}
+                    />
+                  )}
+                  {allowedProviders.includes('privat24') && (
+                    <Privat24Button
+                      onClick={() => handlePayment('privat24')}
+                      isThisLoading={loadingProvider === 'privat24'}
+                      disabled={isLoading}
+                      isCompleted={orderData.status === 'COMPLETED'}
+                      processingLabel={t('buttons.processing')}
+                      alreadyPaidLabel={t('buttons.alreadyPaid')}
+                    />
+                  )}
                 </div>
               </div>
 

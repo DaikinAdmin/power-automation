@@ -1,33 +1,38 @@
-import { MetadataRoute } from "next";
-import { getBaseUrl, getIndexedLocales } from "@/lib/domain-config";
+import { type MetadataRoute } from 'next';
+import { headers } from 'next/headers';
+import { getDomainConfigByHost, type DomainConfig } from '@/lib/domain-config';
 
 /**
- * Dynamic robots.txt — generated per-domain based on env vars.
- * Allows only the locales configured for this domain to be indexed.
+ * Динамічний robots.txt залежно від домену.
+ *
+ * powerautomation.com.ua — індексує тільки /ua/
+ * powerautomation.pl     — індексує тільки /pl/
+ * Англійську (/en/) та іспанську (/es/) не індексуємо ніде.
  */
-export default function robots(): MetadataRoute.Robots {
-  const baseUrl = getBaseUrl();
-  const indexedLocales = getIndexedLocales();
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const headersList = await headers();
+  const host = headersList.get('x-forwarded-host') || headersList.get('host');
+  const domainConfig = getDomainConfigByHost(host);
 
-  // All known locales in the app
-  const ALL_LOCALES = ["pl", "en", "es", "ua"];
+  // Всі локалі, які НЕ індексуються на цьому домені
+  const allLocales = ['ua', 'pl', 'en', 'es'];
+  const disallowedLocales = allLocales.filter(
+    (locale) => !domainConfig.indexedLocales.includes(locale),
+  );
 
-  // Build disallow list: admin, api, dashboard + non-indexed locales
-  const disallow = ["/admin/", "/api/", "/dashboard/"];
-  for (const locale of ALL_LOCALES) {
-    if (!indexedLocales.includes(locale)) {
-      disallow.push(`/${locale}/`);
-    }
-  }
+  const disallowPaths = [
+    '/admin/',
+    '/api/',
+    '/dashboard/',
+    ...disallowedLocales.map((l) => `/${l}/`),
+  ];
 
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: ["/", "/feed/products.xml"],
-        disallow,
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: {
+      userAgent: '*',
+      allow: domainConfig.indexedLocales.map((l) => `/${l}/`),
+      disallow: disallowPaths,
+    },
+    sitemap: `${domainConfig.baseUrl}/sitemap.xml`,
   };
 }

@@ -10,7 +10,7 @@ import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { GoogleTagManager } from '@next/third-parties/google';
-import { getBaseUrl, getGtmId, isBinotelEnabled, getSiteName, getIndexedLocales } from "@/lib/domain-config";
+import { getServerDomainConfig } from '@/lib/server-domain';
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -47,26 +47,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const domainConfig = await getServerDomainConfig();
   const meta = SITE_META[locale] ?? SITE_META.ua;
-  const baseUrl = getBaseUrl();
-  const siteName = getSiteName();
-  const indexedLocales = getIndexedLocales();
+  const isIndexed = domainConfig.indexedLocales.includes(locale);
   return {
     title: {
       default: meta.title,
       template: `%s | ${siteName}`,
     },
     description: meta.description,
-    metadataBase: new URL(baseUrl),
+    metadataBase: new URL(domainConfig.baseUrl),
     alternates: {
-      canonical: `${baseUrl}/${locale}`,
+      canonical: `${domainConfig.baseUrl}/${locale}`,
     },
     openGraph: {
-      siteName,
+      siteName: domainConfig.siteName,
       locale: locale === "ua" ? "uk_UA" : locale,
       type: "website",
     },
-    robots: indexedLocales.includes(locale) ? "index, follow" : "noindex, nofollow",
+    robots: isIndexed ? "index, follow" : "noindex, nofollow",
   };
 }
 
@@ -99,22 +98,25 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
+
+  // Domain-specific GTM ID
+  const domainConfig = await getServerDomainConfig();
+  const gtmId = domainConfig.gtmId;
+
   return (
     <html lang={locale} className="overflow-x-hidden">
-      {getGtmId() && <GoogleTagManager gtmId={getGtmId()} />}
+      <GoogleTagManager gtmId={gtmId} />
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
-        {getGtmId() && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${getGtmId()}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-            />
-          </noscript>
-        )}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
