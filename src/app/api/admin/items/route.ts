@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
     const brandFilter = searchParams.get('brand') || '';
     const categoryFilter = searchParams.get('category') || '';
     const hideHidden = searchParams.get('hideHidden') === 'true';
+    const hasBadge = searchParams.get('hasBadge') === 'true';
     
     logger.info('Fetching items (admin)', { 
       userId: session.user.id, 
@@ -74,6 +75,12 @@ export async function GET(request: NextRequest) {
       );
       
       conditions.push(or(...searchConditions));
+    }
+    
+    if (hasBadge) {
+      conditions.push(
+        sql`EXISTS (SELECT 1 FROM "item_price" WHERE "item_price"."itemSlug" = "item"."slug" AND "item_price"."badge" != 'ABSENT')`
+      );
     }
     
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

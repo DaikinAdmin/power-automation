@@ -17,7 +17,8 @@ import {
   FileText,
   Wallpaper,
   Upload,
-  ImageUp
+  ImageUp,
+  Tag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,6 +55,11 @@ export function AdminSidebar({ className }: SidebarProps) {
       title: 'Bulk Upload',
       href: '/admin/bulk-upload',
       icon: <Upload className="h-5 w-5" />
+    },
+    {
+      title: 'Promo',
+      href: '/admin/promo',
+      icon: <Tag className="h-5 w-5" />
     },
     {
       title: 'Categories',
