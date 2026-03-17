@@ -10,6 +10,7 @@ import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } f
 interface DescriptionItem {
   articleId: string;
   brand?: string;
+  categorySlug?: string;
   seller?: string;
   imageUrl?: string;
   alias?: string;
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
     });
 
     let updated = 0;
+    let created = 0;
     let notFound = 0;
     const errors: string[] = [];
 
@@ -71,9 +73,40 @@ export async function POST(request: NextRequest) {
           .limit(1);
 
         if (dbItems.length === 0) {
-          notFound++;
-          errors.push(`Item not found: ${articleId}`);
-          continue;
+          // Auto-create a new item
+          const slug = articleId
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+          let brandSlug: string | null = null;
+          if (item.brand) {
+            const brandResult = await db
+              .select({ alias: schema.brand.alias })
+              .from(schema.brand)
+              .where(eq(schema.brand.name, item.brand))
+              .limit(1);
+            if (brandResult.length > 0) brandSlug = brandResult[0].alias;
+          }
+
+          const [newItem] = await db
+            .insert(schema.item)
+            .values({
+              articleId,
+              slug,
+              isDisplayed: item.isDisplayed ?? false,
+              brandSlug,
+              categorySlug: item.categorySlug || 'uncategorized',
+              alias: item.alias || null,
+              itemImageLink: item.imageUrl
+                ? item.imageUrl.split(',').map((u: string) => u.trim()).filter(Boolean)
+                : null,
+              updatedAt: new Date().toISOString(),
+            })
+            .returning();
+
+          dbItems.push({ slug: newItem.slug });
+          created++;
         }
 
         const itemSlug = dbItems[0].slug;
@@ -85,6 +118,7 @@ export async function POST(request: NextRequest) {
         }
         if (item.alias !== undefined) itemUpdate.alias = item.alias;
         if (item.isDisplayed !== undefined) itemUpdate.isDisplayed = item.isDisplayed;
+        if (item.categorySlug !== undefined) itemUpdate.categorySlug = item.categorySlug;
         if (item.brand !== undefined) {
           const brandResult = await db
             .select({ alias: schema.brand.alias })
@@ -162,15 +196,17 @@ export async function POST(request: NextRequest) {
     logger.info('Bulk description update completed', {
       endpoint: 'POST /api/admin/items/bulk-update-descriptions',
       updated,
+      created,
       notFound,
       errorCount: errors.length,
       duration,
     });
 
     return NextResponse.json({
-      message: `Successfully updated descriptions for ${updated} items`,
+      message: `Successfully updated ${updated} and created ${created} items`,
       results: {
         updated,
+        created,
         notFound,
         errors: errors.length,
       },

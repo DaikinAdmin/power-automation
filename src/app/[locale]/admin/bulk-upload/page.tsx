@@ -35,7 +35,7 @@ type TranslationField =
   | 'specifications_pl' | 'specifications_ua' | 'specifications_en' | 'specifications_es'
   | 'metaDescription_pl' | 'metaDescription_ua' | 'metaDescription_en' | 'metaDescription_es'
   | 'metaKeywords_pl' | 'metaKeywords_ua' | 'metaKeywords_en' | 'metaKeywords_es';
-type ItemField = 'imageUrl' | 'seller' | 'alias' | 'isDisplayed' | 'brand';
+type ItemField = 'imageUrl' | 'seller' | 'alias' | 'isDisplayed' | 'brand' | 'categorySlug';
 type FieldType = MandatoryField | OptionalField | TranslationField | ItemField;
 
 interface ColumnMapping {
@@ -72,6 +72,7 @@ interface ColumnMapping {
   seller: number | null;
   alias: number | null;
   isDisplayed: number | null;
+  categorySlug: number | null;
 }
 
 interface Warehouse {
@@ -100,7 +101,7 @@ export default function BulkUploadPage() {
     specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
     metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
     metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-    imageUrl: null, seller: null, alias: null, isDisplayed: null,
+    imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
   });
   const [draggedLabel, setDraggedLabel] = useState<FieldType | null>(null);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -122,7 +123,7 @@ export default function BulkUploadPage() {
       specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
       metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
       metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-      imageUrl: null, seller: null, alias: null, isDisplayed: null,
+      imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
     });
     setUploadState({ status: 'idle', progress: 0, message: '' });
   };
@@ -352,6 +353,9 @@ export default function BulkUploadPage() {
           const val = String(row[columnMapping.isDisplayed]).toLowerCase().trim();
           item.isDisplayed = val === 'true' || val === '1' || val === 'yes';
         }
+        if (columnMapping.categorySlug !== null && row[columnMapping.categorySlug] !== undefined) {
+          item.categorySlug = String(row[columnMapping.categorySlug]).trim();
+        }
 
         return item;
       }).filter(item => item.articleId); // Filter out rows without articleId
@@ -392,7 +396,7 @@ export default function BulkUploadPage() {
       const toastTitle = uploadMode === 'descriptions' ? 'Descriptions Updated!' : 'Prices Updated!';
       toast.success(toastTitle, {
         description: uploadMode === 'descriptions'
-          ? `Updated ${result.results?.updated || 0} item descriptions`
+          ? `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items`
           : `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
         duration: 5000,
       });
@@ -409,7 +413,7 @@ export default function BulkUploadPage() {
           specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
           metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
           metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-          imageUrl: null, seller: null, alias: null, isDisplayed: null,
+          imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
         });
         setUploadState({ status: 'idle', progress: 0, message: '' });
       }, 3000);
@@ -494,6 +498,7 @@ export default function BulkUploadPage() {
 
   const itemFields: { key: ItemField; label: string }[] = [
     { key: 'brand', label: 'Brand' },
+    { key: 'categorySlug', label: 'Category Slug' },
     { key: 'imageUrl', label: 'Image URLs' },
     { key: 'seller', label: 'Seller' },
     { key: 'alias', label: 'Alias' },
@@ -604,7 +609,7 @@ export default function BulkUploadPage() {
                 ))}
               </div>
             </div>            )}
-            <div>
+            {uploadMode === 'descriptions' && <div>
               <h4 className="text-sm font-semibold mb-3 text-green-600">Translation Fields</h4>
               <div className="space-y-2">
                 {([
@@ -641,9 +646,9 @@ export default function BulkUploadPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
 
-            <div>
+            {uploadMode === 'descriptions' && <div>
               <h4 className="text-sm font-semibold mb-3 text-purple-600">Item Fields</h4>
               <div className="flex flex-wrap gap-2">
                 {itemFields.map(({ key, label }) => (
@@ -666,7 +671,7 @@ export default function BulkUploadPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
           </CardContent>
         </Card>
       )}
