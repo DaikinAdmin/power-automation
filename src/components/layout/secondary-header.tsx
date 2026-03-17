@@ -222,20 +222,22 @@ export default function SecondaryHeader() {
                         <>
                           <Link
                             href="/dashboard"
-                            className="flex items-center pl-4 hover:text-opacity-60 transition-colors"
+                            className="flex items-center px-2 hover:text-opacity-60 transition-colors"
                             onClick={() => setIsDropdownOpen(false)}
                           >
-                            <LayoutGrid size={16} />
-                            <Button variant="ghost">{t("dashboard")}</Button>
+                            <Button variant="ghost">
+                              <LayoutGrid size={16} />
+                              {t("dashboard")}
+                            </Button>
                           </Link>
-                          <div className="flex items-center pl-4 hover:text-opacity-60 transition-colors">
-                            <SettingsIcon size={16} />
+                          <div className="flex items-center px-2 hover:text-opacity-60 transition-colors">
+                          
                             <Settings />
                           </div>
                         </>
                       )}
-                      <div className="flex items-center pl-4 hover:text-opacity-60 transition-colors">
-                        <LogOut size={16} />
+                      <div className="flex items-center px-2 hover:text-opacity-60 transition-colors">
+                      
                         <SignOut />
                       </div>
                     </div>
