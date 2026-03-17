@@ -24,6 +24,16 @@ interface DescriptionItem {
   }>;
 }
 
+function generateSlug(brandAlias: string | null, articleId: string): string {
+  const base = brandAlias
+    ? `${brandAlias}_${articleId}`
+    : articleId;
+  return base
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
@@ -67,18 +77,13 @@ export async function POST(request: NextRequest) {
         }
 
         const dbItems = await db
-          .select({ slug: schema.item.slug })
+          .select({ slug: schema.item.slug, brandSlug: schema.item.brandSlug })
           .from(schema.item)
           .where(eq(schema.item.articleId, articleId))
           .limit(1);
 
         if (dbItems.length === 0) {
           // Auto-create a new item
-          const slug = articleId
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-
           let brandSlug: string | null = null;
           if (item.brand) {
             const brandResult = await db
@@ -88,6 +93,8 @@ export async function POST(request: NextRequest) {
               .limit(1);
             if (brandResult.length > 0) brandSlug = brandResult[0].alias;
           }
+
+          const slug = generateSlug(brandSlug, articleId);
 
           const [newItem] = await db
             .insert(schema.item)
@@ -105,11 +112,11 @@ export async function POST(request: NextRequest) {
             })
             .returning();
 
-          dbItems.push({ slug: newItem.slug });
+          dbItems.push({ slug: newItem.slug, brandSlug: newItem.brandSlug });
           created++;
         }
 
-        const itemSlug = dbItems[0].slug;
+        let itemSlug = dbItems[0].slug;
 
         // Update item-level fields
         const itemUpdate: Record<string, any> = {};
@@ -119,17 +126,31 @@ export async function POST(request: NextRequest) {
         if (item.alias !== undefined) itemUpdate.alias = item.alias;
         if (item.isDisplayed !== undefined) itemUpdate.isDisplayed = item.isDisplayed;
         if (item.categorySlug !== undefined) itemUpdate.categorySlug = item.categorySlug;
+
         if (item.brand !== undefined) {
           const brandResult = await db
             .select({ alias: schema.brand.alias })
             .from(schema.brand)
             .where(eq(schema.brand.name, item.brand))
             .limit(1);
-          if (brandResult.length > 0) itemUpdate.brandSlug = brandResult[0].alias;
+
+          const newBrandSlug = brandResult.length > 0 ? brandResult[0].alias : null;
+          const oldBrandSlug = dbItems[0].brandSlug ?? null;
+
+          if (newBrandSlug !== oldBrandSlug) {
+            // Brand changed — regenerate slug
+            const newSlug = generateSlug(newBrandSlug, articleId);
+            itemUpdate.slug = newSlug;
+            itemUpdate.brandSlug = newBrandSlug;
+            itemSlug = newSlug;
+          } else {
+            itemUpdate.brandSlug = newBrandSlug;
+          }
         }
+
         if (Object.keys(itemUpdate).length > 0) {
           itemUpdate.updatedAt = new Date().toISOString();
-          await db.update(schema.item).set(itemUpdate).where(eq(schema.item.slug, itemSlug));
+          await db.update(schema.item).set(itemUpdate).where(eq(schema.item.articleId, articleId));
         }
 
         // Update seller across all existing locale entries
