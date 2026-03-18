@@ -139,7 +139,7 @@ function flattenItem(item: Item, selectedFields: Set<string>): Record<string, un
 }
 
 async function fetchLocaleItems(locale: Locale): Promise<Item[]> {
-  const res = await fetch(`/api/public/items/${locale}`);
+  const res = await fetch(`/api/admin/items/export?locale=${locale}`);
   if (!res.ok) throw new Error(`Failed to fetch locale: ${locale}`);
   return res.json();
 }
