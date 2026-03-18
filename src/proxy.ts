@@ -8,6 +8,7 @@ import {
   DOMAIN_COOKIE,
   type DomainConfig,
 } from '@/lib/domain-config';
+import { loggingMiddleware } from '@/lib/logging-middleware';
 
 /**
  * Створюємо окремі intl-middleware для кожного домену,
@@ -18,7 +19,7 @@ function createIntlMiddlewareForDomain(domainConfig: DomainConfig) {
     locales: routing.locales,
     defaultLocale: domainConfig.defaultLocale as typeof routing.defaultLocale,
     localePrefix: 'always',
-    localeDetection: true, // дозволяємо зберігати вибір локалі через cookie NEXT_LOCALE
+    localeDetection: true,
   });
 }
 
@@ -33,6 +34,9 @@ export default function middleware(request: NextRequest) {
   // --- Domain detection ---
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
   const domainConfig = getDomainConfigByHost(host);
+
+  // --- Logging ---
+  loggingMiddleware(request);
 
   // --- Проксі зображень: на не-PL доменах редіректимо завантаження до PL ---
   if (pathname.startsWith('/api/public/uploads/') && domainConfig.key !== 'pl') {
@@ -67,20 +71,17 @@ export default function middleware(request: NextRequest) {
     return response;
   }
 
-  // --- Intl middleware з defaultLocale залежно від домену ---
+  // --- Intl middleware with defaultLocale according to domain ---
   const intlMiddleware = createIntlMiddlewareForDomain(domainConfig);
   const response = intlMiddleware(request);
 
-  // Додаємо заголовок і cookie з ключем домену,
-  // щоб серверні та клієнтські компоненти могли знати домен.
   response.headers.set('x-request-id', requestId);
   response.headers.set(DOMAIN_HEADER, domainConfig.key);
   response.cookies.set(DOMAIN_COOKIE, domainConfig.key, {
     path: '/',
-    httpOnly: false, // Потрібен доступ з JS
+    httpOnly: false,
     sameSite: 'lax',
-    // secure: true в production
-    maxAge: 60 * 60 * 24 * 365, // 1 рік
+    maxAge: 60 * 60 * 24 * 365, // 1 year
   });
 
   return response;
