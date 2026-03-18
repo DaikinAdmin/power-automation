@@ -128,6 +128,8 @@ export const itemPrice = pgTable(
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
     badge: badge().default("ABSENT"),
     itemSlug: text().notNull(),
+    initialPrice: doublePrecision(),
+    initialCurrency: currency(),
   },
   (table) => [
     foreignKey({
@@ -546,6 +548,8 @@ export const itemPriceHistory = pgTable(
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
     margin: doublePrecision().default(20),
     badge: badge().default("ABSENT"),
+    initialPrice: doublePrecision(),
+    initialCurrency: currency(),
     recordedAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

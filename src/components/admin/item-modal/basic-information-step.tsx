@@ -37,6 +37,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     updatedAt: new Date().toISOString(),
     badge: 'ABSENT',
     margin: 20,
+    initialPrice: null,
+    initialCurrency: null,
     history: [],
     warehouse: {
       id: '',
@@ -212,6 +214,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promoCode: newPriceEntry.promoCode || '',
       badge: newPriceEntry.badge || 'ABSENT',
       margin: newPriceEntry.margin ?? 20,
+      initialPrice: null,
+      initialCurrency: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       history: [],
@@ -249,6 +253,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       updatedAt: new Date().toISOString(),
       badge: 'ABSENT',
       margin: 20,
+      initialPrice: null,
+      initialCurrency: null,
       history: [],
       warehouse: {
         id: '',

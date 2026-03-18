@@ -43,6 +43,8 @@ export function PriceEditModal({
     updatedAt: new Date().toISOString(),
     badge: "ABSENT",
     margin: 20,
+    initialPrice: null,
+    initialCurrency: null,
     history: [],
     warehouse: {
       id: "",

@@ -57,6 +57,13 @@
       "when": 1773395279373,
       "tag": "0007_lyrical_goliath",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1773871849053,
+      "tag": "0008_handy_romulus",
+      "breakpoints": true
     }
   ]
 }
