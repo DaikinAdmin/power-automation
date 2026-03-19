@@ -191,9 +191,11 @@ const CatalogProductCard = ({
     );
   };
 
-  const priceDisplay = `${price} ${currency}`.trim();
+  const priceDisplay = `${price.toFixed(1)} ${currency}`.trim();
   const originalPriceDisplay =
-    originalPrice != null ? `${originalPrice} ${currency}`.trim() : null;
+    originalPrice != null
+      ? `${originalPrice.toFixed(1)} ${currency}`.trim()
+      : null;
 
   return (
     <Link
