@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, FileText, AlertCircle, CheckCircle, GripVertical } from 'lucide-react';
+import { Upload, FileText, AlertCircle, CheckCircle, GripVertical, X, Zap } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import {
@@ -13,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import * as XLSX from 'xlsx';
 
 interface UploadState {
@@ -110,6 +116,24 @@ export default function BulkUploadPage() {
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [margin, setMargin] = useState<number>(20);
   const [uploadMode, setUploadMode] = useState<UploadMode>('prices');
+  const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
+  const [schneiderResult, setSchneiderResult] = useState<{ updated: number; created: number } | null>(null);
+  const [schneiderLoading, setSchneiderLoading] = useState(false);
+
+  const handleUpdateSchneiderPrices = async () => {
+    setSchneiderLoading(true);
+    setSchneiderResult(null);
+    try {
+      const res = await fetch('/api/admin/partnerse/catalog', { method: 'PUT' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      setSchneiderResult({ updated: data.updated, created: data.created });
+    } catch (err: any) {
+      toast.error('Failed to update Schneider prices', { description: err.message });
+    } finally {
+      setSchneiderLoading(false);
+    }
+  };
 
   const handleModeChange = (mode: UploadMode) => {
     setUploadMode(mode);
@@ -507,12 +531,45 @@ export default function BulkUploadPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bulk Upload</h1>
-        <p className="text-gray-600">
-          Upload CSV or Excel files to update item prices and inventory
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Bulk Upload</h1>
+          <p className="text-gray-600">
+            Upload CSV or Excel files to update item prices and inventory
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => { setBulkActionsOpen(true); setSchneiderResult(null); }}>
+          <Zap className="mr-2 h-4 w-4" />
+          Bulk Actions
+        </Button>
       </div>
+
+      <Dialog open={bulkActionsOpen} onOpenChange={setBulkActionsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Bulk Actions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Button
+              className="w-full"
+              onClick={handleUpdateSchneiderPrices}
+              disabled={schneiderLoading}
+            >
+              {schneiderLoading ? 'Updating...' : 'Update Schneider Ukraine Prices'}
+            </Button>
+            {schneiderResult && (
+              <div className="rounded-md bg-muted px-4 py-3 text-sm">
+                <p className="font-medium">Done</p>
+                <p className="text-muted-foreground">
+                  Updated: <span className="font-semibold text-foreground">{schneiderResult.updated}</span>
+                  &nbsp;&middot;&nbsp;
+                  Created: <span className="font-semibold text-foreground">{schneiderResult.created}</span>
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Mode Toggle */}
       <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 w-fit">
