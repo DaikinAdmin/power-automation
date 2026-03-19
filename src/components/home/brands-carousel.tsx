@@ -22,8 +22,8 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
   isDataLoading,
   t,
 }) => {
-   const filteredBrands = brands.filter(
-    (brand) => brand.name.toLowerCase() !== "unknown"
+  const filteredBrands = brands.filter(
+    (brand) => brand.name.toLowerCase() !== "unknown",
   );
   const [emblaRef] = useEmblaCarousel(
     {
@@ -43,7 +43,7 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
         // Only enable autoplay on mobile
         active: typeof window !== "undefined" ? window.innerWidth < 768 : true,
       }),
-    ]
+    ],
   );
 
   // Responsive: 2 slides on mobile, 5 on desktop
@@ -80,7 +80,10 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                     src={brand.logo}
                     alt={brand.name}
                     className="max-w-full max-h-full object-contain"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/imgs/brands/default.svg'; }}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src =
+                        "/imgs/brands/default.svg";
+                    }}
                   />
                 </Link>
               </div>
@@ -102,12 +105,20 @@ const BrandsCarousel: React.FC<BrandsCarouselProps> = ({
                   >
                     <div className="bg-white overflow-hidden cursor-pointer">
                       <div className="aspect-square bg-gray-50 flex items-center justify-center p-2">
-                        <img
-                          src={brand.logo}
-                          alt={brand.name}
-                          className="max-w-full max-h-full object-contain"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/imgs/brands/default.svg'; }}
-                        />
+                        <Link
+                          href={`/ua/categories?brand=${brand.id}`}
+                          className="aspect-square bg-gray-50 flex items-center justify-center p-2 grayscale hover:grayscale-0 transition-all duration-200"
+                        >
+                          <img
+                            src={brand.logo}
+                            alt={brand.name}
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src =
+                                "/imgs/brands/default.svg";
+                            }}
+                          />
+                        </Link>
                       </div>
                     </div>
                   </div>

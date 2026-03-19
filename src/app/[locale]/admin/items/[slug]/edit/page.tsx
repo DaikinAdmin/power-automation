@@ -112,11 +112,11 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
         setInitialData(itemFormData);
       } else {
         console.error('Failed to fetch item:', response.status, response.statusText);
-        router.push('/admin/items');
+        router.back();
       }
     } catch (error) {
       console.error('Error fetching item:', error);
-      router.push('/admin/items');
+      router.back();
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +132,7 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
       }
     }
     
-    router.push('/admin/items');
+    router.back();
   };
 
   const handleSubmit = async () => {
@@ -148,7 +148,7 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
       });
 
       if (response.ok) {
-        router.push('/admin/items');
+        router.back();
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Failed to update item');
@@ -176,7 +176,7 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Item not found</h1>
           <p className="text-gray-600 mt-2">The requested item could not be found.</p>
-          <Button onClick={() => router.push('/admin/items')} className="mt-4">
+          <Button onClick={() => router.back()} className="mt-4">
             Back to Items
           </Button>
         </div>
