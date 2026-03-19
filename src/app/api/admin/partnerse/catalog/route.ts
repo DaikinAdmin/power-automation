@@ -1,12 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import type { Currency } from '@/db/schema';
+import { auth } from '@/lib/auth';
+import { isUserAdmin } from '@/helpers/db/queries';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError } from '@/lib/error-handler';
 
 const WAREHOUSE_ID = 'warehouse-schneider';
 
-async function fetchPartnerseCatalog(refs: string) {
+async function fetchPartnerseCatalog(refs: string): Promise<{ ok: boolean; data?: unknown; error?: string }> {
   const headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Accept', 'application/json');
@@ -19,10 +22,25 @@ async function fetchPartnerseCatalog(refs: string) {
     cache: 'no-store',
   });
 
-  return response.json();
+  const data = await response.json();
+
+  if (!response.ok) {
+    return { ok: false, error: typeof data === 'object' && data !== null && 'error' in data ? String((data as Record<string, unknown>).error) : `HTTP ${response.status}` };
+  }
+
+  return { ok: true, data };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) throw new UnauthorizedError('Authentication required');
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) throw new ForbiddenError('Admin access required');
+  } catch (e) {
+    return apiErrorHandler(e);
+  }
+
   const rows = await db
     .select({ articleId: schema.item.articleId })
     .from(schema.item)
@@ -34,11 +52,23 @@ export async function GET() {
     return NextResponse.json({ error: 'No schneider-electric items found in DB' }, { status: 400 });
   }
 
-  const data = await fetchPartnerseCatalog(refs);
-  return NextResponse.json(data);
+  const result = await fetchPartnerseCatalog(refs);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 502 });
+  }
+  return NextResponse.json(result.data);
 }
 
-export async function PUT() {
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) throw new UnauthorizedError('Authentication required');
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) throw new ForbiddenError('Admin access required');
+  } catch (e) {
+    return apiErrorHandler(e);
+  }
+
   const rows = await db
     .select({ id: schema.item.id, articleId: schema.item.articleId, slug: schema.item.slug })
     .from(schema.item)
@@ -55,7 +85,7 @@ export async function PUT() {
 
   const refs = rows.map((r) => r.articleId).join(',');
   const result = await fetchPartnerseCatalog(refs);
-
+  // console.log('Partnerse catalog update result:', result);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
@@ -66,14 +96,32 @@ export async function PUT() {
   let updated = 0;
   let created = 0;
 
-  for (const catalogItem of result.data as Array<{
-    ref: string;
-    price: number;
+  const catalogItems = Array.isArray(result.data)
+    ? result.data
+    : Array.isArray((result.data as Record<string, unknown>)?.data)
+      ? (result.data as Record<string, unknown>).data as unknown[]
+      : [];
+
+  if (catalogItems.length === 0) {
+    return NextResponse.json({ error: 'No items returned from Partnerse', raw: result.data }, { status: 502 });
+  }
+
+  const dbRefs = [...itemByArticleId.keys()].slice(0, 5);
+  const apiArticles = (catalogItems as Array<{ article: string }>).slice(0, 5).map(i => i.article);
+  console.log('DB articleIds (first 5):', dbRefs);
+  console.log('Partnerse articles (first 5):', apiArticles);
+  const matchCount = (catalogItems as Array<{ article: string }>).filter(i => itemByArticleId.has(i.article)).length;
+  console.log(`Matched ${matchCount} of ${catalogItems.length} Partnerse items to DB`);
+
+  for (const catalogItem of catalogItems as Array<{
+    article: string;
+    price: string | number;
     currency: string;
     total_warehouse: number;
   }>) {
-    const item = itemByArticleId.get(catalogItem.ref);
+    const item = itemByArticleId.get(catalogItem.article);
     if (!item) continue;
+    const price = typeof catalogItem.price === 'string' ? parseFloat(catalogItem.price) : catalogItem.price;
 
     const [existing] = await db
       .select()
@@ -87,7 +135,7 @@ export async function PUT() {
       .limit(1);
 
     if (existing) {
-      if (existing.price !== catalogItem.price) {
+      if (existing.price !== price) {
         await db.insert(schema.itemPriceHistory).values({
           itemId: item.id,
           warehouseId: existing.warehouseId,
@@ -105,7 +153,7 @@ export async function PUT() {
 
         await db
           .update(schema.itemPrice)
-          .set({ price: catalogItem.price, quantity: catalogItem.total_warehouse, updatedAt: now })
+          .set({ price, quantity: catalogItem.total_warehouse, updatedAt: now })
           .where(eq(schema.itemPrice.id, existing.id));
       } else {
         await db
@@ -116,11 +164,11 @@ export async function PUT() {
       updated++;
     } else {
       await db.insert(schema.itemPrice).values({
-        warehouseId: WAREHOUSE_ID,
         itemSlug: item.slug,
-        price: catalogItem.price,
+        warehouseId: WAREHOUSE_ID,
+        price,
         quantity: catalogItem.total_warehouse,
-        initialPrice: catalogItem.price,
+        initialPrice: price,
         initialCurrency: catalogItem.currency as Currency,
         updatedAt: now,
       });
