@@ -82,6 +82,8 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
             promoStartDate: price.promoStartDate ? new Date(price.promoStartDate) : null,
             promoEndDate: price.promoEndDate ? new Date(price.promoEndDate) : null,
             promoCode: price.promoCode || '',
+            initialPrice: price.initialPrice != null ? parseFloat(price.initialPrice) : null,
+            initialCurrency: price.initialCurrency || null,
             createdAt: price.createdAt ? new Date(price.createdAt) : new Date(),
             updatedAt: price.updatedAt ? new Date(price.updatedAt) : new Date(),
             warehouse: price.warehouse || {

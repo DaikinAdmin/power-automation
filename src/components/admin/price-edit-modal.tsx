@@ -274,6 +274,44 @@ export function PriceEditModal({
                 placeholder="20"
               />
             </div>
+
+            <div>
+              <Label>Initial Price</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.initialPrice ?? ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    initialPrice: e.target.value ? parseFloat(e.target.value) : null,
+                  }))
+                }
+                className="mt-1"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <Label>Initial Currency</Label>
+              <select
+                value={formData.initialCurrency ?? ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    initialCurrency: e.target.value || null,
+                  }))
+                }
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+              >
+                <option value="">Select Currency</option>
+                <option value="EUR">EUR</option>
+                <option value="PLN">PLN</option>
+                <option value="UAH">UAH</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
           </div>
         </div>
 

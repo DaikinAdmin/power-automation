@@ -96,6 +96,8 @@ export async function GET(
                 promoCode: schema.itemPrice.promoCode,
                 badge: schema.itemPrice.badge,
                 margin: schema.itemPrice.margin,
+                initialPrice: schema.itemPrice.initialPrice,
+                initialCurrency: schema.itemPrice.initialCurrency,
                 createdAt: schema.itemPrice.createdAt,
                 updatedAt: schema.itemPrice.updatedAt,
                 warehouse: schema.warehouse,

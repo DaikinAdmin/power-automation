@@ -214,8 +214,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promoCode: newPriceEntry.promoCode || '',
       badge: newPriceEntry.badge || 'ABSENT',
       margin: newPriceEntry.margin ?? 20,
-      initialPrice: null,
-      initialCurrency: null,
+      initialPrice: newPriceEntry.initialPrice ?? null,
+      initialCurrency: newPriceEntry.initialCurrency ?? null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       history: [],
@@ -539,6 +539,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <tr>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Warehouse</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Price</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Initial Price</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Quantity</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Badge</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Promotion</th>
@@ -561,14 +562,19 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                       <td className="px-4 py-2 text-sm text-gray-900">
                         <div className="flex flex-col">
                           <span className={effectivePrice !== price.price ? 'line-through text-gray-500 text-xs' : ''}>
-                            ${typeof price.price === 'number' ? price.price.toFixed(2) : parseFloat(String(price.price || 0)).toFixed(2)}
+                            {typeof price.price === 'number' ? price.price.toFixed(2) : parseFloat(String(price.price || 0)).toFixed(2)}
                           </span>
                           {effectivePrice !== price.price && (
                             <span className="text-red-600 font-medium">
-                              ${effectivePrice.toFixed(2)}
+                              {effectivePrice.toFixed(2)}
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        {(price as any).initialPrice != null
+                          ? `${(price as any).initialPrice} ${(price as any).initialCurrency || ''}`.trim()
+                          : '-'}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900">
                         {price.quantity || 0}
@@ -742,6 +748,34 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   className="mt-1"
                   placeholder="20"
                 />
+              </div>
+
+              <div>
+                <Label>Initial Price</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newPriceEntry.initialPrice ?? ''}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, initialPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                  className="mt-1"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Initial Currency</Label>
+                <select
+                  value={newPriceEntry.initialCurrency ?? ''}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, initialCurrency: e.target.value || null }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+                >
+                  <option value="">Select Currency</option>
+                  <option value="EUR">EUR</option>
+                  <option value="PLN">PLN</option>
+                  <option value="UAH">UAH</option>
+                  <option value="USD">USD</option>
+                </select>
               </div>
             </div>
 
