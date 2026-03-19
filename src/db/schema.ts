@@ -684,6 +684,7 @@ export const warehouseCountries = pgTable("warehouse_countries", {
   id: serial().primaryKey().notNull(),
   slug: text().notNull().unique(),
   countryCode: text().notNull(),
+  vatPercentage: doublePrecision(),
   phoneCode: text(),
   name: text().notNull(),
   isActive: boolean().default(true).notNull(),

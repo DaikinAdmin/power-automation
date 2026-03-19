@@ -196,7 +196,8 @@
       "orderId": "Order ID",
       "date": "Date",
       "status": "Status",
-      "total": "Total to Pay"
+      "total": "Total to Pay",
+      "vat": "VAT"
     },
     "paymentInfo": {
       "title": "Secure Payment",
@@ -387,6 +388,7 @@
     "moreLocations": "+{count} more locations",
     "price": {
       "discount": "-{percent}%",
+      "vat": "VAT",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Hot Deal",
@@ -485,7 +487,8 @@
       "outOfStock":"Out of Stock",
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison",
-      "from": "from"
+      "from": "from",
+      "vat": "VAT"
     },
     "compare": {
       "alreadyAdded": "This product is already in the comparison list",
@@ -503,6 +506,7 @@
     "name": "Name",
     "brand": "Brand",
     "price": "Price",
+    "vat": "VAT",
     "description": "Description",
     "noImage": "No image",
     "noBrand": "No brand",
@@ -629,6 +633,7 @@
     "quantity": "Quantity",
     "price": "Price",
     "total": "Total:",
+    "vat": "VAT",
     "payment": "Proceed to Payment",
     "backToShopping": "Continue Shopping"
   },

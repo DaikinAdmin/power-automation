@@ -196,7 +196,8 @@
       "orderId": "Номер замовлення",
       "date": "Дата",
       "status": "Статус",
-      "total": "Разом до оплати"
+      "total": "Разом до оплати",
+      "vat": "ПДВ"
     },
     "paymentInfo": {
       "title": "Безпечна оплата",
@@ -387,6 +388,7 @@
     "moreLocations": "+{count} більше локацій",
     "price": {
       "discount": "-{percent}%",
+      "vat": "ПДВ",
       "badges": {
         "bestseller": "Бестселер",
         "hotDeal": "Гаряча пропозиція",
@@ -485,7 +487,8 @@
       "outOfStock": "Немає в наявності",
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні",
-      "from": "від"
+      "from": "від",
+      "vat": "ПДВ"
     },
     "compare": {
       "alreadyAdded": "Цей товар вже є у списку порівняння",
@@ -503,6 +506,7 @@
     "name": "Назва",
     "brand": "Бренд",
     "price": "Ціна",
+    "vat": "ПДВ",
     "description": "Опис",
     "noImage": "Без зображення",
     "noBrand": "Без бренду",
@@ -629,6 +633,7 @@
     "quantity": "Кількість",
     "price": "Ціна",
     "total": "Разом:",
+    "vat": "ПДВ",
     "payment": "Перейти до оплати",
     "backToShopping": "Продовжити покупки"
   },

@@ -44,6 +44,7 @@ interface ParsedData {
 type MandatoryField = "articleId" | "price" | "quantity";
 type OptionalField =
   | "badge"
+  | "margin"
   | "promoCode"
   | "promoStartDate"
   | "promoEndDate"
@@ -84,6 +85,7 @@ interface ColumnMapping {
   price: number | null;
   badge: number | null;
   brand: number | null;
+  margin: number | null;
   promoCode: number | null;
   promoStartDate: number | null;
   promoEndDate: number | null;
@@ -139,6 +141,7 @@ export default function BulkUploadPage() {
     price: null,
     badge: null,
     brand: null,
+    margin: null,
     promoCode: null,
     promoStartDate: null,
     promoEndDate: null,
@@ -188,6 +191,7 @@ export default function BulkUploadPage() {
       price: null,
       badge: null,
       brand: null,
+      margin: null,
       promoCode: null,
       promoStartDate: null,
       promoEndDate: null,
@@ -325,7 +329,11 @@ export default function BulkUploadPage() {
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: "array" });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(firstSheet, {
+      header: 1,
+      defval: "",
+      blankrows: false,
+    }) as any[][];
 
     if (data.length === 0) return;
 
@@ -398,12 +406,16 @@ export default function BulkUploadPage() {
       // Map the data based on column assignments
       const items = parsedData.rows
         .map((row) => {
+          const rowMargin =
+            columnMapping.margin !== null
+              ? parseFloat(row[columnMapping.margin]) || 0
+              : 0;
           const item: any = {
             articleId: row[columnMapping.articleId!],
             price: parseFloat(row[columnMapping.price!]) || 0,
             quantity: parseInt(row[columnMapping.quantity!]) || 0,
             currency,
-            margin,
+            margin: rowMargin > 0 ? rowMargin : margin,
           };
 
           // Add optional fields if mapped
@@ -588,6 +600,7 @@ export default function BulkUploadPage() {
           price: null,
           badge: null,
           brand: null,
+          margin: null,
           promoCode: null,
           promoStartDate: null,
           promoEndDate: null,
@@ -676,6 +689,7 @@ export default function BulkUploadPage() {
 
   const optionalFields: { key: OptionalField; label: string }[] = [
     { key: "badge", label: "Badge" },
+    { key: "margin", label: "Margin" },
     { key: "promoCode", label: "Promo Code" },
     { key: "promoPrice", label: "Promo Price" },
     { key: "promoStartDate", label: "Promo Start Date" },

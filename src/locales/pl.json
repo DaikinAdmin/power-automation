@@ -196,7 +196,8 @@
       "orderId": "Numer zamówienia",
       "date": "Data",
       "status": "Status",
-      "total": "Razem do zapłaty"
+      "total": "Razem do zapłaty",
+      "vat": "VAT"
     },
     "paymentInfo": {
       "title": "Bezpieczna płatność",
@@ -387,6 +388,7 @@
     "moreLocations": "+{count} więcej lokalizacji",
     "price": {
       "discount": "-{percent}%",
+      "vat": "VAT",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Gorąca oferta",
@@ -485,7 +487,8 @@
       "outOfStock": "Brak",
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu",
-      "from": "od"
+      "from": "od",
+      "vat": "VAT"
     },
     "compare": {
       "alreadyAdded": "Ten produkt jest już na liście porównania",
@@ -503,6 +506,7 @@
     "name": "Nazwa",
     "brand": "Marka",
     "price": "Cena",
+    "vat": "VAT",
     "description": "Opis",
     "noImage": "Brak zdjęcia",
     "noBrand": "Brak marki",
@@ -629,6 +633,7 @@
     "quantity": "Ilość",
     "price": "Cena",
     "total": "Łącznie:",
+    "vat": "VAT",
     "payment": "Przejdź do płatności",
     "backToShopping": "Kontynuuj zakupy"
   },

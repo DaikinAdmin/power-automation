@@ -25,7 +25,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const { orderId } = use(searchParams);
   const t = useTranslations('payment');
   const router = useRouter();
-  const { formatPriceFromBase } = useCurrency();
+  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
   const domainConfig = useDomainConfig();
   const allowedProviders = domainConfig.paymentProviders;
 
@@ -251,9 +251,14 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center text-xl font-bold">
                     <span>{t('orderSummary.total')}:</span>
-                    <span className="text-red-600">
-                      {formatPrice(orderData.originalTotalPrice)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-red-600">
+                        {formatPrice(orderData.originalTotalPrice)}
+                      </span>
+                      {!vatInclusive && vatPercentage > 0 && (
+                        <div className="text-xs font-normal text-gray-500">+ {vatPercentage}% {t('orderSummary.vat')}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

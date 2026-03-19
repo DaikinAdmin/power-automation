@@ -54,6 +54,8 @@ export default async function CategoryPage({
     }
   );
 
+  console.log(JSON.stringify(categoryData, null, 2));
+
   const getOriginalCategoryName = () => {
     const currentCategory = categoryData.categories.find((cat) => cat.slug === slug);
     return (

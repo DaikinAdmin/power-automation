@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { getExchangeRate } from "@/lib/server-currency";
 import { getDomainConfigByHost, type DomainConfig, DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { toAbsoluteImageUrl } from "@/lib/image-utils";
+import { getVatByCountryCode } from "@/helpers/db/vat-queries";
 
 /** Domain-specific feed configuration */
 interface FeedConfig {
@@ -53,8 +54,13 @@ export async function GET(request: NextRequest) {
   const feedCfg = getFeedConfig(domainConfig);
 
   try {
-    // 0. Fetch EUR → target currency exchange rate once
+    // 0. Fetch EUR → target currency exchange rate and VAT once
     const eurToTarget = await getExchangeRate("EUR", feedCfg.exchangeTarget);
+    const domainCountryCodeMap: Record<string, string> = { pl: 'PL', ua: 'UA' };
+    const domainCountryCode = domainCountryCodeMap[domainConfig.key] ?? 'PL';
+    const vatPercentage = await getVatByCountryCode(domainCountryCode);
+    const vatInclusive = domainConfig.key === 'ua';
+    const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
 
     // 1. Fetch all displayed items
     const items = await db
@@ -124,10 +130,10 @@ export async function GET(request: NextRequest) {
       const inStock = inStockPrices.length > 0;
       const availability = inStock ? "in stock" : "out of stock";
 
-      // Apply margin and convert EUR → target currency
+      // Apply margin, VAT (UA only), and convert EUR → target currency
       const marginRate = 1 + (bestPrice.margin ?? 20) / 100;
       const eurPrice = bestPrice.price * marginRate;
-      const targetPrice = Math.round(eurPrice * eurToTarget);
+      const targetPrice = Math.round(eurPrice * eurToTarget * vatMultiplier);
 
       // Images — always absolute, pointing to powerautomation.pl
       const images = item.itemImageLink ?? [];
@@ -154,7 +160,7 @@ export async function GET(request: NextRequest) {
           : null;
         const isPromoActive = !promoEnd || promoEnd > new Date();
         if (isPromoActive && bestPrice.promotionPrice < bestPrice.price) {
-          const targetPromoPrice = Math.round(bestPrice.promotionPrice * marginRate * eurToTarget);
+          const targetPromoPrice = Math.round(bestPrice.promotionPrice * marginRate * eurToTarget * vatMultiplier);
           salePriceXml = `      <g:sale_price>${targetPromoPrice} ${feedCfg.currency}</g:sale_price>`;
         }
       }

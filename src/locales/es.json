@@ -181,6 +181,50 @@
       "orderCreated": "¡Pedido creado con éxito! ID del pedido:"
     }
   },
+  "payment": {
+    "title": "Pago",
+    "backToShop": "Volver a la tienda",
+    "loading": "Cargando...",
+    "retry": "Reintentar",
+    "errors": {
+      "title": "Error",
+      "noOrder": "Sin número de pedido",
+      "noOrderDescription": "No se ha proporcionado un número de pedido válido. Vuelve a la tienda e intenta de nuevo."
+    },
+    "orderSummary": {
+      "title": "Resumen del pedido",
+      "orderId": "Número de pedido",
+      "date": "Fecha",
+      "status": "Estado",
+      "total": "Total a pagar",
+      "vat": "IVA"
+    },
+    "paymentInfo": {
+      "title": "Pago seguro",
+      "securePayment": "Tu pago está protegido por el sistema de pago. Todos los datos están cifrados y seguros.",
+      "methods": "Métodos de pago disponibles:",
+      "creditCard": "Tarjeta de crédito/débito",
+      "bankTransfer": "Transferencia bancaria",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Pagos a plazos de PrivatBank",
+      "poweredBy": "Pago procesado por"
+    },
+    "buttons": {
+      "proceedToPayment": "Proceder al pago",
+      "payWithLiqPay": "Pagar con LiqPay",
+      "payWithPrzelewy24": "Pagar con Przelewy24",
+      "issueInvoice": "Emitir factura",
+      "issuingInvoice": "Emitiendo factura...",
+      "processing": "Procesando...",
+      "alreadyPaid": "Ya pagado"
+    },
+    "additionalInfo": {
+      "text": "Después del pago, recibirás un correo de confirmación. Si tienes alguna pregunta, contacta con nuestro servicio de atención al cliente."
+    }
+  },
   "dashboard": {
     "welcomeBack": "Bienvenido de nuevo",
     "statsOverview": "Resumen de estadísticas",
@@ -313,6 +357,7 @@
     "moreLocations": "+{count} ubicaciones más",
     "price": {
       "discount": "-{percent}%",
+      "vat": "IVA",
       "badges": {
         "bestseller": "Más vendido",
         "hotDeal": "Oferta caliente",
@@ -411,7 +456,8 @@
       "outOfStock": "Agotado",
       "addToCompare": "Añadir a comparación",
       "inCompare": "En comparación",
-      "from": "desde"
+      "from": "desde",
+      "vat": "IVA"
     },
     "compare": {
       "alreadyAdded": "Este producto ya está en la lista de comparación",
@@ -429,6 +475,7 @@
     "name": "Nombre",
     "brand": "Marca",
     "price": "Precio",
+    "vat": "IVA",
     "description": "Descripción",
     "noImage": "Sin imagen",
     "noBrand": "Sin marca",
@@ -555,6 +602,7 @@
     "quantity": "Cantidad",
     "price": "Precio",
     "total": "Total:",
+    "vat": "IVA",
     "payment": "Proceder al Pago",
     "backToShopping": "Continuar Comprando"
   },

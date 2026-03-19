@@ -18,6 +18,7 @@ interface BasicInformationStepProps {
 
 export function BasicInformationStep({ formData, setFormData }: BasicInformationStepProps) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedParentCategorySlug, setSelectedParentCategorySlug] = useState<string>('');
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
@@ -77,6 +78,20 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     fetchWarehouses();
     fetchBrands();
   }, []);
+
+  // Initialize selectedParentCategorySlug once categories are loaded
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const isParent = categories.some(cat => cat.slug === formData.categorySlug);
+    if (isParent) {
+      setSelectedParentCategorySlug(formData.categorySlug);
+    } else {
+      const parent = categories.find(cat =>
+        cat.subCategories?.some(sub => sub.slug === formData.categorySlug)
+      );
+      setSelectedParentCategorySlug(parent?.slug ?? '');
+    }
+  }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Add debug logging to see what data is being passed
   // useEffect(() => {
@@ -458,12 +473,16 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Category *</Label>
             <select
-              value={formData.categorySlug}
-              onChange={(e) => setFormData((prev: Item) => ({ 
-                ...prev, 
-                categorySlug: e.target.value,
-                category: categories.find(cat => cat.slug === e.target.value) || prev.category
-              }))}
+              value={selectedParentCategorySlug}
+              onChange={(e) => {
+                const catSlug = e.target.value;
+                setSelectedParentCategorySlug(catSlug);
+                setFormData((prev: Item) => ({
+                  ...prev,
+                  categorySlug: catSlug,
+                  category: categories.find(cat => cat.slug === catSlug) || prev.category
+                }));
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               required
             >
@@ -475,6 +494,33 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               ))}
             </select>
           </div>
+
+          {/* Subcategory */}
+          {selectedParentCategorySlug && (categories.find(c => c.slug === selectedParentCategorySlug)?.subCategories?.length ?? 0) > 0 && (
+            <div>
+              <Label>Subcategory</Label>
+              <select
+                value={categories.find(c => c.slug === selectedParentCategorySlug)?.subCategories?.some(s => s.slug === formData.categorySlug) ? formData.categorySlug : ''}
+                onChange={(e) => {
+                  const subSlug = e.target.value;
+                  setFormData((prev: Item) => ({
+                    ...prev,
+                    categorySlug: subSlug || selectedParentCategorySlug,
+                  }));
+                }}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+              >
+                <option value="">— No subcategory —</option>
+                {categories
+                  .find(c => c.slug === selectedParentCategorySlug)
+                  ?.subCategories?.map(sub => (
+                    <option key={sub.id} value={sub.slug}>
+                      {sub.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
 
           {/* Warranty Type */}
           <div>
