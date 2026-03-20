@@ -205,6 +205,7 @@ export const user = pgTable("user", {
   country: text("country").default(""),
   companyPosition: text("company_position").default(""),
   ownerId: text("owner_id"),
+  defaultCurrency: text("default_currency").default("EUR"),
 });
 
 export const session = pgTable(

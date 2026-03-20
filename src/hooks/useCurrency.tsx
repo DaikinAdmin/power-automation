@@ -13,16 +13,20 @@ interface CurrencyContextValue {
   formatPriceFromBase: (baseValue: number) => string;
   vatPercentage: number;
   vatInclusive: boolean;
+  setCurrency: (currency: SupportedCurrency) => void;
 }
 
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
 
 const BASE_CURRENCY: SupportedCurrency = 'EUR';
 
+const CURRENCY_LS_KEY = 'pa_currency';
+
 const fallbackRates: Record<SupportedCurrency, number> = {
   EUR: 1,
   PLN: 4.5,
   UAH: 40,
+  USD: 1.07,
 };
 
 export const CurrencyProvider = ({
@@ -40,6 +44,49 @@ export const CurrencyProvider = ({
   const [exchangeRate, setExchangeRate] = useState<number>(1);
   const vatPercentage = initialVatPercentage;
   const vatInclusive = initialVatInclusive;
+
+  // On mount: load saved currency preference (user API or localStorage)
+  useEffect(() => {
+    const loadSavedCurrency = async () => {
+      try {
+        const { authClient } = await import('@/lib/auth-client');
+        const { data } = await authClient.getSession();
+        if (data?.user) {
+          const res = await fetch('/api/user/currency');
+          if (res.ok) {
+            const { currency } = await res.json();
+            if (currency) setCurrencyCode(currency as SupportedCurrency);
+          }
+          return;
+        }
+      } catch {
+        // not logged in or error — fall through to localStorage
+      }
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(CURRENCY_LS_KEY) : null;
+      if (saved) setCurrencyCode(saved as SupportedCurrency);
+    };
+    loadSavedCurrency();
+  }, []);
+
+  const setCurrency = useCallback(async (currency: SupportedCurrency) => {
+    setCurrencyCode(currency);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CURRENCY_LS_KEY, currency);
+    }
+    try {
+      const { authClient } = await import('@/lib/auth-client');
+      const { data } = await authClient.getSession();
+      if (data?.user) {
+        await fetch('/api/user/currency', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currency }),
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -114,8 +161,9 @@ export const CurrencyProvider = ({
       formatPriceFromBase,
       vatPercentage,
       vatInclusive,
+      setCurrency,
     }),
-    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, vatPercentage, vatInclusive]
+    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, vatPercentage, vatInclusive, setCurrency]
   );
 
   return (
