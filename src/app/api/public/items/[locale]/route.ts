@@ -68,7 +68,7 @@ export async function GET(
       });
     }
 
-    // Strip margin and apply it to prices before returning public response
+    // Strip margin and bake it into prices before returning public response
     const publicItems = items.map(item => ({
       ...item,
       prices: item.prices.map(({ margin, price, promotionPrice, ...rest }) => {
