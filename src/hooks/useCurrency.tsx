@@ -11,9 +11,7 @@ interface CurrencyContextValue {
   convertPrice: (baseValue: number) => number;
   formatPrice: (value: number) => string;
   formatPriceFromBase: (baseValue: number) => string;
-  /** VAT percentage for the current domain (e.g. 23 for PL, 20 for UA) */
   vatPercentage: number;
-  /** true when displayed prices already include VAT (UA domain) */
   vatInclusive: boolean;
 }
 
