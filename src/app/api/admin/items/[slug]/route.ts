@@ -272,6 +272,8 @@ export async function PUT(
                     promoCode: price.promoCode || null,
                     badge: price.badge || 'ABSENT',
                     margin: price.margin ?? 20,
+                    initialPrice: price.initialPrice ?? null,
+                    initialCurrency: price.initialCurrency ?? null,
                     createdAt: now,
                     updatedAt: now,
                 }));
@@ -290,6 +292,8 @@ export async function PUT(
                 promoCode: price.promoCode,
                 badge: price.badge,
                 margin: price.margin ?? 20,
+                initialPrice: price.initialPrice ?? null,
+                initialCurrency: price.initialCurrency ?? null,
                 createdAt: now,
                 updatedAt: now,
             }));
