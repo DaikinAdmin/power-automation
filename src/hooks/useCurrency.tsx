@@ -11,6 +11,10 @@ interface CurrencyContextValue {
   convertPrice: (baseValue: number) => number;
   formatPrice: (value: number) => string;
   formatPriceFromBase: (baseValue: number) => string;
+  /** VAT percentage for the current domain (e.g. 23 for PL, 20 for UA) */
+  vatPercentage: number;
+  /** true when displayed prices already include VAT (UA domain) */
+  vatInclusive: boolean;
 }
 
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
@@ -23,9 +27,21 @@ const fallbackRates: Record<SupportedCurrency, number> = {
   UAH: 40,
 };
 
-export const CurrencyProvider = ({ children, initialCurrency }: { children: React.ReactNode; initialCurrency?: SupportedCurrency }) => {
+export const CurrencyProvider = ({
+  children,
+  initialCurrency,
+  vatPercentage: initialVatPercentage = 0,
+  vatInclusive: initialVatInclusive = false,
+}: {
+  children: React.ReactNode;
+  initialCurrency?: SupportedCurrency;
+  vatPercentage?: number;
+  vatInclusive?: boolean;
+}) => {
   const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(initialCurrency ?? BASE_CURRENCY);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const vatPercentage = initialVatPercentage;
+  const vatInclusive = initialVatInclusive;
 
   useEffect(() => {
     let ignore = false;
@@ -66,7 +82,12 @@ export const CurrencyProvider = ({ children, initialCurrency }: { children: Reac
     };
   }, [currencyCode]);
 
-  const convertPrice = useCallback((baseValue: number) => convertPriceValue(baseValue, exchangeRate), [exchangeRate]);
+  const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
+
+  const convertPrice = useCallback(
+    (baseValue: number) => convertPriceValue(baseValue, exchangeRate) * vatMultiplier,
+    [exchangeRate, vatMultiplier]
+  );
 
   const formatPrice = useCallback(
     (value: number) => {
@@ -93,8 +114,10 @@ export const CurrencyProvider = ({ children, initialCurrency }: { children: Reac
       convertPrice,
       formatPrice,
       formatPriceFromBase,
+      vatPercentage,
+      vatInclusive,
     }),
-    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase]
+    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, vatPercentage, vatInclusive]
   );
 
   return (

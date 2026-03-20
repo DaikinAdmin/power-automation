@@ -28,7 +28,7 @@ export default function CartModal({
 }: CartModalProps) {
   const router = useRouter();
 
-  const { formatPriceFromBase } = useCurrency();
+  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
   const localePreferences = useMemo(() => {
     const defaults = ['en', 'pl', 'uk'];
     if (typeof navigator === 'undefined' || !navigator.language) {
@@ -125,6 +125,8 @@ export default function CartModal({
               getItemTotal={getItemTotal}
               cartTotal={cartTotal}
               formatPriceFromBase={formatPriceFromBase}
+              vatPercentage={vatPercentage}
+              vatInclusive={vatInclusive}
               onUpdateQuantity={onUpdateQuantity}
               onRemoveItem={onRemoveItem}
               onUpdateWarehouse={onUpdateWarehouse}
@@ -150,6 +152,8 @@ export default function CartModal({
               getItemTotal={getItemTotal}
               cartTotal={cartTotal}
               formatPriceFromBase={formatPriceFromBase}
+              vatPercentage={vatPercentage}
+              vatInclusive={vatInclusive}
               onUpdateQuantity={onUpdateQuantity}
               onRemoveItem={onRemoveItem}
               onUpdateWarehouse={onUpdateWarehouse}
@@ -173,6 +177,8 @@ interface ContentProps {
   getItemTotal: (item: CartItemType) => number;
   cartTotal: number;
   formatPriceFromBase: (v: number) => string;
+  vatPercentage: number;
+  vatInclusive: boolean;
   onUpdateQuantity: (id: string, change: number) => void;
   onRemoveItem: (id: string) => void;
   onUpdateWarehouse?: (id: string, warehouseId: string) => void;
@@ -184,6 +190,7 @@ interface ContentProps {
 function CartContent({
   cartItems, getItemName, resolveBasePrices, getItemBaseUnitPrice,
   getItemTotal, cartTotal, formatPriceFromBase,
+  vatPercentage, vatInclusive,
   onUpdateQuantity, onRemoveItem, onUpdateWarehouse,
   onClose, onProceed, mobile,
 }: ContentProps) {
@@ -361,6 +368,9 @@ function CartContent({
             <div className="text-right">
               <div className="hidden md:block text-lg font-semibold text-gray-600">{t('total')}</div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{formatPriceFromBase(cartTotal)}</div>
+              {!vatInclusive && vatPercentage > 0 && (
+                <div className="text-xs text-gray-500">+ {vatPercentage}% {t('vat')}</div>
+              )}
             </div>
           </div>
           <div className="flex justify-between items-center gap-2">

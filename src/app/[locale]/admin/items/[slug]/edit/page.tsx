@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import { BasicInformationStep } from '@/components/admin/item-modal/basic-information-step';
-import { ItemDetailsStep } from '@/components/admin/item-modal/item-details-step';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Item } from '@/helpers/types/item';
-import { useItemFormState } from '@/hooks/useItemFormState';
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { BasicInformationStep } from "@/components/admin/item-modal/basic-information-step";
+import { ItemDetailsStep } from "@/components/admin/item-modal/item-details-step";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Item } from "@/helpers/types/item";
+import { useItemFormState } from "@/hooks/useItemFormState";
 
-export default function EditItemPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function EditItemPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const router = useRouter();
   const { slug } = use(params);
   const itemId = slug as string;
-  
-  const [activeTab, setActiveTab] = useState('basic');
-  const {
-    formData,
-    setItemFormData,
-    setInitialData,
-    hasChanges
-  } = useItemFormState({ initialItem: null });
+
+  const [activeTab, setActiveTab] = useState("basic");
+  const { formData, setItemFormData, setInitialData, hasChanges } =
+    useItemFormState({ initialItem: null });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,89 +36,113 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
       const response = await fetch(`/api/admin/items/${itemId}`);
       if (response.ok) {
         const item = await response.json();
-        
+
         // Convert item data to FormData format - ensure proper mapping
         const itemFormData: Item = {
-          id: item.id || '',
-          slug: item.slug || item.articleId || '',
-          articleId: item.articleId || '',
-          alias: item.alias || '',
+          id: item.id || "",
+          slug: item.slug || item.articleId || "",
+          articleId: item.articleId || "",
+          alias: item.alias || "",
           isDisplayed: Boolean(item.isDisplayed),
-          itemImageLink: Array.isArray(item.itemImageLink) ? item.itemImageLink : item.itemImageLink ? [item.itemImageLink] : [],
+          itemImageLink: Array.isArray(item.itemImageLink)
+            ? item.itemImageLink
+            : item.itemImageLink
+              ? [item.itemImageLink]
+              : [],
           createdAt: item.createdAt || new Date().toISOString(),
           updatedAt: item.updatedAt || new Date().toISOString(),
-          categorySlug: item.categorySlug || '',
-          brandSlug: item.brandSlug || '',
+          categorySlug: item.categorySlug || "",
+          brandSlug: item.brandSlug || "",
           brand: item.brand || null,
-          warrantyType: item.warrantyType || 'manufacturer',
-          warrantyLength: typeof item.warrantyLength === 'number' ? item.warrantyLength : 12,
+          warrantyType: item.warrantyType || "manufacturer",
+          warrantyLength:
+            typeof item.warrantyLength === "number" ? item.warrantyLength : 12,
           sellCounter: item.sellCounter || 0,
           category: item.category || {
-            id: '',
-            name: '',
+            id: "",
+            name: "",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            slug: '',
+            slug: "",
             isVisible: true,
-            subCategories: []
+            subCategories: [],
           },
           subCategory: item.subCategory || {
-            id: '',
-            name: '',
+            id: "",
+            name: "",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            slug: '',
+            slug: "",
             isVisible: true,
-            categorySlug: ''
+            categorySlug: "",
           },
           // Properly map itemPrice array
-          itemPrice: Array.isArray(item.itemPrice) ? item.itemPrice.map((price: any) => ({
-            id: price.id || '',
-            itemId: price.itemId || item.id || '',
-            warehouseId: price.warehouseId || '',
-            price: parseFloat(price.price) || 0,
-            quantity: parseInt(price.quantity) || 0,
-            promotionPrice: price.promotionPrice ? parseFloat(price.promotionPrice) : null,
-            promoStartDate: price.promoStartDate ? new Date(price.promoStartDate) : null,
-            promoEndDate: price.promoEndDate ? new Date(price.promoEndDate) : null,
-            promoCode: price.promoCode || '',
-            initialPrice: price.initialPrice != null ? parseFloat(price.initialPrice) : null,
-            initialCurrency: price.initialCurrency || null,
-            createdAt: price.createdAt ? new Date(price.createdAt) : new Date(),
-            updatedAt: price.updatedAt ? new Date(price.updatedAt) : new Date(),
-            warehouse: price.warehouse || {
-              id: price.warehouseId || '',
-              name: 'Unknown Warehouse',
-              displayedName: 'Unknown Warehouse',
-              isVisible: true,
-              country: 'Other',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            }
-          })) : [],
+          itemPrice: Array.isArray(item.itemPrice)
+            ? item.itemPrice.map((price: any) => ({
+                id: price.id || "",
+                itemId: price.itemId || item.id || "",
+                warehouseId: price.warehouseId || "",
+                price: parseFloat(price.price) || 0,
+                quantity: parseInt(price.quantity) || 0,
+                margin: typeof price.margin === "number" ? price.margin : 20,
+                promotionPrice: price.promotionPrice
+                  ? parseFloat(price.promotionPrice)
+                  : null,
+                promoStartDate: price.promoStartDate
+                  ? new Date(price.promoStartDate)
+                  : null,
+                promoEndDate: price.promoEndDate
+                  ? new Date(price.promoEndDate)
+                  : null,
+                promoCode: price.promoCode || "",
+                initialPrice: price.initialPrice != null ? parseFloat(price.initialPrice) : null,
+                initialCurrency: price.initialCurrency || null,
+                createdAt: price.createdAt
+                  ? new Date(price.createdAt)
+                  : new Date(),
+                updatedAt: price.updatedAt
+                  ? new Date(price.updatedAt)
+                  : new Date(),
+                warehouse: price.warehouse || {
+                  id: price.warehouseId || "",
+                  name: "Unknown Warehouse",
+                  displayedName: "Unknown Warehouse",
+                  isVisible: true,
+                  country: "Other",
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                },
+              }))
+            : [],
           // Properly map itemDetails array
-          itemDetails: Array.isArray(item.itemDetails) ? item.itemDetails.map((detail: any) => ({
-            id: detail.id || '',
-            itemId: detail.itemId || item.id || '',
-            locale: detail.locale || '',
-            itemName: detail.itemName || '',
-            description: detail.description || '',
-            specifications: detail.specifications || '',
-            seller: detail.seller || '',
-            discount: detail.discount ? parseFloat(detail.discount) : null,
-            popularity: detail.popularity || null
-          })) : [],
+          itemDetails: Array.isArray(item.itemDetails)
+            ? item.itemDetails.map((detail: any) => ({
+                id: detail.id || "",
+                itemId: detail.itemId || item.id || "",
+                locale: detail.locale || "",
+                itemName: detail.itemName || "",
+                description: detail.description || "",
+                specifications: detail.specifications || "",
+                seller: detail.seller || "",
+                discount: detail.discount ? parseFloat(detail.discount) : null,
+                popularity: detail.popularity || null,
+              }))
+            : [],
           linkedItems: item.linkedItems || [],
         };
-        
+
         setInitialData(itemFormData);
       } else {
-        console.error('Failed to fetch item:', response.status, response.statusText);
-        router.push('/admin/items');
+        console.error(
+          "Failed to fetch item:",
+          response.status,
+          response.statusText,
+        );
+        router.back();
       }
     } catch (error) {
-      console.error('Error fetching item:', error);
-      router.push('/admin/items');
+      console.error("Error fetching item:", error);
+      router.back();
     } finally {
       setIsLoading(false);
     }
@@ -127,14 +151,14 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
   const handleGoBack = () => {
     if (hasChanges) {
       const confirmLeave = window.confirm(
-        'You have unsaved changes. Are you sure you want to leave? All changes will be lost.'
+        "You have unsaved changes. Are you sure you want to leave? All changes will be lost.",
       );
       if (!confirmLeave) {
         return;
       }
     }
-    
-    router.push('/admin/items');
+
+    router.back();
   };
 
   const handleSubmit = async () => {
@@ -142,22 +166,22 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
 
     try {
       const response = await fetch(`/api/admin/items/${itemId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        router.push('/admin/items');
+        router.back();
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Failed to update item');
+        alert(errorData.error || "Failed to update item");
       }
     } catch (error) {
-      console.error('Error updating item:', error);
-      alert('Failed to update item');
+      console.error("Error updating item:", error);
+      alert("Failed to update item");
     }
   };
 
@@ -177,8 +201,10 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">Item not found</h1>
-          <p className="text-gray-600 mt-2">The requested item could not be found.</p>
-          <Button onClick={() => router.push('/admin/items')} className="mt-4">
+          <p className="text-gray-600 mt-2">
+            The requested item could not be found.
+          </p>
+          <Button onClick={() => router.back()} className="mt-4">
             Back to Items
           </Button>
         </div>
@@ -193,11 +219,13 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Edit Item</h1>
-            <p className="text-gray-600 mt-1">Update the item information and details</p>
+            <p className="text-gray-600 mt-1">
+              Update the item information and details
+            </p>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleGoBack}
             className="h-8 w-8 p-0 hover:bg-gray-200"
           >
@@ -207,7 +235,11 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
 
         {/* Form */}
         <div className="bg-white rounded-lg shadow w-full">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <div className="border-b border-gray-200 px-6 py-4">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -218,28 +250,25 @@ export default function EditItemPage({ params }: { params: Promise<{ slug: strin
             <div className="p-6">
               <TabsContent value="basic" className="mt-0">
                 {formData && (
-                  <BasicInformationStep 
-                    formData={formData} 
-                    setFormData={(value) => setItemFormData(value)} 
+                  <BasicInformationStep
+                    formData={formData}
+                    setFormData={(value) => setItemFormData(value)}
                   />
                 )}
               </TabsContent>
 
               <TabsContent value="details" className="mt-0">
                 {formData && (
-                  <ItemDetailsStep 
-                    formData={formData} 
-                    setFormData={(value) => setItemFormData(value)} 
+                  <ItemDetailsStep
+                    formData={formData}
+                    setFormData={(value) => setItemFormData(value)}
                   />
                 )}
               </TabsContent>
             </div>
 
             <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={handleGoBack}
-              >
+              <Button variant="outline" onClick={handleGoBack}>
                 Cancel
               </Button>
               <Button

@@ -1,0 +1,1 @@
+ALTER TABLE "warehouse_countries" ALTER COLUMN "vatPercentage" DROP NOT NULL;

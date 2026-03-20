@@ -64,6 +64,20 @@
       "when": 1773871849053,
       "tag": "0008_handy_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773911325738,
+      "tag": "0008_abnormal_vapor",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1773911408451,
+      "tag": "0009_goofy_rocket_racer",
+      "breakpoints": true
     }
   ]
 }

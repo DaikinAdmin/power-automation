@@ -124,6 +124,7 @@ export interface WarehouseCountryResponse {
   countryCode: string;
   phoneCode: string | null;
   isActive: boolean;
+  vatPercentage: number | null;
 }
 
 // ==================== Order Types ====================

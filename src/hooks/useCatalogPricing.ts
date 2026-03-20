@@ -52,8 +52,8 @@ export const useCatalogPricing = (
     const basePrice = prioritizedPrice.promotionPrice ?? prioritizedPrice.price;
     const baseOriginalPrice = prioritizedPrice.promotionPrice ? prioritizedPrice.price : null;
 
-    // Apply margin: price + (price * margin / 100)
-    const margin = ('margin' in prioritizedPrice ? (prioritizedPrice as any).margin : null) ?? 20;
+    // Apply margin only if field is present; public API prices already include margin
+    const margin = ('margin' in prioritizedPrice ? (prioritizedPrice as any).margin : null) ?? 0;
     const price = basePrice * (1 + margin / 100);
     const originalPrice = baseOriginalPrice ? baseOriginalPrice * (1 + margin / 100) : null;
 
@@ -81,7 +81,7 @@ export const useCatalogPricing = (
 
     let minPrice = Infinity;
     for (const p of pool) {
-      const margin = ('margin' in p ? (p as any).margin : null) ?? 20;
+      const margin = ('margin' in p ? (p as any).margin : null) ?? 0;
       const base = (p as any).promotionPrice ?? (p as any).price;
       const final = base * (1 + margin / 100);
       if (final < minPrice) minPrice = final;
@@ -97,7 +97,7 @@ export const useCatalogPricing = (
     const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
     
     return prices.map((priceInfo) => {
-      const margin = ('margin' in priceInfo ? (priceInfo as any).margin : null) ?? 20;
+      const margin = ('margin' in priceInfo ? (priceInfo as any).margin : null) ?? 0;
       const basePrice = priceInfo.promotionPrice ?? priceInfo.price;
       const marginMultiplier = 1 + margin / 100;
       return {

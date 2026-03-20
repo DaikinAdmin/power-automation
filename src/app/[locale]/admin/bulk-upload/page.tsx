@@ -1,11 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Upload, FileText, AlertCircle, CheckCircle, GripVertical, X, Zap } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { toast } from 'sonner';
+import { useState, useCallback, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Upload,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  GripVertical,
+  X,
+  Zap,
+  Download,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import ExportModal from "@/components/admin/export-modal";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -19,10 +35,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 
 interface UploadState {
-  status: 'idle' | 'uploading' | 'success' | 'error';
+  status: "idle" | "uploading" | "success" | "error";
   progress: number;
   message: string;
   details?: string[];
@@ -33,15 +49,42 @@ interface ParsedData {
   rows: any[][];
 }
 
-type MandatoryField = 'articleId' | 'price' | 'quantity';
-type OptionalField = 'badge' | 'promoCode' | 'promoStartDate' | 'promoEndDate' | 'promoPrice';
-type TranslationField = 
-  | 'name_pl' | 'name_ua' | 'name_en' | 'name_es'
-  | 'description_pl' | 'description_ua' | 'description_en' | 'description_es'
-  | 'specifications_pl' | 'specifications_ua' | 'specifications_en' | 'specifications_es'
-  | 'metaDescription_pl' | 'metaDescription_ua' | 'metaDescription_en' | 'metaDescription_es'
-  | 'metaKeywords_pl' | 'metaKeywords_ua' | 'metaKeywords_en' | 'metaKeywords_es';
-type ItemField = 'imageUrl' | 'seller' | 'alias' | 'isDisplayed' | 'brand' | 'categorySlug';
+type MandatoryField = "articleId" | "price" | "quantity";
+type OptionalField =
+  | "badge"
+  | "margin"
+  | "promoCode"
+  | "promoStartDate"
+  | "promoEndDate"
+  | "promoPrice";
+type TranslationField =
+  | "name_pl"
+  | "name_ua"
+  | "name_en"
+  | "name_es"
+  | "description_pl"
+  | "description_ua"
+  | "description_en"
+  | "description_es"
+  | "specifications_pl"
+  | "specifications_ua"
+  | "specifications_en"
+  | "specifications_es"
+  | "metaDescription_pl"
+  | "metaDescription_ua"
+  | "metaDescription_en"
+  | "metaDescription_es"
+  | "metaKeywords_pl"
+  | "metaKeywords_ua"
+  | "metaKeywords_en"
+  | "metaKeywords_es";
+type ItemField =
+  | "imageUrl"
+  | "seller"
+  | "alias"
+  | "isDisplayed"
+  | "brand"
+  | "categorySlug";
 type FieldType = MandatoryField | OptionalField | TranslationField | ItemField;
 
 interface ColumnMapping {
@@ -50,6 +93,7 @@ interface ColumnMapping {
   price: number | null;
   badge: number | null;
   brand: number | null;
+  margin: number | null;
   promoCode: number | null;
   promoStartDate: number | null;
   promoEndDate: number | null;
@@ -87,35 +131,63 @@ interface Warehouse {
   displayedName: string;
 }
 
-type Currency = 'EUR' | 'PLN' | 'UAH';
-type UploadMode = 'prices' | 'descriptions';
+type Currency = "EUR" | "PLN" | "UAH";
+type UploadMode = "prices" | "descriptions";
 
 export default function BulkUploadPage() {
   const [uploadState, setUploadState] = useState<UploadState>({
-    status: 'idle',
+    status: "idle",
     progress: 0,
-    message: ''
+    message: "",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [columnMapping, setColumnMapping] = useState<ColumnMapping>({
-    articleId: null, quantity: null, price: null, badge: null, brand: null,
-    promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
-    name_pl: null, name_ua: null, name_en: null, name_es: null,
-    description_pl: null, description_ua: null, description_en: null, description_es: null,
-    specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
-    metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
-    metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-    imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
+    articleId: null,
+    quantity: null,
+    price: null,
+    badge: null,
+    brand: null,
+    margin: null,
+    promoCode: null,
+    promoStartDate: null,
+    promoEndDate: null,
+    promoPrice: null,
+    name_pl: null,
+    name_ua: null,
+    name_en: null,
+    name_es: null,
+    description_pl: null,
+    description_ua: null,
+    description_en: null,
+    description_es: null,
+    specifications_pl: null,
+    specifications_ua: null,
+    specifications_en: null,
+    specifications_es: null,
+    metaDescription_pl: null,
+    metaDescription_ua: null,
+    metaDescription_en: null,
+    metaDescription_es: null,
+    metaKeywords_pl: null,
+    metaKeywords_ua: null,
+    metaKeywords_en: null,
+    metaKeywords_es: null,
+    imageUrl: null,
+    seller: null,
+    alias: null,
+    isDisplayed: null,
+    categorySlug: null,
   });
   const [draggedLabel, setDraggedLabel] = useState<FieldType | null>(null);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("");
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(false);
-  const [currency, setCurrency] = useState<Currency>('EUR');
+  const [currency, setCurrency] = useState<Currency>("EUR");
   const [margin, setMargin] = useState<number>(20);
-  const [uploadMode, setUploadMode] = useState<UploadMode>('prices');
+  const [uploadMode, setUploadMode] = useState<UploadMode>("prices");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
   const [schneiderResult, setSchneiderResult] = useState<{ updated: number; created: number } | null>(null);
   const [schneiderLoading, setSchneiderLoading] = useState(false);
@@ -124,12 +196,12 @@ export default function BulkUploadPage() {
     setSchneiderLoading(true);
     setSchneiderResult(null);
     try {
-      const res = await fetch('/api/admin/partnerse/catalog', { method: 'PUT' });
+      const res = await fetch("/api/admin/partnerse/catalog", { method: "PUT" });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
+      if (!res.ok) throw new Error(data.error || "Request failed");
       setSchneiderResult({ updated: data.updated, created: data.created });
     } catch (err: any) {
-      toast.error('Failed to update Schneider prices', { description: err.message });
+      toast.error("Failed to update Schneider prices", { description: err.message });
     } finally {
       setSchneiderLoading(false);
     }
@@ -140,16 +212,43 @@ export default function BulkUploadPage() {
     setSelectedFile(null);
     setParsedData(null);
     setColumnMapping({
-      articleId: null, quantity: null, price: null, badge: null, brand: null,
-      promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
-      name_pl: null, name_ua: null, name_en: null, name_es: null,
-      description_pl: null, description_ua: null, description_en: null, description_es: null,
-      specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
-      metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
-      metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-      imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
+      articleId: null,
+      quantity: null,
+      price: null,
+      badge: null,
+      brand: null,
+      margin: null,
+      promoCode: null,
+      promoStartDate: null,
+      promoEndDate: null,
+      promoPrice: null,
+      name_pl: null,
+      name_ua: null,
+      name_en: null,
+      name_es: null,
+      description_pl: null,
+      description_ua: null,
+      description_en: null,
+      description_es: null,
+      specifications_pl: null,
+      specifications_ua: null,
+      specifications_en: null,
+      specifications_es: null,
+      metaDescription_pl: null,
+      metaDescription_ua: null,
+      metaDescription_en: null,
+      metaDescription_es: null,
+      metaKeywords_pl: null,
+      metaKeywords_ua: null,
+      metaKeywords_en: null,
+      metaKeywords_es: null,
+      imageUrl: null,
+      seller: null,
+      alias: null,
+      isDisplayed: null,
+      categorySlug: null,
     });
-    setUploadState({ status: 'idle', progress: 0, message: '' });
+    setUploadState({ status: "idle", progress: 0, message: "" });
   };
 
   // Fetch warehouses when page loads
@@ -160,7 +259,7 @@ export default function BulkUploadPage() {
   const fetchWarehouses = async () => {
     setIsLoadingWarehouses(true);
     try {
-      const response = await fetch('/api/admin/warehouses');
+      const response = await fetch("/api/admin/warehouses");
       if (response.ok) {
         const data = await response.json();
         setWarehouses(data);
@@ -169,8 +268,8 @@ export default function BulkUploadPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch warehouses:', error);
-      toast.error('Failed to load warehouses');
+      console.error("Failed to fetch warehouses:", error);
+      toast.error("Failed to load warehouses");
     } finally {
       setIsLoadingWarehouses(false);
     }
@@ -200,47 +299,52 @@ export default function BulkUploadPage() {
 
     const files = Array.from(e.dataTransfer.files);
     const file = files[0];
-    
+
     if (file && isValidFile(file)) {
       setSelectedFile(file);
-      setUploadState({ status: 'idle', progress: 0, message: '' });
+      setUploadState({ status: "idle", progress: 0, message: "" });
       parseFile(file);
     }
   }, []);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && isValidFile(file)) {
-      setSelectedFile(file);
-      setUploadState({ status: 'idle', progress: 0, message: '' });
-      parseFile(file);
-    }
-  }, []);
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file && isValidFile(file)) {
+        setSelectedFile(file);
+        setUploadState({ status: "idle", progress: 0, message: "" });
+        parseFile(file);
+      }
+    },
+    [],
+  );
 
   const parseFile = async (file: File) => {
     try {
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      
-      if (extension === 'csv') {
+      const extension = file.name.split(".").pop()?.toLowerCase();
+
+      if (extension === "csv") {
         await parseCSV(file);
-      } else if (extension === 'xlsx' || extension === 'xls') {
+      } else if (extension === "xlsx" || extension === "xls") {
         await parseExcel(file);
       }
     } catch (error) {
-      console.error('Failed to parse file:', error);
-      toast.error('Failed to parse file');
+      console.error("Failed to parse file:", error);
+      toast.error("Failed to parse file");
     }
   };
 
   const parseCSV = async (file: File) => {
     const text = await file.text();
-    const lines = text.split('\n').filter(line => line.trim());
-    
+    const lines = text.split("\n").filter((line) => line.trim());
+
     if (lines.length === 0) return;
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    const rows = lines.slice(1).map(line => {
-      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const headers = lines[0]
+      .split(",")
+      .map((h) => h.trim().replace(/^"|"$/g, ""));
+    const rows = lines.slice(1).map((line) => {
+      const values = line.split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
       return values;
     });
 
@@ -249,14 +353,20 @@ export default function BulkUploadPage() {
 
   const parseExcel = async (file: File) => {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, { type: "array" });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+    const data = XLSX.utils.sheet_to_json(firstSheet, {
+      header: 1,
+      defval: "",
+      blankrows: false,
+    }) as any[][];
 
     if (data.length === 0) return;
 
-    const headers = data[0].map(h => String(h || '').trim());
-    const rows = data.slice(1).filter(row => row.some(cell => cell !== undefined && cell !== ''));
+    const headers = data[0].map((h) => String(h || "").trim());
+    const rows = data
+      .slice(1)
+      .filter((row) => row.some((cell) => cell !== undefined && cell !== ""));
 
     setParsedData({ headers, rows });
   };
@@ -272,7 +382,7 @@ export default function BulkUploadPage() {
 
   const handleColumnDrop = (columnIndex: number) => {
     if (draggedLabel) {
-      setColumnMapping(prev => ({
+      setColumnMapping((prev) => ({
         ...prev,
         [draggedLabel]: columnIndex,
       }));
@@ -285,7 +395,7 @@ export default function BulkUploadPage() {
   };
 
   const removeColumnMapping = (label: FieldType) => {
-    setColumnMapping(prev => ({
+    setColumnMapping((prev) => ({
       ...prev,
       [label]: null,
     }));
@@ -296,132 +406,213 @@ export default function BulkUploadPage() {
 
     // Validate mandatory fields
     if (columnMapping.articleId === null) {
-      toast.error('Please map the Article ID field');
+      toast.error("Please map the Article ID field");
       return;
     }
-    if (uploadMode === 'prices') {
+    if (uploadMode === "prices") {
       if (columnMapping.price === null || columnMapping.quantity === null) {
-        toast.error('Please map all required fields: Article ID, Price, and Quantity');
+        toast.error(
+          "Please map all required fields: Article ID, Price, and Quantity",
+        );
         return;
       }
       if (!selectedWarehouse) {
-        toast.error('Please select a warehouse');
+        toast.error("Please select a warehouse");
         return;
       }
     }
 
-    setUploadState({ status: 'uploading', progress: 10, message: 'Processing data...' });
+    setUploadState({
+      status: "uploading",
+      progress: 10,
+      message: "Processing data...",
+    });
 
     try {
       // Map the data based on column assignments
-      const items = parsedData.rows.map(row => {
-        const item: any = {
-          articleId: row[columnMapping.articleId!],
-          price: parseFloat(row[columnMapping.price!]) || 0,
-          quantity: parseInt(row[columnMapping.quantity!]) || 0,
-          currency,
-          margin,
-        };
+      const items = parsedData.rows
+        .map((row) => {
+          const rowMargin =
+            columnMapping.margin !== null
+              ? parseFloat(row[columnMapping.margin]) || 0
+              : 0;
+          const item: any = {
+            articleId: row[columnMapping.articleId!],
+            price: parseFloat(row[columnMapping.price!]) || 0,
+            quantity: parseInt(row[columnMapping.quantity!]) || 0,
+            currency,
+            margin: rowMargin > 0 ? rowMargin : margin,
+          };
 
-        // Add optional fields if mapped
-        if (columnMapping.badge !== null && row[columnMapping.badge] !== undefined) {
-          item.badge = row[columnMapping.badge];
-        }
-        if (columnMapping.brand !== null && row[columnMapping.brand] !== undefined) {
-          item.brand = row[columnMapping.brand];
-        }
-        if (columnMapping.promoCode !== null && row[columnMapping.promoCode] !== undefined) {
-          item.promoCode = row[columnMapping.promoCode];
-        }
-        if (columnMapping.promoPrice !== null && row[columnMapping.promoPrice] !== undefined) {
-          item.promoPrice = parseFloat(row[columnMapping.promoPrice]) || 0;
-        }
-        if (columnMapping.promoStartDate !== null && row[columnMapping.promoStartDate] !== undefined) {
-          item.promoStartDate = row[columnMapping.promoStartDate];
-        }
-        if (columnMapping.promoEndDate !== null && row[columnMapping.promoEndDate] !== undefined) {
-          item.promoEndDate = row[columnMapping.promoEndDate];
-        }
-
-        // Build translations object from mapped translation columns
-        const translations: Record<string, { name?: string; description?: string; specifications?: string; metaDescription?: string; metaKeywords?: string }> = {};
-        const transLocales = ['pl', 'ua', 'en', 'es'] as const;
-        for (const locale of transLocales) {
-          const nameCol = columnMapping[`name_${locale}` as TranslationField];
-          const descCol = columnMapping[`description_${locale}` as TranslationField];
-          const specsCol = columnMapping[`specifications_${locale}` as TranslationField];
-          const metaDescCol = columnMapping[`metaDescription_${locale}` as TranslationField];
-          const metaKwCol = columnMapping[`metaKeywords_${locale}` as TranslationField];
-          if (nameCol !== null || descCol !== null || specsCol !== null || metaDescCol !== null || metaKwCol !== null) {
-            translations[locale] = {};
-            if (nameCol !== null && row[nameCol] !== undefined) translations[locale].name = String(row[nameCol]);
-            if (descCol !== null && row[descCol] !== undefined) translations[locale].description = String(row[descCol]);
-            if (specsCol !== null && row[specsCol] !== undefined) translations[locale].specifications = String(row[specsCol]);
-            if (metaDescCol !== null && row[metaDescCol] !== undefined) translations[locale].metaDescription = String(row[metaDescCol]);
-            if (metaKwCol !== null && row[metaKwCol] !== undefined) translations[locale].metaKeywords = String(row[metaKwCol]);
+          // Add optional fields if mapped
+          if (
+            columnMapping.badge !== null &&
+            row[columnMapping.badge] !== undefined
+          ) {
+            item.badge = row[columnMapping.badge];
           }
-        }
-        if (Object.keys(translations).length > 0) {
-          item.translations = translations;
-        }
-        if (columnMapping.seller !== null && row[columnMapping.seller] !== undefined) {
-          item.seller = String(row[columnMapping.seller]);
-        }
-        if (columnMapping.imageUrl !== null && row[columnMapping.imageUrl] !== undefined) {
-          item.imageUrl = String(row[columnMapping.imageUrl]);
-        }
-        if (columnMapping.alias !== null && row[columnMapping.alias] !== undefined) {
-          item.alias = String(row[columnMapping.alias]);
-        }
-        if (columnMapping.isDisplayed !== null && row[columnMapping.isDisplayed] !== undefined) {
-          const val = String(row[columnMapping.isDisplayed]).toLowerCase().trim();
-          item.isDisplayed = val === 'true' || val === '1' || val === 'yes';
-        }
-        if (columnMapping.categorySlug !== null && row[columnMapping.categorySlug] !== undefined) {
-          item.categorySlug = String(row[columnMapping.categorySlug]).trim();
-        }
+          if (
+            columnMapping.brand !== null &&
+            row[columnMapping.brand] !== undefined
+          ) {
+            item.brand = row[columnMapping.brand];
+          }
+          if (
+            columnMapping.promoCode !== null &&
+            row[columnMapping.promoCode] !== undefined
+          ) {
+            item.promoCode = row[columnMapping.promoCode];
+          }
+          if (
+            columnMapping.promoPrice !== null &&
+            row[columnMapping.promoPrice] !== undefined
+          ) {
+            item.promoPrice = parseFloat(row[columnMapping.promoPrice]) || 0;
+          }
+          if (
+            columnMapping.promoStartDate !== null &&
+            row[columnMapping.promoStartDate] !== undefined
+          ) {
+            item.promoStartDate = row[columnMapping.promoStartDate];
+          }
+          if (
+            columnMapping.promoEndDate !== null &&
+            row[columnMapping.promoEndDate] !== undefined
+          ) {
+            item.promoEndDate = row[columnMapping.promoEndDate];
+          }
 
-        return item;
-      }).filter(item => item.articleId); // Filter out rows without articleId
+          // Build translations object from mapped translation columns
+          const translations: Record<
+            string,
+            {
+              name?: string;
+              description?: string;
+              specifications?: string;
+              metaDescription?: string;
+              metaKeywords?: string;
+            }
+          > = {};
+          const transLocales = ["pl", "ua", "en", "es"] as const;
+          for (const locale of transLocales) {
+            const nameCol = columnMapping[`name_${locale}` as TranslationField];
+            const descCol =
+              columnMapping[`description_${locale}` as TranslationField];
+            const specsCol =
+              columnMapping[`specifications_${locale}` as TranslationField];
+            const metaDescCol =
+              columnMapping[`metaDescription_${locale}` as TranslationField];
+            const metaKwCol =
+              columnMapping[`metaKeywords_${locale}` as TranslationField];
+            if (
+              nameCol !== null ||
+              descCol !== null ||
+              specsCol !== null ||
+              metaDescCol !== null ||
+              metaKwCol !== null
+            ) {
+              translations[locale] = {};
+              if (nameCol !== null && row[nameCol] !== undefined)
+                translations[locale].name = String(row[nameCol]);
+              if (descCol !== null && row[descCol] !== undefined)
+                translations[locale].description = String(row[descCol]);
+              if (specsCol !== null && row[specsCol] !== undefined)
+                translations[locale].specifications = String(row[specsCol]);
+              if (metaDescCol !== null && row[metaDescCol] !== undefined)
+                translations[locale].metaDescription = String(row[metaDescCol]);
+              if (metaKwCol !== null && row[metaKwCol] !== undefined)
+                translations[locale].metaKeywords = String(row[metaKwCol]);
+            }
+          }
+          if (Object.keys(translations).length > 0) {
+            item.translations = translations;
+          }
+          if (
+            columnMapping.seller !== null &&
+            row[columnMapping.seller] !== undefined
+          ) {
+            item.seller = String(row[columnMapping.seller]);
+          }
+          if (
+            columnMapping.imageUrl !== null &&
+            row[columnMapping.imageUrl] !== undefined
+          ) {
+            item.imageUrl = String(row[columnMapping.imageUrl]);
+          }
+          if (
+            columnMapping.alias !== null &&
+            row[columnMapping.alias] !== undefined
+          ) {
+            item.alias = String(row[columnMapping.alias]);
+          }
+          if (
+            columnMapping.isDisplayed !== null &&
+            row[columnMapping.isDisplayed] !== undefined
+          ) {
+            const val = String(row[columnMapping.isDisplayed])
+              .toLowerCase()
+              .trim();
+            item.isDisplayed = val === "true" || val === "1" || val === "yes";
+          }
+          if (
+            columnMapping.categorySlug !== null &&
+            row[columnMapping.categorySlug] !== undefined
+          ) {
+            item.categorySlug = String(row[columnMapping.categorySlug]).trim();
+          }
 
-      setUploadState({ status: 'uploading', progress: 30, message: 'Uploading to server...' });
+          return item;
+        })
+        .filter((item) => item.articleId); // Filter out rows without articleId
 
-      const endpoint = uploadMode === 'descriptions'
-        ? '/api/admin/items/bulk-update-descriptions'
-        : '/api/admin/items/bulk-update-prices';
+      setUploadState({
+        status: "uploading",
+        progress: 30,
+        message: "Uploading to server...",
+      });
+
+      const endpoint =
+        uploadMode === "descriptions"
+          ? "/api/admin/items/bulk-update-descriptions"
+          : "/api/admin/items/bulk-update-prices";
 
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(
-          uploadMode === 'descriptions'
+          uploadMode === "descriptions"
             ? { items }
-            : { items, warehouseId: selectedWarehouse }
+            : { items, warehouseId: selectedWarehouse },
         ),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        throw new Error(error.error || "Upload failed");
       }
 
       const result = await response.json();
 
       setUploadState({
-        status: 'success',
+        status: "success",
         progress: 100,
-        message: result.message || 'Upload completed successfully',
+        message: result.message || "Upload completed successfully",
       });
 
-      const warehouseName = warehouses.find(w => w.id === selectedWarehouse)?.name || 'warehouse';
+      const warehouseName =
+        warehouses.find((w) => w.id === selectedWarehouse)?.name || "warehouse";
 
-      const toastTitle = uploadMode === 'descriptions' ? 'Descriptions Updated!' : 'Prices Updated!';
+      const toastTitle =
+        uploadMode === "descriptions"
+          ? "Descriptions Updated!"
+          : "Prices Updated!";
       toast.success(toastTitle, {
-        description: uploadMode === 'descriptions'
-          ? `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items`
-          : `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
+        description:
+          uploadMode === "descriptions"
+            ? `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items`
+            : `Updated ${result.results?.updated || 0} and created ${result.results?.created || 0} items in ${warehouseName}`,
         duration: 5000,
       });
 
@@ -430,52 +621,85 @@ export default function BulkUploadPage() {
         setSelectedFile(null);
         setParsedData(null);
         setColumnMapping({
-          articleId: null, quantity: null, price: null, badge: null, brand: null,
-          promoCode: null, promoStartDate: null, promoEndDate: null, promoPrice: null,
-          name_pl: null, name_ua: null, name_en: null, name_es: null,
-          description_pl: null, description_ua: null, description_en: null, description_es: null,
-          specifications_pl: null, specifications_ua: null, specifications_en: null, specifications_es: null,
-          metaDescription_pl: null, metaDescription_ua: null, metaDescription_en: null, metaDescription_es: null,
-          metaKeywords_pl: null, metaKeywords_ua: null, metaKeywords_en: null, metaKeywords_es: null,
-          imageUrl: null, seller: null, alias: null, isDisplayed: null, categorySlug: null,
+          articleId: null,
+          quantity: null,
+          price: null,
+          badge: null,
+          brand: null,
+          margin: null,
+          promoCode: null,
+          promoStartDate: null,
+          promoEndDate: null,
+          promoPrice: null,
+          name_pl: null,
+          name_ua: null,
+          name_en: null,
+          name_es: null,
+          description_pl: null,
+          description_ua: null,
+          description_en: null,
+          description_es: null,
+          specifications_pl: null,
+          specifications_ua: null,
+          specifications_en: null,
+          specifications_es: null,
+          metaDescription_pl: null,
+          metaDescription_ua: null,
+          metaDescription_en: null,
+          metaDescription_es: null,
+          metaKeywords_pl: null,
+          metaKeywords_ua: null,
+          metaKeywords_en: null,
+          metaKeywords_es: null,
+          imageUrl: null,
+          seller: null,
+          alias: null,
+          isDisplayed: null,
+          categorySlug: null,
         });
-        setUploadState({ status: 'idle', progress: 0, message: '' });
+        setUploadState({ status: "idle", progress: 0, message: "" });
       }, 3000);
-
     } catch (error: any) {
       setUploadState({
-        status: 'error',
+        status: "error",
         progress: 0,
-        message: error.message || 'Upload failed',
+        message: error.message || "Upload failed",
       });
-      toast.error('Upload Failed', {
+      toast.error("Upload Failed", {
         description: error.message,
       });
     }
   };
 
   const isValidFile = (file: File): boolean => {
-    const validTypes = ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
-    const validExtensions = ['.csv', '.xlsx', '.xls'];
+    const validTypes = [
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+    const validExtensions = [".csv", ".xlsx", ".xls"];
     const maxSize = 10 * 1024 * 1024; // 10MB
 
-    const hasValidType = validTypes.includes(file.type) || validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    const hasValidType =
+      validTypes.includes(file.type) ||
+      validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
     const hasValidSize = file.size <= maxSize;
 
     if (!hasValidType) {
       setUploadState({
-        status: 'error',
+        status: "error",
         progress: 0,
-        message: 'Invalid file type. Only CSV, XLSX, and XLS files are supported.',
+        message:
+          "Invalid file type. Only CSV, XLSX, and XLS files are supported.",
       });
       return false;
     }
 
     if (!hasValidSize) {
       setUploadState({
-        status: 'error',
+        status: "error",
         progress: 0,
-        message: 'File too large. Maximum file size is 10MB.',
+        message: "File too large. Maximum file size is 10MB.",
       });
       return false;
     }
@@ -484,49 +708,50 @@ export default function BulkUploadPage() {
   };
 
   const mandatoryFields: { key: MandatoryField; label: string }[] = [
-    { key: 'articleId', label: 'Article ID' },
-    { key: 'price', label: 'Price' },
-    { key: 'quantity', label: 'Quantity' },
+    { key: "articleId", label: "Article ID" },
+    { key: "price", label: "Price" },
+    { key: "quantity", label: "Quantity" },
   ];
 
   const optionalFields: { key: OptionalField; label: string }[] = [
-    { key: 'badge', label: 'Badge' },
-    { key: 'promoCode', label: 'Promo Code' },
-    { key: 'promoPrice', label: 'Promo Price' },
-    { key: 'promoStartDate', label: 'Promo Start Date' },
-    { key: 'promoEndDate', label: 'Promo End Date' },
+    { key: "badge", label: "Badge" },
+    { key: "margin", label: "Margin" },
+    { key: "promoCode", label: "Promo Code" },
+    { key: "promoPrice", label: "Promo Price" },
+    { key: "promoStartDate", label: "Promo Start Date" },
+    { key: "promoEndDate", label: "Promo End Date" },
   ];
 
   const translationFields: { key: TranslationField; label: string }[] = [
-    { key: 'name_pl', label: 'Name (PL)' },
-    { key: 'name_ua', label: 'Name (UA)' },
-    { key: 'name_en', label: 'Name (EN)' },
-    { key: 'name_es', label: 'Name (ES)' },
-    { key: 'description_pl', label: 'Description (PL)' },
-    { key: 'description_ua', label: 'Description (UA)' },
-    { key: 'description_en', label: 'Description (EN)' },
-    { key: 'description_es', label: 'Description (ES)' },
-    { key: 'specifications_pl', label: 'Specifications (PL)' },
-    { key: 'specifications_ua', label: 'Specifications (UA)' },
-    { key: 'specifications_en', label: 'Specifications (EN)' },
-    { key: 'specifications_es', label: 'Specifications (ES)' },
-    { key: 'metaDescription_pl', label: 'Meta Desc (PL)' },
-    { key: 'metaDescription_ua', label: 'Meta Desc (UA)' },
-    { key: 'metaDescription_en', label: 'Meta Desc (EN)' },
-    { key: 'metaDescription_es', label: 'Meta Desc (ES)' },
-    { key: 'metaKeywords_pl', label: 'Meta KW (PL)' },
-    { key: 'metaKeywords_ua', label: 'Meta KW (UA)' },
-    { key: 'metaKeywords_en', label: 'Meta KW (EN)' },
-    { key: 'metaKeywords_es', label: 'Meta KW (ES)' },
+    { key: "name_pl", label: "Name (PL)" },
+    { key: "name_ua", label: "Name (UA)" },
+    { key: "name_en", label: "Name (EN)" },
+    { key: "name_es", label: "Name (ES)" },
+    { key: "description_pl", label: "Description (PL)" },
+    { key: "description_ua", label: "Description (UA)" },
+    { key: "description_en", label: "Description (EN)" },
+    { key: "description_es", label: "Description (ES)" },
+    { key: "specifications_pl", label: "Specifications (PL)" },
+    { key: "specifications_ua", label: "Specifications (UA)" },
+    { key: "specifications_en", label: "Specifications (EN)" },
+    { key: "specifications_es", label: "Specifications (ES)" },
+    { key: "metaDescription_pl", label: "Meta Desc (PL)" },
+    { key: "metaDescription_ua", label: "Meta Desc (UA)" },
+    { key: "metaDescription_en", label: "Meta Desc (EN)" },
+    { key: "metaDescription_es", label: "Meta Desc (ES)" },
+    { key: "metaKeywords_pl", label: "Meta KW (PL)" },
+    { key: "metaKeywords_ua", label: "Meta KW (UA)" },
+    { key: "metaKeywords_en", label: "Meta KW (EN)" },
+    { key: "metaKeywords_es", label: "Meta KW (ES)" },
   ];
 
   const itemFields: { key: ItemField; label: string }[] = [
-    { key: 'brand', label: 'Brand' },
-    { key: 'categorySlug', label: 'Category Slug' },
-    { key: 'imageUrl', label: 'Image URLs' },
-    { key: 'seller', label: 'Seller' },
-    { key: 'alias', label: 'Alias' },
-    { key: 'isDisplayed', label: 'Is Displayed' },
+    { key: "brand", label: "Brand" },
+    { key: "categorySlug", label: "Category Slug" },
+    { key: "imageUrl", label: "Image URLs" },
+    { key: "seller", label: "Seller" },
+    { key: "alias", label: "Alias" },
+    { key: "isDisplayed", label: "Is Displayed" },
   ];
 
   return (
@@ -538,11 +763,26 @@ export default function BulkUploadPage() {
             Upload CSV or Excel files to update item prices and inventory
           </p>
         </div>
-        <Button variant="outline" onClick={() => { setBulkActionsOpen(true); setSchneiderResult(null); }}>
-          <Zap className="mr-2 h-4 w-4" />
-          Bulk Actions
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            Export Items
+          </Button>
+          <Button variant="outline" onClick={() => { setBulkActionsOpen(true); setSchneiderResult(null); }}>
+            <Zap className="mr-2 h-4 w-4" />
+            Bulk Actions
+          </Button>
+        </div>
       </div>
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
 
       <Dialog open={bulkActionsOpen} onOpenChange={setBulkActionsOpen}>
         <DialogContent className="sm:max-w-md">
@@ -555,7 +795,7 @@ export default function BulkUploadPage() {
               onClick={handleUpdateSchneiderPrices}
               disabled={schneiderLoading}
             >
-              {schneiderLoading ? 'Updating...' : 'Update Schneider Ukraine Prices'}
+              {schneiderLoading ? "Updating..." : "Update Schneider Ukraine Prices"}
             </Button>
             {schneiderResult && (
               <div className="rounded-md bg-muted px-4 py-3 text-sm">
@@ -574,21 +814,21 @@ export default function BulkUploadPage() {
       {/* Mode Toggle */}
       <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 w-fit">
         <button
-          onClick={() => handleModeChange('prices')}
+          onClick={() => handleModeChange("prices")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            uploadMode === 'prices'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+            uploadMode === "prices"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
           }`}
         >
           Prices & Inventory
         </button>
         <button
-          onClick={() => handleModeChange('descriptions')}
+          onClick={() => handleModeChange("descriptions")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            uploadMode === 'descriptions'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+            uploadMode === "descriptions"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
           }`}
         >
           Product Descriptions
@@ -600,14 +840,18 @@ export default function BulkUploadPage() {
         <Card>
           <CardHeader>
             <CardTitle>Map Columns</CardTitle>
-            <CardDescription>Drag labels to table headers below</CardDescription>
+            <CardDescription>
+              Drag labels to table headers below
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold mb-3 text-red-600">Required Fields</h4>
+              <h4 className="text-sm font-semibold mb-3 text-red-600">
+                Required Fields
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {(uploadMode === 'descriptions'
-                  ? mandatoryFields.filter(f => f.key === 'articleId')
+                {(uploadMode === "descriptions"
+                  ? mandatoryFields.filter((f) => f.key === "articleId")
                   : mandatoryFields
                 ).map(({ key, label }) => (
                   <div
@@ -617,12 +861,14 @@ export default function BulkUploadPage() {
                     onDragEnd={handleLabelDragEnd}
                     className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
                       columnMapping[key] !== null
-                        ? 'bg-red-100 border-red-500 text-red-700'
-                        : 'bg-red-50 border-red-400 text-red-700 hover:bg-red-100'
+                        ? "bg-red-100 border-red-500 text-red-700"
+                        : "bg-red-50 border-red-400 text-red-700 hover:bg-red-100"
                     }`}
                   >
                     <GripVertical className="w-4 h-4" />
-                    <span className="font-medium whitespace-nowrap">{label}</span>
+                    <span className="font-medium whitespace-nowrap">
+                      {label}
+                    </span>
                     {columnMapping[key] !== null && (
                       <button
                         onClick={() => removeColumnMapping(key)}
@@ -636,99 +882,133 @@ export default function BulkUploadPage() {
               </div>
             </div>
 
-            {uploadMode === 'prices' && (
-            <div>
-              <h4 className="text-sm font-semibold mb-3 text-blue-600">Optional Fields</h4>
-              <div className="flex flex-wrap gap-2">
-                {optionalFields.map(({ key, label }) => (
-                  <div
-                    key={key}
-                    draggable
-                    onDragStart={() => handleLabelDragStart(key)}
-                    onDragEnd={handleLabelDragEnd}
-                    className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
-                      columnMapping[key] !== null
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100'
-                    }`}
-                  >
-                    <GripVertical className="w-4 h-4" />
-                    <span className="font-medium whitespace-nowrap">{label}</span>
-                    {columnMapping[key] !== null && (
-                      <button
-                        onClick={() => removeColumnMapping(key)}
-                        className="text-xs hover:text-blue-800 font-bold ml-1"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>            )}
-            {uploadMode === 'descriptions' && <div>
-              <h4 className="text-sm font-semibold mb-3 text-green-600">Translation Fields</h4>
-              <div className="space-y-2">
-                {([
-                  { group: 'Name', prefix: 'name' },
-                  { group: 'Description', prefix: 'description' },
-                  { group: 'Specifications', prefix: 'specifications' },
-                  { group: 'Meta Description', prefix: 'metaDescription' },
-                  { group: 'Meta Keywords', prefix: 'metaKeywords' },
-                ] as const).map(({ group, prefix }) => (
-                  <div key={group} className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-green-700 font-semibold w-[130px] shrink-0">{group}:</span>
-                    {(['pl', 'ua', 'en', 'es'] as const).map(locale => {
-                      const key = `${prefix}_${locale}` as TranslationField;
-                      return (
-                        <div
-                          key={key}
-                          draggable
-                          onDragStart={() => handleLabelDragStart(key)}
-                          onDragEnd={handleLabelDragEnd}
-                          className={`px-3 py-1.5 rounded-lg border-2 cursor-move flex items-center gap-1.5 transition-colors ${
-                            columnMapping[key] !== null
-                              ? 'bg-green-100 border-green-500 text-green-700'
-                              : 'bg-green-50 border-green-400 text-green-700 hover:bg-green-100'
-                          }`}
+            {uploadMode === "prices" && (
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-blue-600">
+                  Optional Fields
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {optionalFields.map(({ key, label }) => (
+                    <div
+                      key={key}
+                      draggable
+                      onDragStart={() => handleLabelDragStart(key)}
+                      onDragEnd={handleLabelDragEnd}
+                      className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
+                        columnMapping[key] !== null
+                          ? "bg-blue-100 border-blue-500 text-blue-700"
+                          : "bg-blue-50 border-blue-400 text-blue-700 hover:bg-blue-100"
+                      }`}
+                    >
+                      <GripVertical className="w-4 h-4" />
+                      <span className="font-medium whitespace-nowrap">
+                        {label}
+                      </span>
+                      {columnMapping[key] !== null && (
+                        <button
+                          onClick={() => removeColumnMapping(key)}
+                          className="text-xs hover:text-blue-800 font-bold ml-1"
                         >
-                          <GripVertical className="w-3 h-3" />
-                          <span className="font-medium text-xs">{locale.toUpperCase()}</span>
-                          {columnMapping[key] !== null && (
-                            <button onClick={() => removeColumnMapping(key)} className="text-xs hover:text-green-800 font-bold">✕</button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>}
+            )}
+            {uploadMode === "descriptions" && (
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-green-600">
+                  Translation Fields
+                </h4>
+                <div className="space-y-2">
+                  {(
+                    [
+                      { group: "Name", prefix: "name" },
+                      { group: "Description", prefix: "description" },
+                      { group: "Specifications", prefix: "specifications" },
+                      { group: "Meta Description", prefix: "metaDescription" },
+                      { group: "Meta Keywords", prefix: "metaKeywords" },
+                    ] as const
+                  ).map(({ group, prefix }) => (
+                    <div
+                      key={group}
+                      className="flex items-center gap-2 flex-wrap"
+                    >
+                      <span className="text-xs text-green-700 font-semibold w-[130px] shrink-0">
+                        {group}:
+                      </span>
+                      {(["pl", "ua", "en", "es"] as const).map((locale) => {
+                        const key = `${prefix}_${locale}` as TranslationField;
+                        return (
+                          <div
+                            key={key}
+                            draggable
+                            onDragStart={() => handleLabelDragStart(key)}
+                            onDragEnd={handleLabelDragEnd}
+                            className={`px-3 py-1.5 rounded-lg border-2 cursor-move flex items-center gap-1.5 transition-colors ${
+                              columnMapping[key] !== null
+                                ? "bg-green-100 border-green-500 text-green-700"
+                                : "bg-green-50 border-green-400 text-green-700 hover:bg-green-100"
+                            }`}
+                          >
+                            <GripVertical className="w-3 h-3" />
+                            <span className="font-medium text-xs">
+                              {locale.toUpperCase()}
+                            </span>
+                            {columnMapping[key] !== null && (
+                              <button
+                                onClick={() => removeColumnMapping(key)}
+                                className="text-xs hover:text-green-800 font-bold"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {uploadMode === 'descriptions' && <div>
-              <h4 className="text-sm font-semibold mb-3 text-purple-600">Item Fields</h4>
-              <div className="flex flex-wrap gap-2">
-                {itemFields.map(({ key, label }) => (
-                  <div
-                    key={key}
-                    draggable
-                    onDragStart={() => handleLabelDragStart(key)}
-                    onDragEnd={handleLabelDragEnd}
-                    className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
-                      columnMapping[key] !== null
-                        ? 'bg-purple-100 border-purple-500 text-purple-700'
-                        : 'bg-purple-50 border-purple-400 text-purple-700 hover:bg-purple-100'
-                    }`}
-                  >
-                    <GripVertical className="w-4 h-4" />
-                    <span className="font-medium whitespace-nowrap">{label}</span>
-                    {columnMapping[key] !== null && (
-                      <button onClick={() => removeColumnMapping(key)} className="text-xs hover:text-purple-800 font-bold ml-1">✕</button>
-                    )}
-                  </div>
-                ))}
+            {uploadMode === "descriptions" && (
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-purple-600">
+                  Item Fields
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {itemFields.map(({ key, label }) => (
+                    <div
+                      key={key}
+                      draggable
+                      onDragStart={() => handleLabelDragStart(key)}
+                      onDragEnd={handleLabelDragEnd}
+                      className={`px-3 py-2 rounded-lg border-2 cursor-move flex items-center gap-2 transition-colors ${
+                        columnMapping[key] !== null
+                          ? "bg-purple-100 border-purple-500 text-purple-700"
+                          : "bg-purple-50 border-purple-400 text-purple-700 hover:bg-purple-100"
+                      }`}
+                    >
+                      <GripVertical className="w-4 h-4" />
+                      <span className="font-medium whitespace-nowrap">
+                        {label}
+                      </span>
+                      {columnMapping[key] !== null && (
+                        <button
+                          onClick={() => removeColumnMapping(key)}
+                          className="text-xs hover:text-purple-800 font-bold ml-1"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>}
+            )}
           </CardContent>
         </Card>
       )}
@@ -737,78 +1017,95 @@ export default function BulkUploadPage() {
         {/* Left Column - Configuration */}
         <div className="lg:col-span-1 space-y-6">
           {/* Warehouse Selection - prices mode only */}
-          {uploadMode === 'prices' && <Card>
-            <CardHeader>
-              <CardTitle>Warehouse</CardTitle>
-              <CardDescription>Select target warehouse</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Select 
-                value={selectedWarehouse} 
-                onValueChange={setSelectedWarehouse}
-                disabled={isLoadingWarehouses}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={isLoadingWarehouses ? "Loading..." : "Select warehouse"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {warehouses.map((warehouse) => (
-                    <SelectItem key={warehouse.id} value={warehouse.id}>
-                      {warehouse.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>}
+          {uploadMode === "prices" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Warehouse</CardTitle>
+                <CardDescription>Select target warehouse</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Select
+                  value={selectedWarehouse}
+                  onValueChange={setSelectedWarehouse}
+                  disabled={isLoadingWarehouses}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue
+                      placeholder={
+                        isLoadingWarehouses ? "Loading..." : "Select warehouse"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {warehouses.map((warehouse) => (
+                      <SelectItem key={warehouse.id} value={warehouse.id}>
+                        {warehouse.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Currency Selection - prices mode only */}
-          {uploadMode === 'prices' && <Card>
-            <CardHeader>
-              <CardTitle>Price Currency</CardTitle>
-              <CardDescription>Select currency for prices</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Select value={currency} onValueChange={(value) => setCurrency(value as Currency)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                  <SelectItem value="PLN">PLN (zł)</SelectItem>
-                  <SelectItem value="UAH">UAH (₴)</SelectItem>
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>}
+          {uploadMode === "prices" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Price Currency</CardTitle>
+                <CardDescription>Select currency for prices</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Select
+                  value={currency}
+                  onValueChange={(value) => setCurrency(value as Currency)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="PLN">PLN (zł)</SelectItem>
+                    <SelectItem value="UAH">UAH (₴)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Margin - prices mode only */}
-          {uploadMode === 'prices' && <Card>
-            <CardHeader>
-              <CardTitle>Margin (%)</CardTitle>
-              <CardDescription>Markup percentage applied to prices</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  value={margin}
-                  onChange={(e) => setMargin(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-500 font-medium">%</span>
-              </div>
-            </CardContent>
-          </Card>}
+          {uploadMode === "prices" && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Margin (%)</CardTitle>
+                <CardDescription>
+                  Markup percentage applied to prices
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={margin}
+                    onChange={(e) => setMargin(parseFloat(e.target.value) || 0)}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-500 font-medium">%</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* File Upload */}
           <Card>
             <CardHeader>
               <CardTitle>Upload File</CardTitle>
-              <CardDescription>CSV, XLSX, or XLS files (max 10MB)</CardDescription>
+              <CardDescription>
+                CSV, XLSX, or XLS files (max 10MB)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div
@@ -817,14 +1114,14 @@ export default function BulkUploadPage() {
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                  isDragActive 
-                    ? 'border-blue-500 bg-blue-50' 
+                  isDragActive
+                    ? "border-blue-500 bg-blue-50"
                     : selectedFile
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-300 hover:border-gray-400"
                 }`}
               >
-                <input 
+                <input
                   type="file"
                   accept=".csv,.xlsx,.xls"
                   onChange={handleFileSelect}
@@ -844,10 +1141,9 @@ export default function BulkUploadPage() {
                     <div className="space-y-2">
                       <Upload className="w-10 h-10 mx-auto text-gray-400" />
                       <p className="text-sm">
-                        {isDragActive 
-                          ? 'Drop the file here...'
-                          : 'Drag & drop or click to select'
-                        }
+                        {isDragActive
+                          ? "Drop the file here..."
+                          : "Drag & drop or click to select"}
                       </p>
                     </div>
                   )}
@@ -868,11 +1164,11 @@ export default function BulkUploadPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div 
+                <div
                   className="border rounded-lg overflow-hidden"
                   style={{
-                    maxHeight: 'calc(100vh - 250px)',
-                    minHeight: '400px',
+                    maxHeight: "calc(100vh - 250px)",
+                    minHeight: "400px",
                   }}
                 >
                   <div className="overflow-auto h-full">
@@ -880,13 +1176,21 @@ export default function BulkUploadPage() {
                       <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
                           {parsedData.headers.map((header, index) => {
-                            const assignedLabel = Object.entries(columnMapping).find(
-                              ([_, colIndex]) => colIndex === index
+                            const assignedLabel = Object.entries(
+                              columnMapping,
+                            ).find(
+                              ([_, colIndex]) => colIndex === index,
                             )?.[0] as FieldType | undefined;
-                            
-                            const isMandatory = mandatoryFields.some(f => f.key === assignedLabel);
-                            const isTranslation = translationFields.some(f => f.key === assignedLabel);
-                            const isItemField = itemFields.some(f => f.key === assignedLabel);
+
+                            const isMandatory = mandatoryFields.some(
+                              (f) => f.key === assignedLabel,
+                            );
+                            const isTranslation = translationFields.some(
+                              (f) => f.key === assignedLabel,
+                            );
+                            const isItemField = itemFields.some(
+                              (f) => f.key === assignedLabel,
+                            );
 
                             return (
                               <th
@@ -895,28 +1199,47 @@ export default function BulkUploadPage() {
                                 onDrop={() => handleColumnDrop(index)}
                                 className={`px-4 py-3 text-left font-medium border-b border-r whitespace-nowrap ${
                                   assignedLabel && isMandatory
-                                    ? 'bg-red-100 border-red-500'
+                                    ? "bg-red-100 border-red-500"
                                     : assignedLabel && isTranslation
-                                    ? 'bg-green-100 border-green-500'
-                                    : assignedLabel && isItemField
-                                    ? 'bg-purple-100 border-purple-500'
-                                    : assignedLabel
-                                    ? 'bg-blue-100 border-blue-500'
-                                    : draggedLabel
-                                    ? 'bg-gray-100 hover:bg-gray-200 cursor-pointer'
-                                    : 'bg-gray-50'
+                                      ? "bg-green-100 border-green-500"
+                                      : assignedLabel && isItemField
+                                        ? "bg-purple-100 border-purple-500"
+                                        : assignedLabel
+                                          ? "bg-blue-100 border-blue-500"
+                                          : draggedLabel
+                                            ? "bg-gray-100 hover:bg-gray-200 cursor-pointer"
+                                            : "bg-gray-50"
                                 }`}
                               >
                                 <div className="space-y-1 min-w-[120px]">
-                                  <div className="font-normal text-gray-600">{header || `Column ${index + 1}`}</div>
+                                  <div className="font-normal text-gray-600">
+                                    {header || `Column ${index + 1}`}
+                                  </div>
                                   {assignedLabel && (
-                                    <div className={`text-xs font-semibold capitalize ${
-                                      isMandatory ? 'text-red-700' : isTranslation ? 'text-green-700' : isItemField ? 'text-purple-700' : 'text-blue-700'
-                                    }`}>
-                                      → {mandatoryFields.find(f => f.key === assignedLabel)?.label || 
-                                          optionalFields.find(f => f.key === assignedLabel)?.label ||
-                                          translationFields.find(f => f.key === assignedLabel)?.label ||
-                                          itemFields.find(f => f.key === assignedLabel)?.label}
+                                    <div
+                                      className={`text-xs font-semibold capitalize ${
+                                        isMandatory
+                                          ? "text-red-700"
+                                          : isTranslation
+                                            ? "text-green-700"
+                                            : isItemField
+                                              ? "text-purple-700"
+                                              : "text-blue-700"
+                                      }`}
+                                    >
+                                      →{" "}
+                                      {mandatoryFields.find(
+                                        (f) => f.key === assignedLabel,
+                                      )?.label ||
+                                        optionalFields.find(
+                                          (f) => f.key === assignedLabel,
+                                        )?.label ||
+                                        translationFields.find(
+                                          (f) => f.key === assignedLabel,
+                                        )?.label ||
+                                        itemFields.find(
+                                          (f) => f.key === assignedLabel,
+                                        )?.label}
                                     </div>
                                   )}
                                 </div>
@@ -927,10 +1250,18 @@ export default function BulkUploadPage() {
                       </thead>
                       <tbody>
                         {parsedData.rows.map((row, rowIndex) => (
-                          <tr key={rowIndex} className="border-b hover:bg-gray-50">
+                          <tr
+                            key={rowIndex}
+                            className="border-b hover:bg-gray-50"
+                          >
                             {row.map((cell, cellIndex) => (
-                              <td key={cellIndex} className="px-4 py-2 border-r whitespace-nowrap">
-                                {cell !== null && cell !== undefined ? String(cell) : ''}
+                              <td
+                                key={cellIndex}
+                                className="px-4 py-2 border-r whitespace-nowrap"
+                              >
+                                {cell !== null && cell !== undefined
+                                  ? String(cell)
+                                  : ""}
                               </td>
                             ))}
                           </tr>
@@ -945,13 +1276,15 @@ export default function BulkUploadPage() {
             <Card>
               <CardContent className="py-20 text-center">
                 <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500">Upload a file to see data preview</p>
+                <p className="text-gray-500">
+                  Upload a file to see data preview
+                </p>
               </CardContent>
             </Card>
           )}
 
           {/* Upload Progress */}
-          {uploadState.status === 'uploading' && (
+          {uploadState.status === "uploading" && (
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-2">
@@ -960,8 +1293,8 @@ export default function BulkUploadPage() {
                     <span>{uploadState.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       style={{ width: `${uploadState.progress}%` }}
                     ></div>
                   </div>
@@ -971,14 +1304,14 @@ export default function BulkUploadPage() {
           )}
 
           {/* Success/Error Messages */}
-          {uploadState.status === 'success' && (
+          {uploadState.status === "success" && (
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>{uploadState.message}</AlertDescription>
             </Alert>
           )}
 
-          {uploadState.status === 'error' && (
+          {uploadState.status === "error" && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
@@ -1001,19 +1334,24 @@ export default function BulkUploadPage() {
           {/* Upload Button */}
           {parsedData && (
             <div className="flex justify-end">
-              <Button 
+              <Button
                 onClick={handleUpload}
                 disabled={
                   !selectedFile ||
-                  uploadState.status === 'uploading' ||
+                  uploadState.status === "uploading" ||
                   !parsedData ||
                   columnMapping.articleId === null ||
-                  (uploadMode === 'prices' && (columnMapping.price === null || columnMapping.quantity === null || !selectedWarehouse))
+                  (uploadMode === "prices" &&
+                    (columnMapping.price === null ||
+                      columnMapping.quantity === null ||
+                      !selectedWarehouse))
                 }
                 size="lg"
                 className="bg-blue-600 text-white hover:bg-blue-700"
               >
-                {uploadState.status === 'uploading' ? 'Uploading...' : 'Upload Items'}
+                {uploadState.status === "uploading"
+                  ? "Uploading..."
+                  : "Upload Items"}
               </Button>
             </div>
           )}

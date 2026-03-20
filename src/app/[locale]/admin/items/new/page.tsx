@@ -73,7 +73,7 @@ export default function NewItemPage() {
       });
 
       if (response.ok) {
-        router.push('/admin/items');
+        router.back();
       } else {
         const error = await response.json();
         console.error('Error creating item:', error);
@@ -96,7 +96,7 @@ export default function NewItemPage() {
       const confirmLeave = confirm('You have unsaved changes. Are you sure you want to go back?');
       if (!confirmLeave) return;
     }
-    router.push('/admin/items');
+    router.back();
   };
 
   if (!formData) {

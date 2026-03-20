@@ -1,0 +1,1 @@
+ALTER TABLE "warehouse_countries" ADD COLUMN "vatPercentage" double precision NOT NULL;

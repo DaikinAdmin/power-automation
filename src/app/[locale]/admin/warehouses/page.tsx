@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { WarehouseModal } from '@/components/admin/warehouse-modal';
 import { DeleteWarehouseModal } from '@/components/admin/delete-warehouse-modal';
-import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Warehouse as Warehouses} from '@/db/schema';
+import { Eye, EyeOff, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import { Warehouse as Warehouses, WarehouseCountries } from '@/db/schema';
 import { usePagination } from '@/hooks/usePagination';
 import { useAdminWarehouses } from '@/hooks/useAdminWarehouses';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
+import { toast } from 'sonner';
 
 interface Warehouse extends Warehouses {
   id: string;
@@ -29,6 +31,64 @@ export default function WarehousesPage() {
 
   // Fetch warehouses using custom hook
   const { warehouses, isLoading, refetch: refetchWarehouses } = useAdminWarehouses();
+
+  // Warehouse countries state
+  const [countries, setCountries] = useState<WarehouseCountries[]>([]);
+  const [isCountriesLoading, setIsCountriesLoading] = useState(true);
+  const [editVat, setEditVat] = useState<Record<number, string>>({});
+  const [savingId, setSavingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      setIsCountriesLoading(true);
+      const res = await fetch('/api/admin/warehouse-countries');
+      if (res.ok) {
+        const data: WarehouseCountries[] = await res.json();
+        setCountries(data);
+        const vat: Record<number, string> = {};
+        data.forEach((c) => {
+          vat[c.id] = c.vatPercentage !== null && c.vatPercentage !== undefined
+            ? String(c.vatPercentage)
+            : '';
+        });
+        setEditVat(vat);
+      }
+    } finally {
+      setIsCountriesLoading(false);
+    }
+  };
+
+  const handleSaveVat = async (country: WarehouseCountries) => {
+    const raw = editVat[country.id];
+    const parsed = raw === '' ? null : parseFloat(raw);
+    if (parsed !== null && (isNaN(parsed) || parsed < 0 || parsed > 100)) {
+      toast.error('VAT must be a number between 0 and 100');
+      return;
+    }
+    setSavingId(country.id);
+    try {
+      const res = await fetch(`/api/admin/warehouse-countries/${country.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vatPercentage: parsed }),
+      });
+      if (res.ok) {
+        toast.success(`VAT for ${country.name} updated`);
+        await fetchCountries();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to update VAT');
+      }
+    } catch {
+      toast.error('Unexpected error');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const {
     currentPage,
@@ -285,6 +345,73 @@ export default function WarehousesPage() {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Warehouse Countries VAT */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Warehouse Countries — VAT</CardTitle>
+          <CardDescription>
+            Set the VAT percentage for each warehouse country.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isCountriesLoading ? (
+            <div className="animate-pulse space-y-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-10 bg-gray-200 rounded" />
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium">Country</th>
+                    <th className="text-left py-3 px-4 font-medium">Slug</th>
+                    <th className="text-left py-3 px-4 font-medium">Code</th>
+                    <th className="text-left py-3 px-4 font-medium">VAT (%)</th>
+                    <th className="text-left py-3 px-4 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {countries.map((country) => (
+                    <tr key={country.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium">{country.name}</td>
+                      <td className="py-3 px-4 text-gray-500">{country.slug}</td>
+                      <td className="py-3 px-4 text-gray-500">{country.countryCode}</td>
+                      <td className="py-3 px-4 w-36">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={0.01}
+                          value={editVat[country.id] ?? ''}
+                          onChange={(e) =>
+                            setEditVat((prev) => ({ ...prev, [country.id]: e.target.value }))
+                          }
+                          placeholder="e.g. 23"
+                          className="h-8 w-28"
+                        />
+                      </td>
+                      <td className="py-3 px-4">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveVat(country)}
+                          disabled={savingId === country.id}
+                          className="h-8"
+                        >
+                          <Save className="h-3.5 w-3.5 mr-1" />
+                          Save
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>
