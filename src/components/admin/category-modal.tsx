@@ -24,17 +24,31 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Category } from '@/helpers/types/item';
+import { ImagePickerModal } from '@/components/admin/image-picker-modal';
+
+const LOCALES = ['pl', 'en', 'es', 'ua'] as const;
+type Locale = typeof LOCALES[number];
+
+type TranslationMap = Record<Locale, string>;
+
+type SubcategoryEntry = {
+  name: string;
+  slug: string;
+  isVisible: boolean;
+  translations: TranslationMap;
+};
+
+const emptyTranslations = (): TranslationMap => ({ pl: '', en: '', es: '', ua: '' });
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Category name is required'),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  subcategory: z.array(z.object({
-    name: z.string().min(1, 'Subcategory name is required'),
-    slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-    isVisible: z.boolean().default(true),
-  })).default([]),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   isVisible: z.boolean().default(true),
 });
 
@@ -49,8 +63,11 @@ interface CategoryModalProps {
 }
 
 export function CategoryModal({ isOpen, onClose, onSave, category, mode }: CategoryModalProps) {
-  const [subcategories, setSubcategories] = useState<Array<{ name: string; slug: string; isVisible: boolean }>>([]);
-  const [newSubcategory, setNewSubcategory] = useState('');
+  const [subcategories, setSubcategories] = useState<SubcategoryEntry[]>([]);
+  const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [expandedSubIndex, setExpandedSubIndex] = useState<number | null>(null);
+  const [categoryTranslations, setCategoryTranslations] = useState<TranslationMap>(emptyTranslations());
+  const [imageLink, setImageLink] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -59,71 +76,104 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
     defaultValues: {
       name: '',
       slug: '',
-      subcategory: [],
       isVisible: true,
     },
   });
 
-  // Reset form when modal opens/closes or category changes
-  useEffect(() => {
-    if (isOpen) {
-      if (mode === 'edit' && category) {
-        const mappedSubs = category.subCategories?.map((sub: { name: string; slug: string; isVisible: boolean | null; }) => ({
-          name: sub.name,
-          slug: sub.slug,
-          isVisible: sub.isVisible ?? true,
-        })) || [];
-        form.reset({
-          name: category.name,
-          slug: category.slug,
-          subcategory: mappedSubs,
-          isVisible: category.isVisible ?? true,
-        });
-        setSubcategories(mappedSubs);
-      } else {
-        form.reset({
-          name: '',
-          slug: '',
-          subcategory: [],
-          isVisible: true,
-        });
-        setSubcategories([]);
-      }
-      setNewSubcategory('');
-      setError('');
-    }
-  }, [isOpen, mode, category, form]);
-
-  // Generate slug from name
-  const generateSlug = (name: string) => {
-    return name
+  const generateSlug = (name: string) =>
+    name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
-  };
+
+  // Reset form when modal opens/closes or category changes
+  useEffect(() => {
+    if (isOpen) {
+      setExpandedSubIndex(null);
+      setNewSubcategoryName('');
+      setError('');
+
+      if (mode === 'edit' && category) {
+        form.reset({
+          name: category.name,
+          slug: category.slug,
+          isVisible: category.isVisible ?? true,
+        });
+        setImageLink(category.imageLink ?? '');
+
+        // Load category translations
+        const transMap = emptyTranslations();
+        for (const t of category.categoryTranslations || []) {
+          if (LOCALES.includes(t.locale as Locale)) {
+            transMap[t.locale as Locale] = t.name;
+          }
+        }
+        setCategoryTranslations(transMap);
+
+        // Load subcategories with their translations
+        const mappedSubs: SubcategoryEntry[] = (category.subCategories || []).map((sub) => {
+          const subTransMap = emptyTranslations();
+          for (const t of sub.translations || []) {
+            if (LOCALES.includes(t.locale as Locale)) {
+              subTransMap[t.locale as Locale] = t.name;
+            }
+          }
+          return {
+            name: sub.name,
+            slug: sub.slug,
+            isVisible: sub.isVisible ?? true,
+            translations: subTransMap,
+          };
+        });
+        setSubcategories(mappedSubs);
+      } else {
+        form.reset({ name: '', slug: '', isVisible: true });
+        setCategoryTranslations(emptyTranslations());
+        setSubcategories([]);
+        setImageLink('');
+      }
+    }
+  }, [isOpen, mode, category, form]);
 
   const handleNameChange = (name: string) => {
-    const slug = generateSlug(name);
-    form.setValue('slug', slug);
+    form.setValue('slug', generateSlug(name));
   };
 
   const addSubcategory = () => {
-    const trimmed = newSubcategory.trim();
-    if (trimmed && !subcategories.find((sub) => sub.name.toLowerCase() === trimmed.toLowerCase())) {
-      const slug = generateSlug(trimmed);
-      const updated = [...subcategories, { name: trimmed, slug, isVisible: true }];
+    const trimmed = newSubcategoryName.trim();
+    if (trimmed && !subcategories.find((s) => s.name.toLowerCase() === trimmed.toLowerCase())) {
+      const entry: SubcategoryEntry = {
+        name: trimmed,
+        slug: generateSlug(trimmed),
+        isVisible: true,
+        translations: emptyTranslations(),
+      };
+      const updated = [...subcategories, entry];
       setSubcategories(updated);
-      form.setValue('subcategory', updated, { shouldDirty: true });
-      setNewSubcategory('');
+      setNewSubcategoryName('');
+      setExpandedSubIndex(updated.length - 1);
     }
   };
 
   const removeSubcategory = (index: number) => {
-    const updated = subcategories.filter((_, i) => i !== index);
-    setSubcategories(updated);
-    form.setValue('subcategory', updated, { shouldDirty: true });
+    setSubcategories((prev) => prev.filter((_, i) => i !== index));
+    if (expandedSubIndex === index) setExpandedSubIndex(null);
+  };
+
+  const updateSubcategory = (index: number, patch: Partial<SubcategoryEntry>) => {
+    setSubcategories((prev) =>
+      prev.map((sub, i) => (i === index ? { ...sub, ...patch } : sub))
+    );
+  };
+
+  const updateSubTranslation = (index: number, locale: Locale, value: string) => {
+    setSubcategories((prev) =>
+      prev.map((sub, i) =>
+        i === index ? { ...sub, translations: { ...sub.translations, [locale]: value } } : sub
+      )
+    );
   };
 
   const onSubmit = async (data: CategoryFormData) => {
@@ -131,20 +181,35 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
     setError('');
 
     try {
-      const url = mode === 'create' 
-        ? '/api/admin/categories'
-        : `/api/admin/categories/${category?.id}`;
-      
+      const url =
+        mode === 'create' ? '/api/admin/categories' : `/api/admin/categories/${category?.slug}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
+
+      const translationsArr = LOCALES.flatMap((locale) =>
+        categoryTranslations[locale].trim()
+          ? [{ locale, name: categoryTranslations[locale].trim() }]
+          : []
+      );
+
+      const subcategoryPayload = subcategories.map((sub) => ({
+        name: sub.name,
+        slug: sub.slug,
+        isVisible: sub.isVisible,
+        translations: LOCALES.flatMap((locale) =>
+          sub.translations[locale].trim()
+            ? [{ locale, name: sub.translations[locale].trim() }]
+            : []
+        ),
+      }));
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          subcategory: subcategories,
+          imageLink: imageLink.trim() || null,
+          translations: translationsArr,
+          subcategory: subcategoryPayload,
         }),
       });
 
@@ -157,8 +222,8 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
       onSave();
       onClose();
-    } catch (error) {
-      console.error('Error saving category:', error);
+    } catch (err) {
+      console.error('Error saving category:', err);
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
@@ -167,73 +232,117 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === 'create' ? 'Add New Category' : 'Edit Category'}
           </DialogTitle>
           <DialogDescription>
-            {mode === 'create' 
-              ? 'Create a new category for your products.' 
-              : 'Update the category information.'}
+            {mode === 'create'
+              ? 'Create a new category for your products.'
+              : 'Update the category information and translations.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Category Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter category name"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleNameChange(e.target.value);
-                      }}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 
-            {/* Slug */}
-            <FormField
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Slug</FormLabel>
-                  <FormControl>
+            {/* Image */}
+            <div className="space-y-1">
+              <Label>Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com/image.png or pick from library"
+                  value={imageLink}
+                  onChange={(e) => setImageLink(e.target.value)}
+                  disabled={isLoading}
+                />
+                <ImagePickerModal
+                  label="Library"
+                  onSelect={(url) => setImageLink(url)}
+                />
+              </div>
+              {imageLink && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imageLink} alt="preview" className="mt-1 h-16 w-16 object-cover rounded border" />
+              )}
+            </div>
+
+            {/* Category Name + Slug */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Default Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Category name"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          handleNameChange(e.target.value);
+                        }}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Slug</FormLabel>
+                    <FormControl>
+                      <Input placeholder="category-slug" {...field} disabled={isLoading} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Category Translations */}
+            <div className="space-y-2">
+              <Label>Category Translations</Label>
+              <Tabs defaultValue="pl">
+                <TabsList className="grid grid-cols-4 w-full">
+                  {LOCALES.map((locale) => (
+                    <TabsTrigger key={locale} value={locale} className="uppercase text-xs">
+                      {locale}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {LOCALES.map((locale) => (
+                  <TabsContent key={locale} value={locale}>
                     <Input
-                      placeholder="category-slug"
-                      {...field}
+                      placeholder={`Category name in ${locale.toUpperCase()}`}
+                      value={categoryTranslations[locale]}
+                      onChange={(e) =>
+                        setCategoryTranslations((prev) => ({ ...prev, [locale]: e.target.value }))
+                      }
                       disabled={isLoading}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
 
             {/* Subcategories */}
             <div className="space-y-2">
               <Label>Subcategories</Label>
-              
+
               {/* Add new subcategory */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Add subcategory"
-                  value={newSubcategory}
-                  onChange={(e) => setNewSubcategory(e.target.value)}
-                  onKeyPress={(e) => {
+                  placeholder="New subcategory name"
+                  value={newSubcategoryName}
+                  onChange={(e) => setNewSubcategoryName(e.target.value)}
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addSubcategory();
@@ -244,34 +353,124 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                 <Button
                   type="button"
                   onClick={addSubcategory}
-                  disabled={!newSubcategory.trim() || isLoading}
+                  disabled={!newSubcategoryName.trim() || isLoading}
                   size="sm"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
 
-              {/* List of subcategories */}
+              {/* Subcategory list */}
               {subcategories.length > 0 && (
-                <div className="space-y-2 max-h-32 overflow-y-auto">
+                <div className="space-y-1 max-h-72 overflow-y-auto border rounded-md p-2">
                   {subcategories.map((sub, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                    >
-                      <div>
-                        <div className="text-sm font-medium text-gray-700">{sub.name}</div>
-                        <div className="text-xs text-gray-500">{sub.slug}</div>
+                    <div key={index} className="border rounded bg-white">
+                      {/* Subcategory header row */}
+                      <div className="flex items-center justify-between px-3 py-2">
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 flex-1 text-left"
+                          onClick={() =>
+                            setExpandedSubIndex(expandedSubIndex === index ? null : index)
+                          }
+                        >
+                          {expandedSubIndex === index ? (
+                            <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                          )}
+                          <span className="text-sm font-medium">{sub.name}</span>
+                          <span className="text-xs text-gray-400">/{sub.slug}</span>
+                        </button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeSubcategory(index)}
+                          disabled={isLoading}
+                          className="shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSubcategory(index)}
-                        disabled={isLoading}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+
+                      {/* Expanded editing area */}
+                      {expandedSubIndex === index && (
+                        <div className="border-t px-3 pb-3 pt-2 space-y-3 bg-gray-50">
+                          {/* Name + Slug */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Name</Label>
+                              <Input
+                                value={sub.name}
+                                onChange={(e) => {
+                                  const newName = e.target.value;
+                                  updateSubcategory(index, {
+                                    name: newName,
+                                    slug: generateSlug(newName),
+                                  });
+                                }}
+                                disabled={isLoading}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Slug</Label>
+                              <Input
+                                value={sub.slug}
+                                onChange={(e) =>
+                                  updateSubcategory(index, { slug: e.target.value })
+                                }
+                                disabled={isLoading}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Visibility */}
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={sub.isVisible}
+                              onCheckedChange={(val) =>
+                                updateSubcategory(index, { isVisible: val })
+                              }
+                              disabled={isLoading}
+                            />
+                            <Label className="text-xs">Visible</Label>
+                          </div>
+
+                          {/* Subcategory Translations */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">Translations</Label>
+                            <Tabs defaultValue="pl">
+                              <TabsList className="grid grid-cols-4 w-full h-7">
+                                {LOCALES.map((locale) => (
+                                  <TabsTrigger
+                                    key={locale}
+                                    value={locale}
+                                    className="uppercase text-xs py-0"
+                                  >
+                                    {locale}
+                                  </TabsTrigger>
+                                ))}
+                              </TabsList>
+                              {LOCALES.map((locale) => (
+                                <TabsContent key={locale} value={locale}>
+                                  <Input
+                                    placeholder={`Name in ${locale.toUpperCase()}`}
+                                    value={sub.translations[locale]}
+                                    onChange={(e) =>
+                                      updateSubTranslation(index, locale, e.target.value)
+                                    }
+                                    disabled={isLoading}
+                                    className="h-8 text-sm"
+                                  />
+                                </TabsContent>
+                              ))}
+                            </Tabs>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -286,9 +485,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Display Category</FormLabel>
-                    <div className="text-sm text-gray-600">
-                      Show this category on the website
-                    </div>
+                    <div className="text-sm text-gray-600">Show this category on the website</div>
                   </div>
                   <FormControl>
                     <Switch
@@ -309,16 +506,15 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
             )}
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : mode === 'create' ? 'Create Category' : 'Update Category'}
+                {isLoading
+                  ? 'Saving...'
+                  : mode === 'create'
+                  ? 'Create Category'
+                  : 'Update Category'}
               </Button>
             </DialogFooter>
           </form>

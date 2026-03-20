@@ -4,6 +4,7 @@ import { Badge as UiBadge } from '@/components/ui/badge';
 import { WarehouseAvailability } from '@/components/warehouse-availability';
 import { Heart, GitCompare, MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface ProductPriceCardProps {
   formattedPrice: string;
@@ -37,6 +38,7 @@ export function ProductPriceCard({
   isInCompare = false,
 }: ProductPriceCardProps) {
   const t = useTranslations('product');
+  const { vatPercentage, vatInclusive } = useCurrency();
   
   const getBadgeText = (badge: string) => {
     const badgeMap: Record<string, string> = {
@@ -59,12 +61,15 @@ export function ProductPriceCard({
         {discountLabel && (
           <UiBadge variant="destructive">-{discountLabel}%</UiBadge>
         )}
-        {badgeLabel && (
+        {badgeLabel && badgeLabel !== 'ABSENT' && (
           <UiBadge variant="secondary">
             {getBadgeText(badgeLabel)}
           </UiBadge>
         )}
       </div>
+      {!vatInclusive && vatPercentage > 0 && (
+        <div className="text-sm text-gray-500 mt-1">+ {vatPercentage}% {t('price.vat')}</div>
+      )}
 
       <WarehouseAvailability
         variant="detail"

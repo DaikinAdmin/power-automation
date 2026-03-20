@@ -128,6 +128,8 @@ export const itemPrice = pgTable(
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
     badge: badge().default("ABSENT"),
     itemSlug: text().notNull(),
+    initialPrice: doublePrecision(),
+    initialCurrency: currency(),
   },
   (table) => [
     foreignKey({
@@ -162,6 +164,9 @@ export const warehouse = pgTable(
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
     isVisible: boolean().default(true),
     countrySlug: text(),
+    deliveryDaysPoland: integer(),
+    deliveryDaysUkraine: integer(),
+    deliveryDaysEurope: integer(),
   },
   (table) => [
     foreignKey({
@@ -543,6 +548,8 @@ export const itemPriceHistory = pgTable(
     promoEndDate: timestamp({ precision: 3, mode: "string" }),
     margin: doublePrecision().default(20),
     badge: badge().default("ABSENT"),
+    initialPrice: doublePrecision(),
+    initialCurrency: currency(),
     recordedAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -681,6 +688,7 @@ export const warehouseCountries = pgTable("warehouse_countries", {
   id: serial().primaryKey().notNull(),
   slug: text().notNull().unique(),
   countryCode: text().notNull(),
+  vatPercentage: doublePrecision(),
   phoneCode: text(),
   name: text().notNull(),
   isActive: boolean().default(true).notNull(),

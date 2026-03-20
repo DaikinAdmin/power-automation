@@ -4,20 +4,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useSession } from '@/lib/auth-client';
+import { useTranslations } from 'next-intl';
 
 const baseNavItems = [
-  { label: 'Stats', href: '/dashboard' },
-  { label: 'User Info', href: '/dashboard/profile' },
-  { label: 'Orders', href: '/dashboard/orders' },
-  { label: 'Favorites', href: '/dashboard/favorites' },
-  { label: 'Contact', href: '/dashboard/contact' },
+  { label: 'stats', href: '/dashboard' },
+  { label: 'userInfo', href: '/dashboard/profile' },
+  { label: 'orders', href: '/dashboard/orders' },
+  { label: 'favorites', href: '/dashboard/favorites' },
+  { label: 'contact', href: '/dashboard/contact' },
 ];
 
 const ownerNavItems = [
-  { label: 'User Management', href: '/dashboard/employees' },
+  { label: 'userManagement', href: '/dashboard/employees' },
 ];
 
 export function DashboardSidebar() {
+  const t = useTranslations('dashboard.sidebar');
   const pathname = usePathname();
   const { data: session } = useSession();
   const role = (session?.user as any)?.role;
@@ -44,7 +46,7 @@ export function DashboardSidebar() {
                 : 'text-gray-700 hover:bg-gray-100'
             )}
           >
-            {item.label}
+            {t(item.label)}
           </Link>
         );
       })}

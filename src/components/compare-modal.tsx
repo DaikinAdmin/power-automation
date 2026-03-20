@@ -23,7 +23,7 @@ export default function CompareModal({
   onRemoveItem,
   onClearAll,
 }: CompareModalProps) {
-  const { formatPriceFromBase } = useCurrency();
+  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
   const t = useTranslations('compare');
 
   if (!isOpen) return null;
@@ -186,6 +186,9 @@ export default function CompareModal({
                             <div className="text-xl font-bold">
                               {formatPriceFromBase(item.price)}
                             </div>
+                          )}
+                          {!vatInclusive && vatPercentage > 0 && (
+                            <div className="text-xs text-gray-500 mt-1">+ {vatPercentage}% {t('vat')}</div>
                           )}
                         </div>
                       </td>

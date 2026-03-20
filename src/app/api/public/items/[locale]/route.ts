@@ -68,14 +68,27 @@ export async function GET(
       });
     }
 
+    // Strip margin and bake it into prices before returning public response
+    const publicItems = items.map(item => ({
+      ...item,
+      prices: item.prices.map(({ margin, price, promotionPrice, ...rest }) => {
+        const marginRate = 1 + ((margin ?? 20) / 100);
+        return {
+          ...rest,
+          price: price * marginRate,
+          promotionPrice: promotionPrice != null ? promotionPrice * marginRate : null,
+        };
+      }),
+    }));
+
     const duration = Date.now() - startTime;
     logger.info('Public items fetched successfully', { 
       locale, 
-      totalItems: items.length,
+      totalItems: publicItems.length,
       duration: duration
     });
 
-    const response = NextResponse.json(items);
+    const response = NextResponse.json(publicItems);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
     return response;
   } catch (error: any) {

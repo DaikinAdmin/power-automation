@@ -113,6 +113,9 @@ export interface WarehouseResponse {
   createdAt: string;
   updatedAt: string;
   country: WarehouseCountryResponse | null;
+  deliveryDaysPoland: number | null;
+  deliveryDaysUkraine: number | null;
+  deliveryDaysEurope: number | null;
 }
 
 export interface WarehouseCountryResponse {
@@ -121,6 +124,7 @@ export interface WarehouseCountryResponse {
   countryCode: string;
   phoneCode: string | null;
   isActive: boolean;
+  vatPercentage: number | null;
 }
 
 // ==================== Order Types ====================

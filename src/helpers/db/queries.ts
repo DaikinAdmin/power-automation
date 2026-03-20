@@ -189,6 +189,7 @@ export async function getAllWarehouses() {
             countryCode: country.countryCode,
             phoneCode: country.phoneCode,
             isActive: country.isActive,
+            vatPercentage: country.vatPercentage ?? null,
           }
         : null,
     };
@@ -334,6 +335,9 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
           isVisible: warehouse?.isVisible ?? true,
           createdAt: warehouse?.createdAt || '',
           updatedAt: warehouse?.updatedAt || '',
+          deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
+          deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
+          deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
           country: country
             ? {
                 slug: country.slug,
@@ -341,6 +345,7 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
                 countryCode: country.countryCode,
                 phoneCode: country.phoneCode,
                 isActive: country.isActive,
+                vatPercentage: country.vatPercentage ?? null,
               }
             : null,
         },

@@ -50,6 +50,34 @@
       "when": 1771344000000,
       "tag": "0006_add_owner_id",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1773395279373,
+      "tag": "0007_lyrical_goliath",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1773871849053,
+      "tag": "0008_handy_romulus",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773911325738,
+      "tag": "0008_abnormal_vapor",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1773911408451,
+      "tag": "0009_goofy_rocket_racer",
+      "breakpoints": true
     }
   ]
 }

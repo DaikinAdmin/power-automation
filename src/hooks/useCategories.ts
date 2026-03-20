@@ -34,12 +34,13 @@ export function useCategories(locale: string) {
         id: cat.slug,
         name: cat.name,
         slug: cat.slug,
-        image: cat.imageLink || "/placeholder-category.jpg",
+        image: cat.imageLink || "/imgs/placeholder-category.svg",
         subcategories: cat.subCategories?.map((sub: any) => ({
           name: sub.name,
           slug: sub.slug,
         })) || [],
-      }));
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, locale));
 
       setCategories(mappedCategories);
     } catch (err) {

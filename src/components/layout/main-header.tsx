@@ -8,6 +8,7 @@ import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa6";
 import LanguageSwitcher from "@/components/languge-switcher";
 import { useTranslations } from "next-intl";
+import { useDomainConfig } from "@/hooks/useDomain";
 
 const NAV_LINKS = [
   { href: "/about", labelKey: "about" },
@@ -37,6 +38,7 @@ const otherTriggerClass =
 
 export default function MainHeader() {
   const t = useTranslations("header");
+  const { contacts } = useDomainConfig();
   const [visibleCount, setVisibleCount] = useState<number>(NAV_LINKS.length);
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -272,11 +274,11 @@ export default function MainHeader() {
               <LanguageSwitcher />
             </div>
             <a
-              href="tel:+1234567890"
+              href={`tel:${contacts.phone}`}
               className="hidden items-center gap-2 text-contact-phone text-[#474747] transition-colors hover:text-blue-600 sm:flex"
             >
               <FaPhone size={23} className="text-white bg-[#474747] rounded-full p-[5px]" />
-              +1 (234) 567-890
+              {contacts.phoneFormatted}
             </a>
             <button
               type="button"
@@ -336,11 +338,11 @@ export default function MainHeader() {
                 <LanguageSwitcher />
               </div>
               <a
-                href="tel:+1234567890"
+                href={`tel:${contacts.phone}`}
                 className="flex items-center gap-2 text-base font-semibold text-gray-800 transition-colors hover:text-blue-600"
               >
                 <FaPhone size={20} />
-                +1 (234) 567-890
+                {contacts.phoneFormatted}
               </a>
             </div>
           </div>

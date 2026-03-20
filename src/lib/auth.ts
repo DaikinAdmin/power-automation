@@ -94,17 +94,27 @@ export const auth = betterAuth({
   },
   appName: "power-automation",
   trustedOrigins: [
+    // Локальна розробка
     "http://localhost:3000",
-    // "http://localhost:3030",
-    // "http://217.60.20.130", // VPS IP for temporary access
+    "http://localhost:3001",
+    // Продакшн домени
+    "https://powerautomation.pl",
+    "https://www.powerautomation.pl",
+    "https://powerautomation.com.ua",
+    "https://www.powerautomation.com.ua",
+    // Тестові домени з .env (APP_UA_TEST_HOST / APP_PL_TEST_HOST)
+    process.env.APP_UA_TEST_HOST ? `https://${process.env.APP_UA_TEST_HOST}` : "",
+    process.env.APP_UA_TEST_HOST ? `https://www.${process.env.APP_UA_TEST_HOST}` : "",
+    process.env.APP_PL_TEST_HOST ? `https://${process.env.APP_PL_TEST_HOST}` : "",
+    // Legacy / кастомні override
     process.env.BASE_URL || "",
     process.env.BETTER_AUTH_URL || "",
     process.env.NEXT_PUBLIC_APP_URL || "",
-  ].filter(Boolean), // Remove empty strings
+  ].filter(Boolean),
   advanced: {
     disableCSRFCheck: false,
-    // Only use secure cookies when actually using HTTPS
-    useSecureCookies: process.env.NODE_ENV === "production" && process.env.BETTER_AUTH_URL?.startsWith("https"),
+    // В продакшні завжди HTTPS
+    useSecureCookies: process.env.NODE_ENV === "production",
     generateSessionId: () => {
       return crypto.randomUUID();
     },

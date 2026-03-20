@@ -100,10 +100,14 @@
       "to": "To"
     },
     "filters": {
+      "title": "Filters",
       "categories": "Categories",
       "brands": "Brands",
       "warehouses": "Warehouses",
-      "subcategories": "Subcategories"
+      "subcategories": "Subcategories",
+      "apply": "Apply",
+      "allCategories": "All Categories",
+      "hideCategories": "Hide"
     },
     "noResults": "No products found",
     "noResultsSearch": "No search results found",
@@ -192,20 +196,28 @@
       "orderId": "Order ID",
       "date": "Date",
       "status": "Status",
-      "total": "Total to Pay"
+      "total": "Total to Pay",
+      "vat": "VAT"
     },
     "paymentInfo": {
       "title": "Secure Payment",
-      "securePayment": "Your payment is protected by Przelewy24. All data is encrypted and secure.",
+      "securePayment": "Your payment is protected by the payment system. All data is encrypted and secure.",
       "methods": "Available payment methods:",
       "creditCard": "Credit/Debit Card",
       "bankTransfer": "Bank Transfer",
       "blik": "BLIK",
       "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Installment payments from PrivatBank",
       "poweredBy": "Payment powered by"
     },
     "buttons": {
       "proceedToPayment": "Proceed to Payment",
+      "payWithLiqPay": "Pay with LiqPay",
+      "payWithPrzelewy24": "Pay with Przelewy24",
+      "issueInvoice": "Issue Invoice",
+      "issuingInvoice": "Issuing Invoice...",
       "processing": "Processing...",
       "alreadyPaid": "Already Paid"
     },
@@ -247,12 +259,20 @@
   "dashboard": {
     "welcomeBack": "Welcome back",
     "statsOverview": "Stats overview",
-    "greeting": "Hi {{name}}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
+    "greeting": "Hi {name}, here's a quick snapshot of your recent activity. Detailed reports are on the way.",
     "stats": {
       "ordersPlaced": "Orders placed",
       "itemsPurchased": "Items purchased",
       "totalSpend": "Total spend",
       "supportTickets": "Open support tickets"
+    },
+    "sidebar": {
+      "stats": "Stats",
+      "userInfo": "User Info",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "contact": "Contact Support",
+      "userManagement": "User Management"
     },
     "descriptions": {
       "analyticsComingSoon": "Analytics coming soon",
@@ -288,19 +308,37 @@
         "actions": "Actions",
         "view": "View",
         "refund": "Refund",
-        "itemsCount": "{{count}} item",
-        "itemsCount_other": "{{count}} items",
-        "moreItems": "+{{count}} more",
+        "itemsCount": "{count} item",
+        "itemsCount_other": "{count} items",
+        "moreItems": "+{count} more",
         "noOrders": "You haven't placed any orders yet.",
         "refunding": "Refunding...",
         "refundConfirm": "Are you sure you want to refund this order? This action cannot be undone.",
         "refundSuccess": "Refund processed successfully",
         "refundError": "Failed to process refund"
       },
+      "orderStatuses": {
+        "NEW": "New",
+        "WAITING_FOR_PAYMENT": "Waiting for payment",
+        "PROCESSING": "Processing",
+        "DELIVERY": "Delivery",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled",
+        "REFUND": "Refund"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Paid",
+        "PENDING": "Pending",
+        "INITIATED": "Initiated",
+        "FAILED": "Failed",
+        "CANCELLED": "Cancelled",
+        "REFUNDED": "Refunded",
+        "PROCESSING": "Processing"
+      },
       "detail": {
         "backToOrders": "Back to Orders",
-        "orderNumber": "Order #{{id}}",
-        "placedOn": "Placed on {{date}}",
+        "orderNumber": "Order #{id}",
+        "placedOn": "Placed on {date}",
         "payNow": "Pay Now",
         "proceedWithPayment": "Proceed with Payment",
         "cancelOrder": "Cancel Order",
@@ -308,10 +346,10 @@
         "cancelling": "Cancelling...",
         "refunding": "Refunding...",
         "orderNotFound": "Order not found",
-        "orderItems": "Order Items ({{count}})",
+        "orderItems": "Order Items ({count})",
         "articleId": "Article ID",
-        "quantity": "Qty: {{quantity}}",
-        "unit": "Unit: {{price}}",
+        "quantity": "Qty: {quantity}",
+        "unit": "Unit: {price}",
         "orderSummary": "Order Summary",
         "subtotal": "Subtotal:",
         "totalFormatted": "Total (formatted):",
@@ -320,7 +358,7 @@
         "orderPlaced": "Order Placed",
         "lastUpdated": "Last Updated",
         "deliveryInfo": "Delivery Information",
-        "deliveryId": "Delivery ID: {{id}}",
+        "deliveryId": "Delivery ID: {id}",
         "paymentInfo": "Payment Information",
         "paymentStatus": "Payment Status:",
         "paidWith": "Paid with:",
@@ -346,10 +384,11 @@
       "backToHome": "Back to Home"
     },
     "articleId": "Article",
-    "from": "From {{warehouse}}",
-    "moreLocations": "+{{count}} more locations",
+    "from": "From {warehouse}",
+    "moreLocations": "+{count} more locations",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
+      "vat": "VAT",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Hot Deal",
@@ -367,6 +406,11 @@
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison"
     },
+    "availability": {
+      "inStock": "In stock",
+      "inStockQty": "{quantity} in stock",
+      "outOfStock": "Out of stock"
+    },
     "tabs": {
       "delivery": "Delivery & Availability",
       "warranty": "Warranty",
@@ -375,7 +419,7 @@
     "tabContent": {
       "deliveryAvailable": "Delivery available within 3-5 business days from the selected warehouse.",
       "fasterShipping": "Need faster shipping? Contact our logistics team for express options.",
-      "manufacturerWarranty": "Manufacturer warranty: {{months}} months.",
+      "manufacturerWarranty": "Manufacturer warranty: {months} months.",
       "warrantyNotSpecified": "Manufacturer warranty: Not specified.",
       "additionalContracts": "Additional service contracts available upon request.",
       "datasheets": "Datasheets and certificates are available upon request. Contact support for more information."
@@ -386,8 +430,8 @@
       "warranty": "Warranty",
       "category": "Category",
       "subcategory": "Subcategory",
-      "months": "{{count}} months",
-      "warrantyMonths": "{{count}} months",
+      "months": "{count} months",
+      "warrantyMonths": "{count} months",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -416,11 +460,35 @@
       "success": "Price request submitted successfully! We will contact you soon.",
       "error": "Failed to submit price request. Please try again."
     },
+    "warehouseSelector": {
+      "title": "Select Warehouse",
+      "inStock": "{quantity} in stock",
+      "warehouse": "Warehouse",
+      "outOfStockTitle": "Item not in stock",
+      "lastPrice": "Last price",
+      "contactManager": "Contact manager to place an order",
+      "switchToAvailable": "Switch to available warehouse",
+      "noStockAvailable": "No stock available",
+      "requestWhenAvailable": "Notify when available",
+      "requestFormTitle": "Request {itemName} when available",
+      "yourName": "Your Name",
+      "email": "Email Address",
+      "messageOptional": "Message (Optional)",
+      "messagePlaceholder": "Any specific requirements or questions...",
+      "submit": "Submit Request",
+      "submitting": "Submitting...",
+      "cancel": "Cancel",
+      "successMessage": "Your request has been submitted! We will contact you when the item becomes available.",
+      "errorMessage": "Failed to submit request. Please try again.",
+      "deliveryDays": "Estimated delivery: {days} days"
+    },
     "productCatalogCard":{
       "buy":"Buy",
       "outOfStock":"Out of Stock",
       "addToCompare": "Add to Compare",
-      "inCompare": "In Comparison"
+      "inCompare": "In Comparison",
+      "from": "from",
+      "vat": "VAT"
     },
     "compare": {
       "alreadyAdded": "This product is already in the comparison list",
@@ -438,6 +506,7 @@
     "name": "Name",
     "brand": "Brand",
     "price": "Price",
+    "vat": "VAT",
     "description": "Description",
     "noImage": "No image",
     "noBrand": "No brand",
@@ -497,18 +566,31 @@
   "header": {
     "nav": {
       "about": "About us",
+      "main": "Main",
       "brands": "Brands",
       "purchaseDelivery": "Purchase and Delivery",
       "refunding": "Refunding",
       "contacts": "Contacts",
       "other": "Other",
-      "menu": "Menu"
+      "menu": "Menu",
+      "compare": "Compare Products",
+      "login": "Login"
     },
     "categories": "Categories",
     "search": "Search products...",
     "enter": "Enter",
     "cart": "Cart",
-    "dashboard": "Dashboard"
+    "dashboard": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "settings": "Settings"
+  },
+  "staticPages": {
+    "about": "About us",
+    "brands": "Brands",
+    "purchaseDelivery": "Purchase and Delivery",
+    "refunding": "Refunding",
+    "contacts": "Contacts"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved",
@@ -523,7 +605,8 @@
       "brands": "Brands",
       "purchaseDelivery": "Purchase and Delivery",
       "refunding": "Refunding",
-      "contacts": "Contacts"
+      "contacts": "Contacts",
+      "privacyPolicy": "Privacy Policy"
     },
     "categories1": {
       "electronics": "Electronics",
@@ -542,9 +625,71 @@
       "saturday": "Sat: 9AM-4PM"
     }
   },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "itemName": "ITEM",
+    "warehouse": "Warehouse",
+    "quantity": "Quantity",
+    "price": "Price",
+    "total": "Total:",
+    "vat": "VAT",
+    "payment": "Proceed to Payment",
+    "backToShopping": "Continue Shopping"
+  },
   "errors": {
     "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",
     "itemNotAvailable": "Item {itemName} not available in selected warehouse",
     "itemNotFound": "Item {articleId} not found"
+  },
+  "cookieConsent": {
+    "title": "We use cookies",
+    "description": "We use cookies to improve your experience on our site, analyze traffic, and personalize content. You can accept all cookies or manage your preferences.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "learnMore": "Learn more"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: January 2025",
+    "s1": {
+      "title": "1. General Information",
+      "body": "This Privacy Policy defines the principles of processing and protecting personal data provided by Users in connection with using the services offered by Power Automation."
+    },
+    "s2": {
+      "title": "2. Data Controller",
+      "body": "The data controller is Power Automation. Personal data is processed in accordance with applicable law, in particular the General Data Protection Regulation (GDPR)."
+    },
+    "s3": {
+      "title": "3. Data We Collect",
+      "intro": "We collect the following categories of data:",
+      "item1": "Identification data (name, surname, email address)",
+      "item2": "Contact data (phone number, delivery address)",
+      "item3": "Transaction data (order history, payments)",
+      "item4": "Technical data (IP address, cookies, browser data)"
+    },
+    "s4": {
+      "title": "4. Purpose of Data Processing",
+      "intro": "Your personal data is processed for the following purposes:",
+      "item1": "Processing orders and customer service",
+      "item2": "Marketing communications (with your consent)",
+      "item3": "Analysis and improvement of our services"
+    },
+    "s5": {
+      "title": "5. Cookies",
+      "body": "Our site uses cookies to ensure proper functionality, analyze traffic, and personalize content. You can manage cookie settings through your browser settings or via our consent panel."
+    },
+    "s6": {
+      "title": "6. Data Sharing",
+      "body": "We do not sell or share your personal data with third parties without your consent, except as required by law or necessary for service delivery (e.g., courier companies, payment operators)."
+    },
+    "s7": {
+      "title": "7. Your Rights",
+      "body": "You have the right to access your data, rectify it, erase it, restrict processing, data portability, and object to processing. To exercise your rights, contact us at the email address provided on the contact page."
+    },
+    "s8": {
+      "title": "8. Contact",
+      "body": "If you have any questions regarding this Privacy Policy or the processing of your personal data, please contact us via the form on the Contact page."
+    }
   }
 }

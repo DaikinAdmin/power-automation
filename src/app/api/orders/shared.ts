@@ -29,6 +29,7 @@ export function mapOrderForUser(order: any) {
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
     deliveryId: order.deliveryId,
+    payment: order.payment ?? null,
     lineItems: Array.isArray(order.lineItems)
       ? order.lineItems
       : order.items?.map((item: any) => ({

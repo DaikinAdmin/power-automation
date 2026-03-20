@@ -17,11 +17,6 @@ import { ProductsGrid } from '@/components/category/products-grid';
 import { MobileFilterDrawer } from '@/components/category/mobile-filter-drawer';
 import { Pagination } from '@/components/category/pagination';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronDown } from 'lucide-react';
 
 export default function CategoriesPage({ locale }: { locale: string }) {
   const t = useTranslations('categories');
@@ -68,7 +63,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     },
   });
 
-  const { getItemDetails, getItemPrice, getAvailableWarehouses } =
+  const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
     useCatalogPricing({
       preferredCountryCode: locale ? locale.toUpperCase() : "PL",
     });
@@ -236,139 +231,32 @@ export default function CategoriesPage({ locale }: { locale: string }) {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Left Sidebar with Categories */}
-                <div className="space-y-6">
-                  {/* Categories List */}
-                  <Card className="p-4">
-                    <h3 className="font-semibold mb-4">{t('filters.categories')}</h3>
-                    <div className="space-y-2">
-                      {(showAllCategories ? categories : categories.slice(0, 8)).map(
-                        (category) => (
-                          <Link
-                            key={category.id}
-                            href={`/${locale}/category/${category.slug}`}
-                            className="block px-3 py-2 text-sm rounded-md transition-colors text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                          >
-                            {category.name}
-                          </Link>
-                        )
-                      )}
-                    </div>
-                    {categories.length > 8 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowAllCategories(!showAllCategories)}
-                        className="w-full mt-3 text-sm"
-                      >
-                        {showAllCategories
-                          ? t('filters.hideCategories') || "Приховати"
-                          : t('filters.allCategories') || "Всі категорії"}
-                      </Button>
-                    )}
-                  </Card>
-
-                  {/* Mobile Controls */}
-                  <div className="md:hidden flex flex-col gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowFilters(true)}
-                      className="w-full justify-center"
-                    >
-                      {t('filter') || "Фільтр"}
-                    </Button>
-                  </div>
-
-                  {/* Brands Filter (Desktop Only) */}
-                  {brands.length > 0 && (
-                    <Card className="hidden md:block p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold">{t('filters.brands')}</h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleSection("brands")}
-                        >
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${
-                              sectionsOpen.brands ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                      {sectionsOpen.brands && (
-                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {brands.map((brand) => (
-                            <div key={brand.slug} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`brand-${brand.slug}`}
-                                checked={urlBrands.includes(brand.slug)}
-                                onCheckedChange={(checked) =>
-                                  handleBrandSelectionWithURL(brand.slug, Boolean(checked))
-                                }
-                              />
-                              <label
-                                htmlFor={`brand-${brand.slug}`}
-                                className="text-sm cursor-pointer"
-                              >
-                                {brand.name}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </Card>
-                  )}
-
-                  {/* Warehouses Filter (Desktop Only) */}
-                  {warehouses.length > 0 && (
-                    <Card className="hidden md:block p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold">{t('filters.warehouses')}</h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleSection("warehouses")}
-                        >
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${
-                              sectionsOpen.warehouses ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                      {sectionsOpen.warehouses && (
-                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {warehouses
-                            .sort((a, b) =>
-                              a.displayedName.localeCompare(b.displayedName)
-                            )
-                            .map((warehouse) => (
-                              <div
-                                key={warehouse.id}
-                                className="flex items-center space-x-2"
-                              >
-                                <Checkbox
-                                  id={`warehouse-${warehouse.id}`}
-                                  checked={urlWarehouses.includes(warehouse.id)}
-                                  onCheckedChange={(checked) =>
-                                    handleWarehouseSelectionWithURL(warehouse.id, Boolean(checked))
-                                  }
-                                />
-                                <label
-                                  htmlFor={`warehouse-${warehouse.id}`}
-                                  className="text-sm cursor-pointer"
-                                >
-                                  {warehouse.displayedName}
-                                </label>
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </Card>
-                  )}
-                </div>
+                {/* Left Sidebar */}
+                <CategorySidebar
+                  locale={locale}
+                  currentSlug=""
+                  categories={categories}
+                  brands={brands}
+                  warehouses={warehouses}
+                  selectedBrands={urlBrands}
+                  selectedWarehouses={urlWarehouses}
+                  sectionsOpen={sectionsOpen}
+                  onBrandSelection={handleBrandSelectionWithURL}
+                  onWarehouseSelection={handleWarehouseSelectionWithURL}
+                  onToggleSection={toggleSection}
+                  showAllCategories={showAllCategories}
+                  setShowAllCategories={setShowAllCategories}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
+                  setShowFilters={setShowFilters}
+                  minPrice={minPrice}
+                  maxPrice={maxPrice}
+                  priceRange={priceRange}
+                  onPriceChange={setPriceRange}
+                  totalItems={items.length}
+                />
 
                 {/* Products Grid/List */}
                 <div className="lg:col-span-3">
@@ -377,6 +265,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                     viewMode={viewMode}
                     getItemDetails={getItemDetails}
                     getItemPrice={getItemPrice}
+                    getMinPrice={getMinPrice}
                     getAvailableWarehouses={getAvailableWarehouses}
                     convertPrice={convertPrice}
                     currencyCode={currencyCode}

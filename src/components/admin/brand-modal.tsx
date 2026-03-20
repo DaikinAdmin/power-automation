@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import type { Brand } from '@/db/schema';
+import { ImagePickerModal } from '@/components/admin/image-picker-modal';
 
 interface BrandModalProps {
   isOpen: boolean;
@@ -107,18 +108,29 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="brand-image" className="text-right">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="brand-image" className="text-right mt-2">
                 Image URL
               </Label>
-              <Input
-                id="brand-image"
-                value={formState.imageLink}
-                onChange={(event) => setFormState((prev) => ({ ...prev, imageLink: event.target.value }))}
-                className="col-span-3"
-                placeholder="https://example.com/brand.png"
-                required
-              />
+              <div className="col-span-3 space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    id="brand-image"
+                    value={formState.imageLink}
+                    onChange={(event) => setFormState((prev) => ({ ...prev, imageLink: event.target.value }))}
+                    placeholder="https://example.com/brand.png"
+                    required
+                  />
+                  <ImagePickerModal
+                    label="Library"
+                    onSelect={(url) => setFormState((prev) => ({ ...prev, imageLink: url }))}
+                  />
+                </div>
+                {formState.imageLink && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={formState.imageLink} alt="preview" className="h-12 w-12 object-cover rounded border" />
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">

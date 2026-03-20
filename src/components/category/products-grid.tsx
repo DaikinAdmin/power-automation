@@ -7,6 +7,7 @@ interface ProductsGridProps {
   viewMode: "grid" | "list";
   getItemDetails: (item: any) => any;
   getItemPrice: (item: any) => any;
+  getMinPrice: (item: any) => { price: number; inStock: boolean };
   getAvailableWarehouses: (item: any) => any[];
   convertPrice: (price: number) => number;
   currencyCode: string;
@@ -19,6 +20,7 @@ export function ProductsGrid({
   viewMode,
   getItemDetails,
   getItemPrice,
+  getMinPrice,
   getAvailableWarehouses,
   convertPrice,
   currencyCode,
@@ -61,6 +63,8 @@ export function ProductsGrid({
         const convertedPrice = convertPrice(price);
         const convertedOriginalPrice =
           originalPrice != null ? convertPrice(originalPrice) : null;
+        const { price: minPrice } = getMinPrice(item);
+        const convertedMinPrice = convertPrice(minPrice);
         const hasMultipleWarehouses = item.prices.length > 1;
 
         const badge = originalPrice
@@ -115,7 +119,7 @@ export function ProductsGrid({
             imageSrc={item.itemImageLink}
             imageAlt={details?.itemName || "Product"}
             name={details?.itemName || "Unnamed Product"}
-            price={convertedPrice}
+            price={convertedMinPrice}
             originalPrice={convertedOriginalPrice ?? undefined}
             currency={currencyCode}
             inStock={inStock}
@@ -134,6 +138,7 @@ export function ProductsGrid({
             addToCartLabel={inStock ? t("buy") : t("outOfStock")}
             itemId={item.slug}
             isInCompare={isInCompare(item.slug)}
+            priceFrom={true}
           />
         );
       })}

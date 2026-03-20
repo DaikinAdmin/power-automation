@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +11,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { ItemPrice } from '@/helpers/types/item';
-import type { Warehouse, Badge } from '@/db/schema';
+} from "@/components/ui/dialog";
+import { ItemPrice } from "@/helpers/types/item";
+import type { Warehouse, Badge } from "@/db/schema";
 
 interface PriceEditModalProps {
   isOpen: boolean;
@@ -22,32 +22,42 @@ interface PriceEditModalProps {
   onSave: (updatedPriceEntry: ItemPrice) => void;
 }
 
-export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEditModalProps) {
+export function PriceEditModal({
+  isOpen,
+  onClose,
+  priceEntry,
+  onSave,
+}: PriceEditModalProps) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [formData, setFormData] = useState<ItemPrice>({
-    id: '',
-    itemSlug: '',
-    warehouseId: '',
+    id: "",
+    itemSlug: "",
+    warehouseId: "",
     price: 0,
     quantity: 0,
     promotionPrice: null,
     promoStartDate: null,
     promoEndDate: null,
-    promoCode: '',
+    promoCode: "",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     badge: "ABSENT",
     margin: 20,
+    initialPrice: null,
+    initialCurrency: null,
     history: [],
     warehouse: {
-      id: '',
-      name: '',
-      displayedName: '',
+      id: "",
+      name: "",
+      displayedName: "",
       isVisible: true,
-      countrySlug: 'other',
+      countrySlug: "other",
+      deliveryDaysPoland: null,
+      deliveryDaysUkraine: null,
+      deliveryDaysEurope: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
+    },
   });
 
   useEffect(() => {
@@ -65,27 +75,27 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
 
   const fetchWarehouses = async () => {
     try {
-      const response = await fetch('/api/admin/warehouses');
+      const response = await fetch("/api/admin/warehouses");
       if (response.ok) {
         const data = await response.json();
         setWarehouses(data);
       }
     } catch (error) {
-      console.error('Error fetching warehouses:', error);
+      console.error("Error fetching warehouses:", error);
     }
   };
 
   const handleSave = () => {
     if (!formData.warehouseId || formData.price <= 0 || formData.quantity < 0) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
 
-    const warehouse = warehouses.find(w => w.id === formData.warehouseId);
-    
+    const warehouse = warehouses.find((w) => w.id === formData.warehouseId);
+
     const updatedPriceEntry = {
       ...formData,
-      warehouse: warehouse || formData.warehouse
+      warehouse: warehouse || formData.warehouse,
     };
 
     onSave(updatedPriceEntry);
@@ -113,12 +123,17 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Warehouse *</Label>
               <select
                 value={formData.warehouseId}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, warehouseId: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    warehouseId: e.target.value,
+                  }))
+                }
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
                 required
               >
                 <option value="">Select Warehouse</option>
-                {warehouses.map(warehouse => (
+                {warehouses.map((warehouse) => (
                   <option key={warehouse.id} value={warehouse.id}>
                     {warehouse.displayedName || warehouse.name}
                   </option>
@@ -133,7 +148,12 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 min="0"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    price: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 className="mt-1"
                 placeholder="0.00"
                 required
@@ -146,7 +166,12 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 type="number"
                 min="0"
                 value={formData.quantity}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    quantity: parseInt(e.target.value) || 0,
+                  }))
+                }
                 className="mt-1"
                 placeholder="0"
                 required
@@ -159,8 +184,15 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.promotionPrice || ''}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                value={formData.promotionPrice || ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    promotionPrice: e.target.value
+                      ? parseFloat(e.target.value)
+                      : null,
+                  }))
+                }
                 className="mt-1"
                 placeholder="0.00"
               />
@@ -170,10 +202,15 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Badge</Label>
               <select
                 value={formData.badge || "ABSENT"}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, badge: e.target.value as Badge }))}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    badge: e.target.value as Badge,
+                  }))
+                }
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               >
-                {badgeOptions.map(option => (
+                {badgeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -184,8 +221,13 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
             <div>
               <Label>Promo Code</Label>
               <Input
-                value={formData.promoCode || ''}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, promoCode: e.target.value }))}
+                value={formData.promoCode || ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    promoCode: e.target.value,
+                  }))
+                }
                 className="mt-1"
                 placeholder="Enter promo code"
               />
@@ -195,8 +237,21 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
               <Label>Promo End Date</Label>
               <Input
                 type="date"
-                value={formData.promoEndDate ? new Date(formData.promoEndDate).toISOString().split('T')[0] : ''}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, promoEndDate: e.target.value ? new Date(e.target.value) : null }))}
+                value={
+                  formData.promoEndDate
+                    ? new Date(formData.promoEndDate)
+                        .toISOString()
+                        .split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    promoEndDate: e.target.value
+                      ? new Date(e.target.value)
+                      : null,
+                  }))
+                }
                 className="mt-1"
               />
             </div>
@@ -209,10 +264,53 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
                 max="100"
                 step="0.1"
                 value={formData.margin ?? 20}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, margin: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    margin: parseFloat(e.target.value) || 0,
+                  }))
+                }
                 className="mt-1"
                 placeholder="20"
               />
+            </div>
+
+            <div>
+              <Label>Initial Price</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.initialPrice ?? ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    initialPrice: e.target.value ? parseFloat(e.target.value) : null,
+                  }))
+                }
+                className="mt-1"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <Label>Initial Currency</Label>
+              <select
+                value={formData.initialCurrency ?? ""}
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    initialCurrency: e.target.value || null,
+                  }))
+                }
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+              >
+                <option value="">Select Currency</option>
+                <option value="EUR">EUR</option>
+                <option value="PLN">PLN</option>
+                <option value="UAH">UAH</option>
+                <option value="USD">USD</option>
+              </select>
             </div>
           </div>
         </div>
@@ -221,18 +319,16 @@ export function PriceEditModal({ isOpen, onClose, priceEntry, onSave }: PriceEdi
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            Save Changes
-          </Button>
+          <Button onClick={handleSave}>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-  const badgeOptions = [
-    { value: "ABSENT", label: 'None' },
-    { value: "NEW_ARRIVALS", label: 'New Arrivals' },
-    { value: "BESTSELLER", label: 'Bestseller' },
-    { value: "HOT_DEALS", label: 'Hot Deals' },
-    { value: "LIMITED_EDITION", label: 'Limited Edition' },
-  ];
+const badgeOptions = [
+  { value: "ABSENT", label: "None" },
+  { value: "NEW_ARRIVALS", label: "New Arrivals" },
+  { value: "BESTSELLER", label: "Bestseller" },
+  { value: "HOT_DEALS", label: "Hot Deals" },
+  { value: "LIMITED_EDITION", label: "Limited Edition" },
+];

@@ -1,36 +1,66 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
-import { Warehouse } from '@/db/schema';
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Warehouse } from "@/db/schema";
 
 interface WarehouseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (warehouse: Omit<Warehouse, 'id'> | Warehouse) => void;
+  onSave: (warehouse: Omit<Warehouse, "id"> | Warehouse) => void;
   warehouse?: Warehouse | null;
 }
 
-export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: WarehouseModalProps) {
+export function WarehouseModal({
+  isOpen,
+  onClose,
+  onSave,
+  warehouse,
+}: WarehouseModalProps) {
   const [formData, setFormData] = useState({
-    name: warehouse?.name || '',
-    countrySlug: warehouse?.countrySlug || 'other',
-    displayedName: warehouse?.displayedName || '',
+    name: warehouse?.name || "",
+    countrySlug: warehouse?.countrySlug || "other",
+    displayedName: warehouse?.displayedName || "",
     isVisible: warehouse?.isVisible ?? true,
     createdAt: warehouse?.createdAt || new Date(),
     updatedAt: warehouse?.updatedAt || new Date(),
+    deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
+    deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
+    deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
   });
+
+  useEffect(() => {
+    setFormData({
+      name: warehouse?.name || "",
+      countrySlug: warehouse?.countrySlug || "other",
+      displayedName: warehouse?.displayedName || "",
+      isVisible: warehouse?.isVisible ?? true,
+      createdAt: warehouse?.createdAt || new Date(),
+      updatedAt: warehouse?.updatedAt || new Date(),
+      deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
+      deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
+      deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
+    });
+  }, [warehouse, isOpen]);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const countryOptions = [
-    { value: 'ua', label: 'Ukraine' },
-    { value: 'es', label: 'Spain' },
-    { value: 'pl', label: 'Poland' },
-    { value: 'other', label: 'Other' }
+    { value: "ua", label: "Ukraine" },
+    { value: "es", label: "Spain" },
+    { value: "pl", label: "Poland" },
+    { value: "other", label: "Other" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,33 +70,48 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
     try {
       if (warehouse) {
         // Edit existing warehouse
-        onSave({ 
-          ...warehouse, 
+        onSave({
+          ...warehouse,
           ...formData,
-          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
-          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+          createdAt:
+            formData.createdAt instanceof Date
+              ? formData.createdAt.toISOString()
+              : formData.createdAt,
+          updatedAt:
+            formData.updatedAt instanceof Date
+              ? formData.updatedAt.toISOString()
+              : formData.updatedAt,
         });
       } else {
         // Create new warehouse
         onSave({
           ...formData,
-          createdAt: formData.createdAt instanceof Date ? formData.createdAt.toISOString() : formData.createdAt,
-          updatedAt: formData.updatedAt instanceof Date ? formData.updatedAt.toISOString() : formData.updatedAt,
+          createdAt:
+            formData.createdAt instanceof Date
+              ? formData.createdAt.toISOString()
+              : formData.createdAt,
+          updatedAt:
+            formData.updatedAt instanceof Date
+              ? formData.updatedAt.toISOString()
+              : formData.updatedAt,
         });
       }
-      
+
       // Reset form
       setFormData({
-        name: '',
-        countrySlug: 'other',
-        displayedName: '',
+        name: "",
+        countrySlug: "other",
+        displayedName: "",
         isVisible: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        deliveryDaysPoland: Number(formData.deliveryDaysPoland),
+        deliveryDaysUkraine: Number(formData.deliveryDaysUkraine),
+        deliveryDaysEurope: Number(formData.deliveryDaysEurope),
       });
       onClose();
     } catch (error) {
-      console.error('Error saving warehouse:', error);
+      console.error("Error saving warehouse:", error);
     } finally {
       setIsLoading(false);
     }
@@ -89,16 +134,15 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {warehouse ? 'Edit Warehouse' : 'Add New Warehouse'}
+            {warehouse ? "Edit Warehouse" : "Add New Warehouse"}
           </DialogTitle>
           <DialogDescription>
-            {warehouse 
-              ? 'Update the warehouse information below.' 
-              : 'Fill in the warehouse information below.'
-            }
+            {warehouse
+              ? "Update the warehouse information below."
+              : "Fill in the warehouse information below."}
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -108,7 +152,12 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
               <Input
                 id="displayedName"
                 value={formData.displayedName}
-                onChange={(e) => setFormData(prev => ({ ...prev, displayedName: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    displayedName: e.target.value,
+                  }))
+                }
                 className="col-span-3"
                 placeholder="Warehouse name to Display"
                 required
@@ -122,13 +171,15 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 className="col-span-3"
                 placeholder="Warehouse name"
                 required
               />
             </div>
-            
+
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="countrySlug" className="text-right">
                 Country
@@ -136,7 +187,12 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
               <select
                 id="countrySlug"
                 value={formData.countrySlug}
-                onChange={(e) => setFormData(prev => ({ ...prev, countrySlug: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    countrySlug: e.target.value,
+                  }))
+                }
                 className="col-span-3 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 required
               >
@@ -147,7 +203,7 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
                 ))}
               </select>
             </div>
-            
+
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="visible" className="text-right">
                 Visible
@@ -156,18 +212,99 @@ export function WarehouseModal({ isOpen, onClose, onSave, warehouse }: Warehouse
                 <Switch
                   id="visible"
                   checked={formData.isVisible}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isVisible: checked }))}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, isVisible: checked }))
+                  }
                 />
               </div>
             </div>
+
+            {/* Delivery days */}
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="deliveryDaysPoland" className="text-right">
+                Delivery Poland
+              </Label>
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="deliveryDaysPoland"
+                  type="number"
+                  min={0}
+                  value={formData.deliveryDaysPoland ?? ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      deliveryDaysPoland:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    }))
+                  }
+                  className="w-full"
+                  placeholder="Days"
+                />
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  days
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="deliveryDaysUkraine" className="text-right">
+                Delivery Ukraine
+              </Label>
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="deliveryDaysUkraine"
+                  type="number"
+                  min={0}
+                  value={formData.deliveryDaysUkraine ?? ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      deliveryDaysUkraine:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    }))
+                  }
+                  className="w-full"
+                  placeholder="Days"
+                />
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  days
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="deliveryDaysEurope" className="text-right">
+                Delivery Europe
+              </Label>
+              <div className="col-span-3 flex items-center gap-2">
+                <Input
+                  id="deliveryDaysEurope"
+                  type="number"
+                  min={0}
+                  value={formData.deliveryDaysEurope ?? ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      deliveryDaysEurope:
+                        e.target.value === "" ? null : Number(e.target.value),
+                    }))
+                  }
+                  className="w-full"
+                  placeholder="Days"
+                />
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  days
+                </span>
+              </div>
+            </div>
           </div>
-          
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving...' : warehouse ? 'Update' : 'Create'}
+              {isLoading ? "Saving..." : warehouse ? "Update" : "Create"}
             </Button>
           </DialogFooter>
         </form>

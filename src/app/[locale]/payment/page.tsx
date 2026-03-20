@@ -1,13 +1,19 @@
 'use client';
 
 import { use, useState, useEffect } from "react";
-import { ArrowLeft, CreditCard, Lock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Lock, XCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from "@/components/languge-switcher";
 import { useCurrency } from "@/hooks/useCurrency";
+import {
+  Przelewy24Button,
+  LiqPayButton,
+  IssueInvoiceButton,
+} from "@/components/PaymentButtons";
+import { useDomainConfig } from "@/hooks/useDomain";
 
 interface PaymentPageProps {
   params: Promise<{ locale: string }>;
@@ -19,12 +25,18 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const { orderId } = use(searchParams);
   const t = useTranslations('payment');
   const router = useRouter();
-  const { formatPriceFromBase } = useCurrency();
+  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
+  const domainConfig = useDomainConfig();
+  const allowedProviders = domainConfig.paymentProviders;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [isFetchingOrder, setIsFetchingOrder] = useState(false);
   const [error, setError] = useState('');
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [installmentModalOpen, setInstallmentModalOpen] = useState(false);
+  const [installmentLoading, setInstallmentLoading] = useState(false);
+  const isLoading = loadingProvider !== null || installmentLoading;
 
   useEffect(() => {
     if (!orderId) {
@@ -39,7 +51,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const fetchOrderDetails = async () => {
     if (!orderId) return;
 
-    setIsLoading(true);
+    setIsFetchingOrder(true);
     setError('');
 
     try {
@@ -54,34 +66,32 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
     } catch (err: any) {
       setError(err.message || 'Failed to fetch order details');
     } finally {
-      setIsLoading(false);
+      setIsFetchingOrder(false);
     }
   };
 
-  const handleProceedToPayment = async () => {
+  type PaymentProvider = 'przelewy24' | 'liqpay' | 'privat24';
+
+  const handlePayment = async (provider: PaymentProvider) => {
     if (!orderId) return;
 
-    setIsLoading(true);
+    setLoadingProvider(provider);
     setError('');
     setPaymentStatus('processing');
 
     try {
-      // Initiate payment with Przelewy24
-      const response = await fetch('/api/payments/initiate', {
+      const response = await fetch(`/api/payments/${provider}/initiate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to initiate payment');
+        throw new Error(data.error || `Failed to initiate ${provider} payment`);
       }
 
-      // Redirect to Przelewy24 payment page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
@@ -90,7 +100,40 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
     } catch (err: any) {
       setError(err.message || 'Failed to initiate payment');
       setPaymentStatus('error');
-      setIsLoading(false);
+      setLoadingProvider(null);
+    }
+  };
+
+  const handleInstallment = async (installmentType: 'paypart' | 'moment_part', months: number) => {
+    if (!orderId) return;
+
+    setInstallmentLoading(true);
+    setError('');
+    setPaymentStatus('processing');
+
+    try {
+      const response = await fetch('/api/payments/liqpay-installments/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, installmentType, months }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to initiate installment payment');
+      }
+
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('Payment URL not received');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to initiate installment payment');
+      setPaymentStatus('error');
+    } finally {
+      setInstallmentLoading(false);
     }
   };
 
@@ -161,7 +204,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">{t('title')}</h1>
 
-          {isLoading && !orderData ? (
+          {isFetchingOrder && !orderData ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
               <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
               <p className="text-gray-600">{t('loading')}</p>
@@ -208,9 +251,14 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center text-xl font-bold">
                     <span>{t('orderSummary.total')}:</span>
-                    <span className="text-red-600">
-                      {formatPrice(orderData.originalTotalPrice)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-red-600">
+                        {formatPrice(orderData.originalTotalPrice)}
+                      </span>
+                      {!vatInclusive && vatPercentage > 0 && (
+                        <div className="text-xs font-normal text-gray-500">+ {vatPercentage}% {t('orderSummary.vat')}</div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -235,10 +283,22 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                   </div>
                   <div className="ml-8 text-sm text-gray-600">
                     <ul className="list-disc list-inside space-y-1">
-                      <li>{t('paymentInfo.creditCard')}</li>
-                      <li>{t('paymentInfo.bankTransfer')}</li>
-                      <li>{t('paymentInfo.blik')}</li>
-                      <li>{t('paymentInfo.paypal')}</li>
+                      {domainConfig.key === 'ua' ? (
+                        <>
+                          <li>{t('paymentInfo.creditCard')}</li>
+                          <li>{t('paymentInfo.bankTransfer')}</li>
+                          <li>{t('paymentInfo.applePay')}</li>
+                          <li>{t('paymentInfo.googlePay')}</li>
+                          <li>{t('paymentInfo.privatInstallment')}</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>{t('paymentInfo.creditCard')}</li>
+                          <li>{t('paymentInfo.bankTransfer')}</li>
+                          <li>{t('paymentInfo.blik')}</li>
+                          <li>{t('paymentInfo.paypal')}</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -250,34 +310,37 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                   </div>
                 )}
 
-                {/* Payment Button */}
-                <button
-                  onClick={handleProceedToPayment}
-                  disabled={isLoading || orderData.status === 'COMPLETED'}
-                  className="w-full bg-green-600 text-white py-4 px-6 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      {t('buttons.processing')}
-                    </>
-                  ) : orderData.status === 'COMPLETED' ? (
-                    <>
-                      <CheckCircle2 className="w-5 h-5" />
-                      {t('buttons.alreadyPaid')}
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-5 h-5" />
-                      {t('buttons.proceedToPayment')}
-                    </>
+                {/* Payment Buttons */}
+                <div className="space-y-3">
+                  {allowedProviders.includes('przelewy24') && (
+                    <Przelewy24Button
+                      onClick={() => handlePayment('przelewy24')}
+                      isThisLoading={loadingProvider === 'przelewy24'}
+                      disabled={isLoading}
+                      isCompleted={orderData.status === 'COMPLETED'}
+                      processingLabel={t('buttons.processing')}
+                      alreadyPaidLabel={t('buttons.alreadyPaid')}
+                      label={t('buttons.payWithPrzelewy24')}
+                    />
                   )}
-                </button>
-
-                <p className="text-xs text-center text-gray-500 mt-4">
-                  {t('paymentInfo.poweredBy')}{' '}
-                  <span className="font-semibold">Przelewy24</span>
-                </p>
+                  {allowedProviders.includes('liqpay') && (
+                    <LiqPayButton
+                      onClick={() => handlePayment('liqpay')}
+                      isThisLoading={loadingProvider === 'liqpay'}
+                      disabled={isLoading}
+                      isCompleted={orderData.status === 'COMPLETED'}
+                      processingLabel={t('buttons.processing')}
+                      alreadyPaidLabel={t('buttons.alreadyPaid')}
+                      label={t('buttons.payWithLiqPay')}
+                    />
+                  )}
+                  <IssueInvoiceButton
+                    orderId={orderId!}
+                    disabled={isLoading || orderData.status === 'COMPLETED'}
+                    label={t('buttons.issueInvoice')}
+                    processingLabel={t('buttons.issuingInvoice')}
+                  />
+                </div>
               </div>
 
               {/* Additional Information */}

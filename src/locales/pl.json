@@ -100,10 +100,14 @@
       "to": "Do"
     },
     "filters": {
+      "title": "Filtry",
       "categories": "Kategorie",
       "brands": "Marki",
       "warehouses": "Magazyny",
-      "subcategories": "Podkategorie"
+      "subcategories": "Podkategorie",
+      "apply": "Zastosuj",
+      "allCategories": "Wszystkie kategorie",
+      "hideCategories": "Ukryj"
     },
     "noResults": "Nie znaleziono produktów",
     "noResultsSearch": "Nie znaleziono wyników wyszukiwania",
@@ -192,20 +196,28 @@
       "orderId": "Numer zamówienia",
       "date": "Data",
       "status": "Status",
-      "total": "Razem do zapłaty"
+      "total": "Razem do zapłaty",
+      "vat": "VAT"
     },
     "paymentInfo": {
       "title": "Bezpieczna płatność",
-      "securePayment": "Twoja płatność jest chroniona przez Przelewy24. Wszystkie dane są szyfrowane i bezpieczne.",
+      "securePayment": "Twoja płatność jest chroniona przez system płatności. Wszystkie dane są szyfrowane i bezpieczne.",
       "methods": "Dostępne metody płatności:",
       "creditCard": "Karta kredytowa/debetowa",
       "bankTransfer": "Przelew bankowy",
       "blik": "BLIK",
       "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Płatności ratalne od PrivatBank",
       "poweredBy": "Płatność obsługiwana przez"
     },
     "buttons": {
       "proceedToPayment": "Przejdź do płatności",
+      "payWithLiqPay": "Zapłać przez LiqPay",
+      "payWithPrzelewy24": "Zapłać przez Przelewy24",
+      "issueInvoice": "Wystaw fakturę",
+      "issuingInvoice": "Wystawiamy fakturę...",
       "processing": "Przetwarzanie...",
       "alreadyPaid": "Już opłacone"
     },
@@ -247,12 +259,20 @@
   "dashboard": {
     "welcomeBack": "Witaj ponownie",
     "statsOverview": "Przegląd statystyk",
-    "greeting": "Cześć {{name}}, oto szybki przegląd Twojej ostatniej aktywności. Szczegółowe raporty są w drodze.",
+    "greeting": "Cześć {name}, oto szybki przegląd Twojej ostatniej aktywności. Szczegółowe raporty są w drodze.",
     "stats": {
       "ordersPlaced": "Złożone zamówienia",
       "itemsPurchased": "Zakupione przedmioty",
       "totalSpend": "Całkowite wydatki",
       "supportTickets": "Otwarte zgłoszenia wsparcia"
+    },
+    "sidebar": {
+      "stats": "Statystyki",
+      "userInfo": "Informacje o użytkowniku",
+      "orders": "Zamówienia",
+      "favorites": "Ulubione",
+      "contact": "Kontakt z obsługą",
+      "userManagement": "Zarządzanie użytkownikami"
     },
     "descriptions": {
       "analyticsComingSoon": "Wkrótce dostępne analizy",
@@ -288,19 +308,37 @@
         "actions": "Akcje",
         "view": "Zobacz",
         "refund": "Zwrot",
-        "itemsCount_one": "{{count}} przedmiot",
-        "itemsCount_other": "{{count}} przedmiotów",
-        "moreItems": "+{{count}} więcej",
+        "itemsCount_one": "{count} przedmiot",
+        "itemsCount_other": "{count} przedmiotów",
+        "moreItems": "+{count} więcej",
         "noOrders": "Nie złożyłeś jeszcze żadnych zamówień.",
         "refunding": "Zwracanie...",
         "refundConfirm": "Czy na pewno chcesz zwrócić to zamówienie? Ta akcja nie może być cofnięta.",
         "refundSuccess": "Zwrot został pomyślnie przetworzony",
         "refundError": "Nie udało się przetworzyć zwrotu"
       },
+      "orderStatuses": {
+        "NEW": "Nowe",
+        "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
+        "PROCESSING": "W realizacji",
+        "DELIVERY": "Dostawa",
+        "COMPLETED": "Zrealizowane",
+        "CANCELLED": "Anulowane",
+        "REFUND": "Zwrot"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Opłacone",
+        "PENDING": "Oczekuje",
+        "INITIATED": "Zainicjowano",
+        "FAILED": "Błąd",
+        "CANCELLED": "Anulowane",
+        "REFUNDED": "Zwrócone",
+        "PROCESSING": "Przetwarzanie"
+      },
       "detail": {
         "backToOrders": "Powrót do zamówień",
-        "orderNumber": "Zamówienie #{{id}}",
-        "placedOn": "Złożone {{date}}",
+        "orderNumber": "Zamówienie #{id}",
+        "placedOn": "Złożone {date}",
         "payNow": "Zapłać teraz",
         "proceedWithPayment": "Przejdź do płatności",
         "cancelOrder": "Anuluj zamówienie",
@@ -308,10 +346,10 @@
         "cancelling": "Anulowanie...",
         "refunding": "Zwracanie...",
         "orderNotFound": "Zamówienie nie znalezione",
-        "orderItems": "Przedmioty zamówienia ({{count}})",
+        "orderItems": "Przedmioty zamówienia ({count})",
         "articleId": "ID artykułu",
-        "quantity": "Ilość: {{quantity}}",
-        "unit": "Jednostka: {{price}}",
+        "quantity": "Ilość: {quantity}",
+        "unit": "Jednostka: {price}",
         "orderSummary": "Podsumowanie zamówienia",
         "subtotal": "Suma częściowa:",
         "totalFormatted": "Suma (sformatowana):",
@@ -320,7 +358,7 @@
         "orderPlaced": "Zamówienie złożone",
         "lastUpdated": "Ostatnia aktualizacja",
         "deliveryInfo": "Informacje o dostawie",
-        "deliveryId": "ID dostawy: {{id}}",
+        "deliveryId": "ID dostawy: {id}",
         "paymentInfo": "Informacje o płatności",
         "paymentStatus": "Status płatności:",
         "paidWith": "Zapłacono przez:",
@@ -346,10 +384,11 @@
       "backToHome": "Powrót do strony głównej"
     },
     "articleId": "Artykuł",
-    "from": "Z {{warehouse}}",
-    "moreLocations": "+{{count}} więcej lokalizacji",
+    "from": "Z {warehouse}",
+    "moreLocations": "+{count} więcej lokalizacji",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
+      "vat": "VAT",
       "badges": {
         "bestseller": "Bestseller",
         "hotDeal": "Gorąca oferta",
@@ -367,6 +406,11 @@
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu"
     },
+    "availability": {
+      "inStock": "Dostępny",
+      "inStockQty": "{quantity} szt. w magazynie",
+      "outOfStock": "Brak w magazynie"
+    },
     "tabs": {
       "delivery": "Dostawa i dostępność",
       "warranty": "Gwarancja",
@@ -375,7 +419,7 @@
     "tabContent": {
       "deliveryAvailable": "Dostawa dostępna w ciągu 3-5 dni roboczych z wybranego magazynu.",
       "fasterShipping": "Potrzebujesz szybszej wysyłki? Skontaktuj się z naszym zespołem logistycznym w sprawie opcji ekspresowych.",
-      "manufacturerWarranty": "Gwarancja producenta: {{months}} miesięcy.",
+      "manufacturerWarranty": "Gwarancja producenta: {months} miesięcy.",
       "warrantyNotSpecified": "Gwarancja producenta: Nie określono.",
       "additionalContracts": "Dodatkowe umowy serwisowe dostępne na żądanie.",
       "datasheets": "Karty katalogowe i certyfikaty dostępne na żądanie. Skontaktuj się ze wsparciem, aby uzyskać więcej informacji."
@@ -386,8 +430,8 @@
       "warranty": "Gwarancja",
       "category": "Kategoria",
       "subcategory": "Podkategoria",
-      "months": "{{count}} miesięcy",
-      "warrantyMonths": "{{count}} miesięcy",
+      "months": "{count} miesięcy",
+      "warrantyMonths": "{count} miesięcy",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -416,11 +460,35 @@
       "success": "Zapytanie o cenę zostało wysłane pomyślnie! Wkrótce się z Tobą skontaktujemy.",
       "error": "Nie udało się przesłać zapytania o cenę. Spróbuj ponownie."
     },
-    "productCatalogCard":{
-      "buy":"Kup",
-      "outOfStock":"Brak",
+    "warehouseSelector": {
+      "title": "Wybierz magazyn",
+      "inStock": "{quantity} w magazynie",
+      "warehouse": "Magazyn",
+      "outOfStockTitle": "Towar niedostępny w magazynie",
+      "lastPrice": "Ostatnia cena",
+      "contactManager": "W celu zamówienia skontaktuj się z menedżerem",
+      "switchToAvailable": "Przejdź do dostępnego magazynu",
+      "noStockAvailable": "Brak w magazynie",
+      "requestWhenAvailable": "Powiadom o dostępności",
+      "requestFormTitle": "Zamów {itemName} gdy dostępny",
+      "yourName": "Twoje imię",
+      "email": "Adres e-mail",
+      "messageOptional": "Wiadomość (opcjonalnie)",
+      "messagePlaceholder": "Wszelkie konkretne wymagania lub pytania...",
+      "submit": "Wyślij zapytanie",
+      "submitting": "Wysyłanie...",
+      "cancel": "Anuluj",
+      "successMessage": "Twoje zapytanie zostało przesłane! Skontaktujemy się gdy produkt będzie dostępny.",
+      "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie.",
+      "deliveryDays": "Przybliżony czas dostawy: {days} dni"
+    },
+    "productCatalogCard": {
+      "buy": "Kup",
+      "outOfStock": "Brak",
       "addToCompare": "Dodaj do porównania",
-      "inCompare": "W porównaniu"
+      "inCompare": "W porównaniu",
+      "from": "od",
+      "vat": "VAT"
     },
     "compare": {
       "alreadyAdded": "Ten produkt jest już na liście porównania",
@@ -438,6 +506,7 @@
     "name": "Nazwa",
     "brand": "Marka",
     "price": "Cena",
+    "vat": "VAT",
     "description": "Opis",
     "noImage": "Brak zdjęcia",
     "noBrand": "Brak marki",
@@ -494,21 +563,34 @@
       ]
     }
   },
+  "staticPages": {
+    "about": "O nas",
+    "brands": "Marki",
+    "purchaseDelivery": "Zakup i dostawa",
+    "refunding": "Zwroty",
+    "contacts": "Kontakt"
+  },
   "header": {
     "nav": {
       "about": "O nas",
+      "main": "Strona główna",
       "brands": "Marki",
       "purchaseDelivery": "Zakup i dostawa",
       "refunding": "Zwroty",
       "contacts": "Kontakt",
       "other": "Inne",
-      "menu": "Menu"
+      "menu": "Menu",
+      "compare": "Porównaj produkty",
+      "login": "Zaloguj się"
     },
     "categories": "Kategorie",
     "search": "Szukaj produktów...",
     "enter": "Zaloguj",
     "cart": "Koszyk",
-    "dashboard": "Panel"
+    "dashboard": "Konto",
+    "logout": "Wyloguj się",
+    "login": "Zaloguj się",
+    "settings": "Ustawienia"
   },
   "footer": {
     "copyright": "© 2024 Wszelkie prawa zastrzeżone",
@@ -523,7 +605,8 @@
       "brands": "Marki",
       "purchaseDelivery": "Zakup i dostawa",
       "refunding": "Zwroty",
-      "contacts": "Kontakt"
+      "contacts": "Kontakt",
+      "privacyPolicy": "Polityka prywatności"
     },
     "categories1": {
       "electronics": "Elektronika",
@@ -542,9 +625,71 @@
       "saturday": "Sob: 9:00-16:00"
     }
   },
+  "cart": {
+    "title": "Koszyk",
+    "empty": "Twój koszyk jest pusty",
+    "itemName": "ARTYKUŁ",
+    "warehouse": "Magazyn",
+    "quantity": "Ilość",
+    "price": "Cena",
+    "total": "Łącznie:",
+    "vat": "VAT",
+    "payment": "Przejdź do płatności",
+    "backToShopping": "Kontynuuj zakupy"
+  },
   "errors": {
     "insufficientStock": "Niewystarczająca ilość towaru {itemName}. Dostępne: {available}, Zamówione: {requested}",
     "itemNotAvailable": "Towar {itemName} niedostępny w wybranym magazynie",
     "itemNotFound": "Towar {articleId} nie znaleziony"
+  },
+  "cookieConsent": {
+    "title": "Używamy plików cookie",
+    "description": "Używamy plików cookie, aby poprawić Twoje doświadczenia na naszej stronie, analizować ruch oraz personalizować treści. Możesz zaakceptować wszystkie pliki cookie lub zarządzać swoimi preferencjami.",
+    "accept": "Akceptuj",
+    "decline": "Odrzuć",
+    "learnMore": "Dowiedz się więcej"
+  },
+  "privacyPolicy": {
+    "title": "Polityka prywatności",
+    "lastUpdated": "Ostatnia aktualizacja: styczeń 2025",
+    "s1": {
+      "title": "1. Informacje ogólne",
+      "body": "Niniejsza Polityka prywatności określa zasady przetwarzania i ochrony danych osobowych przekazanych przez Użytkowników w związku z korzystaniem przez nich z usług oferowanych przez Power Automation."
+    },
+    "s2": {
+      "title": "2. Administrator danych",
+      "body": "Administratorem danych osobowych jest Power Automation. Dane osobowe przetwarzane są zgodnie z obowiązującymi przepisami prawa, w szczególności z Rozporządzeniem Ogólnym o Ochronie Danych (RODO)."
+    },
+    "s3": {
+      "title": "3. Dane, które zbieramy",
+      "intro": "Zbieramy następujące kategorie danych:",
+      "item1": "Dane identyfikacyjne (imię, nazwisko, adres e-mail)",
+      "item2": "Dane kontaktowe (numer telefonu, adres dostawy)",
+      "item3": "Dane transakcyjne (historia zamówień, płatności)",
+      "item4": "Dane techniczne (adres IP, pliki cookie, dane przeglądarki)"
+    },
+    "s4": {
+      "title": "4. Cel przetwarzania danych",
+      "intro": "Twoje dane osobowe są przetwarzane w następujących celach:",
+      "item1": "Realizacja zamówień i obsługa klienta",
+      "item2": "Komunikacja marketingowa (za Twoją zgodą)",
+      "item3": "Analiza i poprawa działania naszych usług"
+    },
+    "s5": {
+      "title": "5. Pliki cookie",
+      "body": "Nasza strona używa plików cookie w celu zapewnienia prawidłowego działania, analizy ruchu oraz personalizacji treści. Możesz zarządzać ustawieniami plików cookie za pomocą ustawień swojej przeglądarki lub korzystając z naszego panelu zgód."
+    },
+    "s6": {
+      "title": "6. Udostępnianie danych",
+      "body": "Nie sprzedajemy ani nie udostępniamy Twoich danych osobowych osobom trzecim bez Twojej zgody, z wyjątkiem przypadków wymaganych przez prawo lub niezbędnych do realizacji usług (np. firmy kurierskie, operatorzy płatności)."
+    },
+    "s7": {
+      "title": "7. Twoje prawa",
+      "body": "Masz prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Aby skorzystać ze swoich praw, skontaktuj się z nami pod adresem e-mail podanym na stronie kontaktowej."
+    },
+    "s8": {
+      "title": "8. Kontakt",
+      "body": "W przypadku pytań dotyczących niniejszej Polityki prywatności lub przetwarzania Twoich danych osobowych, prosimy o kontakt za pośrednictwem formularza dostępnego na stronie Kontakt."
+    }
   }
 }

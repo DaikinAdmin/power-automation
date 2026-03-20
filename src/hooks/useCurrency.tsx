@@ -11,6 +11,8 @@ interface CurrencyContextValue {
   convertPrice: (baseValue: number) => number;
   formatPrice: (value: number) => string;
   formatPriceFromBase: (baseValue: number) => string;
+  vatPercentage: number;
+  vatInclusive: boolean;
 }
 
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
@@ -23,15 +25,21 @@ const fallbackRates: Record<SupportedCurrency, number> = {
   UAH: 40,
 };
 
-export const CurrencyProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(BASE_CURRENCY);
+export const CurrencyProvider = ({
+  children,
+  initialCurrency,
+  vatPercentage: initialVatPercentage = 0,
+  vatInclusive: initialVatInclusive = false,
+}: {
+  children: React.ReactNode;
+  initialCurrency?: SupportedCurrency;
+  vatPercentage?: number;
+  vatInclusive?: boolean;
+}) => {
+  const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(initialCurrency ?? BASE_CURRENCY);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
-
-  useEffect(() => {
-    const locale = typeof navigator !== 'undefined' ? navigator.language : undefined;
-    const detected = detectCurrencyFromLocale(locale);
-    setCurrencyCode(detected);
-  }, []);
+  const vatPercentage = initialVatPercentage;
+  const vatInclusive = initialVatInclusive;
 
   useEffect(() => {
     let ignore = false;
@@ -72,7 +80,12 @@ export const CurrencyProvider = ({ children }: { children: React.ReactNode }) =>
     };
   }, [currencyCode]);
 
-  const convertPrice = useCallback((baseValue: number) => convertPriceValue(baseValue, exchangeRate), [exchangeRate]);
+  const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
+
+  const convertPrice = useCallback(
+    (baseValue: number) => convertPriceValue(baseValue, exchangeRate) * vatMultiplier,
+    [exchangeRate, vatMultiplier]
+  );
 
   const formatPrice = useCallback(
     (value: number) => {
@@ -99,8 +112,10 @@ export const CurrencyProvider = ({ children }: { children: React.ReactNode }) =>
       convertPrice,
       formatPrice,
       formatPriceFromBase,
+      vatPercentage,
+      vatInclusive,
     }),
-    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase]
+    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, vatPercentage, vatInclusive]
   );
 
   return (

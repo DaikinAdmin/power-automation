@@ -2,6 +2,8 @@ import PageLayout from "@/components/layout/page-layout";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 interface Brand {
   alias: string;
   name: string;
@@ -18,7 +20,7 @@ async function getBrands(): Promise<Brand[]> {
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
       }/api/public/brands`,
       {
-        next: { revalidate: 3600 },
+        cache: 'no-store',
       }
     );
 
@@ -32,7 +34,12 @@ async function getBrands(): Promise<Brand[]> {
   }
 }
 
-export default async function BrandsPage() {
+export default async function BrandsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const brands = await getBrands();
 
   return (
@@ -57,7 +64,7 @@ export default async function BrandsPage() {
                     key={brand.alias}
                     className="bg-white rounded-lg shadow-sm border p-4 flex items-center justify-center hover:shadow-md transition cursor-pointer"
                   >
-                    <Link href={`/ua/categories?brand=${brand.alias}`}>
+                    <Link href={`/${locale}/categories?brand=${brand.alias}`}>
                       <img
                         src={brand.imageLink}
                         alt={brand.name}

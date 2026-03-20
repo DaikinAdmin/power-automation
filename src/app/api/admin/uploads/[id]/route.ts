@@ -13,6 +13,14 @@ import {
 } from '@/lib/uploads';
 import path from 'path';
 import fs from 'fs/promises';
+import { getDomainConfigByHost } from '@/lib/domain-config';
+
+function isUploadAllowed(request: NextRequest): boolean {
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
+  const key = getDomainConfigByHost(host).key;
+  // Allow from any recognized domain (pl or ua)
+  return key === 'pl' || key === 'ua';
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -54,6 +62,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH /api/admin/uploads/[id] — update fileName and/or path (moves file on disk)
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    if (!isUploadAllowed(request)) {
+      return NextResponse.json(
+        { error: 'Image management is only allowed from recognized domains' },
+        { status: 403 }
+      );
+    }
+
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -148,6 +163,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/uploads/[id] — delete an uploaded image
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    if (!isUploadAllowed(request)) {
+      return NextResponse.json(
+        { error: 'Image management is only allowed from recognized domains' },
+        { status: 403 }
+      );
+    }
+
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

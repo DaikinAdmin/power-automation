@@ -96,6 +96,8 @@ export async function GET(
                 promoCode: schema.itemPrice.promoCode,
                 badge: schema.itemPrice.badge,
                 margin: schema.itemPrice.margin,
+                initialPrice: schema.itemPrice.initialPrice,
+                initialCurrency: schema.itemPrice.initialCurrency,
                 createdAt: schema.itemPrice.createdAt,
                 updatedAt: schema.itemPrice.updatedAt,
                 warehouse: schema.warehouse,
@@ -270,6 +272,8 @@ export async function PUT(
                     promoCode: price.promoCode || null,
                     badge: price.badge || 'ABSENT',
                     margin: price.margin ?? 20,
+                    initialPrice: price.initialPrice ?? null,
+                    initialCurrency: price.initialCurrency ?? null,
                     createdAt: now,
                     updatedAt: now,
                 }));
@@ -288,6 +292,8 @@ export async function PUT(
                 promoCode: price.promoCode,
                 badge: price.badge,
                 margin: price.margin ?? 20,
+                initialPrice: price.initialPrice ?? null,
+                initialCurrency: price.initialCurrency ?? null,
                 createdAt: now,
                 updatedAt: now,
             }));

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
@@ -17,7 +17,7 @@ const generateSlug = (value: string) =>
     .replace(/-+/g, '-')
     .trim();
 
-const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean }> => {
+const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> }> => {
   if (!Array.isArray(raw)) return [];
 
   return raw
@@ -30,6 +30,7 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug: generateSlug(name),
           isVisible: true,
+          translations: [],
         };
       }
 
@@ -37,16 +38,20 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
         const name = (entry.name || '').trim();
         if (!name) return null;
         const slug = entry.slug ? generateSlug(entry.slug) : generateSlug(name);
+        const translations: Array<{ locale: string; name: string }> = Array.isArray(entry.translations)
+          ? entry.translations.filter((t: any) => t.locale && t.name && t.name.trim())
+          : [];
         return {
           name,
           slug,
           isVisible: entry.isVisible !== undefined ? Boolean(entry.isVisible) : true,
+          translations,
         };
       }
 
       return null;
     })
-    .filter((entry): entry is { name: string; slug: string; isVisible: boolean } => Boolean(entry));
+    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
 };
 
 // GET single category
@@ -87,9 +92,25 @@ export async function GET(
       .from(schema.subcategories)
       .where(eq(schema.subcategories.categorySlug, slug));
 
+    // Get category translations
+    const categoryTranslations = await db
+      .select()
+      .from(schema.categoryTranslation)
+      .where(eq(schema.categoryTranslation.categorySlug, slug));
+
+    // Get subcategory translations
+    const subSlugs = subCategories.map((s) => s.slug);
+    const subcategoryTranslations = subSlugs.length > 0
+      ? await db.select().from(schema.subcategoryTranslation).where(inArray(schema.subcategoryTranslation.subCategorySlug, subSlugs))
+      : [];
+
     const categoryWithSubs = {
       ...category,
-      subCategories,
+      categoryTranslations,
+      subCategories: subCategories.map((sub) => ({
+        ...sub,
+        translations: subcategoryTranslations.filter((t) => t.subCategorySlug === sub.slug),
+      })),
     };
 
     /* Prisma implementation (commented out)
@@ -141,7 +162,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, slug: newSlug, subcategory, isVisible } = body;
+    const { name, slug: newSlug, subcategory, isVisible, translations, imageLink } = body;
 
     logger.info('Updating category', {
       endpoint: 'PUT /api/admin/categories/[slug]',
@@ -157,6 +178,19 @@ export async function PUT(
 
     const normalizedSubcategories = normalizeSubcategories(subcategory);
 
+    // Normalize category translations: [{locale, name}]
+    const normalizedCategoryTranslations: Array<{ locale: string; name: string }> =
+      Array.isArray(translations)
+        ? translations.filter((t: any) => t.locale && t.name && t.name.trim())
+        : [];
+
+    // update category slug in items if slug is changed
+    if (slug !== newSlug) {
+      await db.update(schema.item)
+        .set({ categorySlug: newSlug })
+        .where(eq(schema.item.categorySlug, slug));
+    }
+
     // Update category
     const [category] = await db
       .update(schema.category)
@@ -164,6 +198,7 @@ export async function PUT(
         name,
         slug: newSlug,
         isVisible: isVisible !== undefined ? isVisible : true,
+        imageLink: imageLink ?? null,
         updatedAt: new Date().toISOString(),
       })
       .where(eq(schema.category.slug, slug))
@@ -171,6 +206,23 @@ export async function PUT(
 
     if (!category) {
       throw new NotFoundError('Category not found');
+    }
+
+    // Upsert category translations: delete old ones then re-insert
+    // Handle slug rename: delete from both old and new slug
+    await db.delete(schema.categoryTranslation).where(eq(schema.categoryTranslation.categorySlug, newSlug));
+    if (slug !== newSlug) {
+      await db.delete(schema.categoryTranslation).where(eq(schema.categoryTranslation.categorySlug, slug));
+    }
+    if (normalizedCategoryTranslations.length > 0) {
+      await db.insert(schema.categoryTranslation).values(
+        normalizedCategoryTranslations.map((t) => ({
+          id: randomUUID(),
+          categorySlug: newSlug,
+          locale: t.locale,
+          name: t.name.trim(),
+        }))
+      );
     }
 
     // Delete existing subcategories and insert new ones
@@ -190,6 +242,19 @@ export async function PUT(
           updatedAt: new Date().toISOString(),
         }))
       );
+
+      // Insert subcategory translations
+      const translationRows = normalizedSubcategories.flatMap((sub) =>
+        sub.translations.map((t) => ({
+          id: randomUUID(),
+          subCategorySlug: sub.slug,
+          locale: t.locale,
+          name: t.name.trim(),
+        }))
+      );
+      if (translationRows.length > 0) {
+        await db.insert(schema.subcategoryTranslation).values(translationRows);
+      }
     }
 
     // Fetch updated subcategories
@@ -198,9 +263,25 @@ export async function PUT(
       .from(schema.subcategories)
       .where(eq(schema.subcategories.categorySlug, newSlug));
 
+    // Fetch updated subcategory translations
+    const updatedSubSlugs = subCategories.map((s) => s.slug);
+    const updatedSubTranslations = updatedSubSlugs.length > 0
+      ? await db.select().from(schema.subcategoryTranslation).where(inArray(schema.subcategoryTranslation.subCategorySlug, updatedSubSlugs))
+      : [];
+
+    // Fetch updated category translations
+    const updatedCategoryTranslations = await db
+      .select()
+      .from(schema.categoryTranslation)
+      .where(eq(schema.categoryTranslation.categorySlug, newSlug));
+
     const categoryWithSubs = {
       ...category,
-      subCategories,
+      categoryTranslations: updatedCategoryTranslations,
+      subCategories: subCategories.map((sub) => ({
+        ...sub,
+        translations: updatedSubTranslations.filter((t) => t.subCategorySlug === sub.slug),
+      })),
     };
 
     /* Prisma implementation (commented out)
@@ -294,6 +375,12 @@ export async function DELETE(
     if (itemCount && itemCount.count > 0) {
       throw new BadRequestError('Cannot delete category with items. Please move or delete items first.');
     }
+
+    // Set categorySlug to 'uncategorized' for items in this category before deletion
+    await db
+      .update(schema.item)
+      .set({ categorySlug: 'uncategorized' })
+      .where(eq(schema.item.categorySlug, slug));
 
     // Delete subcategories first
     await db

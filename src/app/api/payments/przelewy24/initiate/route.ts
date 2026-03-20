@@ -6,6 +6,7 @@ import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import crypto from 'crypto';
+import { eurToPlnAmount } from '@/lib/server-currency';
 
 // Przelewy24 configuration - these should be in environment variables
 const P24_MERCHANT_ID = process.env.P24_MERCHANT_ID || '';
@@ -32,16 +33,16 @@ interface P24RegisterRequest {
 }
 
 /**
- * POST /api/payments/initiate
+ * POST /api/payments/przelewy24/initiate
  * Initiates a payment with Przelewy24
  * Body: { orderId: string }
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    
+
     if (!session?.user) {
       throw new UnauthorizedError('User not authenticated');
     }
@@ -53,9 +54,9 @@ export async function POST(request: NextRequest) {
       throw new BadRequestError('Missing required field: orderId');
     }
 
-    logger.info('Initiating payment', { 
+    logger.info('Initiating Przelewy24 payment', {
       userId: session.user.id,
-      orderId 
+      orderId,
     });
 
     // Validate Przelewy24 credentials
@@ -95,16 +96,22 @@ export async function POST(request: NextRequest) {
       throw new NotFoundError('User not found');
     }
 
-    // Calculate amount in grosze (1 PLN = 100 grosze)
-    const amountInGrosze = Math.round(order.originalTotalPrice * 100);
+    // Convert the order amount from EUR (base currency) to PLN using the live
+    // exchange rate stored in the database, then express it in grosze (1 PLN = 100 grosze).
+    const amountInPln = await eurToPlnAmount(order.originalTotalPrice);
+    const amountInGrosze = Math.round(amountInPln * 100);
 
     // Generate unique session ID for Przelewy24
     const sessionId = `${orderId}_${Date.now()}`;
 
     // Prepare return and status URLs
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // Беремо baseUrl з реального запиту, щоб callback йшов на той самий домен
+    // (powerautomation.pl → pl callback, daikinwroclaw.com → ua callback і т.д.)
+    const proto = request.headers.get('x-forwarded-proto') ?? 'https';
+    const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
+    const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
     const returnUrl = `${baseUrl}/payment/return?orderId=${orderId}`;
-    const statusUrl = `${baseUrl}/api/payments/callback`;
+    const statusUrl = `${baseUrl}/api/payments/przelewy24/callback`;
 
     // Calculate signature (sign)
     const signString = JSON.stringify({
@@ -135,7 +142,9 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sending request to Przelewy24', {
       sessionId,
-      amount: amountInGrosze,
+      amountEur: order.originalTotalPrice,
+      amountInPln,
+      amountInGrosze,
       sandbox: P24_SANDBOX,
     });
 
@@ -144,7 +153,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString('base64')}`,
       },
       body: JSON.stringify(p24Request),
     });
@@ -183,6 +192,7 @@ export async function POST(request: NextRequest) {
         returnUrl,
         statusUrl,
         metadata: {
+          provider: 'przelewy24',
           token: p24Data.data?.token,
           p24Response: p24Data,
         },
@@ -201,7 +211,7 @@ export async function POST(request: NextRequest) {
       .where(eq(schema.order.id, orderId));
 
     const duration = Date.now() - startTime;
-    logger.info('Payment initiated successfully', {
+    logger.info('Przelewy24 payment initiated successfully', {
       paymentId: payment.id,
       orderId,
       duration,
@@ -221,7 +231,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return apiErrorHandler(error, request, {
-      endpoint: 'POST /api/payments/initiate',
+      endpoint: 'POST /api/payments/przelewy24/initiate',
     });
   }
 }

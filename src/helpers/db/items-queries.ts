@@ -221,6 +221,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
                   countryCode: country.countryCode,
                   phoneCode: country.phoneCode,
                   isActive: country.isActive,
+                  vatPercentage: country.vatPercentage ?? null,
                 }
               : null,
           },

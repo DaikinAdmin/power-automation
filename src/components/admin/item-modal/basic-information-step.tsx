@@ -9,6 +9,7 @@ import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
 import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
+import { ImagePickerModal } from '@/components/admin/image-picker-modal';
 
 interface BasicInformationStepProps {
   formData: Item;
@@ -17,6 +18,7 @@ interface BasicInformationStepProps {
 
 export function BasicInformationStep({ formData, setFormData }: BasicInformationStepProps) {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedParentCategorySlug, setSelectedParentCategorySlug] = useState<string>('');
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
@@ -36,6 +38,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     updatedAt: new Date().toISOString(),
     badge: 'ABSENT',
     margin: 20,
+    initialPrice: null,
+    initialCurrency: null,
     history: [],
     warehouse: {
       id: '',
@@ -43,11 +47,20 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       displayedName: '',
       isVisible: true,
       countrySlug: 'other',
+      deliveryDaysPoland: null,
+      deliveryDaysUkraine: null,
+      deliveryDaysEurope: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const computeSlug = (articleId: string, brandSlug: string | null): string => {
+    const base = articleId.trim().toLowerCase().replace(/\s+/g, '-');
+    const prefix = brandSlug ? brandSlug : 'unbranded';
+    return `${prefix}_${base}`;
+  };
 
   const warrantyTypeOptions = [
     { value: 'manufacturer', label: 'Manufacturer' },
@@ -67,6 +80,20 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     fetchWarehouses();
     fetchBrands();
   }, []);
+
+  // Initialize selectedParentCategorySlug once categories are loaded
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const isParent = categories.some(cat => cat.slug === formData.categorySlug);
+    if (isParent) {
+      setSelectedParentCategorySlug(formData.categorySlug);
+    } else {
+      const parent = categories.find(cat =>
+        cat.subCategories?.some(sub => sub.slug === formData.categorySlug)
+      );
+      setSelectedParentCategorySlug(parent?.slug ?? '');
+    }
+  }, [categories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Add debug logging to see what data is being passed
   // useEffect(() => {
@@ -202,6 +229,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       promoCode: newPriceEntry.promoCode || '',
       badge: newPriceEntry.badge || 'ABSENT',
       margin: newPriceEntry.margin ?? 20,
+      initialPrice: newPriceEntry.initialPrice ?? null,
+      initialCurrency: newPriceEntry.initialCurrency ?? null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       history: [],
@@ -211,6 +240,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
         displayedName: 'Unknown',
         isVisible: true,
         countrySlug: 'other',
+        deliveryDaysPoland: null,
+        deliveryDaysUkraine: null,
+        deliveryDaysEurope: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -236,6 +268,8 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
       updatedAt: new Date().toISOString(),
       badge: 'ABSENT',
       margin: 20,
+      initialPrice: null,
+      initialCurrency: null,
       history: [],
       warehouse: {
         id: '',
@@ -243,6 +277,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
         displayedName: '',
         isVisible: true,
         countrySlug: 'other',
+        deliveryDaysPoland: null,
+        deliveryDaysUkraine: null,
+        deliveryDaysEurope: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
@@ -305,7 +342,14 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
             <Input
               id="articleId"
               value={formData.articleId}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, articleId: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFormData((prev: any) => ({
+                  ...prev,
+                  articleId: val,
+                  slug: computeSlug(val, prev.brandSlug),
+                }));
+              }}
               className="mt-1"
               placeholder="Enter article ID"
               required
@@ -335,6 +379,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   brandSlug: brandSlug ? brandSlug : null,
                   brandName: brand?.name || '',
                   brand,
+                  slug: computeSlug(prev.articleId, brandSlug || null),
                 }));
               }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
@@ -372,7 +417,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               )}
 
               {/* Upload button */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Input
                   type="file"
                   ref={fileInputRef}
@@ -389,6 +434,22 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   <Upload className="w-4 h-4" />
                   <span>Upload Image</span>
                 </Button>
+                <ImagePickerModal
+                  label="Pick from library"
+                  onSelect={(url) =>
+                    setFormData((prev: any) => ({
+                      ...prev,
+                      itemImageLink: [
+                        ...(Array.isArray(prev.itemImageLink)
+                          ? prev.itemImageLink
+                          : prev.itemImageLink
+                          ? [prev.itemImageLink]
+                          : []),
+                        url,
+                      ],
+                    }))
+                  }
+                />
               </div>
 
               {/* Or add image URL */}
@@ -418,12 +479,16 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
           <div>
             <Label>Category *</Label>
             <select
-              value={formData.categorySlug}
-              onChange={(e) => setFormData((prev: Item) => ({ 
-                ...prev, 
-                categorySlug: e.target.value,
-                category: categories.find(cat => cat.slug === e.target.value) || prev.category
-              }))}
+              value={selectedParentCategorySlug}
+              onChange={(e) => {
+                const catSlug = e.target.value;
+                setSelectedParentCategorySlug(catSlug);
+                setFormData((prev: Item) => ({
+                  ...prev,
+                  categorySlug: catSlug,
+                  category: categories.find(cat => cat.slug === catSlug) || prev.category
+                }));
+              }}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               required
             >
@@ -435,6 +500,33 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
               ))}
             </select>
           </div>
+
+          {/* Subcategory */}
+          {selectedParentCategorySlug && (categories.find(c => c.slug === selectedParentCategorySlug)?.subCategories?.length ?? 0) > 0 && (
+            <div>
+              <Label>Subcategory</Label>
+              <select
+                value={categories.find(c => c.slug === selectedParentCategorySlug)?.subCategories?.some(s => s.slug === formData.categorySlug) ? formData.categorySlug : ''}
+                onChange={(e) => {
+                  const subSlug = e.target.value;
+                  setFormData((prev: Item) => ({
+                    ...prev,
+                    categorySlug: subSlug || selectedParentCategorySlug,
+                  }));
+                }}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+              >
+                <option value="">— No subcategory —</option>
+                {categories
+                  .find(c => c.slug === selectedParentCategorySlug)
+                  ?.subCategories?.map(sub => (
+                    <option key={sub.id} value={sub.slug}>
+                      {sub.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
 
           {/* Warranty Type */}
           <div>
@@ -493,6 +585,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                 <tr>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Warehouse</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Price</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Initial Price</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Quantity</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Badge</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Promotion</th>
@@ -515,14 +608,19 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                       <td className="px-4 py-2 text-sm text-gray-900">
                         <div className="flex flex-col">
                           <span className={effectivePrice !== price.price ? 'line-through text-gray-500 text-xs' : ''}>
-                            ${typeof price.price === 'number' ? price.price.toFixed(2) : parseFloat(String(price.price || 0)).toFixed(2)}
+                            {typeof price.price === 'number' ? price.price.toFixed(2) : parseFloat(String(price.price || 0)).toFixed(2)}
                           </span>
                           {effectivePrice !== price.price && (
                             <span className="text-red-600 font-medium">
-                              ${effectivePrice.toFixed(2)}
+                              {effectivePrice.toFixed(2)}
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        {(price as any).initialPrice != null
+                          ? `${(price as any).initialPrice} ${(price as any).initialCurrency || ''}`.trim()
+                          : '-'}
                       </td>
                       <td className="px-4 py-2 text-sm text-gray-900">
                         {price.quantity || 0}
@@ -683,6 +781,47 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   className="mt-1"
                   placeholder="Enter promo code"
                 />
+              </div>
+
+              <div>
+                <Label>Margin (%)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={newPriceEntry.margin ?? 20}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, margin: parseFloat(e.target.value) || 0 }))}
+                  className="mt-1"
+                  placeholder="20"
+                />
+              </div>
+
+              <div>
+                <Label>Initial Price</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newPriceEntry.initialPrice ?? ''}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, initialPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                  className="mt-1"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Initial Currency</Label>
+                <select
+                  value={newPriceEntry.initialCurrency ?? ''}
+                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, initialCurrency: e.target.value || null }))}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
+                >
+                  <option value="">Select Currency</option>
+                  <option value="EUR">EUR</option>
+                  <option value="PLN">PLN</option>
+                  <option value="UAH">UAH</option>
+                  <option value="USD">USD</option>
+                </select>
               </div>
             </div>
 

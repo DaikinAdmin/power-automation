@@ -6,6 +6,7 @@ import { GitCompare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WarehouseAvailability } from "@/components/warehouse-availability";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/hooks/useCurrency";
 
 type ViewMode = "grid" | "list";
 
@@ -39,6 +40,7 @@ interface CatalogProductCardProps {
   extraContent?: ReactNode;
   itemId?: string;
   isInCompare?: boolean;
+  priceFrom?: boolean;
 }
 
 const CatalogProductCard = ({
@@ -66,8 +68,10 @@ const CatalogProductCard = ({
   extraContent,
   itemId,
   isInCompare = false,
+  priceFrom = false,
 }: CatalogProductCardProps) => {
   const t = useTranslations("product.productCatalogCard");
+  const { vatPercentage, vatInclusive } = useCurrency();
   const isList = viewMode === "list";
   const disabled = addToCartDisabled ?? !inStock;
   const resolvedAddToCartLabel =
@@ -82,13 +86,13 @@ const CatalogProductCard = ({
       .filter(Boolean);
   })();
 
-  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!disabled && onAddToCart) {
-      onAddToCart();
-    }
-  };
+  // const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   if (!disabled && onAddToCart) {
+  //     onAddToCart();
+  //   }
+  // };
 
   const handleMutedAction = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -112,17 +116,19 @@ const CatalogProductCard = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка "додати в кошик" */}
-        <button
-          className={`px-4 py-2 rounded transition-colors text-sm ${
-            disabled
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-red-500 text-white hover:bg-red-600"
-          }`}
-          disabled={disabled}
-          onClick={handleAddToCart}
-        >
-          {resolvedAddToCartLabel}
-        </button>
+        <Link href={`/product/${itemId}`}>
+          <button
+            className={`px-4 py-2 rounded transition-colors text-sm ${
+              disabled
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-500 text-white hover:bg-red-600"
+            }`}
+            disabled={disabled}
+            // onClick={handleAddToCart}
+          >
+            {resolvedAddToCartLabel}
+          </button>
+        </Link>
 
         {/* Дві маленькі кнопки справа */}
         <div className="flex gap-2 justify-end">
@@ -141,7 +147,10 @@ const CatalogProductCard = ({
             onClick={handleAddToCompare}
             title={isInCompare ? t("inCompare") : t("addToCompare")}
           >
-            <GitCompare size={16} className={isInCompare ? "text-white" : "text-gray-600"} />
+            <GitCompare
+              size={16}
+              className={isInCompare ? "text-white" : "text-gray-600"}
+            />
           </button>
         </div>
       </div>
@@ -153,24 +162,25 @@ const CatalogProductCard = ({
 
     return (
       <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          disabled={disabled}
-          onClick={handleAddToCart}
-          className={`${
-            disabled
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-red-500 hover:bg-red-600 text-white"
-          }`}
-        >
-          {resolvedAddToCartLabel}
-        </Button>
+        <Link href={`/product/${itemId}`} onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="sm"
+            disabled={disabled}
+            className={`${
+              disabled
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600 text-white"
+            }`}
+          >
+            {resolvedAddToCartLabel}
+          </Button>
+        </Link>
         <Button variant="outline" size="sm" onClick={handleMutedAction}>
           <Heart className="h-4 w-4" />
         </Button>
-        <Button 
-          variant={isInCompare ? "default" : "outline"} 
-          size="sm" 
+        <Button
+          variant={isInCompare ? "default" : "outline"}
+          size="sm"
           onClick={handleAddToCompare}
           className={isInCompare ? "bg-blue-500 hover:bg-blue-600" : ""}
           title={isInCompare ? t("inCompare") : t("addToCompare")}
@@ -181,9 +191,11 @@ const CatalogProductCard = ({
     );
   };
 
-  const priceDisplay = `${price} ${currency}`.trim();
+  const priceDisplay = `${price.toFixed(1)} ${currency}`.trim();
   const originalPriceDisplay =
-    originalPrice != null ? `${originalPrice} ${currency}`.trim() : null;
+    originalPrice != null
+      ? `${originalPrice.toFixed(1)} ${currency}`.trim()
+      : null;
 
   return (
     <Link
@@ -278,13 +290,23 @@ const CatalogProductCard = ({
         </div>
 
         <div className={`${isList ? "flex items-center justify-between" : ""}`}>
-          <div className="flex items-center gap-2">
-            <span className="text-red-600 text-product-price">
-              {priceDisplay}
-            </span>
-            {originalPriceDisplay && (
-              <span className="text-gray-400 line-through text-sm">
-                {originalPriceDisplay}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-red-600 text-product-price">
+                {priceFrom && (
+                  <span className="text-sm font-normal">{t("from")} </span>
+                )}
+                {priceDisplay}
+              </span>
+              {originalPriceDisplay && (
+                <span className="text-gray-400 line-through text-sm">
+                  {originalPriceDisplay}
+                </span>
+              )}
+            </div>
+            {!vatInclusive && vatPercentage > 0 && (
+              <span className="text-xs text-gray-500">
+                + {vatPercentage}% {t("vat")}
               </span>
             )}
           </div>

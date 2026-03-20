@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
         amount: payment.amount, // Full refund
         description: reason || `Refund for order ${order.id}`,
       }],
-      urlStatus: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/refund-callback`,
+      urlStatus: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://powerautomation.pl'}/api/payments/refund-callback`,
     };
 
     logger.info('Sending refund request to Przelewy24', {

@@ -100,10 +100,14 @@
       "to": "Hasta"
     },
     "filters": {
+      "title": "Filtros",
       "categories": "Categorías",
       "brands": "Marcas",
       "warehouses": "Almacenes",
-      "subcategories": "Subcategorías"
+      "subcategories": "Subcategorías",
+      "apply": "Aplicar",
+      "allCategories": "Todas las categorías",
+      "hideCategories": "Ocultar"
     },
     "noResults": "No se encontraron productos",
     "noResultsSearch": "No se encontraron resultados de búsqueda",
@@ -177,15 +181,67 @@
       "orderCreated": "¡Pedido creado con éxito! ID del pedido:"
     }
   },
+  "payment": {
+    "title": "Pago",
+    "backToShop": "Volver a la tienda",
+    "loading": "Cargando...",
+    "retry": "Reintentar",
+    "errors": {
+      "title": "Error",
+      "noOrder": "Sin número de pedido",
+      "noOrderDescription": "No se ha proporcionado un número de pedido válido. Vuelve a la tienda e intenta de nuevo."
+    },
+    "orderSummary": {
+      "title": "Resumen del pedido",
+      "orderId": "Número de pedido",
+      "date": "Fecha",
+      "status": "Estado",
+      "total": "Total a pagar",
+      "vat": "IVA"
+    },
+    "paymentInfo": {
+      "title": "Pago seguro",
+      "securePayment": "Tu pago está protegido por el sistema de pago. Todos los datos están cifrados y seguros.",
+      "methods": "Métodos de pago disponibles:",
+      "creditCard": "Tarjeta de crédito/débito",
+      "bankTransfer": "Transferencia bancaria",
+      "blik": "BLIK",
+      "paypal": "PayPal",
+      "applePay": "Apple Pay",
+      "googlePay": "Google Pay",
+      "privatInstallment": "Pagos a plazos de PrivatBank",
+      "poweredBy": "Pago procesado por"
+    },
+    "buttons": {
+      "proceedToPayment": "Proceder al pago",
+      "payWithLiqPay": "Pagar con LiqPay",
+      "payWithPrzelewy24": "Pagar con Przelewy24",
+      "issueInvoice": "Emitir factura",
+      "issuingInvoice": "Emitiendo factura...",
+      "processing": "Procesando...",
+      "alreadyPaid": "Ya pagado"
+    },
+    "additionalInfo": {
+      "text": "Después del pago, recibirás un correo de confirmación. Si tienes alguna pregunta, contacta con nuestro servicio de atención al cliente."
+    }
+  },
   "dashboard": {
     "welcomeBack": "Bienvenido de nuevo",
     "statsOverview": "Resumen de estadísticas",
-    "greeting": "Hola {{name}}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
+    "greeting": "Hola {name}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
     "stats": {
       "ordersPlaced": "Pedidos realizados",
       "itemsPurchased": "Artículos comprados",
       "totalSpend": "Gasto total",
       "supportTickets": "Tickets de soporte abiertos"
+    },
+    "sidebar": {
+      "stats": "Stats",
+      "userInfo": "User Info",
+      "orders": "Orders",
+      "favorites": "Favorites",
+      "contact": "Contact Support",
+      "userManagement": "User Management"
     },
     "descriptions": {
       "analyticsComingSoon": "Análisis próximamente",
@@ -221,19 +277,37 @@
         "actions": "Acciones",
         "view": "Ver",
         "refund": "Reembolso",
-        "itemsCount_one": "{{count}} artículo",
-        "itemsCount_other": "{{count}} artículos",
-        "moreItems": "+{{count}} más",
+        "itemsCount_one": "{count} artículo",
+        "itemsCount_other": "{count} artículos",
+        "moreItems": "+{count} más",
         "noOrders": "Aún no has realizado ningún pedido.",
         "refunding": "Reembolsando...",
         "refundConfirm": "¿Estás seguro de que quieres reembolsar este pedido? Esta acción no se puede deshacer.",
         "refundSuccess": "Reembolso procesado exitosamente",
         "refundError": "Error al procesar el reembolso"
       },
+      "orderStatuses": {
+        "NEW": "Nuevo",
+        "WAITING_FOR_PAYMENT": "Esperando pago",
+        "PROCESSING": "En proceso",
+        "DELIVERY": "Entrega",
+        "COMPLETED": "Completado",
+        "CANCELLED": "Cancelado",
+        "REFUND": "Reembolso"
+      },
+      "paymentStatuses": {
+        "COMPLETED": "Pagado",
+        "PENDING": "Pendiente",
+        "INITIATED": "Iniciado",
+        "FAILED": "Fallido",
+        "CANCELLED": "Cancelado",
+        "REFUNDED": "Reembolsado",
+        "PROCESSING": "Procesando"
+      },
       "detail": {
         "backToOrders": "Volver a pedidos",
-        "orderNumber": "Pedido #{{id}}",
-        "placedOn": "Realizado el {{date}}",
+        "orderNumber": "Pedido #{id}",
+        "placedOn": "Realizado el {date}",
         "payNow": "Pagar ahora",
         "proceedWithPayment": "Proceder al pago",
         "cancelOrder": "Cancelar pedido",
@@ -241,10 +315,10 @@
         "cancelling": "Cancelando...",
         "refunding": "Reembolsando...",
         "orderNotFound": "Pedido no encontrado",
-        "orderItems": "Artículos del pedido ({{count}})",
+        "orderItems": "Artículos del pedido ({count})",
         "articleId": "ID de artículo",
-        "quantity": "Cantidad: {{quantity}}",
-        "unit": "Unidad: {{price}}",
+        "quantity": "Cantidad: {quantity}",
+        "unit": "Unidad: {price}",
         "orderSummary": "Resumen del pedido",
         "subtotal": "Subtotal:",
         "totalFormatted": "Total (formateado):",
@@ -253,7 +327,7 @@
         "orderPlaced": "Pedido realizado",
         "lastUpdated": "Última actualización",
         "deliveryInfo": "Información de entrega",
-        "deliveryId": "ID de entrega: {{id}}",
+        "deliveryId": "ID de entrega: {id}",
         "paymentInfo": "Información del pago",
         "paymentStatus": "Estado del pago:",
         "paidWith": "Pagado con:",
@@ -271,29 +345,6 @@
       "editNote": "Pronto mostraremos campos editables (nombre, teléfono, dirección), incluida la validación y el historial de auditoría."
     }
   },
-  "dashboard": {
-    "welcomeBack": "Bienvenido de nuevo",
-    "statsOverview": "Resumen de estadísticas",
-    "greeting": "Hola {{name}}, aquí tienes un resumen rápido de tu actividad reciente. Los informes detallados están en camino.",
-    "stats": {
-      "ordersPlaced": "Pedidos realizados",
-      "itemsPurchased": "Artículos comprados",
-      "totalSpend": "Gasto total",
-      "supportTickets": "Tickets de soporte abiertos"
-    },
-    "descriptions": {
-      "analyticsComingSoon": "Análisis próximamente",
-      "trendingCategories": "Destacaremos las categorías de tendencia a continuación",
-      "currencySummaries": "Aquí aparecerán resúmenes con reconocimiento de moneda",
-      "contactSupport": "Comuníquese en cualquier momento desde la sección de Contacto"
-    },
-    "whatsNext": {
-      "title": "¿Qué sigue?",
-      "visualizeSpending": "Visualice el gasto a lo largo del tiempo con gráficos mensuales.",
-      "trackOrders": "Rastree las etapas de cumplimiento de pedidos en tiempo real.",
-      "loyaltyRewards": "Esté atento a las recompensas de lealtad y las próximas renovaciones."
-    }
-  },
   "product": {
     "loading": "Cargando producto…",
     "notFound": {
@@ -302,10 +353,11 @@
       "backToHome": "Volver al inicio"
     },
     "articleId": "Artícul",
-    "from": "De {{warehouse}}",
-    "moreLocations": "+{{count}} ubicaciones más",
+    "from": "De {warehouse}",
+    "moreLocations": "+{count} ubicaciones más",
     "price": {
-      "discount": "-{{percent}}%",
+      "discount": "-{percent}%",
+      "vat": "IVA",
       "badges": {
         "bestseller": "Más vendido",
         "hotDeal": "Oferta caliente",
@@ -323,6 +375,11 @@
       "addToCompare": "Añadir a comparación",
       "inCompare": "En comparación"
     },
+    "availability": {
+      "inStock": "En stock",
+      "inStockQty": "{quantity} en stock",
+      "outOfStock": "Agotado"
+    },
     "tabs": {
       "delivery": "Entrega y disponibilidad",
       "warranty": "Garantía",
@@ -331,7 +388,7 @@
     "tabContent": {
       "deliveryAvailable": "Entrega disponible en 3-5 días hábiles desde el almacén seleccionado.",
       "fasterShipping": "¿Necesita un envío más rápido? Comuníquese con nuestro equipo de logística para opciones express.",
-      "manufacturerWarranty": "Garantía del fabricante: {{months}} meses.",
+      "manufacturerWarranty": "Garantía del fabricante: {months} meses.",
       "warrantyNotSpecified": "Garantía del fabricante: No especificada.",
       "additionalContracts": "Contratos de servicio adicionales disponibles bajo petición.",
       "datasheets": "Las hojas de datos y certificados están disponibles bajo petición. Póngase en contacto con el soporte para obtener más información."
@@ -342,8 +399,8 @@
       "warranty": "Garantía",
       "category": "Categoría",
       "subcategory": "Subcategoría",
-      "months": "{{count}} meses",
-      "warrantyMonths": "{{count}} meses",
+      "months": "{count} meses",
+      "warrantyMonths": "{count} meses",
       "notSpecified": "—",
       "notAvailable": "—"
     },
@@ -372,11 +429,35 @@
       "success": "Solicitud de precio enviada con éxito! Nos pondremos en contacto con usted pronto.",
       "error": "No se pudo enviar la solicitud de precio. Por favor, inténtelo de nuevo."
     },
-    "productCatalogCard":{
-      "buy":"Comprar",
-      "outOfStock":"Agotado",
+    "warehouseSelector": {
+      "title": "Seleccionar almacén",
+      "inStock": "{quantity} en stock",
+      "warehouse": "Almacén",
+      "outOfStockTitle": "Artículo no disponible en almacén",
+      "lastPrice": "Último precio",
+      "contactManager": "Consulte al gerente para hacer un pedido",
+      "switchToAvailable": "Cambiar al almacén disponible",
+      "noStockAvailable": "Sin stock disponible",
+      "requestWhenAvailable": "Notificar cuando esté disponible",
+      "requestFormTitle": "Solicitar {itemName} cuando esté disponible",
+      "yourName": "Tu nombre",
+      "email": "Correo electrónico",
+      "messageOptional": "Mensaje (opcional)",
+      "messagePlaceholder": "Cualquier requisito específico o preguntas...",
+      "submit": "Enviar solicitud",
+      "submitting": "Enviando...",
+      "cancel": "Cancelar",
+      "successMessage": "Tu solicitud ha sido enviada. Te contactaremos cuando el artículo esté disponible.",
+      "errorMessage": "No se pudo enviar la solicitud. Por favor, inténtelo de nuevo.",
+      "deliveryDays": "Entrega estimada: {days} días"
+    },
+    "productCatalogCard": {
+      "buy": "Comprar",
+      "outOfStock": "Agotado",
       "addToCompare": "Añadir a comparación",
-      "inCompare": "En comparación"
+      "inCompare": "En comparación",
+      "from": "desde",
+      "vat": "IVA"
     },
     "compare": {
       "alreadyAdded": "Este producto ya está en la lista de comparación",
@@ -394,6 +475,7 @@
     "name": "Nombre",
     "brand": "Marca",
     "price": "Precio",
+    "vat": "IVA",
     "description": "Descripción",
     "noImage": "Sin imagen",
     "noBrand": "Sin marca",
@@ -453,18 +535,31 @@
   "header": {
     "nav": {
       "about": "Sobre nosotros",
+      "main": "Principal",
       "brands": "Marcas",
       "purchaseDelivery": "Compra y entrega",
       "refunding": "Devoluciones",
       "contacts": "Contactos",
       "other": "Otros",
-      "menu": "Menú"
+      "menu": "Menú",
+      "compare": "Comparar productos",
+      "login": "Iniciar sesión"
     },
     "categories": "Categorías",
     "search": "Buscar productos...",
     "enter": "Entrar",
     "cart": "Carrito",
-    "dashboard": "Panel"
+    "dashboard": "Profil",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "settings": "Configuración"
+  },
+  "staticPages": {
+    "about": "Sobre nosotros",
+    "brands": "Marcas",
+    "purchaseDelivery": "Compra y entrega",
+    "refunding": "Devoluciones",
+    "contacts": "Contactos"
   },
   "footer": {
     "copyright": "© 2024 Todos los derechos reservados",
@@ -479,7 +574,8 @@
       "brands": "Marcas",
       "purchaseDelivery": "Compra y entrega",
       "refunding": "Devoluciones",
-      "contacts": "Contactos"
+      "contacts": "Contactos",
+      "privacyPolicy": "Política de privacidad"
     },
     "categories1": {
       "electronics": "Electrónica",
@@ -498,9 +594,71 @@
       "saturday": "Sáb: 9:00-16:00"
     }
   },
+  "cart": {
+    "title": "Carrito",
+    "empty": "Tu carrito está vacío",
+    "itemName": "ARTÍCULO",
+    "warehouse": "Almacén",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "total": "Total:",
+    "vat": "IVA",
+    "payment": "Proceder al Pago",
+    "backToShopping": "Continuar Comprando"
+  },
   "errors": {
     "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
     "itemNotAvailable": "Artículo {itemName} no disponible en el almacén seleccionado",
     "itemNotFound": "Artículo {articleId} no encontrado"
+  },
+  "cookieConsent": {
+    "title": "Usamos cookies",
+    "description": "Usamos cookies para mejorar su experiencia en nuestro sitio, analizar el tráfico y personalizar el contenido. Puede aceptar todas las cookies o gestionar sus preferencias.",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "learnMore": "Más información"
+  },
+  "privacyPolicy": {
+    "title": "Política de privacidad",
+    "lastUpdated": "Última actualización: enero de 2025",
+    "s1": {
+      "title": "1. Información general",
+      "body": "Esta Política de privacidad define los principios de procesamiento y protección de datos personales proporcionados por los Usuarios en relación con el uso de los servicios ofrecidos por Power Automation."
+    },
+    "s2": {
+      "title": "2. Responsable del tratamiento",
+      "body": "El responsable del tratamiento de datos personales es Power Automation. Los datos personales se procesan de acuerdo con la legislación vigente, en particular el Reglamento General de Protección de Datos (RGPD)."
+    },
+    "s3": {
+      "title": "3. Datos que recopilamos",
+      "intro": "Recopilamos las siguientes categorías de datos:",
+      "item1": "Datos de identificación (nombre, apellidos, dirección de correo electrónico)",
+      "item2": "Datos de contacto (número de teléfono, dirección de entrega)",
+      "item3": "Datos de transacciones (historial de pedidos, pagos)",
+      "item4": "Datos técnicos (dirección IP, cookies, datos del navegador)"
+    },
+    "s4": {
+      "title": "4. Finalidad del tratamiento",
+      "intro": "Sus datos personales se procesan con los siguientes fines:",
+      "item1": "Procesamiento de pedidos y atención al cliente",
+      "item2": "Comunicaciones de marketing (con su consentimiento)",
+      "item3": "Análisis y mejora de nuestros servicios"
+    },
+    "s5": {
+      "title": "5. Cookies",
+      "body": "Nuestro sitio utiliza cookies para garantizar el correcto funcionamiento, analizar el tráfico y personalizar el contenido. Puede gestionar la configuración de cookies a través de la configuración de su navegador o mediante nuestro panel de consentimiento."
+    },
+    "s6": {
+      "title": "6. Compartir datos",
+      "body": "No vendemos ni compartimos sus datos personales con terceros sin su consentimiento, excepto cuando lo exija la ley o sea necesario para la prestación de servicios (por ejemplo, empresas de mensajería, operadores de pago)."
+    },
+    "s7": {
+      "title": "7. Sus derechos",
+      "body": "Tiene derecho a acceder a sus datos, rectificarlos, suprimirlos, limitar su tratamiento, a la portabilidad de los datos y a oponerse al tratamiento. Para ejercer sus derechos, contáctenos en la dirección de correo electrónico indicada en la página de contacto."
+    },
+    "s8": {
+      "title": "8. Contacto",
+      "body": "Si tiene alguna pregunta sobre esta Política de privacidad o el tratamiento de sus datos personales, contáctenos a través del formulario disponible en la página de Contacto."
+    }
   }
 }

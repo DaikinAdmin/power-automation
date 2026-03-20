@@ -109,7 +109,7 @@ export async function getCategoryPageData(
         id: item.category.slug,
         name: item.category.name,
         slug: item.category.slug,
-        image: '/placeholder-category.jpg',
+        image: '/imgs/placeholder-category.svg',
         subcategories: item.category.subCategories.map(sub => ({
           id: sub.slug,
           name: sub.name,

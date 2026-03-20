@@ -8,6 +8,7 @@ interface UseCategoryDataParams {
     brand?: string[];
     warehouse?: string[];
     subcategory?: string[];
+    search?: string;
   };
   pagination?: {
     page?: number;
@@ -79,6 +80,7 @@ export function useCategoryData({
       filters?.brand?.forEach(b => params.append('brand', b));
       filters?.warehouse?.forEach(w => params.append('warehouse', w));
       filters?.subcategory?.forEach(s => params.append('subcategory', s));
+      if (filters?.search?.trim()) params.append('search', filters.search.trim());
       if (pagination?.page) params.append('page', pagination.page.toString());
       if (pagination?.limit) params.append('limit', pagination.limit.toString());
       
@@ -104,8 +106,17 @@ export function useCategoryData({
         }
       }
 
-      // Fetch all items for extracting categories, brands, and warehouses
-      const allItemsResponse = await fetch(`/api/public/items/${locale}`);
+      // Fetch all items for extracting categories/warehouses AND fetch brands from the brands API
+      const [allItemsResponse, brandsApiResponse] = await Promise.all([
+        fetch(`/api/public/items/${locale}`),
+        fetch(`/api/public/brands`),
+      ]);
+
+      // Load all visible brands from the dedicated brands endpoint
+      if (brandsApiResponse.ok) {
+        const brandsData: { alias: string; name: string }[] = await brandsApiResponse.json();
+        setBrands(brandsData.map((b) => ({ name: b.name, slug: b.alias })));
+      }
       
       if (allItemsResponse.ok) {
         const allItems = await allItemsResponse.json() as ItemResponse[];
@@ -118,7 +129,7 @@ export function useCategoryData({
               id: item.category.slug,
               name: item.category.name,
               slug: item.category.slug,
-              image: "/placeholder-category.jpg",
+              image: "/imgs/placeholder-category.svg",
               subcategories: item.category.subCategories.map((sub) => ({
                 id: sub.slug,
                 name: sub.name,
@@ -138,22 +149,10 @@ export function useCategoryData({
           }
         }
 
-        // Filter items for extracting brands/warehouses
+        // Filter items for extracting warehouses
         const relevantItems = categorySlug
           ? allItems.filter(item => item.category.slug === categorySlug)
           : allItems;
-
-        // Extract unique brands
-        const brandMap = new Map();
-        relevantItems.forEach((item) => {
-          if (item.brand?.alias && item.brand?.name) {
-            brandMap.set(item.brand.alias, {
-              name: item.brand.name,
-              slug: item.brand.alias,
-            });
-          }
-        });
-        setBrands(Array.from(brandMap.values()));
 
         // Extract unique warehouses
         const warehouseMap = new Map();

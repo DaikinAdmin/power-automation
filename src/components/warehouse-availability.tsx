@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface WarehouseAvailabilityProps {
   inStock: boolean;
   quantity?: number;
@@ -17,11 +19,13 @@ export const WarehouseAvailability = ({
   variant = 'catalog',
   className
 }: WarehouseAvailabilityProps) => {
+  const t = useTranslations('product.availability');
+
   const stockLabel = inStock
     ? quantity != null
-      ? `${quantity} in stock`
-      : 'In stock'
-    : 'Out of stock';
+      ? t('inStockQty', { quantity })
+      : t('inStock')
+    : t('outOfStock');
 
   if (variant === 'detail') {
     return (

@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 const navItems = [
-  { slug: "about", label: "About us" },
-  { slug: "brands", label: "Brands" },
-  { slug: "purchase-delivery", label: "Delivery" },
-  { slug: "refunding", label: "Refunding" },
-  { slug: "contacts", label: "Contacts" },
+  { slug: "about", label: "about" },
+  { slug: "brands", label: "brands" },
+  { slug: "purchase-delivery", label: "purchaseDelivery" },
+  { slug: "refunding", label: "refunding" },
+  { slug: "contacts", label: "contacts" },
 ];
 
 export default function PageSidebarNav() {
   const pathname = usePathname();
+  const t = useTranslations("staticPages");
 
   return (
     <nav className="hidden md:block w-full md:w-64">
@@ -33,7 +35,7 @@ export default function PageSidebarNav() {
                       : "text-gray-700 hover:bg-gray-100"
                   )}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               </li>
             );

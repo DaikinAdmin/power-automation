@@ -71,7 +71,20 @@ export async function GET(
     const totalPages = Math.ceil(totalItems / limit);
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const paginatedItems = filteredItems.slice(startIndex, endIndex);
+    const rawPaginatedItems = filteredItems.slice(startIndex, endIndex);
+
+    // Strip margin and bake it into prices before returning public response
+    const paginatedItems = rawPaginatedItems.map(item => ({
+      ...item,
+      prices: item.prices.map(({ margin, price, promotionPrice, ...rest }: any) => {
+        const marginRate = 1 + ((margin ?? 20) / 100);
+        return {
+          ...rest,
+          price: price * marginRate,
+          promotionPrice: promotionPrice != null ? promotionPrice * marginRate : null,
+        };
+      }),
+    }));
 
     const duration = Date.now() - startTime;
     logger.info('Category items fetched successfully', {

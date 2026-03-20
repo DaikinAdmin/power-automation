@@ -239,7 +239,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
-              <Link href="/admin/products/new">
+              <Link href="/admin/items/new">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <PlusCircle className="mr-2 h-4 w-4" />
                   <span className="text-sm">Add New Product</span>

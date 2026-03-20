@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { randomUUID } from 'crypto';
@@ -17,7 +17,7 @@ const generateSlug = (value: string) =>
     .replace(/-+/g, '-')
     .trim();
 
-const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean }> => {
+const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> }> => {
   if (!Array.isArray(raw)) return [];
 
   return raw
@@ -30,6 +30,7 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug: generateSlug(name),
           isVisible: true,
+          translations: [],
         };
       }
 
@@ -37,16 +38,20 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
         const name = (entry.name || '').trim();
         if (!name) return null;
         const slug = entry.slug ? generateSlug(entry.slug) : generateSlug(name);
+        const translations: Array<{ locale: string; name: string }> = Array.isArray(entry.translations)
+          ? entry.translations.filter((t: any) => t.locale && t.name && t.name.trim())
+          : [];
         return {
           name,
           slug,
           isVisible: entry.isVisible !== undefined ? Boolean(entry.isVisible) : true,
+          translations,
         };
       }
 
       return null;
     })
-    .filter((entry): entry is { name: string; slug: string; isVisible: boolean } => Boolean(entry));
+    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
 };
 
 // GET all categories
@@ -75,10 +80,28 @@ export async function GET(request: NextRequest) {
       .select()
       .from(schema.subcategories);
 
-    // Map subcategories to categories
+    // Fetch category translations
+    const categorySlugs = categories.map((c) => c.slug);
+    const categoryTranslations = categorySlugs.length > 0
+      ? await db.select().from(schema.categoryTranslation).where(inArray(schema.categoryTranslation.categorySlug, categorySlugs))
+      : [];
+
+    // Fetch subcategory translations
+    const subSlugs = subcategories.map((s) => s.slug);
+    const subcategoryTranslations = subSlugs.length > 0
+      ? await db.select().from(schema.subcategoryTranslation).where(inArray(schema.subcategoryTranslation.subCategorySlug, subSlugs))
+      : [];
+
+    // Map subcategories to categories (with translations)
     const categoriesWithSubs = categories.map((cat) => ({
       ...cat,
-      subCategories: subcategories.filter((sub) => sub.categorySlug === cat.slug),
+      categoryTranslations: categoryTranslations.filter((t) => t.categorySlug === cat.slug),
+      subCategories: subcategories
+        .filter((sub) => sub.categorySlug === cat.slug)
+        .map((sub) => ({
+          ...sub,
+          translations: subcategoryTranslations.filter((t) => t.subCategorySlug === sub.slug),
+        })),
     }));
 
     /* Prisma implementation (commented out)
@@ -174,6 +197,19 @@ export async function POST(request: NextRequest) {
           updatedAt: now,
         }))
       );
+
+      // Insert subcategory translations if any
+      const translationRows = normalizedSubcategories.flatMap((sub) =>
+        sub.translations.map((t) => ({
+          id: randomUUID(),
+          subCategorySlug: sub.slug,
+          locale: t.locale,
+          name: t.name.trim(),
+        }))
+      );
+      if (translationRows.length > 0) {
+        await db.insert(schema.subcategoryTranslation).values(translationRows);
+      }
     }
 
     /* Prisma implementation (commented out)
