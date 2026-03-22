@@ -28,7 +28,7 @@ export default function ProductsTabsSection({
     useCatalogPricing({
       preferredCountryCode: "PL",
     });
-  const { convertPrice, currencyCode } = useCurrency();
+  const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
   // Get products by category
   const getProductsByCategory = (
@@ -174,13 +174,14 @@ export default function ProductsTabsSection({
           <div className="hidden md:grid grid-cols-1 gap-3 md:grid-cols-6">
             {products.map((item) => {
               const details = getItemDetails(item);
-              const { price, originalPrice, inStock, displayedName } =
+              const { price, originalPrice, inStock, displayedName, initialCurrency: itemCurrency } =
                 getItemPrice(item);
-              const convertedPrice = convertPrice(price);
+              const fromCurrency = (itemCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+              const convertedPrice = convertFromCurrency(price, fromCurrency);
               const convertedOriginalPrice =
-                originalPrice != null ? convertPrice(originalPrice) : null;
-              const { price: minPrice } = getMinPrice(item);
-              const convertedMinPrice = convertPrice(minPrice);
+                originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
+              const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
+              const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR');
               const warehouseLabel = displayedName
                 ? `From ${displayedName}`
                 : undefined;
@@ -212,7 +213,7 @@ export default function ProductsTabsSection({
 
               const addToCartHandler = () => {
                 if (!inStock) return;
-                const { warehouseId } = getItemPrice(item);
+                const { warehouseId, price: itemPrice, initialCurrency: itemCurrency } = getItemPrice(item);
                 const subCategory = item.subCategorySlug
                   ? item.category.subCategories.find(
                       (s) => s.slug === item.subCategorySlug
@@ -247,6 +248,10 @@ export default function ProductsTabsSection({
                     ? ({ ...item.brand, id: item.brand.alias } as any)
                     : null,
                   linkedItems: [],
+                  price: itemPrice,
+                  basePrice: itemPrice,
+                  warehouseId,
+                  initialCurrency: itemCurrency ?? null,
                 });
               };
 
@@ -301,13 +306,14 @@ export default function ProductsTabsSection({
               <div className="embla__container flex gap-3">
                 {products.map((item) => {
                   const details = getItemDetails(item);
-                  const { price, originalPrice, inStock, displayedName } =
+                  const { price, originalPrice, inStock, displayedName, initialCurrency: itemCurrency } =
                     getItemPrice(item);
-                  const convertedPrice = convertPrice(price);
+                  const fromCurrency = (itemCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+                  const convertedPrice = convertFromCurrency(price, fromCurrency);
                   const convertedOriginalPrice =
-                    originalPrice != null ? convertPrice(originalPrice) : null;
-                  const { price: minPrice } = getMinPrice(item);
-                  const convertedMinPrice = convertPrice(minPrice);
+                    originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
+                  const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
+                  const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR');
                   const warehouseLabel = displayedName
                     ? `From ${displayedName}`
                     : undefined;
@@ -341,7 +347,7 @@ export default function ProductsTabsSection({
 
                   const addToCartHandler = () => {
                     if (!inStock) return;
-                    const { warehouseId } = getItemPrice(item);
+                    const { warehouseId, price: itemPrice, initialCurrency: itemCurrency } = getItemPrice(item);
                     const subCategory = item.subCategorySlug
                       ? item.category.subCategories.find(
                           (s) => s.slug === item.subCategorySlug
@@ -376,6 +382,10 @@ export default function ProductsTabsSection({
                         ? ({ ...item.brand, id: item.brand.alias } as any)
                         : null,
                       linkedItems: [],
+                      price: itemPrice,
+                      basePrice: itemPrice,
+                      warehouseId,
+                      initialCurrency: itemCurrency ?? null,
                     });
                   };
 

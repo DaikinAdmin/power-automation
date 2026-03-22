@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     .where(eq(schema.user.id, session.user.id))
     .limit(1);
 
-  return NextResponse.json({ currency: user?.defaultCurrency ?? 'EUR' });
+  return NextResponse.json({ currency: user?.defaultCurrency || null });
 }
 
 export async function PATCH(request: NextRequest) {

@@ -60,6 +60,7 @@ export const useCatalogPricing = (
     return {
       price,
       originalPrice,
+      initialCurrency: (prioritizedPrice as any).initialCurrency as string | null | undefined,
       inStock: prioritizedPrice.quantity > 0,
       quantity: prioritizedPrice.quantity,
       warehouseId: prioritizedPrice.warehouse.id,
@@ -80,15 +81,20 @@ export const useCatalogPricing = (
     const pool = inStockPrices.length > 0 ? inStockPrices : prices;
 
     let minPrice = Infinity;
+    let minPriceCurrency: string | null | undefined;
     for (const p of pool) {
       const margin = ('margin' in p ? (p as any).margin : null) ?? 0;
       const base = (p as any).promotionPrice ?? (p as any).price;
       const final = base * (1 + margin / 100);
-      if (final < minPrice) minPrice = final;
+      if (final < minPrice) {
+        minPrice = final;
+        minPriceCurrency = (p as any).initialCurrency;
+      }
     }
 
     return {
       price: minPrice === Infinity ? 0 : minPrice,
+      initialCurrency: minPriceCurrency,
       inStock: inStockPrices.length > 0,
     };
   }, []);
@@ -108,7 +114,8 @@ export const useCatalogPricing = (
         price: basePrice * marginMultiplier,
         specialPrice: priceInfo.promotionPrice ? priceInfo.promotionPrice * marginMultiplier : undefined,
         inStock: priceInfo.quantity > 0,
-        quantity: priceInfo.quantity
+        quantity: priceInfo.quantity,
+        initialCurrency: (priceInfo as any).initialCurrency ?? null,
       };
     }) as AvailableWarehouse[];
   }, []);

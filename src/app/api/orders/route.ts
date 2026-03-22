@@ -485,6 +485,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       baseSpecialPrice: promoPriceWithMargin,
       unitPrice: baseUnitPrice,
       lineTotal: baseUnitPrice * cartItem.quantity,
+      currency: cartItem.currency ?? null,
     });
   }
 

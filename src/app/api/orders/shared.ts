@@ -11,6 +11,7 @@ export type OrderLineItem = {
   baseSpecialPrice?: number | null;
   unitPrice?: number | null;
   lineTotal?: number | null;
+  currency?: string | null;
 };
 
 export const parseStoredLineItems = (value: unknown): OrderLineItem[] => {

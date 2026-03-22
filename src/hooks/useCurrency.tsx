@@ -11,6 +11,10 @@ interface CurrencyContextValue {
   convertPrice: (baseValue: number) => number;
   formatPrice: (value: number) => string;
   formatPriceFromBase: (baseValue: number) => string;
+  convertFromCurrency: (price: number, fromCurrency: SupportedCurrency) => number;
+  convertToCurrency: (price: number, fromCurrency: SupportedCurrency, toCurrency: SupportedCurrency) => number;
+  formatAs: (value: number, currency: SupportedCurrency) => string;
+  formatPriceWithCurrency: (price: number, fromCurrency: SupportedCurrency) => string;
   vatPercentage: number;
   vatInclusive: boolean;
   setCurrency: (currency: SupportedCurrency) => void;
@@ -42,6 +46,7 @@ export const CurrencyProvider = ({
 }) => {
   const [currencyCode, setCurrencyCode] = useState<SupportedCurrency>(initialCurrency ?? BASE_CURRENCY);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const [allRates, setAllRates] = useState<Array<{ from: string; to: string; rate: number }>>([]);
   const vatPercentage = initialVatPercentage;
   const vatInclusive = initialVatInclusive;
 
@@ -55,9 +60,12 @@ export const CurrencyProvider = ({
           const res = await fetch('/api/user/currency');
           if (res.ok) {
             const { currency } = await res.json();
-            if (currency) setCurrencyCode(currency as SupportedCurrency);
+            if (currency) {
+              setCurrencyCode(currency as SupportedCurrency);
+              return;
+            }
           }
-          return;
+          // No saved currency for user — fall through to localStorage
         }
       } catch {
         // not logged in or error — fall through to localStorage
@@ -88,44 +96,38 @@ export const CurrencyProvider = ({
     }
   }, []);
 
+  // Fetch all rates once on mount
   useEffect(() => {
     let ignore = false;
-
-    const loadRate = async () => {
-      if (currencyCode === BASE_CURRENCY) {
-        setExchangeRate(1);
-        return;
-      }
-
+    const loadAllRates = async () => {
       try {
         const response = await fetch('/api/admin/currency-exchange');
-        if (!response.ok) {
-          throw new Error('Failed to fetch exchange rates');
-        }
+        if (!response.ok) return;
         const data = await response.json();
-        const match = Array.isArray(data)
-          ? data.find((rate: any) => rate.from === BASE_CURRENCY && rate.to === currencyCode)
-          : undefined;
-        if (!ignore) {
-          if (match?.rate && typeof match.rate === 'number') {
-            setExchangeRate(match.rate);
-          } else {
-            setExchangeRate(fallbackRates[currencyCode] ?? 1);
-          }
+        if (!ignore && Array.isArray(data)) {
+          setAllRates(data);
         }
-      } catch (error) {
-        if (!ignore) {
-          setExchangeRate(fallbackRates[currencyCode] ?? 1);
-        }
+      } catch {
+        // fallbackRates will be used
       }
     };
+    loadAllRates();
+    return () => { ignore = true; };
+  }, []);
 
-    loadRate();
-
-    return () => {
-      ignore = true;
-    };
-  }, [currencyCode]);
+  // Derive exchangeRate from allRates + currencyCode
+  useEffect(() => {
+    if (currencyCode === BASE_CURRENCY) {
+      setExchangeRate(1);
+      return;
+    }
+    const match = allRates.find((r) => r.from === BASE_CURRENCY && r.to === currencyCode);
+    if (match?.rate && typeof match.rate === 'number') {
+      setExchangeRate(match.rate);
+    } else {
+      setExchangeRate(fallbackRates[currencyCode] ?? 1);
+    }
+  }, [currencyCode, allRates]);
 
   const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
 
@@ -150,6 +152,51 @@ export const CurrencyProvider = ({
     [convertPrice, formatPrice]
   );
 
+  // Convert a price from any source currency to the user's currency, applying VAT
+  const convertFromCurrency = useCallback(
+    (price: number, fromCurrency: SupportedCurrency): number => {
+      if (fromCurrency === currencyCode) {
+        return price * vatMultiplier;
+      }
+      const fromRate =
+        fromCurrency === BASE_CURRENCY
+          ? 1
+          : (allRates.find((r) => r.from === BASE_CURRENCY && r.to === fromCurrency)?.rate ?? fallbackRates[fromCurrency]);
+      const toRate =
+        currencyCode === BASE_CURRENCY
+          ? 1
+          : (allRates.find((r) => r.from === BASE_CURRENCY && r.to === currencyCode)?.rate ?? fallbackRates[currencyCode]);
+      return (price / fromRate) * toRate * vatMultiplier;
+    },
+    [currencyCode, allRates, vatMultiplier]
+  );
+
+  const convertToCurrency = useCallback(
+    (price: number, fromCurrency: SupportedCurrency, toCurrency: SupportedCurrency): number => {
+      const fromRate =
+        fromCurrency === BASE_CURRENCY
+          ? 1
+          : (allRates.find((r) => r.from === BASE_CURRENCY && r.to === fromCurrency)?.rate ?? fallbackRates[fromCurrency]);
+      const toRate =
+        toCurrency === BASE_CURRENCY
+          ? 1
+          : (allRates.find((r) => r.from === BASE_CURRENCY && r.to === toCurrency)?.rate ?? fallbackRates[toCurrency]);
+      return (price / fromRate) * toRate * vatMultiplier;
+    },
+    [allRates, vatMultiplier]
+  );
+
+  const formatAs = useCallback(
+    (value: number, currency: SupportedCurrency): string =>
+      new Intl.NumberFormat(getLocaleForCurrency(currency), { style: 'currency', currency }).format(value),
+    []
+  );
+
+  const formatPriceWithCurrency = useCallback(
+    (price: number, fromCurrency: SupportedCurrency) => formatPrice(convertFromCurrency(price, fromCurrency)),
+    [convertFromCurrency, formatPrice]
+  );
+
   const contextValue = useMemo(
     () => ({
       baseCurrency: BASE_CURRENCY,
@@ -159,11 +206,15 @@ export const CurrencyProvider = ({
       convertPrice,
       formatPrice,
       formatPriceFromBase,
+      convertFromCurrency,
+      convertToCurrency,
+      formatAs,
+      formatPriceWithCurrency,
       vatPercentage,
       vatInclusive,
       setCurrency,
     }),
-    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, vatPercentage, vatInclusive, setCurrency]
+    [currencyCode, exchangeRate, convertPrice, formatPrice, formatPriceFromBase, convertFromCurrency, convertToCurrency, formatAs, formatPriceWithCurrency, vatPercentage, vatInclusive, setCurrency]
   );
 
   return (

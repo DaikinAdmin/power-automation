@@ -36,6 +36,7 @@ export interface SubCategoryTranslationResponse {
 export interface ItemPriceResponse {
   warehouseSlug: string;
   price: number;
+  initialCurrency: string | null;
   quantity: number;
   promotionPrice: number | null;
   promoCode: string | null;

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."Currency" ADD VALUE 'USD';

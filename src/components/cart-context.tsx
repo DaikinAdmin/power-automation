@@ -170,6 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 : undefined,
               basePrice,
               baseSpecialPrice,
+              initialCurrency: selectedWarehouse.initialCurrency ?? item.initialCurrency,
             };
           }
         }

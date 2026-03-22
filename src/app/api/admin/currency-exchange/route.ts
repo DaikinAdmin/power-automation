@@ -31,6 +31,31 @@ export async function GET(request: NextRequest) {
     //   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     // }
 
+    const { searchParams } = new URL(request.url);
+    const fromParam = searchParams.get('from');
+    const toParam = searchParams.get('to');
+
+    // When both ?from and ?to are provided, return a single rate
+    if (fromParam && toParam) {
+      if (!currencyValues.includes(fromParam as Currency) || !currencyValues.includes(toParam as Currency)) {
+        throw new BadRequestError('Invalid currency code');
+      }
+      if (fromParam === toParam) {
+        return NextResponse.json({ rate: 1 });
+      }
+      const [rateRow] = await db
+        .select()
+        .from(schema.currencyExchange)
+        .where(
+          and(
+            eq(schema.currencyExchange.from, fromParam as any),
+            eq(schema.currencyExchange.to, toParam as any)
+          )
+        )
+        .limit(1);
+      return NextResponse.json({ rate: rateRow?.rate ?? null });
+    }
+
     logger.info('Fetching currency exchange rates', {
       endpoint: 'GET /api/admin/currency-exchange',
     });
@@ -40,23 +65,6 @@ export async function GET(request: NextRequest) {
       .select()
       .from(schema.currencyExchange)
       .orderBy(desc(schema.currencyExchange.updatedAt));
-
-    /* Prisma implementation (commented out)
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const exchangeRates = await db.currencyExchange.findMany({
-      orderBy: {
-        updatedAt: 'desc'
-      }
-    });
-    */
 
     const duration = Date.now() - startTime;
     logger.info('Currency exchange rates fetched successfully', {
@@ -201,5 +209,37 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(exchangeRate);
   } catch (error) {
     return apiErrorHandler(error, request, { endpoint: 'PUT /api/admin/currency-exchange' });
+  }
+}
+
+// DELETE - Remove a currency exchange rate
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) throw new UnauthorizedError('Authentication required');
+
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) throw new ForbiddenError('Admin access required');
+
+    const { from, to } = await request.json();
+
+    if (!from || !to) throw new BadRequestError('Missing required fields: from, to');
+    if (!currencyValues.includes(from) || !currencyValues.includes(to)) {
+      throw new BadRequestError('Invalid currency code');
+    }
+
+    await db
+      .delete(schema.currencyExchange)
+      .where(
+        and(
+          eq(schema.currencyExchange.from, from as any),
+          eq(schema.currencyExchange.to, to as any)
+        )
+      );
+
+    logger.info('Currency exchange rate deleted', { endpoint: 'DELETE /api/admin/currency-exchange', from, to });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return apiErrorHandler(error, request, { endpoint: 'DELETE /api/admin/currency-exchange' });
   }
 }
