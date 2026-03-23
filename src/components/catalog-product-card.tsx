@@ -6,6 +6,7 @@ import { GitCompare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WarehouseAvailability } from "@/components/warehouse-availability";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/hooks/useCurrency";
 type ViewMode = "grid" | "list";
 
 type BadgeConfig = {
@@ -48,7 +49,7 @@ const CatalogProductCard = ({
   name,
   price,
   originalPrice,
-  currency = "€",
+  currency: _currency = "€",
   badge,
   stockBadge,
   brand,
@@ -58,7 +59,7 @@ const CatalogProductCard = ({
   description,
   viewMode = "grid",
   inStock,
-  onAddToCart,
+  onAddToCart: _onAddToCart,
   onAddToCompare,
   addToCartDisabled,
   addToCartLabel,
@@ -69,6 +70,7 @@ const CatalogProductCard = ({
   priceFrom = false,
 }: CatalogProductCardProps) => {
   const t = useTranslations("product.productCatalogCard");
+  const { formatPrice } = useCurrency();
   const isList = viewMode === "list";
   const disabled = addToCartDisabled ?? !inStock;
   const resolvedAddToCartLabel =
@@ -188,11 +190,8 @@ const CatalogProductCard = ({
     );
   };
 
-  const priceDisplay = `${price.toFixed(1)} ${currency}`.trim();
-  const originalPriceDisplay =
-    originalPrice != null
-      ? `${originalPrice.toFixed(1)} ${currency}`.trim()
-      : null;
+  const priceDisplay = formatPrice(price);
+  const originalPriceDisplay = originalPrice != null ? formatPrice(originalPrice) : null;
 
   return (
     <Link

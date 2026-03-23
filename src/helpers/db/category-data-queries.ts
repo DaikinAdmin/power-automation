@@ -150,8 +150,15 @@ export async function getCategoryPageData(
     });
   });
   
+  // Null out margin so client-side useCatalogPricing doesn't double-apply it.
+  // item_price.price already includes margin (price = initialPrice * (1 + margin/100)).
+  const itemsWithNullMargin: ItemResponse[] = paginatedItems.map(item => ({
+    ...item,
+    prices: item.prices.map(p => ({ ...p, margin: null })),
+  }));
+
   return {
-    items: paginatedItems,
+    items: itemsWithNullMargin,
     categories: Array.from(categoryMap.values()),
     brands: Array.from(brandMap.values()),
     warehouses: Array.from(warehouseMap.values()),
