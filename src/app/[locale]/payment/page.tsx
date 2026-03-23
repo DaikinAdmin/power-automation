@@ -32,7 +32,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const { orderId } = use(searchParams);
   const t = useTranslations('payment');
   const router = useRouter();
-  const { vatPercentage, vatInclusive, convertToCurrency, formatAs } = useCurrency();
+  const { convertToCurrency, formatAs } = useCurrency();
   const domainConfig = useDomainConfig();
   const allowedProviders = domainConfig.paymentProviders;
   const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
@@ -282,9 +282,6 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                           <div className="text-gray-500 font-normal text-sm">({cartFormatted})</div>
                         ) : null;
                       })()}
-                      {!vatInclusive && vatPercentage > 0 && (
-                        <div className="text-xs font-normal text-gray-500">+ {vatPercentage}% {t('orderSummary.vat')}</div>
-                      )}
                     </div>
                   </div>
                 </div>

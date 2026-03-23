@@ -75,7 +75,7 @@ export async function GET(
         const marginRate = 1 + ((margin ?? 20) / 100);
         return {
           ...rest,
-          price: price * marginRate,
+          price: price,
           promotionPrice: promotionPrice != null ? promotionPrice * marginRate : null,
         };
       }),

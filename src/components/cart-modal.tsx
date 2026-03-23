@@ -382,9 +382,6 @@ function CartContent({
             <div className="text-right">
               <div className="hidden md:block text-lg font-semibold text-gray-600">{t('total')}</div>
               <div className="text-xl md:text-2xl font-bold text-gray-900">{formatPrice(cartTotal)}</div>
-              {!vatInclusive && vatPercentage > 0 && (
-                <div className="text-xs text-gray-500">+ {vatPercentage}% {t('vat')}</div>
-              )}
             </div>
           </div>
           <div className="flex justify-between items-center gap-2">

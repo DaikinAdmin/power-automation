@@ -6,8 +6,6 @@ import { GitCompare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WarehouseAvailability } from "@/components/warehouse-availability";
 import { useTranslations } from "next-intl";
-import { useCurrency } from "@/hooks/useCurrency";
-
 type ViewMode = "grid" | "list";
 
 type BadgeConfig = {
@@ -71,7 +69,6 @@ const CatalogProductCard = ({
   priceFrom = false,
 }: CatalogProductCardProps) => {
   const t = useTranslations("product.productCatalogCard");
-  const { vatPercentage, vatInclusive } = useCurrency();
   const isList = viewMode === "list";
   const disabled = addToCartDisabled ?? !inStock;
   const resolvedAddToCartLabel =
@@ -304,11 +301,6 @@ const CatalogProductCard = ({
                 </span>
               )}
             </div>
-            {!vatInclusive && vatPercentage > 0 && (
-              <span className="text-xs text-gray-500">
-                + {vatPercentage}% {t("vat")}
-              </span>
-            )}
           </div>
           {renderListActions()}
         </div>

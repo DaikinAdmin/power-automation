@@ -43,7 +43,7 @@ export async function GET(
             country: recommendedPrice.warehouse.country?.name || '',
             displayedName: recommendedPrice.warehouse.displayedName,
           },
-          price: +(recommendedPrice.price * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2),
+          price: +(recommendedPrice.price).toFixed(2),
           promotionPrice: recommendedPrice.promotionPrice
             ? +(recommendedPrice.promotionPrice * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2)
             : null,
@@ -77,7 +77,7 @@ export async function GET(
       // Format warehouses for display
       warehouses: itemData.prices.map((price) => {
         const marginMultiplier = 1 + ((price.margin ?? 20) / 100);
-        const priceWithMargin = +(price.price * marginMultiplier).toFixed(2);
+        const priceWithMargin = +(price.price).toFixed(2);
         const promoPriceWithMargin = price.promotionPrice
           ? +(price.promotionPrice * marginMultiplier).toFixed(2)
           : null;

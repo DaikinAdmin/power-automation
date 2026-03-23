@@ -15,3 +15,17 @@ export async function getVatByCountryCode(countryCode: string): Promise<number> 
 
   return country?.vatPercentage ?? 0;
 }
+
+/**
+ * Get VAT percentage for a country by its slug (e.g. 'ua', 'pl').
+ * Returns 0 if not found.
+ */
+export async function getVatBySlug(slug: string): Promise<number> {
+  const [country] = await db
+    .select({ vatPercentage: schema.warehouseCountries.vatPercentage })
+    .from(schema.warehouseCountries)
+    .where(eq(schema.warehouseCountries.slug, slug))
+    .limit(1);
+
+  return country?.vatPercentage ?? 0;
+}
