@@ -16,6 +16,7 @@ import { ProductOpinionForm } from "@/components/product/product-opinion-form";
 import { AskPriceModal } from "@/components/product/ask-price-modal";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCurrency } from "@/hooks/useCurrency";
+import type { SupportedCurrency } from "@/helpers/currency";
 import { useCart } from "@/components/cart-context";
 import { useCompare } from "@/components/compare-context";
 import type {
@@ -46,7 +47,7 @@ export default function ProductPageClient({
   const { locale, id } = use(params);
   const searchParams = useSearchParams();
   const showAskPrice = searchParams.get("askPrice") === "true";
-  const { formatPriceFromBase } = useCurrency();
+  const { formatPriceWithCurrency } = useCurrency();
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
   const t = useTranslations("product");
@@ -107,6 +108,7 @@ export default function ProductPageClient({
         specialPrice: parsePriceValue(warehouse.specialPrice)!,
         inStock: warehouse.inStock,
         quantity: warehouse.quantity,
+        initialCurrency: warehouse.initialCurrency ?? null,
       };
     });
   }, [product]);
@@ -119,19 +121,20 @@ export default function ProductPageClient({
         ? parsePriceValue(warehouse.specialPrice) ?? undefined
         : undefined;
 
+      const fromCurrency = (warehouse.initialCurrency as SupportedCurrency) ?? 'EUR';
       return {
         id: `${product.id}-${warehouse.warehouseId}-${index}`,
         ...warehouse,
-        price: formatPriceFromBase(basePrice),
+        price: formatPriceWithCurrency(basePrice, fromCurrency),
         specialPrice:
           baseSpecialPrice !== undefined
-            ? formatPriceFromBase(baseSpecialPrice)
+            ? formatPriceWithCurrency(baseSpecialPrice, fromCurrency)
             : undefined,
         basePrice,
         baseSpecialPrice,
       };
     });
-  }, [product, formatPriceFromBase]);
+  }, [product, formatPriceWithCurrency]);
 
   useEffect(() => {
     if (showAskPrice) {
@@ -279,6 +282,7 @@ export default function ProductPageClient({
           price: specialPrice ?? basePrice,
           specialPrice,
           basePrice,
+          initialCurrency: selectedWarehouse.initialCurrency ?? null,
           warehouseId: selectedWarehouse.warehouseId,
           displayName: productName,
           availableWarehouses: availableWarehousesForCart,
@@ -410,12 +414,14 @@ export default function ProductPageClient({
 
   const basePriceNumber = selectedWarehouse?.basePrice ?? 0;
   const specialPriceNumber = selectedWarehouse?.baseSpecialPrice;
+  const selectedInitialCurrency = (selectedWarehouse?.initialCurrency as SupportedCurrency) ?? 'EUR';
 
-  const formattedPrice = formatPriceFromBase(
-    specialPriceNumber ?? basePriceNumber
+  const formattedPrice = formatPriceWithCurrency(
+    specialPriceNumber ?? basePriceNumber,
+    selectedInitialCurrency
   );
   const formattedOriginalPrice = specialPriceNumber
-    ? formatPriceFromBase(basePriceNumber)
+    ? formatPriceWithCurrency(basePriceNumber, selectedInitialCurrency)
     : undefined;
   const discountLabel = specialPriceNumber
     ? calculateDiscountPercentage(basePriceNumber, specialPriceNumber)

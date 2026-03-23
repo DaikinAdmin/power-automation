@@ -660,5 +660,19 @@
       "title": "8. Contacto",
       "body": "Si tiene alguna pregunta sobre esta Política de privacidad o el tratamiento de sus datos personales, contáctenos a través del formulario disponible en la página de Contacto."
     }
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Gestione sus preferencias de cuenta",
+    "currency": "Moneda",
+    "currencyDescription": "Seleccione la moneda para mostrar los precios",
+    "twoFa": "Activar autenticación de dos factores",
+    "twoFaDescription": "Active o desactive la autenticación de dos factores",
+    "twoFaEnabled": "Autenticación de dos factores activada",
+    "twoFaDisabled": "Autenticación de dos factores desactivada",
+    "confirmTitle": "Confirmar selección",
+    "confirmDescription": "Introduce tu contraseña para confirmar",
+    "password": "Contraseña",
+    "submit": "Confirmar"
   }
 }

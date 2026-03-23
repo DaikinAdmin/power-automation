@@ -321,6 +321,7 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
       return {
         warehouseSlug: price.warehouseId,
         price: price.price,
+        initialCurrency: price.initialCurrency ?? null,
         quantity: price.quantity,
         promotionPrice: price.promotionPrice,
         promoCode: price.promoCode,

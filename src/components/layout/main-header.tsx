@@ -7,6 +7,7 @@ import {ChevronDown, Menu, X } from "lucide-react";
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa6";
 import LanguageSwitcher from "@/components/languge-switcher";
+import CurrencySwitcher from "@/components/currency-switcher";
 import { useTranslations } from "next-intl";
 import { useDomainConfig } from "@/hooks/useDomain";
 
@@ -270,7 +271,8 @@ export default function MainHeader() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-1">
+              <CurrencySwitcher />
               <LanguageSwitcher />
             </div>
             <a
@@ -334,7 +336,8 @@ export default function MainHeader() {
               ))}
             </nav>
             <div className="border-t px-4 py-4 space-y-4">
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-2">
+                <CurrencySwitcher />
                 <LanguageSwitcher />
               </div>
               <a

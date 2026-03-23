@@ -8,10 +8,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { countryCodes } from "@/helpers/country-codes";
 import { useCartTotals } from "@/hooks/useCartTotals";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "@/components/languge-switcher";
 import { useRouter } from "next/navigation";
 import { useDomainConfig } from "@/hooks/useDomain";
+import type { SupportedCurrency } from "@/helpers/currency";
+import type { DomainKey } from "@/lib/domain-config";
+
+const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
+  pl: "PLN",
+  ua: "UAH",
+};
 
 interface CheckoutForm {
   firstName: string;
@@ -36,7 +44,8 @@ export default function CheckoutPage({
 }) {
   const { locale } = use(params);
   const t = useTranslations("checkout");
-  const { contacts } = useDomainConfig();
+  const domainConfig = useDomainConfig();
+  const { contacts } = domainConfig;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"register" | "login">("register");
   const [showPassword, setShowPassword] = useState(false);
@@ -67,11 +76,35 @@ export default function CheckoutPage({
     currencyCode,
     baseTotalPrice,
     totalPrice,
+    getItemCurrency,
+    resolveBaseUnitPrice,
     getItemTotal,
     getItemBaseTotal,
     formatPrice,
+    formatCartItemPrice,
+    formatItemTotal,
+    formatCartTotal,
   } = useCartTotals({ items: cartItems });
+  const { convertToCurrency, formatAs } = useCurrency();
+  const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
   const session = authClient.useSession();
+
+  // Format a price in domain currency; if domain currency equals item currency, returns empty string
+  const formatPaymentPrice = (item: typeof cartItems[number], qty = 1) => {
+    const itemCurrency = getItemCurrency(item);
+    const basePrice = resolveBaseUnitPrice(item) * qty;
+    const inDomainCurrency = convertToCurrency(basePrice, itemCurrency, domainCurrency as SupportedCurrency);
+    return formatAs(inDomainCurrency, domainCurrency as SupportedCurrency);
+  };
+
+  const formatPaymentTotal = () => {
+    const total = cartItems.reduce((sum, item) => {
+      const itemCurrency = getItemCurrency(item);
+      const baseTotal = resolveBaseUnitPrice(item) * item.quantity;
+      return sum + convertToCurrency(baseTotal, itemCurrency, domainCurrency as SupportedCurrency);
+    }, 0);
+    return formatAs(total, domainCurrency as SupportedCurrency);
+  };
 
   const handleCheckoutFormChange = (
     field: keyof CheckoutForm,
@@ -151,18 +184,18 @@ export default function CheckoutPage({
     setOrderError("");
 
     try {
-      const formattedCartTotal = formatPrice(baseTotalPrice);
-
       const orderData = {
         cartItems: cartItems.map((item) => ({
           articleId: item.articleId,
           name: item.displayName,
-          price: item.specialPrice || item.price,
+          price: resolveBaseUnitPrice(item),
+          currency: getItemCurrency(item),
           quantity: item.quantity,
           warehouseId: item.warehouseId,
         })),
         originalTotalPrice: baseTotalPrice,
-        totalPrice: formattedCartTotal,
+        totalPrice: formatPaymentTotal(),
+        domainCurrency,
         customerInfo: session.data.user.email
           ? {
               email: session.data.user.email,
@@ -635,10 +668,10 @@ export default function CheckoutPage({
                           #{item.articleId}
                         </p>
                         <div className="text-red-600 font-bold">
-                          {formatPrice(item.specialPrice ?? item.price ?? 0)}
-                          {item.specialPrice && (
-                            <span className="text-gray-400 line-through text-sm ml-2">
-                              {formatPrice(item.price ?? 0)}
+                          {formatPaymentPrice(item)}
+                          {getItemCurrency(item) !== domainCurrency && (
+                            <span className="text-gray-500 font-normal text-sm ml-1">
+                              ({formatCartItemPrice(item)})
                             </span>
                           )}
                         </div>
@@ -685,8 +718,13 @@ export default function CheckoutPage({
                       </button>
 
                       {/* Item Total */}
-                      <div className="font-bold text-red-600">
-                        {formatPrice(getItemBaseTotal(item))}
+                      <div className="font-bold text-red-600 text-right">
+                        {formatPaymentPrice(item, item.quantity)}
+                        {getItemCurrency(item) !== domainCurrency && (
+                          <div className="text-gray-500 font-normal text-xs">
+                            ({formatItemTotal(item)})
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -696,11 +734,16 @@ export default function CheckoutPage({
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center text-xl font-bold">
                     <span>{t("orderSummary.total")}:</span>
-                    <span className="text-red-600">
-                      {cartItems.length > 0
-                        ? formatPrice(baseTotalPrice)
-                        : formatPrice(0)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-red-600">
+                        {cartItems.length > 0 ? formatPaymentTotal() : formatAs(0, domainCurrency as SupportedCurrency)}
+                      </span>
+                      {cartItems.length > 0 && cartItems.some((item) => getItemCurrency(item) !== domainCurrency) && (
+                        <div className="text-gray-500 font-normal text-sm">
+                          ({formatCartTotal()})
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
                     {getTotalCartItems()}{" "}

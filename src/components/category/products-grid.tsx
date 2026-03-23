@@ -1,13 +1,15 @@
 import CatalogProductCard from "@/components/catalog-product-card";
 import { useCompare } from "@/components/compare-context";
 import { useTranslations } from "next-intl";
+import { useCurrency } from "@/hooks/useCurrency";
+import type { SupportedCurrency } from "@/helpers/currency";
 
 interface ProductsGridProps {
   items: any[];
   viewMode: "grid" | "list";
   getItemDetails: (item: any) => any;
   getItemPrice: (item: any) => any;
-  getMinPrice: (item: any) => { price: number; inStock: boolean };
+  getMinPrice: (item: any) => { price: number; inStock: boolean; initialCurrency?: string | null };
   getAvailableWarehouses: (item: any) => any[];
   convertPrice: (price: number) => number;
   currencyCode: string;
@@ -29,6 +31,7 @@ export function ProductsGrid({
 }: ProductsGridProps) {
   const t = useTranslations("categories");
   const { addToCompare, isInCompare } = useCompare();
+  const { convertFromCurrency, currencyCode: ctxCurrencyCode } = useCurrency();
 
   if (items.length === 0) {
     return (
@@ -59,12 +62,14 @@ export function ProductsGrid({
           quantity,
           warehouseId,
           displayedName,
+          initialCurrency: itemCurrency,
         } = getItemPrice(item);
-        const convertedPrice = convertPrice(price);
+        const fromCurrency = (itemCurrency as SupportedCurrency) ?? 'EUR';
+        const convertedPrice = convertFromCurrency(price, fromCurrency);
         const convertedOriginalPrice =
-          originalPrice != null ? convertPrice(originalPrice) : null;
-        const { price: minPrice } = getMinPrice(item);
-        const convertedMinPrice = convertPrice(minPrice);
+          originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
+        const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
+        const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as SupportedCurrency) ?? 'EUR');
         const hasMultipleWarehouses = item.prices.length > 1;
 
         const badge = originalPrice
@@ -121,7 +126,7 @@ export function ProductsGrid({
             name={details?.itemName || "Unnamed Product"}
             price={convertedMinPrice}
             originalPrice={convertedOriginalPrice ?? undefined}
-            currency={currencyCode}
+            currency={ctxCurrencyCode}
             inStock={inStock}
             viewMode={viewMode}
             badge={badge}

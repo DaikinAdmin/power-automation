@@ -200,6 +200,7 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
         return {
           warehouseSlug: price.warehouseId,
           price: price.price,
+          initialCurrency: price.initialCurrency ?? null,
           quantity: price.quantity,
           promotionPrice: price.promotionPrice,
           promoCode: price.promoCode,

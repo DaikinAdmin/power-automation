@@ -29,7 +29,7 @@ export const cartStatus = pgEnum("CartStatus", [
   "CHECKED_OUT",
   "COMPLETED",
 ]);
-export const currency = pgEnum("Currency", ["EUR", "UAH", "PLN"]);
+export const currency = pgEnum("Currency", ["EUR", "UAH", "PLN", "USD"]);
 export const orderStatus = pgEnum("OrderStatus", [
   "NEW",
   "WAITING_FOR_PAYMENT",
@@ -205,6 +205,7 @@ export const user = pgTable("user", {
   country: text("country").default(""),
   companyPosition: text("company_position").default(""),
   ownerId: text("owner_id"),
+  defaultCurrency: text("default_currency")
 });
 
 export const session = pgTable(

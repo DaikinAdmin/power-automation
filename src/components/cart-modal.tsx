@@ -4,7 +4,7 @@ import { X, Plus, Minus, ShoppingBag, ArrowLeft, Trash2, MapPin } from 'lucide-r
 import { useRouter } from 'next/navigation';
 import { CartItemType } from '@/helpers/types/item';
 import { useCurrency } from '@/hooks/useCurrency';
-import { parsePriceString } from '@/helpers/currency';
+import { parsePriceString, SupportedCurrency } from '@/helpers/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
@@ -28,7 +28,7 @@ export default function CartModal({
 }: CartModalProps) {
   const router = useRouter();
 
-  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
+  const { formatPriceWithCurrency, convertFromCurrency, formatPrice, vatPercentage, vatInclusive } = useCurrency();
   const localePreferences = useMemo(() => {
     const defaults = ['en', 'pl', 'uk'];
     if (typeof navigator === 'undefined' || !navigator.language) {
@@ -86,7 +86,12 @@ export default function CartModal({
 
   const getItemTotal = (item: CartItemType) => getItemBaseUnitPrice(item) * item.quantity;
 
-  const cartTotal = cartItems.reduce((total, item) => total + getItemTotal(item), 0);
+  const getItemCurrency = (item: CartItemType): SupportedCurrency =>
+    (item.initialCurrency as SupportedCurrency) ?? 'EUR';
+
+  const cartTotal = cartItems.reduce((total, item) => {
+    return total + convertFromCurrency(getItemTotal(item), getItemCurrency(item));
+  }, 0);
 
   const handleProceedToPayment = () => {
     onClose();
@@ -107,7 +112,7 @@ export default function CartModal({
             onClick={onClose}
           />
 
-          {/* â”€â”€ Mobile: right sidebar â”€â”€ Desktop: centered modal â”€â”€ */}
+          {/* â"€â"€ Mobile: right sidebar â"€â"€ Desktop: centered modal â"€â"€ */}
 
           {/* Mobile sidebar (visible on <md) */}
           <motion.div
@@ -123,8 +128,11 @@ export default function CartModal({
               resolveBasePrices={resolveBasePrices}
               getItemBaseUnitPrice={getItemBaseUnitPrice}
               getItemTotal={getItemTotal}
+              getItemCurrency={getItemCurrency}
               cartTotal={cartTotal}
-              formatPriceFromBase={formatPriceFromBase}
+              formatPriceWithCurrency={formatPriceWithCurrency}
+              convertFromCurrency={convertFromCurrency}
+              formatPrice={formatPrice}
               vatPercentage={vatPercentage}
               vatInclusive={vatInclusive}
               onUpdateQuantity={onUpdateQuantity}
@@ -150,8 +158,11 @@ export default function CartModal({
               resolveBasePrices={resolveBasePrices}
               getItemBaseUnitPrice={getItemBaseUnitPrice}
               getItemTotal={getItemTotal}
+              getItemCurrency={getItemCurrency}
               cartTotal={cartTotal}
-              formatPriceFromBase={formatPriceFromBase}
+              formatPriceWithCurrency={formatPriceWithCurrency}
+              convertFromCurrency={convertFromCurrency}
+              formatPrice={formatPrice}
               vatPercentage={vatPercentage}
               vatInclusive={vatInclusive}
               onUpdateQuantity={onUpdateQuantity}
@@ -167,7 +178,7 @@ export default function CartModal({
   );
 }
 
-/* â”€â”€â”€ Shared content component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â"€â"€â"€ Shared content component â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
 
 interface ContentProps {
   cartItems: CartItemType[];
@@ -175,8 +186,11 @@ interface ContentProps {
   resolveBasePrices: (item: CartItemType) => { basePrice: number; baseSpecialPrice?: number };
   getItemBaseUnitPrice: (item: CartItemType) => number;
   getItemTotal: (item: CartItemType) => number;
+  getItemCurrency: (item: CartItemType) => SupportedCurrency;
   cartTotal: number;
-  formatPriceFromBase: (v: number) => string;
+  formatPriceWithCurrency: (price: number, fromCurrency: SupportedCurrency) => string;
+  convertFromCurrency: (price: number, fromCurrency: SupportedCurrency) => number;
+  formatPrice: (value: number) => string;
   vatPercentage: number;
   vatInclusive: boolean;
   onUpdateQuantity: (id: string, change: number) => void;
@@ -189,7 +203,8 @@ interface ContentProps {
 
 function CartContent({
   cartItems, getItemName, resolveBasePrices, getItemBaseUnitPrice,
-  getItemTotal, cartTotal, formatPriceFromBase,
+  getItemTotal, getItemCurrency, cartTotal, formatPriceWithCurrency,
+  convertFromCurrency, formatPrice,
   vatPercentage, vatInclusive,
   onUpdateQuantity, onRemoveItem, onUpdateWarehouse,
   onClose, onProceed, mobile,
@@ -214,7 +229,7 @@ function CartContent({
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Column headers â€” desktop only */}
+            {/* Column headers â€" desktop only */}
             {!mobile && (
               <div className="grid grid-cols-12 gap-4 mb-4 text-sm font-semibold text-gray-600 uppercase">
                 <div className="col-span-4">{t('itemName')}</div>
@@ -229,9 +244,9 @@ function CartContent({
               const { basePrice, baseSpecialPrice } = resolveBasePrices(item);
               const unitPrice = getItemBaseUnitPrice(item);
               const rowTotal = getItemTotal(item);
+              const itemCurrency = getItemCurrency(item);
 
               return mobile ? (
-                /* â”€â”€ Mobile card â”€â”€ */
                 <div key={item.id} className="flex gap-3 border-b pb-4 last:border-0">
                   <img
                     src={item.itemImageLink?.[0]}
@@ -242,9 +257,9 @@ function CartContent({
                     <div className="text-xs text-gray-400">#{item.articleId}</div>
                     <div className="text-sm font-semibold leading-tight truncate">{itemName}</div>
                     <div className="text-red-600 font-bold text-sm mt-0.5">
-                      {formatPriceFromBase(unitPrice)}
+                      {formatPriceWithCurrency(unitPrice, itemCurrency)}
                       {baseSpecialPrice !== undefined && (
-                        <span className="text-gray-400 line-through text-xs ml-1">{formatPriceFromBase(basePrice)}</span>
+                        <span className="text-gray-400 line-through text-xs ml-1">{formatPriceWithCurrency(basePrice, itemCurrency)}</span>
                       )}
                     </div>
 
@@ -257,7 +272,7 @@ function CartContent({
                       >
                         {item.availableWarehouses.map((wh: any) => (
                           <option key={wh.warehouseId} value={wh.warehouseId} disabled={!wh.inStock}>
-                            {wh.displayName || wh.warehouseName}{!wh.inStock ? ' â€” Out of stock' : ''}
+                            {wh.displayName || wh.warehouseName}{!wh.inStock ? ' â€" Out of stock' : ''}
                           </option>
                         ))}
                       </select>
@@ -287,7 +302,7 @@ function CartContent({
                       </div>
                       {/* Row total + remove */}
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-red-600">{formatPriceFromBase(rowTotal)}</span>
+                        <span className="font-bold text-sm text-red-600">{formatPrice(convertFromCurrency(rowTotal, itemCurrency))}</span>
                         <button onClick={() => onRemoveItem(item.id)} className="text-gray-400 hover:text-red-500 p-1">
                           <Trash2 size={14} />
                         </button>
@@ -296,7 +311,6 @@ function CartContent({
                   </div>
                 </div>
               ) : (
-                /* â”€â”€ Desktop row â”€â”€ */
                 <div key={item.id} className="flex items-center gap-4 group">
                   <button
                     onClick={() => onRemoveItem(item.id)}
@@ -312,9 +326,9 @@ function CartContent({
                           <div className="text-sm text-gray-500">#{item.articleId}</div>
                           <div className="font-semibold">{itemName}</div>
                           <div className="text-red-600 font-bold">
-                            {formatPriceFromBase(unitPrice)}
+                            {formatPriceWithCurrency(unitPrice, itemCurrency)}
                             {baseSpecialPrice !== undefined && (
-                              <span className="text-gray-400 line-through text-sm ml-2">{formatPriceFromBase(basePrice)}</span>
+                              <span className="text-gray-400 line-through text-sm ml-2">{formatPriceWithCurrency(basePrice, itemCurrency)}</span>
                             )}
                           </div>
                         </div>
@@ -349,7 +363,7 @@ function CartContent({
                         </button>
                       </div>
                       <div className="col-span-3 text-right">
-                        <div className="font-bold text-lg text-red-600">{formatPriceFromBase(rowTotal)}</div>
+                        <div className="font-bold text-lg text-red-600">{formatPrice(convertFromCurrency(rowTotal, itemCurrency))}</div>
                       </div>
                     </div>
                   </div>
@@ -367,10 +381,7 @@ function CartContent({
             <div className="text-sm font-semibold text-gray-600 md:hidden">{t('total')}</div>
             <div className="text-right">
               <div className="hidden md:block text-lg font-semibold text-gray-600">{t('total')}</div>
-              <div className="text-xl md:text-2xl font-bold text-gray-900">{formatPriceFromBase(cartTotal)}</div>
-              {!vatInclusive && vatPercentage > 0 && (
-                <div className="text-xs text-gray-500">+ {vatPercentage}% {t('vat')}</div>
-              )}
+              <div className="text-xl md:text-2xl font-bold text-gray-900">{formatPrice(cartTotal)}</div>
             </div>
           </div>
           <div className="flex justify-between items-center gap-2">

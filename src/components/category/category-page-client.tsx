@@ -47,7 +47,7 @@ export function CategoryPageClient({
     toggleSection,
   } = useCatalogFilters();
   
-  const { convertPrice, currencyCode } = useCurrency();
+  const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
   const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
     useCatalogPricing({
@@ -143,19 +143,20 @@ export function CategoryPageClient({
     const prices = initialData.items
       .map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        return convertPrice(price);
+        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+        return convertFromCurrency(price, fromCurrency);
       })
       .filter(price => price > 0); // Filter out zero prices
-    
+
     if (prices.length === 0) {
       return { minPrice: 0, maxPrice: 100000 };
     }
-    
+
     return {
       minPrice: Math.floor(Math.min(...prices)),
       maxPrice: Math.ceil(Math.max(...prices)),
     };
-  }, [initialData.items, convertPrice]);
+  }, [initialData.items, convertFromCurrency]);
 
   // Sync priceRange state with calculated min/max prices
   useEffect(() => {
@@ -167,7 +168,8 @@ export function CategoryPageClient({
     return [...initialData.items]
       .filter((item) => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        const convertedPrice = convertPrice(price);
+        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+        const convertedPrice = convertFromCurrency(price, fromCurrency);
         return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
       })
       .sort((a, b) => {
@@ -189,12 +191,13 @@ export function CategoryPageClient({
             return 0;
         }
       });
-  }, [initialData.items, priceRange, sortBy, convertPrice]);
+  }, [initialData.items, priceRange, sortBy, convertFromCurrency]);
 
   // Handler for adding to cart
   const handleAddToCart = (item: ItemResponse, warehouseId: string, price: number) => {
     const now = new Date();
     const details = getItemDetails(item);
+    const { initialCurrency: itemCurrency } = getItemPrice(item);
     const subCategory = item.subCategorySlug
       ? item.category.subCategories.find((s: any) => s.slug === item.subCategorySlug)
       : null;
@@ -252,6 +255,8 @@ export function CategoryPageClient({
       ] as any,
       itemPrice: item.prices as any,
       price,
+      basePrice: price,
+      initialCurrency: itemCurrency ?? null,
       warehouseId,
       displayName: details?.itemName,
       availableWarehouses: getAvailableWarehouses(item),

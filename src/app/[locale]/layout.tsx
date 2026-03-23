@@ -14,7 +14,7 @@ import BinotelScripts from "@/components/binotel-scripts";
 import Script from 'next/script';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { getServerDomainConfig } from '@/lib/server-domain';
-import { getVatByCountryCode } from '@/helpers/db/vat-queries';
+import { getVatBySlug } from '@/helpers/db/vat-queries';
 import CookieConsent from "@/components/cookie-consent";
 
 const montserrat = Montserrat({
@@ -110,11 +110,10 @@ export default async function LocaleLayout({
   const domainCurrencyMap: Record<string, SupportedCurrency> = { pl: 'PLN', ua: 'UAH' };
   const initialCurrency: SupportedCurrency = domainCurrencyMap[domainConfig.key] ?? 'EUR';
 
-  // VAT configuration per domain
-  const domainCountryCodeMap: Record<string, string> = { pl: 'PL', ua: 'UA' };
-  const domainCountryCode = domainCountryCodeMap[domainConfig.key] ?? 'PL';
-  const vatPercentage = await getVatByCountryCode(domainCountryCode);
-  const vatInclusive = domainConfig.key === 'ua';
+  // VAT configuration per domain — Ukraine uses 20% (slug='ua'), all others use 23% (slug='pl')
+  const vatSlug = domainConfig.key === 'ua' ? 'ua' : 'pl';
+  const vatPercentage = await getVatBySlug(vatSlug);
+  const vatInclusive = true;
 
   return (
     <html lang={locale} className="overflow-x-hidden">

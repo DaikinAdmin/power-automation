@@ -1,9 +1,10 @@
-export type SupportedCurrency = 'EUR' | 'PLN' | 'UAH';
+export type SupportedCurrency = 'EUR' | 'PLN' | 'UAH' | 'USD';
 
 const localeCurrencyMap: Record<SupportedCurrency, string> = {
   EUR: 'en-US',
   PLN: 'pl-PL',
   UAH: 'uk-UA',
+  USD: 'en-US',
 };
 
 export const detectCurrencyFromLocale = (locale?: string): SupportedCurrency => {
@@ -34,6 +35,7 @@ export const getCurrencySymbol = (currency: SupportedCurrency): string => {
     EUR: '€',
     PLN: 'zł',
     UAH: '₴',
+    USD: '$',
   };
   return symbolMap[currency] ?? '€';
 };

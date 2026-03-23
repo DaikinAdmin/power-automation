@@ -14,6 +14,13 @@ import {
   IssueInvoiceButton,
 } from "@/components/PaymentButtons";
 import { useDomainConfig } from "@/hooks/useDomain";
+import type { SupportedCurrency } from "@/helpers/currency";
+import type { DomainKey } from "@/lib/domain-config";
+
+const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
+  pl: "PLN",
+  ua: "UAH",
+};
 
 interface PaymentPageProps {
   params: Promise<{ locale: string }>;
@@ -25,9 +32,10 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const { orderId } = use(searchParams);
   const t = useTranslations('payment');
   const router = useRouter();
-  const { formatPriceFromBase, vatPercentage, vatInclusive } = useCurrency();
+  const { convertToCurrency, formatAs } = useCurrency();
   const domainConfig = useDomainConfig();
   const allowedProviders = domainConfig.paymentProviders;
+  const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
 
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const [isFetchingOrder, setIsFetchingOrder] = useState(false);
@@ -137,8 +145,21 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
     }
   };
 
-  const formatPrice = (price: number) => {
-    return formatPriceFromBase(price);
+  // Compute cart total in source currencies (for the bracket display)
+  const getCartTotalFormatted = (order: any): string | null => {
+    const lineItems: any[] = Array.isArray(order?.lineItems) ? order.lineItems : [];
+    if (lineItems.length === 0) return null;
+
+    // Group by currency and check if all items share the same source currency
+    const currencies = [...new Set(lineItems.map((li: any) => li.currency ?? 'EUR'))];
+    if (currencies.length !== 1) return null; // mixed currencies — skip bracket
+
+    const sourceCurrency = currencies[0] as SupportedCurrency;
+    if (sourceCurrency === domainCurrency) return null; // same as payment currency — no bracket
+
+    // Sum line totals in source currency
+    const cartTotal = lineItems.reduce((sum: number, li: any) => sum + (li.lineTotal ?? 0), 0);
+    return formatAs(cartTotal, sourceCurrency);
   };
 
   if (!orderId) {
@@ -253,11 +274,14 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                     <span>{t('orderSummary.total')}:</span>
                     <div className="text-right">
                       <span className="text-red-600">
-                        {formatPrice(orderData.originalTotalPrice)}
+                        {orderData.totalPrice}
                       </span>
-                      {!vatInclusive && vatPercentage > 0 && (
-                        <div className="text-xs font-normal text-gray-500">+ {vatPercentage}% {t('orderSummary.vat')}</div>
-                      )}
+                      {(() => {
+                        const cartFormatted = getCartTotalFormatted(orderData);
+                        return cartFormatted ? (
+                          <div className="text-gray-500 font-normal text-sm">({cartFormatted})</div>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>

@@ -691,5 +691,19 @@
       "title": "8. Kontakt",
       "body": "W przypadku pytań dotyczących niniejszej Polityki prywatności lub przetwarzania Twoich danych osobowych, prosimy o kontakt za pośrednictwem formularza dostępnego na stronie Kontakt."
     }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "description": "Zarządzaj swoimi preferencjami konta",
+    "currency": "Waluta",
+    "currencyDescription": "Wybierz walutę wyświetlania cen",
+    "twoFa": "Włącz weryfikację dwuetapową",
+    "twoFaDescription": "Włącz lub wyłącz weryfikację dwuetapową",
+    "twoFaEnabled": "Weryfikacja dwuetapowa włączona",
+    "twoFaDisabled": "Weryfikacja dwuetapowa wyłączona",
+    "confirmTitle": "Potwierdź wybór",
+    "confirmDescription": "Wprowadź hasło, aby potwierdzić",
+    "password": "Hasło",
+    "submit": "Zatwierdź"
   }
 }

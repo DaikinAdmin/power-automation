@@ -41,6 +41,7 @@ export type ProductWarehouse = {
   inStock: boolean;
   quantity: number;
   badge: string | null;
+  initialCurrency: string | null;
   deliveryDaysPoland: number | null;
   deliveryDaysUkraine: number | null;
   deliveryDaysEurope: number | null;
@@ -105,6 +106,7 @@ export type CartItemType = Item & {
   specialPrice?: number;
   basePrice?: number;
   baseSpecialPrice?: number;
+  initialCurrency?: string | null;
   availableWarehouses?: Array<{
     warehouseId: string;
     warehouseName: string;
@@ -116,6 +118,7 @@ export type CartItemType = Item & {
     baseSpecialPrice?: number;
     inStock: boolean;
     quantity: number;
+    initialCurrency?: string | null;
   }>;
 };
 

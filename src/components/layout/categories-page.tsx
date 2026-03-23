@@ -40,7 +40,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     sectionsOpen,
     toggleSection,
   } = useCatalogFilters();
-  const { convertPrice, currencyCode } = useCurrency();
+  const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
   // Sync filters with URL parameters
   const urlBrands = searchParams?.getAll('brand') || [];
@@ -127,13 +127,15 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const minPrice = hasActiveFilters && items.length > 0
     ? Math.floor(Math.min(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        return convertPrice(price);
+        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+        return convertFromCurrency(price, fromCurrency);
       })))
     : 0;
   const maxPrice = hasActiveFilters && items.length > 0
     ? Math.ceil(Math.max(...items.map(item => {
         const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        return convertPrice(price);
+        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+        return convertFromCurrency(price, fromCurrency);
       })))
     : 100000;
 
@@ -148,7 +150,8 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const sortedItems = [...items]
     .filter((item) => {
       const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-      const convertedPrice = convertPrice(price);
+      const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+      const convertedPrice = convertFromCurrency(price, fromCurrency);
       return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
     })
     .sort((a, b) => {

@@ -9,7 +9,7 @@ import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } f
 
 interface BulkUpdateItem {
   articleId: string;
-  price: number;
+  initialPrice: number;
   quantity: number;
   currency?: string;
   badge?: string;
@@ -204,6 +204,8 @@ export async function POST(request: NextRequest) {
               promoEndDate: oldPrice.promoEndDate,
               badge: oldPrice.badge || 'ABSENT',
               margin: oldPrice.margin ?? 20,
+              initialPrice: oldPrice.initialPrice,
+              initialCurrency: oldPrice.initialCurrency,
             })
             .returning();
 
@@ -216,17 +218,21 @@ export async function POST(request: NextRequest) {
             });
 
           // Update existing price with new values
+          const effectiveMargin = item.margin ?? 20;
+          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
           await db
             .update(schema.itemPrice)
             .set({
-              price: item.price,
+              price: calculatedPrice,
+              initialPrice: item.initialPrice,
               quantity: item.quantity,
               badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
-              margin: item.margin ?? 20,
+              margin: effectiveMargin,
+              initialCurrency: (item.currency as any) || null,
               updatedAt: new Date().toISOString(),
             })
             .where(eq(schema.itemPrice.id, oldPrice.id));
@@ -234,19 +240,23 @@ export async function POST(request: NextRequest) {
           updated++;
         } else {
           // Create new price record
+          const effectiveMargin = item.margin ?? 20;
+          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
           await db
             .insert(schema.itemPrice)
             .values({
               itemSlug,
               warehouseId,
-              price: item.price,
+              price: calculatedPrice,
+              initialPrice: item.initialPrice,
               quantity: item.quantity,
               badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
-              margin: item.margin ?? 20,
+              margin: effectiveMargin,
+              initialCurrency: (item.currency as any) || null,
               updatedAt: new Date().toISOString(),
             });
           

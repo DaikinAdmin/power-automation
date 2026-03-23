@@ -3,16 +3,19 @@
 import { useMemo } from 'react';
 import { CartItemType } from '@/helpers/types/item';
 import { useCurrency } from '@/hooks/useCurrency';
-import { parsePriceString } from '@/helpers/currency';
+import { parsePriceString, SupportedCurrency } from '@/helpers/currency';
 
 interface UseCartTotalsOptions {
   items: CartItemType[];
 }
 
 export const useCartTotals = ({ items }: UseCartTotalsOptions) => {
-  const { convertPrice, formatPriceFromBase, currencyCode } = useCurrency();
+  const { convertFromCurrency, formatPriceWithCurrency, formatPrice, currencyCode } = useCurrency();
 
-  const resolveBaseUnitPrice = (item: CartItemType) => {
+  const getItemCurrency = (item: CartItemType): SupportedCurrency =>
+    (item.initialCurrency as SupportedCurrency) ?? 'EUR';
+
+  const resolveBaseUnitPrice = (item: CartItemType): number => {
     if (typeof item.baseSpecialPrice === 'number') return item.baseSpecialPrice;
     if (typeof item.basePrice === 'number') return item.basePrice;
 
@@ -33,30 +36,43 @@ export const useCartTotals = ({ items }: UseCartTotalsOptions) => {
     return parsePriceString(item.price);
   };
 
-  const baseTotalPrice = useMemo(() => {
-    return items.reduce((total, item) => {
-      const baseUnitPrice = resolveBaseUnitPrice(item);
-      return total + baseUnitPrice * item.quantity;
-    }, 0);
-  }, [items]);
+  // Raw item total in source currency (for order submission)
+  const getItemBaseTotal = (item: CartItemType) => resolveBaseUnitPrice(item) * item.quantity;
 
-  const totalPrice = useMemo(() => convertPrice(baseTotalPrice), [baseTotalPrice, convertPrice]);
+  // Item total converted to user's selected display currency
+  const getItemTotal = (item: CartItemType) =>
+    convertFromCurrency(getItemBaseTotal(item), getItemCurrency(item));
 
-  const getItemBaseTotal = (item: CartItemType) => {
-    const baseUnitPrice = resolveBaseUnitPrice(item);
-    return baseUnitPrice * item.quantity;
-  };
+  // Cart total in user's selected display currency
+  const totalPrice = useMemo(
+    () => items.reduce((sum, item) => sum + getItemTotal(item), 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items, convertFromCurrency]
+  );
 
-  const getItemTotal = (item: CartItemType) => convertPrice(getItemBaseTotal(item));
+  const baseTotalPrice = totalPrice;
 
-  const formatPrice = (baseValue: number) => formatPriceFromBase(baseValue);
+  // Format unit price in its source/cart currency (e.g. "100 EUR")
+  const formatCartItemPrice = (item: CartItemType) =>
+    formatPriceWithCurrency(resolveBaseUnitPrice(item), getItemCurrency(item));
+
+  // Format item total in user's display currency
+  const formatItemTotal = (item: CartItemType) => formatPrice(getItemTotal(item));
+
+  // Format cart total in user's display currency
+  const formatCartTotal = () => formatPrice(totalPrice);
 
   return {
     currencyCode,
     baseTotalPrice,
     totalPrice,
+    getItemCurrency,
+    resolveBaseUnitPrice,
     getItemTotal,
     getItemBaseTotal,
     formatPrice,
+    formatCartItemPrice,
+    formatItemTotal,
+    formatCartTotal,
   };
 };

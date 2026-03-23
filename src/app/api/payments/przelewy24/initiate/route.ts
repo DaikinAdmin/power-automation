@@ -6,7 +6,7 @@ import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import crypto from 'crypto';
-import { eurToPlnAmount } from '@/lib/server-currency';
+
 
 // Przelewy24 configuration - these should be in environment variables
 const P24_MERCHANT_ID = process.env.P24_MERCHANT_ID || '';
@@ -96,10 +96,16 @@ export async function POST(request: NextRequest) {
       throw new NotFoundError('User not found');
     }
 
-    // Convert the order amount from EUR (base currency) to PLN using the live
-    // exchange rate stored in the database, then express it in grosze (1 PLN = 100 grosze).
-    const amountInPln = await eurToPlnAmount(order.originalTotalPrice);
-    const amountInGrosze = Math.round(amountInPln * 100);
+    // Parse the PLN amount from the pre-formatted totalPrice string (e.g. "430,00 zł").
+    // totalPrice is set at checkout in the domain currency (PLN for przelewy24),
+    // so no conversion is needed — just extract the number and convert to grosze.
+    const plnAmount = parseFloat(
+      order.totalPrice.replace(/[^\d,]/g, '').replace(',', '.')
+    );
+    if (!Number.isFinite(plnAmount) || plnAmount <= 0) {
+      throw new BadRequestError('Invalid order total price');
+    }
+    const amountInGrosze = Math.round(plnAmount * 100);
 
     // Generate unique session ID for Przelewy24
     const sessionId = `${orderId}_${Date.now()}`;
@@ -142,8 +148,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sending request to Przelewy24', {
       sessionId,
-      amountEur: order.originalTotalPrice,
-      amountInPln,
+      totalPrice: order.totalPrice,
       amountInGrosze,
       sandbox: P24_SANDBOX,
     });

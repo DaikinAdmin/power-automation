@@ -53,6 +53,7 @@ type MandatoryField = "articleId" | "price" | "quantity";
 type OptionalField =
   | "badge"
   | "margin"
+  | "initialCurrency"
   | "promoCode"
   | "promoStartDate"
   | "promoEndDate"
@@ -98,6 +99,7 @@ interface ColumnMapping {
   promoStartDate: number | null;
   promoEndDate: number | null;
   promoPrice: number | null;
+  initialCurrency: number | null;
   name_pl: number | null;
   name_ua: number | null;
   name_en: number | null;
@@ -154,6 +156,7 @@ export default function BulkUploadPage() {
     promoStartDate: null,
     promoEndDate: null,
     promoPrice: null,
+    initialCurrency: null,
     name_pl: null,
     name_ua: null,
     name_en: null,
@@ -222,6 +225,7 @@ export default function BulkUploadPage() {
       promoStartDate: null,
       promoEndDate: null,
       promoPrice: null,
+      initialCurrency: null,
       name_pl: null,
       name_ua: null,
       name_en: null,
@@ -436,11 +440,16 @@ export default function BulkUploadPage() {
             columnMapping.margin !== null
               ? parseFloat(row[columnMapping.margin]) || 0
               : 0;
+          const rowInitialCurrency =
+            columnMapping.initialCurrency !== null &&
+            row[columnMapping.initialCurrency]
+              ? String(row[columnMapping.initialCurrency]).trim()
+              : null;
           const item: any = {
             articleId: row[columnMapping.articleId!],
-            price: parseFloat(row[columnMapping.price!]) || 0,
+            initialPrice: parseFloat(row[columnMapping.price!]) || 0,
             quantity: parseInt(row[columnMapping.quantity!]) || 0,
-            currency,
+            currency: rowInitialCurrency || currency,
             margin: rowMargin > 0 ? rowMargin : margin,
           };
 
@@ -631,6 +640,7 @@ export default function BulkUploadPage() {
           promoStartDate: null,
           promoEndDate: null,
           promoPrice: null,
+          initialCurrency: null,
           name_pl: null,
           name_ua: null,
           name_en: null,
@@ -709,13 +719,14 @@ export default function BulkUploadPage() {
 
   const mandatoryFields: { key: MandatoryField; label: string }[] = [
     { key: "articleId", label: "Article ID" },
-    { key: "price", label: "Price" },
+    { key: "price", label: "Initial Price" },
     { key: "quantity", label: "Quantity" },
   ];
 
   const optionalFields: { key: OptionalField; label: string }[] = [
     { key: "badge", label: "Badge" },
     { key: "margin", label: "Margin" },
+    { key: "initialCurrency", label: "Initial Currency" },
     { key: "promoCode", label: "Promo Code" },
     { key: "promoPrice", label: "Promo Price" },
     { key: "promoStartDate", label: "Promo Start Date" },

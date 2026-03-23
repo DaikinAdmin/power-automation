@@ -691,5 +691,19 @@
       "title": "8. Contact",
       "body": "If you have any questions regarding this Privacy Policy or the processing of your personal data, please contact us via the form on the Contact page."
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account preferences",
+    "currency": "Currency",
+    "currencyDescription": "Choose the currency for displaying prices",
+    "twoFa": "Enable two-factor authentication",
+    "twoFaDescription": "Enable or disable two-factor authentication",
+    "twoFaEnabled": "Two-factor authentication enabled",
+    "twoFaDisabled": "Two-factor authentication disabled",
+    "confirmTitle": "Confirm selection",
+    "confirmDescription": "Please enter your password to confirm",
+    "password": "Password",
+    "submit": "Submit"
   }
 }
