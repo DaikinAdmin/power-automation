@@ -61,6 +61,16 @@ export function PriceEditModal({
   });
 
   useEffect(() => {
+    if (formData.initialPrice && formData.margin) {
+      const calculated = formData.initialPrice * (1 + formData.margin / 100);
+      setFormData((prev: any) => ({
+        ...prev,
+        price: parseFloat(calculated.toFixed(2)),
+      }));
+    }
+  }, [formData.initialPrice, formData.margin]);
+
+  useEffect(() => {
     fetchWarehouses();
   }, []);
 
@@ -142,7 +152,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Price *</Label>
+              <Label>Price(calculated from initPrice&margin) *</Label>
               <Input
                 type="number"
                 min="0"
@@ -285,7 +295,9 @@ export function PriceEditModal({
                 onChange={(e) =>
                   setFormData((prev: any) => ({
                     ...prev,
-                    initialPrice: e.target.value ? parseFloat(e.target.value) : null,
+                    initialPrice: e.target.value
+                      ? parseFloat(e.target.value)
+                      : null,
                   }))
                 }
                 className="mt-1"

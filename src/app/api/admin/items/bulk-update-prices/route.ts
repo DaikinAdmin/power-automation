@@ -9,7 +9,8 @@ import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } f
 
 interface BulkUpdateItem {
   articleId: string;
-  initialPrice: number;
+  initialPrice?: number;
+  price?: number;
   quantity: number;
   currency?: string;
   badge?: string;
@@ -218,21 +219,38 @@ export async function POST(request: NextRequest) {
             });
 
           // Update existing price with new values
-          const effectiveMargin = item.margin ?? 20;
-          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+          let newPrice: number;
+          let newInitialPrice: number | null;
+          let newMargin: number;
+          let newInitialCurrency: string | null;
+
+          if (item.initialPrice !== undefined && item.initialPrice !== null) {
+            const effectiveMargin = item.margin ?? oldPrice.margin ?? 20;
+            newPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+            newInitialPrice = item.initialPrice;
+            newMargin = effectiveMargin;
+            newInitialCurrency = (item.currency as any) || oldPrice.initialCurrency || null;
+          } else {
+            // Preserve existing price/margin/currency — only badge/quantity/promo changed
+            newPrice = oldPrice.price;
+            newInitialPrice = oldPrice.initialPrice ?? null;
+            newMargin = oldPrice.margin ?? 20;
+            newInitialCurrency = oldPrice.initialCurrency ?? null;
+          }
+
           await db
             .update(schema.itemPrice)
             .set({
-              price: calculatedPrice,
-              initialPrice: item.initialPrice,
-              quantity: item.quantity,
+              price: newPrice,
+              initialPrice: newInitialPrice,
+              margin: newMargin,
+              initialCurrency: newInitialCurrency as any,
+              quantity: item.quantity !== undefined ? item.quantity : oldPrice.quantity,
               badge: (item.badge as any) || 'ABSENT',
-              promoCode: item.promoCode || null,
-              promotionPrice: item.promoPrice || null,
-              promoStartDate: item.promoStartDate || null,
-              promoEndDate: item.promoEndDate || null,
-              margin: effectiveMargin,
-              initialCurrency: (item.currency as any) || null,
+              promoCode: item.promoCode !== undefined ? item.promoCode || null : oldPrice.promoCode,
+              promotionPrice: item.promoPrice !== undefined ? item.promoPrice || null : oldPrice.promotionPrice,
+              promoStartDate: item.promoStartDate !== undefined ? item.promoStartDate || null : oldPrice.promoStartDate,
+              promoEndDate: item.promoEndDate !== undefined ? item.promoEndDate || null : oldPrice.promoEndDate,
               updatedAt: new Date().toISOString(),
             })
             .where(eq(schema.itemPrice.id, oldPrice.id));

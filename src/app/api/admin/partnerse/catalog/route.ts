@@ -135,7 +135,12 @@ export async function PUT(request: NextRequest) {
       .limit(1);
 
     if (existing) {
-      if (existing.price !== price) {
+      const effectiveMargin = existing.margin ?? 20;
+      const calculatedPrice = Math.round(price * (1 + effectiveMargin / 100) * 100) / 100;
+      const quantityChanged = existing.quantity !== catalogItem.total_warehouse;
+      const priceChanged = existing.initialPrice !== price;
+
+      if (priceChanged) {
         await db.insert(schema.itemPriceHistory).values({
           itemId: item.id,
           warehouseId: existing.warehouseId,
@@ -153,9 +158,15 @@ export async function PUT(request: NextRequest) {
 
         await db
           .update(schema.itemPrice)
-          .set({ price, quantity: catalogItem.total_warehouse, updatedAt: now })
+          .set({
+            price: calculatedPrice,
+            initialPrice: price,
+            initialCurrency: catalogItem.currency as Currency,
+            quantity: catalogItem.total_warehouse,
+            updatedAt: now,
+          })
           .where(eq(schema.itemPrice.id, existing.id));
-      } else {
+      } else if (quantityChanged) {
         await db
           .update(schema.itemPrice)
           .set({ quantity: catalogItem.total_warehouse, updatedAt: now })
@@ -163,13 +174,16 @@ export async function PUT(request: NextRequest) {
       }
       updated++;
     } else {
+      const defaultMargin = 20;
+      const calculatedPrice = Math.round(price * (1 + defaultMargin / 100) * 100) / 100;
       await db.insert(schema.itemPrice).values({
         itemSlug: item.slug,
         warehouseId: WAREHOUSE_ID,
-        price,
+        price: calculatedPrice,
         quantity: catalogItem.total_warehouse,
         initialPrice: price,
         initialCurrency: catalogItem.currency as Currency,
+        margin: defaultMargin,
         updatedAt: now,
       });
       created++;

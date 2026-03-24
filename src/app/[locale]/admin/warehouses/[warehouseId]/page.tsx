@@ -205,7 +205,7 @@ export default function WarehouseItemsPage({
                     <td className="py-3 px-4">
                       <div className="h-10 w-10 rounded border bg-white overflow-hidden shadow-sm">
                         <img
-                          src={item.photo[0] || '/placeholder.png'}
+                          src={item.photo?.[0] || '/placeholder.png'}
                           alt=""
                           className="h-full w-full object-cover"
                         />
