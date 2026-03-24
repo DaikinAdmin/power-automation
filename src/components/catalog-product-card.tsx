@@ -268,7 +268,7 @@ const CatalogProductCard = ({
               Category: {categoryName}
             </p>
           )}
-          {warehouseLabel && (
+          {/* {warehouseLabel && (
             <WarehouseAvailability
               inStock={inStock}
               locationLabel={warehouseLabel}
@@ -276,7 +276,7 @@ const CatalogProductCard = ({
               variant="catalog"
               className="mb-2"
             />
-          )}
+          )} */}
           {extraContent}
           {isList && description && (
             <p className="text-sm text-gray-600 mb-4 line-clamp-3">
