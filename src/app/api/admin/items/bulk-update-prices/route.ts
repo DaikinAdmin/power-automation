@@ -259,7 +259,9 @@ export async function POST(request: NextRequest) {
         } else {
           // Create new price record
           const effectiveMargin = item.margin ?? 20;
-          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+          const calculatedPrice = item.initialPrice != null
+            ? Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100
+            : Math.round((item.price ?? 0) * 100) / 100;
           await db
             .insert(schema.itemPrice)
             .values({
