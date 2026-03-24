@@ -12,6 +12,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useAdminWarehouses } from '@/hooks/useAdminWarehouses';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 interface Warehouse extends Warehouses {
   id: string;
@@ -283,9 +284,11 @@ export default function WarehousesPage() {
                     <td className="py-3 px-4">{warehouse.name}</td>
                     <td className="py-3 px-4">{warehouse.countrySlug}</td>
                     <td className="py-3 px-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        {warehouse._count?.item_price || 0} prices
-                      </span>
+                      <Link href={`/admin/warehouses/${warehouse.id}`}>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer hover:bg-gray-200 duration-300">
+                          {warehouse._count?.item_price || 0} prices
+                        </span>
+                      </Link>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
