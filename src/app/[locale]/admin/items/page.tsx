@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ItemModal } from '@/components/admin/item-modal';
 import { DeleteItemModal } from '@/components/admin/delete-item-modal';
-import { Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, EyeOff, ChevronLeft, ChevronRight, Languages } from 'lucide-react';
 import { Item } from '@/helpers/types/item';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
+import { TranslateItemsModal } from '@/components/admin/translate-items-modal';
 import { useAdminItems } from '@/hooks/useAdminItems';
 import { useAdminBrands } from '@/hooks/useAdminBrands';
 import { toast } from 'sonner';
@@ -49,6 +50,7 @@ export default function ItemsPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [selectAllMode, setSelectAllMode] = useState<'none' | 'page' | 'all'>('none');
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
+  const [isTranslateModalOpen, setIsTranslateModalOpen] = useState(false);
   
   // Custom hooks for data fetching
   const { brands: allBrands } = useAdminBrands();
@@ -578,6 +580,16 @@ export default function ItemsPage() {
                     🗑️ Delete
                   </Button>
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsTranslateModalOpen(true)}
+                    disabled={isProcessingBatch}
+                    className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                  >
+                    <Languages className="w-4 h-4 mr-1" />
+                    Translate
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => {
@@ -748,6 +760,12 @@ export default function ItemsPage() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         item={selectedItem}
+      />
+
+      <TranslateItemsModal
+        isOpen={isTranslateModalOpen}
+        onClose={() => setIsTranslateModalOpen(false)}
+        selectedSlugs={selectAllMode === 'all' ? [] : Array.from(selectedItems)}
       />
     </div>
   );
