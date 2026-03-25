@@ -7,6 +7,7 @@ import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import { getTranslations } from 'next-intl/server';
+import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -599,6 +600,40 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     }
   }
   */
+
+  // Send order notification emails (non-blocking)
+  try {
+    const [orderUser] = await db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.id, userId))
+      .limit(1);
+
+    if (orderUser) {
+      const emailData: OrderEmailData = {
+        orderId: order.id,
+        orderShortId: order.id.substring(0, 8),
+        customerName: orderUser.name,
+        customerEmail: orderUser.email,
+        customerPhone: orderUser.phoneNumber || undefined,
+        companyName: orderUser.companyName || undefined,
+        totalPrice: order.totalPrice,
+        originalTotalPrice: order.originalTotalPrice,
+        lineItems: orderLineItems.map((li: any) => ({
+          name: li.name || li.articleId,
+          articleId: li.articleId,
+          quantity: li.quantity,
+          unitPrice: li.unitPrice,
+          lineTotal: li.lineTotal,
+          warehouseName: li.warehouseName,
+        })),
+        comment: null,
+      };
+      sendNewOrderEmails(emailData);
+    }
+  } catch (emailErr) {
+    logger.error('Failed to send order notification emails', { orderId: order.id, error: String(emailErr) });
+  }
 
   return NextResponse.json({
     success: true,

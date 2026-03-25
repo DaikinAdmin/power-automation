@@ -22,42 +22,61 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
   const [isLoading, setIsLoading] = useState(true);
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'pending' | 'failed'>('pending');
+  const [retryCount, setRetryCount] = useState(0);
+
+  const MAX_RETRIES = 10;
 
   useEffect(() => {
     if (orderId) {
-      checkPaymentStatus();
+      checkPaymentStatus(0);
     }
   }, [orderId]);
 
-  const checkPaymentStatus = async () => {
+  const checkPaymentStatus = async (attempt: number) => {
     if (!orderId) return;
 
     setIsLoading(true);
 
     try {
-      // Wait a bit for webhook to process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait a bit for webhook to process on first attempt
+      if (attempt === 0) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
 
-      const response = await fetch(`/api/orders/${orderId}`);
-      const data = await response.json();
+      // Actively check the payment status with LiqPay
+      const checkResponse = await fetch('/api/payments/liqpay/check-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      });
+      const checkData = await checkResponse.json();
 
-      if (response.ok) {
-        setOrderData(data.order);
-        
-        // Determine payment status based on order status
-        if (data.order.status === 'PROCESSING' || data.order.status === 'COMPLETED') {
-          setPaymentStatus('success');
-        } else if (data.order.status === 'WAITING_FOR_PAYMENT') {
-          setPaymentStatus('pending');
-          // Keep checking for a while
-          setTimeout(checkPaymentStatus, 3000);
-        } else {
-          setPaymentStatus('failed');
-        }
+      // Also fetch the full order for display
+      const orderResponse = await fetch(`/api/orders/${orderId}`);
+      const orderResult = await orderResponse.json();
+      if (orderResponse.ok) {
+        setOrderData(orderResult.order);
+      }
+
+      if (checkData.paymentStatus === 'COMPLETED' || checkData.orderStatus === 'PROCESSING' || checkData.orderStatus === 'COMPLETED') {
+        setPaymentStatus('success');
+      } else if (checkData.paymentStatus === 'FAILED') {
+        setPaymentStatus('failed');
+      } else if (attempt < MAX_RETRIES) {
+        setPaymentStatus('pending');
+        setRetryCount(attempt + 1);
+        setTimeout(() => checkPaymentStatus(attempt + 1), 3000);
+      } else {
+        // Max retries reached — show pending with a manual retry button
+        setPaymentStatus('pending');
       }
     } catch (error) {
       console.error('Error checking payment status:', error);
-      setPaymentStatus('failed');
+      if (attempt < MAX_RETRIES) {
+        setTimeout(() => checkPaymentStatus(attempt + 1), 3000);
+      } else {
+        setPaymentStatus('failed');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +201,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
 
               <div className="space-y-4">
                 <button
-                  onClick={checkPaymentStatus}
+                  onClick={() => checkPaymentStatus(0)}
                   className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
                 >
                   {t('pending.checkStatus')}
