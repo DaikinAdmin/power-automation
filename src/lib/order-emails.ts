@@ -7,30 +7,11 @@
  *  - Successful payment
  */
 
-import { email, emailStartTLS } from '@/helpers/email/resend';
+import { email } from '@/helpers/email/resend';
 import logger from '@/lib/logger';
 
-/**
- * Comma-separated list of manager emails.
- * E.g. MANAGER_EMAILS="sales@powerautomation.pl,dmitriy.symon@gmail.com"
- * Falls back to a single address if not set.
- */
-const MANAGER_EMAILS: string[] = (
-  process.env.MANAGER_EMAILS || 'sales@powerautomation.pl'
-)
-  .split(',')
-  .map((e) => e.trim())
-  .filter(Boolean);
-
+const MANAGER_EMAIL = 'dmitriy.symon@gmail.com';
 const FROM_EMAIL = process.env.MAIL_USER || 'noreply@powerautomation.pl';
-
-/**
- * Picks the nodemailer transport based on the recipient domain.
- * @powerautomation.pl addresses require port 587 STARTTLS.
- */
-function transportFor(recipientEmail: string) {
-  return recipientEmail.endsWith('@powerautomation.pl') ? emailStartTLS : email;
-}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -128,16 +109,12 @@ export async function sendNewOrderManagerEmail(data: OrderEmailData): Promise<vo
       <p style="color:#666;font-size:12px;">This is an automated notification from PowerAutomation.</p>
     </div>`;
 
-  await Promise.allSettled(
-    MANAGER_EMAILS.map(async (managerEmail) => {
-      try {
-        await transportFor(managerEmail).sendMail({ from: FROM_EMAIL, to: managerEmail, subject, html });
-        logger.info('New order email sent to manager', { orderId: data.orderId, managerEmail });
-      } catch (err) {
-        logger.error('Failed to send new order email to manager', { orderId: data.orderId, managerEmail, error: String(err) });
-      }
-    })
-  );
+  try {
+    await email.sendMail({ from: FROM_EMAIL, to: MANAGER_EMAIL, subject, html });
+    logger.info('New order email sent to manager', { orderId: data.orderId });
+  } catch (err) {
+    logger.error('Failed to send new order email to manager', { orderId: data.orderId, error: String(err) });
+  }
 }
 
 /** Email to customer confirming their order */
@@ -158,11 +135,11 @@ export async function sendNewOrderCustomerEmail(data: OrderEmailData): Promise<v
       <p>You will receive another email once your payment is confirmed.</p>
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
-      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAILS[0]}</p>
+      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAIL}</p>
     </div>`;
 
   try {
-    await transportFor(data.customerEmail).sendMail({ from: FROM_EMAIL, to: data.customerEmail, subject, html });
+    await email.sendMail({ from: FROM_EMAIL, to: data.customerEmail, subject, html });
     logger.info('New order email sent to customer', { orderId: data.orderId, customerEmail: data.customerEmail });
   } catch (err) {
     logger.error('Failed to send new order email to customer', { orderId: data.orderId, error: String(err) });
@@ -196,16 +173,12 @@ export async function sendPaymentSuccessManagerEmail(data: PaymentEmailData): Pr
       <p style="color:#666;font-size:12px;">This is an automated notification from PowerAutomation.</p>
     </div>`;
 
-  await Promise.allSettled(
-    MANAGER_EMAILS.map(async (managerEmail) => {
-      try {
-        await transportFor(managerEmail).sendMail({ from: FROM_EMAIL, to: managerEmail, subject, html });
-        logger.info('Payment success email sent to manager', { orderId: data.orderId, managerEmail });
-      } catch (err) {
-        logger.error('Failed to send payment success email to manager', { orderId: data.orderId, managerEmail, error: String(err) });
-      }
-    })
-  );
+  try {
+    await email.sendMail({ from: FROM_EMAIL, to: MANAGER_EMAIL, subject, html });
+    logger.info('Payment success email sent to manager', { orderId: data.orderId });
+  } catch (err) {
+    logger.error('Failed to send payment success email to manager', { orderId: data.orderId, error: String(err) });
+  }
 }
 
 /** Email to customer confirming successful payment */
@@ -232,11 +205,11 @@ export async function sendPaymentSuccessCustomerEmail(data: PaymentEmailData): P
       <p>Your order is now being processed. We will notify you when it ships.</p>
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
-      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAILS[0]}</p>
+      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAIL}</p>
     </div>`;
 
   try {
-    await transportFor(data.customerEmail).sendMail({ from: FROM_EMAIL, to: data.customerEmail, subject, html });
+    await email.sendMail({ from: FROM_EMAIL, to: data.customerEmail, subject, html });
     logger.info('Payment success email sent to customer', { orderId: data.orderId, customerEmail: data.customerEmail });
   } catch (err) {
     logger.error('Failed to send payment success email to customer', { orderId: data.orderId, error: String(err) });
