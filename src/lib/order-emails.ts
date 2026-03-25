@@ -10,7 +10,12 @@
 import { email } from '@/helpers/email/resend';
 import logger from '@/lib/logger';
 
-const MANAGER_EMAIL = 'dmitriy.symon@gmail.com';
+/** Reads MANAGER_EMAILS env var (comma-separated) and returns a deduplicated array of addresses. */
+function getManagerEmails(): string[] {
+  const raw = process.env.MANAGER_EMAILS || 'sales@powerautomation.pl';
+  return [...new Set(raw.split(',').map((e) => e.trim()).filter(Boolean))];
+}
+
 const FROM_EMAIL = process.env.MAIL_USER || 'noreply@powerautomation.pl';
 
 // ---------------------------------------------------------------------------
@@ -110,8 +115,11 @@ export async function sendNewOrderManagerEmail(data: OrderEmailData): Promise<vo
     </div>`;
 
   try {
-    await email.sendMail({ from: FROM_EMAIL, to: MANAGER_EMAIL, subject, html });
-    logger.info('New order email sent to manager', { orderId: data.orderId });
+    const managerEmails = getManagerEmails();
+    await Promise.allSettled(
+      managerEmails.map((to) => email.sendMail({ from: FROM_EMAIL, to, subject, html }))
+    );
+    logger.info('New order email sent to manager', { orderId: data.orderId, recipients: managerEmails });
   } catch (err) {
     logger.error('Failed to send new order email to manager', { orderId: data.orderId, error: String(err) });
   }
@@ -135,7 +143,7 @@ export async function sendNewOrderCustomerEmail(data: OrderEmailData): Promise<v
       <p>You will receive another email once your payment is confirmed.</p>
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
-      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAIL}</p>
+      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${process.env.MANAGER_EMAILS?.split(',')[0]?.trim() || 'sales@powerautomation.pl'}</p>
     </div>`;
 
   try {
@@ -174,8 +182,11 @@ export async function sendPaymentSuccessManagerEmail(data: PaymentEmailData): Pr
     </div>`;
 
   try {
-    await email.sendMail({ from: FROM_EMAIL, to: MANAGER_EMAIL, subject, html });
-    logger.info('Payment success email sent to manager', { orderId: data.orderId });
+    const managerEmails = getManagerEmails();
+    await Promise.allSettled(
+      managerEmails.map((to) => email.sendMail({ from: FROM_EMAIL, to, subject, html }))
+    );
+    logger.info('Payment success email sent to manager', { orderId: data.orderId, recipients: managerEmails });
   } catch (err) {
     logger.error('Failed to send payment success email to manager', { orderId: data.orderId, error: String(err) });
   }
@@ -205,7 +216,7 @@ export async function sendPaymentSuccessCustomerEmail(data: PaymentEmailData): P
       <p>Your order is now being processed. We will notify you when it ships.</p>
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
-      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${MANAGER_EMAIL}</p>
+      <p style="color:#666;font-size:12px;">If you have questions, contact us at ${process.env.MANAGER_EMAILS?.split(',')[0]?.trim() || 'sales@powerautomation.pl'}</p>
     </div>`;
 
   try {
