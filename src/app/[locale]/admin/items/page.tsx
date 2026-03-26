@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ItemModal } from '@/components/admin/item-modal';
 import { DeleteItemModal } from '@/components/admin/delete-item-modal';
-import { Eye, EyeOff, ChevronLeft, ChevronRight, Languages } from 'lucide-react';
+import { Eye, EyeOff, ChevronLeft, ChevronRight, Languages, RefreshCw } from 'lucide-react';
 import { Item } from '@/helpers/types/item';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { TranslateItemsModal } from '@/components/admin/translate-items-modal';
@@ -51,6 +51,8 @@ export default function ItemsPage() {
   const [selectAllMode, setSelectAllMode] = useState<'none' | 'page' | 'all'>('none');
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
   const [isTranslateModalOpen, setIsTranslateModalOpen] = useState(false);
+  const [isRegenSlugsLoading, setIsRegenSlugsLoading] = useState(false);
+  const isSearchFirstRender = useRef(true);
   
   // Custom hooks for data fetching
   const { brands: allBrands } = useAdminBrands();
@@ -72,6 +74,10 @@ export default function ItemsPage() {
 
   // Debounce search input - only search after user stops typing for 500ms and has 3+ chars
   useEffect(() => {
+    if (isSearchFirstRender.current) {
+      isSearchFirstRender.current = false;
+      return;
+    }
     const timer = setTimeout(() => {
       if (searchInput === '' || searchInput.length >= 3) {
         setSearchTerm(searchInput);
@@ -209,6 +215,30 @@ export default function ItemsPage() {
     return '';
   };
 
+  const handleRegenSlugs = async () => {
+    if (!confirm('This will regenerate slugs for ALL items based on their brand and article ID. Existing links to products may change. Continue?')) {
+      return;
+    }
+    setIsRegenSlugsLoading(true);
+    try {
+      const response = await fetch('/api/admin/items/regen-slugs', { method: 'POST' });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success('Slugs Regenerated', {
+          description: `Updated ${result.updated} of ${result.total} items.${result.errors.length > 0 ? ` ${result.errors.length} errors.` : ''}`,
+          duration: 6000,
+        });
+        await refetchItems();
+      } else {
+        toast.error('Failed to regenerate slugs', { description: result.error });
+      }
+    } catch {
+      toast.error('Network error during slug regeneration');
+    } finally {
+      setIsRegenSlugsLoading(false);
+    }
+  };
+
   const handleCreateItem = () => {
     router.push('/admin/items/new');
   };
@@ -339,6 +369,15 @@ export default function ItemsPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <Button
+            onClick={handleRegenSlugs}
+            disabled={isRegenSlugsLoading}
+            variant="outline"
+            className="border-orange-500 text-orange-600 hover:bg-orange-50"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRegenSlugsLoading ? 'animate-spin' : ''}`} />
+            {isRegenSlugsLoading ? 'Regenerating...' : 'Regenerate Slugs'}
+          </Button>
           <Button onClick={handleCreateItem} className="bg-blue-600 text-white hover:bg-blue-700">
             Add New Item
           </Button>
