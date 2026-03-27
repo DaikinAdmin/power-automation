@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import * as XLSX from "xlsx";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -89,9 +90,9 @@ const EXPORT_FIELDS: ExportField[] = [
 ];
 
 const FIELD_GROUPS = [
-  { id: "basic", label: "Basic Info & Details" },
-  { id: "pricing", label: "Pricing & Stock" },
-  { id: "meta", label: "SEO & Meta" },
+  { id: "basic" },
+  { id: "pricing" },
+  { id: "meta" },
 ] as const;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -161,6 +162,7 @@ interface ExportModalProps {
 }
 
 export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
+  const t = useTranslations('adminDashboard');
   const [selectedLocales, setSelectedLocales] = useState<Set<Locale>>(new Set(["pl"]));
   const [selectedFields, setSelectedFields] = useState<Set<string>>(
     new Set(EXPORT_FIELDS.map((f) => f.key))
@@ -206,7 +208,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
   const handleExport = useCallback(async () => {
     if (selectedFields.size === 0) {
-      setError("Select at least one field to export.");
+      setError(t('exportModal.selectFieldError'));
       return;
     }
     setIsExporting(true);
@@ -304,10 +306,10 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             </span>
             <div>
               <h2 className="font-semibold" style={{ fontSize: 16, letterSpacing: -0.3, color: "#111827" }}>
-                Export Items
+                {t('exportModal.title')}
               </h2>
               <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 1 }}>
-                Select locales, fields and format
+                {t('exportModal.subtitle')}
               </p>
             </div>
           </div>
@@ -323,7 +325,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
           {/* Locales */}
-          <Section title="Locales" subtitle="Data will be fetched per locale">
+          <Section title={t('exportModal.sectionLocales')} subtitle={t('exportModal.localesSubtitle')}>
             <div className="flex flex-wrap gap-2">
               {LOCALES.map(({ value, label, flag }) => {
                 const active = selectedLocales.has(value);
@@ -352,27 +354,28 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             </div>
             {selectedLocales.size > 1 && (
               <p className="text-xs mt-2" style={{ color: "#9ca3af" }}>
-                📊 Each locale will be a separate sheet (XLSX) or file (CSV).
+                {t('exportModal.localesNote')}
               </p>
             )}
           </Section>
 
           {/* Fields */}
           <Section
-            title="Fields"
-            subtitle={`${selectedFields.size} of ${EXPORT_FIELDS.length} selected`}
+            title={t('exportModal.sectionFields')}
+            subtitle={t('exportModal.fieldsSubtitle', { selected: selectedFields.size, total: EXPORT_FIELDS.length })}
             action={
               <div className="flex gap-2">
-                <PillButton onClick={selectAllFields}>All</PillButton>
-                <PillButton onClick={clearAllFields}>None</PillButton>
+                <PillButton onClick={selectAllFields}>{t('exportModal.selectAll')}</PillButton>
+                <PillButton onClick={clearAllFields}>{t('exportModal.selectNone')}</PillButton>
               </div>
             }
           >
             <div className="space-y-4">
-              {FIELD_GROUPS.map(({ id, label }) => {
+              {FIELD_GROUPS.map(({ id }) => {
                 const groupFields = EXPORT_FIELDS.filter((f) => f.group === id);
                 const allChecked = groupFields.every((f) => selectedFields.has(f.key));
                 const someChecked = groupFields.some((f) => selectedFields.has(f.key));
+                const groupLabel = id === 'basic' ? t('exportModal.groups.basic') : id === 'pricing' ? t('exportModal.groups.pricing') : t('exportModal.groups.meta');
                 return (
                   <div key={id}>
                     {/* Group header */}
@@ -382,7 +385,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     >
                       <Checkbox checked={allChecked} indeterminate={!allChecked && someChecked} />
                       <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>
-                        {label}
+                        {groupLabel}
                       </span>
                     </button>
                     {/* Fields grid */}
@@ -409,7 +412,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
           </Section>
 
           {/* Format */}
-          <Section title="Format">
+          <Section title={t('exportModal.sectionFormat')}>
             <div className="flex gap-3">
               {(["xlsx", "csv"] as const).map((f) => (
                 <button
@@ -444,7 +447,9 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             {isExporting ? (
               <span style={{ color: "#16a34a" }}>{progress}</span>
             ) : (
-              `${selectedLocales.size} locale${selectedLocales.size > 1 ? "s" : ""} · ${selectedFields.size} fields`
+              selectedLocales.size > 1
+                ? t('exportModal.footerStatsPlural', { locales: selectedLocales.size, fields: selectedFields.size })
+                : t('exportModal.footerStats', { locales: selectedLocales.size, fields: selectedFields.size })
             )}
           </span>
           <div className="flex gap-3">
@@ -453,7 +458,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
               className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={{ background: "#f3f4f6", color: "#6b7280" }}
             >
-              Cancel
+              {t('exportModal.cancel')}
             </button>
             <button
               onClick={handleExport}
@@ -468,10 +473,10 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
               {isExporting ? (
                 <>
                   <SpinnerIcon />
-                  Exporting…
+                  {t('exportModal.exporting')}
                 </>
               ) : (
-                <>↓ Export {format.toUpperCase()}</>
+                <>{t('exportModal.exportBtn', { format: format.toUpperCase() })}</>
               )}
             </button>
           </div>

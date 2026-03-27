@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -48,8 +49,10 @@ export function ImagePickerModal({
   trigger,
   open: controlledOpen,
   onOpenChange,
-  label = 'Вибрати зображення',
+  label,
 }: ImagePickerModalProps) {
+  const t = useTranslations('adminDashboard');
+  const resolvedLabel = label ?? t('imagePicker.label');
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 
@@ -129,20 +132,20 @@ export function ImagePickerModal({
       ) : (
         <Button type="button" variant="outline" onClick={() => setOpen(true)}>
           <ImageIcon className="w-4 h-4 mr-2" />
-          {label}
+          {resolvedLabel}
         </Button>
       )}
 
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Вибір зображення</DialogTitle>
+            <DialogTitle>{t('imagePicker.dialogTitle')}</DialogTitle>
           </DialogHeader>
 
           {/* Search */}
           <form onSubmit={handleSearch} className="flex gap-2 shrink-0">
             <Input
-              placeholder="Пошук за назвою..."
+              placeholder={t('imagePicker.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1"
@@ -163,7 +166,7 @@ export function ImagePickerModal({
             ) : images.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-48 text-gray-400">
                 <ImageIcon className="w-12 h-12 mb-2 opacity-40" />
-                <p className="text-sm">Зображень не знайдено</p>
+                <p className="text-sm">{t('imagePicker.empty')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 p-1">
@@ -209,8 +212,7 @@ export function ImagePickerModal({
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between shrink-0 pt-2 border-t text-sm text-gray-600">
               <span>
-                {pagination.total} зображень, сторінка {pagination.page} з{' '}
-                {pagination.totalPages}
+                {t('imagePicker.paginationInfo', { total: pagination.total, current: pagination.page, totalPages: pagination.totalPages })}
               </span>
               <div className="flex gap-1">
                 <Button
@@ -240,18 +242,18 @@ export function ImagePickerModal({
             {selectedUrl ? (
               <p className="text-xs text-gray-500 truncate max-w-[60%]">{selectedUrl}</p>
             ) : (
-              <p className="text-xs text-gray-400">Виберіть зображення</p>
+              <p className="text-xs text-gray-400">{t('imagePicker.selectPrompt')}</p>
             )}
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={handleClose}>
-                Скасувати
+                {t('imagePicker.cancel')}
               </Button>
               <Button
                 type="button"
                 disabled={!selectedUrl}
                 onClick={handleConfirm}
               >
-                Вибрати
+                {t('imagePicker.select')}
               </Button>
             </div>
           </div>

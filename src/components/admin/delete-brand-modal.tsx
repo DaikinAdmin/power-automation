@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { Brand } from '@/db/schema';
@@ -12,6 +13,7 @@ interface DeleteBrandModalProps {
 }
 
 export function DeleteBrandModal({ isOpen, onClose, onConfirm, brand }: DeleteBrandModalProps) {
+  const t = useTranslations('adminDashboard');
   if (!brand) return null;
 
   const handleConfirm = () => {
@@ -23,17 +25,17 @@ export function DeleteBrandModal({ isOpen, onClose, onConfirm, brand }: DeleteBr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Brand</DialogTitle>
+          <DialogTitle>{t('brands.delete.title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the brand "{brand.name}"? This action cannot be undone.
+            {t('brands.delete.description', { name: brand.name })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="button" variant="destructive" onClick={handleConfirm}>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

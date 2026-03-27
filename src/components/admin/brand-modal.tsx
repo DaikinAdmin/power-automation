@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ const toDateTimeLocalValue = (date: Date | string | null | undefined) => {
 
 export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations('adminDashboard.brands');
   const [formState, setFormState] = useState({
     name: brand?.name ?? '',
     alias: brand?.alias ?? '',
@@ -70,11 +72,9 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{brand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
+          <DialogTitle>{brand ? t('modal.editTitle') : t('modal.addTitle')}</DialogTitle>
           <DialogDescription>
-            {brand
-              ? 'Update brand details and visibility preferences.'
-              : 'Provide information to register a new brand.'}
+            {brand ? t('modal.editDesc') : t('modal.addDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -82,35 +82,35 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
           <div className="grid gap-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="brand-name" className="text-right">
-                Name
+                {t('modal.name')}
               </Label>
               <Input
                 id="brand-name"
                 value={formState.name}
                 onChange={(event) => setFormState((prev) => ({ ...prev, name: event.target.value }))}
                 className="col-span-3"
-                placeholder="Brand name"
+                placeholder={t('modal.namePlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="brand-alias" className="text-right">
-                Alias
+                {t('modal.alias')}
               </Label>
               <Input
                 id="brand-alias"
                 value={formState.alias}
                 onChange={(event) => setFormState((prev) => ({ ...prev, alias: event.target.value }))}
                 className="col-span-3"
-                placeholder="Unique alias"
+                placeholder={t('modal.aliasPlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="brand-image" className="text-right mt-2">
-                Image URL
+                {t('modal.imageUrl')}
               </Label>
               <div className="col-span-3 space-y-2">
                 <div className="flex gap-2">
@@ -118,11 +118,11 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
                     id="brand-image"
                     value={formState.imageLink}
                     onChange={(event) => setFormState((prev) => ({ ...prev, imageLink: event.target.value }))}
-                    placeholder="https://example.com/brand.png"
+                    placeholder={t('modal.imagePlaceholder')}
                     required
                   />
                   <ImagePickerModal
-                    label="Library"
+                    label={t('modal.library')}
                     onSelect={(url) => setFormState((prev) => ({ ...prev, imageLink: url }))}
                   />
                 </div>
@@ -135,7 +135,7 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="brand-created" className="text-right">
-                Created At
+                {t('modal.createdAt')}
               </Label>
               <Input
                 id="brand-created"
@@ -147,7 +147,7 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Updated At</Label>
+              <Label className="text-right">{t('modal.updatedAt')}</Label>
               <Input
                 value={toDateTimeLocalValue(brand?.updatedAt ?? new Date())}
                 readOnly
@@ -157,7 +157,7 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="brand-visible" className="text-right">
-                Visible
+                {t('modal.visible')}
               </Label>
               <div className="col-span-3">
                 <Switch
@@ -171,10 +171,10 @@ export function BrandModal({ isOpen, onClose, onSave, brand }: BrandModalProps) 
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t('modal.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Saving…' : brand ? 'Update Brand' : 'Create Brand'}
+              {isLoading ? t('modal.saving') : brand ? t('modal.updateBtn') : t('modal.createBtn')}
             </Button>
           </DialogFooter>
         </form>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { DOMAIN_CONFIGS } from "@/lib/domain-config";
 import {
   Card,
@@ -67,6 +68,7 @@ interface PaginationInfo {
 }
 
 export function UploadsClient() {
+  const t = useTranslations('adminDashboard');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
@@ -335,18 +337,18 @@ export function UploadsClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Image Uploads</h1>
-          <p className="text-gray-500">Manage uploaded images for the site</p>
+          <h1 className="text-3xl font-bold">{t('uploads.title')}</h1>
+          <p className="text-gray-500">{t('uploads.description')}</p>
         </div>
         <div className="flex gap-2">
           {/* НОВА КНОПКА */}
           <Button variant="outline" onClick={() => setIsMultiUploadOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
-            Upload Multiple
+            {t('uploads.uploadMultiple')}
           </Button>
           <Button onClick={() => setIsUploadOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
-            Upload Image
+            {t('uploads.uploadImage')}
           </Button>
         </div>
       </div>
@@ -363,7 +365,7 @@ export function UploadsClient() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   id="search"
-                  placeholder="Search by filename..."
+                  placeholder={t('uploads.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -378,7 +380,7 @@ export function UploadsClient() {
                 <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   id="pathFilter"
-                  placeholder="Filter by path..."
+                  placeholder={t('uploads.pathPlaceholder')}
                   value={pathFilter}
                   onChange={(e) => setPathFilter(e.target.value)}
                   className="pl-10"
@@ -391,8 +393,8 @@ export function UploadsClient() {
 
       {/* Stats */}
       <div className="text-sm text-gray-500">
-        {pagination.total} image{pagination.total !== 1 ? "s" : ""} total
-        {(searchQuery || pathFilter) && " (filtered)"}
+        {t('uploads.stats', { count: pagination.total })}
+        {(searchQuery || pathFilter) && t('uploads.statsFiltered')}
       </div>
 
       {/* Image Grid */}
@@ -406,14 +408,14 @@ export function UploadsClient() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <ImageIcon className="h-12 w-12 text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">No images uploaded yet</p>
+            <p className="text-gray-500 text-lg">{t('uploads.empty.title')}</p>
             <Button
               variant="outline"
               className="mt-4"
               onClick={() => setIsUploadOpen(true)}
             >
               <Upload className="h-4 w-4 mr-2" />
-              Upload your first image
+              {t('uploads.empty.uploadBtn')}
             </Button>
           </CardContent>
         </Card>
@@ -510,10 +512,10 @@ export function UploadsClient() {
             disabled={pagination.page <= 1}
             onClick={() => fetchImages(pagination.page - 1)}
           >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            <ChevronLeft className="h-4 w-4 mr-1" /> {t('uploads.pagination.previous')}
           </Button>
           <span className="text-sm text-gray-500">
-            Page {pagination.page} of {pagination.totalPages}
+            {t('uploads.pagination.pageOf', { current: pagination.page, total: pagination.totalPages })}
           </span>
           <Button
             variant="outline"
@@ -521,7 +523,7 @@ export function UploadsClient() {
             disabled={pagination.page >= pagination.totalPages}
             onClick={() => fetchImages(pagination.page + 1)}
           >
-            Next <ChevronRight className="h-4 w-4 ml-1" />
+            {t('uploads.pagination.next')} <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
       )}
@@ -536,14 +538,14 @@ export function UploadsClient() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Upload Image</DialogTitle>
+            <DialogTitle>{t('uploads.uploadDialog.title')}</DialogTitle>
             <DialogDescription>
-              Choose a file, set a custom path and filename.
+              {t('uploads.uploadDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="file">Image File</Label>
+              <Label htmlFor="file">{t('uploads.uploadDialog.fileLabel')}</Label>
               <Input
                 id="file"
                 type="file"
@@ -566,37 +568,37 @@ export function UploadsClient() {
 
             <div>
               <Label htmlFor="uploadPath">
-                Path{" "}
+                {t('uploads.uploadDialog.pathLabel')}{" "}
                 <span className="text-gray-400 font-normal">
-                  (e.g. products/omron)
+                  {t('uploads.uploadDialog.pathHint')}
                 </span>
               </Label>
               <Input
                 id="uploadPath"
-                placeholder="e.g. products/omron"
+                placeholder={t('uploads.uploadDialog.pathHint').replace(/[()]/g, '')}
                 value={uploadPath}
                 onChange={(e) => setUploadPath(e.target.value)}
                 className="mt-1"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Directory inside the uploads storage. Leave empty for root.
+                {t('uploads.uploadDialog.pathDescription')}
               </p>
             </div>
 
             <div>
               <Label htmlFor="uploadFileName">
-                File Name{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
+                {t('uploads.uploadDialog.fileNameLabel')}{" "}
+                <span className="text-gray-400 font-normal">{t('uploads.uploadDialog.fileNameHint')}</span>
               </Label>
               <Input
                 id="uploadFileName"
-                placeholder="custom-name (extension auto-added)"
+                placeholder={t('uploads.uploadDialog.fileNamePlaceholder')}
                 value={uploadFileName}
                 onChange={(e) => setUploadFileName(e.target.value)}
                 className="mt-1"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Leave empty to use the original filename.
+                {t('uploads.uploadDialog.fileNameDescription')}
               </p>
             </div>
           </div>
@@ -608,13 +610,13 @@ export function UploadsClient() {
                 resetUploadForm();
               }}
             >
-              Cancel
+              {t('uploads.uploadDialog.cancel')}
             </Button>
             <Button
               onClick={handleUpload}
               disabled={!uploadFile || isUploading}
             >
-              {isUploading ? "Uploading..." : "Upload"}
+              {isUploading ? t('uploads.uploadDialog.uploading') : t('uploads.uploadDialog.upload')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -629,10 +631,9 @@ export function UploadsClient() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Image</DialogTitle>
+            <DialogTitle>{t('uploads.editDialog.title')}</DialogTitle>
             <DialogDescription>
-              Change the filename or move to a different path. The file will be
-              moved on disk.
+              {t('uploads.editDialog.description')}
             </DialogDescription>
           </DialogHeader>
           {editImage && (
@@ -647,7 +648,7 @@ export function UploadsClient() {
               </div>
 
               <div>
-                <Label htmlFor="editFileName">File Name</Label>
+                <Label htmlFor="editFileName">{t('uploads.editDialog.fileNameLabel')}</Label>
                 <Input
                   id="editFileName"
                   value={editFileName}
@@ -655,15 +656,15 @@ export function UploadsClient() {
                   className="mt-1"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Extension will be preserved automatically.
+                  {t('uploads.editDialog.fileNameHint')}
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="editPath">Path</Label>
+                <Label htmlFor="editPath">{t('uploads.editDialog.pathLabel')}</Label>
                 <Input
                   id="editPath"
-                  placeholder="e.g. products/omron"
+                  placeholder={t('uploads.uploadDialog.pathHint').replace(/[()]/g, '')}
                   value={editPath}
                   onChange={(e) => setEditPath(e.target.value)}
                   className="mt-1"
@@ -673,10 +674,10 @@ export function UploadsClient() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditImage(null)}>
-              Cancel
+              {t('uploads.editDialog.cancel')}
             </Button>
             <Button onClick={handleEdit} disabled={isEditing}>
-              {isEditing ? "Saving..." : "Save Changes"}
+              {isEditing ? t('uploads.editDialog.saving') : t('uploads.editDialog.saveBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -691,20 +692,19 @@ export function UploadsClient() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Image</AlertDialogTitle>
+            <AlertDialogTitle>{t('uploads.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{deleteImage?.fileName}
-              &quot;? This will remove the file from disk and cannot be undone.
+              {t('uploads.deleteDialog.description', { name: deleteImage?.fileName ?? '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('uploads.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t('uploads.deleteDialog.deleting') : t('uploads.deleteDialog.deleteBtn')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -745,7 +745,7 @@ export function UploadsClient() {
                   className="flex-1"
                   onClick={() => copyUrl(previewImage.url)}
                 >
-                  <Copy className="h-4 w-4 mr-2" /> Copy URL
+                  <Copy className="h-4 w-4 mr-2" /> {t('uploads.copyUrl')}
                 </Button>
                 <Button
                   variant="outline"
@@ -756,7 +756,7 @@ export function UploadsClient() {
                     openEdit(previewImage);
                   }}
                 >
-                  <Pencil className="h-4 w-4 mr-2" /> Edit
+                  <Pencil className="h-4 w-4 mr-2" /> {t('uploads.edit')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -767,7 +767,7 @@ export function UploadsClient() {
                     setDeleteImage(previewImage);
                   }}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" /> Delete
+                  <Trash2 className="h-4 w-4 mr-2" /> {t('uploads.delete')}
                 </Button>
               </div>
             </div>
@@ -787,15 +787,14 @@ export function UploadsClient() {
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Upload Multiple Images</DialogTitle>
+            <DialogTitle>{t('uploads.multiUpload.title')}</DialogTitle>
             <DialogDescription>
-              Виберіть кілька файлів для завантаження. Вони будуть збережені з
-              їхніми оригінальними іменами.
+              {t('uploads.multiUpload.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="multi-file">Images</Label>
+              <Label htmlFor="multi-file">{t('uploads.uploadDialog.fileLabel')}</Label>
               <Input
                 id="multi-file"
                 type="file"
@@ -807,29 +806,28 @@ export function UploadsClient() {
               />
               {multiUploadFiles.length > 0 && (
                 <p className="text-sm text-gray-500 mt-2">
-                  Вибрано файлів: {multiUploadFiles.length}
+                  {t('uploads.multiUpload.selectedFiles', { count: multiUploadFiles.length })}
                 </p>
               )}
             </div>
 
             <div>
               <Label htmlFor="multiUploadPath">
-                Path{" "}
+                {t('uploads.multiUpload.pathLabel')}{" "}
                 <span className="text-gray-400 font-normal">
-                  (e.g. products/gallery)
+                  {t('uploads.multiUpload.pathHint')}
                 </span>
               </Label>
               <Input
                 id="multiUploadPath"
-                placeholder="e.g. products/gallery"
+                placeholder={t('uploads.multiUpload.pathHint').replace(/[()]/g, '')}
                 value={multiUploadPath}
                 onChange={(e) => setMultiUploadPath(e.target.value)}
                 className="mt-1"
                 disabled={isUploading}
               />
               <p className="text-xs text-gray-400 mt-1">
-                Папка для всіх вибраних файлів. Залишіть порожнім для кореневої
-                директорії.
+                {t('uploads.multiUpload.pathDescription')}
               </p>
             </div>
 
@@ -837,9 +835,9 @@ export function UploadsClient() {
             {isUploading && multiUploadProgress.total > 0 && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm text-gray-500">
-                  <span>Завантаження...</span>
+                  <span>{t('uploads.multiUpload.uploading')}</span>
                   <span>
-                    {multiUploadProgress.current} / {multiUploadProgress.total}
+                    {t('uploads.multiUpload.uploadingProgress', { current: multiUploadProgress.current, total: multiUploadProgress.total })}
                   </span>
                 </div>
                 {/* Якщо в тебе є компонент Progress з shadcn/ui, можеш юзати його, інакше просто смужка */}
@@ -863,13 +861,13 @@ export function UploadsClient() {
               }}
               disabled={isUploading}
             >
-              Cancel
+              {t('uploads.multiUpload.cancel')}
             </Button>
             <Button
               onClick={handleMultiUpload}
               disabled={multiUploadFiles.length === 0 || isUploading}
             >
-              {isUploading ? "Uploading..." : "Upload All"}
+              {isUploading ? t('uploads.uploadDialog.uploading') : t('uploads.multiUpload.uploadAll')}
             </Button>
           </DialogFooter>
         </DialogContent>

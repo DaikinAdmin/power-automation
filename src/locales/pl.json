@@ -705,5 +705,897 @@
     "confirmDescription": "Wprowadź hasło, aby potwierdzić",
     "password": "Hasło",
     "submit": "Zatwierdź"
+  },
+  "adminDashboard": {
+    "nav": {
+      "dashboard": "Panel",
+      "warehouses": "Magazyny",
+      "products": "Produkty",
+      "bulkUpload": "Import/Export",
+      "promo": "Promo",
+      "categories": "Kategorie",
+      "brands": "Marki",
+      "orders": "Zamówienia",
+      "users": "Użytkownicy",
+      "pages": "Strony",
+      "banners": "Banery",
+      "uploads": "Zdjęcia",
+      "currencies": "Waluty",
+      "payments": "Płatności",
+      "analytics": "Analityka",
+      "settings": "Ustawienia"
+    },
+    "dashboard": {
+      "title": "Panel Administratora",
+      "description": "Przegląd kluczowych wskaźników i szybki dostęp do zarządzania",
+      "stats": {
+        "totalProducts": "Łączna liczba produktów",
+        "totalOrders": "Łączna liczba zamówień",
+        "totalUsers": "Łączna liczba użytkowników",
+        "totalRevenue": "Łączny przychód",
+        "fromLastMonth": "w porównaniu do poprzedniego miesiąca",
+        "revenue": "Przychód",
+        "recentOrders": "Ostatnie zamówienia",
+        "quickActions": "Szybkie akcje",
+        "quickActionsDescription": "Szybki dostęp do często używanych funkcji",
+        "addNewProduct": "Dodaj nowy produkt",
+        "manageCategories": "Zarządzaj kategoriami",
+        "processOrders": "Przetwarzaj zamówienia",
+        "updateCurrencies": "Zaktualizuj waluty",
+        "generateReports": "Generuj raporty"
+      },
+      "recentOrders": {
+        "title": "Ostatnie zamówienia",
+        "subtitle": "Masz {count} nowych zamówień wymagających uwagi",
+        "viewAll": "Zobacz wszystkie",
+        "orderId": "ID zamówienia",
+        "customer": "Klient",
+        "total": "Suma",
+        "status": "Status",
+        "date": "Data"
+      }
+    },
+    "common": {
+      "actions": "Akcje",
+      "edit": "Edytuj",
+      "delete": "Usuń",
+      "cancel": "Anuluj",
+      "save": "Zapisz",
+      "update": "Zaktualizuj",
+      "refresh": "Odśwież",
+      "loading": "Ładowanie...",
+      "visible": "Widoczny",
+      "hidden": "Ukryty",
+      "previous": "Poprzedni",
+      "next": "Następny",
+      "pageOf": "Strona {current} z {total}",
+      "showing": "Wyświetlanie {from}–{to} z {total} wyników"
+    },
+    "header": {
+      "profile": "Profil",
+      "settings": "Ustawienia",
+      "logout": "Wyloguj"
+    },
+    "brands": {
+      "title": "Zarządzanie markami",
+      "description": "Utrzymuj katalog marek dostępnych w sklepie.",
+      "addNew": "Dodaj nową markę",
+      "stats": {
+        "total": "Łączna liczba marek",
+        "totalDesc": "Zarejestrowane we wszystkich lokalizacjach",
+        "visible": "Widoczne marki",
+        "visibleDesc": "Aktualnie wyświetlane klientom",
+        "hidden": "Ukryte marki",
+        "hiddenDesc": "Dostępne do późniejszej aktywacji",
+        "linkedItems": "Powiązane produkty",
+        "linkedItemsDesc": "Łączna liczba produktów powiązanych z markami"
+      },
+      "table": {
+        "header": "Marki",
+        "empty": "Nie znaleziono marek. Utwórz pierwszą markę, aby rozpocząć.",
+        "alias": "Alias: {alias}",
+        "linked": "Powiązane produkty: {count}",
+        "created": "Utworzono",
+        "updated": "Zaktualizowano"
+      },
+      "modal": {
+        "addTitle": "Dodaj nową markę",
+        "editTitle": "Edytuj markę",
+        "addDesc": "Podaj informacje, aby zarejestrować nową markę.",
+        "editDesc": "Zaktualizuj dane marki i preferencje widoczności.",
+        "name": "Nazwa",
+        "namePlaceholder": "Nazwa marki",
+        "alias": "Alias",
+        "aliasPlaceholder": "Unikalny alias",
+        "imageUrl": "URL obrazu",
+        "imagePlaceholder": "https://example.com/brand.png",
+        "library": "Biblioteka",
+        "createdAt": "Data utworzenia",
+        "updatedAt": "Data aktualizacji",
+        "visible": "Widoczny",
+        "saving": "Zapisywanie…",
+        "cancel": "Anuluj",
+        "createBtn": "Utwórz markę",
+        "updateBtn": "Zaktualizuj markę"
+      },
+      "delete": {
+        "title": "Usuń markę",
+        "description": "Czy na pewno chcesz usunąć markę \"{name}\"? Tej akcji nie można cofnąć."
+      }
+    },
+    "categories": {
+      "title": "Zarządzanie kategoriami",
+      "description": "Zarządzaj kategoriami i podkategoriami produktów.",
+      "loading": "Ładowanie kategorii...",
+      "addNew": "Dodaj nową kategorię",
+      "stats": {
+        "total": "Łączna liczba kategorii",
+        "visible": "Widoczne",
+        "hidden": "Ukryte",
+        "withSubs": "Z podkategoriami"
+      },
+      "table": {
+        "header": "Wszystkie kategorie",
+        "description": "Lista wszystkich kategorii produktów w sklepie.",
+        "name": "Nazwa",
+        "slug": "Slug",
+        "subcategories": "Podkategorie",
+        "visibility": "Widoczność",
+        "actions": "Akcje",
+        "noSubs": "Brak podkategorii",
+        "moreSubs": "+{count} więcej",
+        "empty": "Nie znaleziono kategorii. Dodaj pierwszą kategorię, aby rozpocząć.",
+        "emptyPage": "Brak kategorii na tej stronie.",
+        "showing": "Wyświetlanie {from}–{to} z {total} wyników"
+      },
+      "delete": {
+        "title": "Usuń kategorię",
+        "cannotUndo": "Tej akcji nie można cofnąć.",
+        "deleting": "Usuwanie...",
+        "deleteBtn": "Usuń kategorię",
+        "networkError": "Błąd sieci. Spróbuj ponownie."
+      }
+    },
+    "orders": {
+      "title": "Zarządzanie zamówieniami",
+      "description": "Monitoruj i zarządzaj zamówieniami klientów.",
+      "stats": {
+        "total": "Łączna liczba zamówień",
+        "new": "Nowe zamówienia",
+        "processing": "W realizacji",
+        "revenue": "Przychód",
+        "fromCompleted": "Z {count} zrealizowanych zamówień"
+      },
+      "table": {
+        "header": "Wszystkie zamówienia",
+        "description": "Lista wszystkich zamówień klientów.",
+        "orderId": "ID zamówienia",
+        "customer": "Klient",
+        "items": "Produkty",
+        "total": "Suma",
+        "status": "Status",
+        "date": "Data",
+        "actions": "Akcje",
+        "view": "Podgląd",
+        "update": "Aktualizuj",
+        "itemsCount": "{count} produktów",
+        "more": "+{count} więcej",
+        "empty": "Nie znaleziono zamówień."
+      }
+    },
+    "payments": {
+      "title": "Zarządzanie płatnościami",
+      "description": "Monitoruj i zarządzaj transakcjami płatniczymi.",
+      "stats": {
+        "total": "Łączna liczba płatności",
+        "completed": "Zakończone",
+        "failed": "Nieudane",
+        "revenue": "Przychód"
+      },
+      "table": {
+        "header": "Wszystkie płatności",
+        "description": "Wyszukaj i filtruj transakcje płatnicze.",
+        "orderId": "ID zamówienia",
+        "clientEmail": "E-mail klienta",
+        "amount": "Kwota",
+        "paymentStatus": "Status płatności",
+        "orderStatus": "Status zamówienia",
+        "date": "Data",
+        "actions": "Akcje",
+        "empty": "Nie znaleziono płatności.",
+        "searchPlaceholder": "Szukaj po e-mailu lub ID zamówienia...",
+        "allStatuses": "Wszystkie statusy",
+        "pending": "Oczekująca",
+        "initiated": "Zainicjowana",
+        "processing": "W realizacji",
+        "completed": "Zakończona",
+        "failed": "Nieudana",
+        "cancelled": "Anulowana",
+        "refunded": "Zwrócona"
+      },
+      "refund": "Zwrot",
+      "refunding": "Przetwarzanie zwrotu...",
+      "refundConfirm": "Czy na pewno chcesz dokonać zwrotu tej płatności? Tej akcji nie można cofnąć.",
+      "refundSuccess": "Zwrot przetworzony pomyślnie"
+    },
+    "users": {
+      "title": "Zarządzanie użytkownikami",
+      "description": "Zarządzaj i monitoruj wszystkich użytkowników w aplikacji.",
+      "stats": {
+        "total": "Łączna liczba użytkowników",
+        "verified": "Zweryfikowani",
+        "verifiedPct": "{pct}% łącznie",
+        "admins": "Administratorzy",
+        "employers": "Pracownicy"
+      },
+      "table": {
+        "header": "Wszyscy użytkownicy",
+        "description": "Lista wszystkich użytkowników zarejestrowanych w aplikacji.",
+        "name": "Imię i nazwisko",
+        "email": "E-mail",
+        "company": "Nazwa firmy",
+        "role": "Rola",
+        "status": "Status",
+        "joined": "Dołączył",
+        "actions": "Akcje",
+        "noCompany": "Brak firmy",
+        "verified": "Zweryfikowany",
+        "unverified": "Niezweryfikowany"
+      },
+      "edit": {
+        "title": "Edytuj użytkownika",
+        "id": "ID",
+        "name": "Imię i nazwisko",
+        "email": "E-mail",
+        "company": "Firma",
+        "noCompany": "Brak firmy",
+        "created": "Utworzono",
+        "editableFields": "Edytowalne pola",
+        "role": "Rola",
+        "rolePlaceholder": "Wybierz rolę",
+        "roleUser": "Użytkownik",
+        "roleEmployee": "Pracownik",
+        "roleAdmin": "Administrator",
+        "emailVerified": "E-mail zweryfikowany",
+        "verified": "Zweryfikowany",
+        "notVerified": "Niezweryfikowany",
+        "discountLevel": "Poziom rabatu",
+        "revert": "Przywróć",
+        "update": "Zaktualizuj"
+      },
+      "delete": {
+        "title": "Usuń użytkownika",
+        "description": "Czy na pewno chcesz usunąć tego użytkownika? Tej akcji nie można cofnąć.",
+        "role": "Rola",
+        "created": "Utworzono",
+        "cancel": "Anuluj",
+        "deleteBtn": "Usuń użytkownika"
+      }
+    },
+    "warehouses": {
+      "title": "Zarządzanie magazynami",
+      "description": "Zarządzaj lokalizacjami magazynów i dystrybucją zapasów.",
+      "addNew": "Dodaj nowy magazyn",
+      "stats": {
+        "total": "Łączna liczba magazynów",
+        "countries": "Kraje",
+        "visible": "Widoczne magazyny"
+      },
+      "table": {
+        "header": "Wszystkie magazyny",
+        "description": "Zarządzaj lokalizacjami magazynów i ich widocznością.",
+        "displayedName": "Wyświetlana nazwa",
+        "name": "Nazwa",
+        "country": "Kraj",
+        "itemPrices": "Ceny produktów",
+        "prices": "{count} cen",
+        "visibility": "Widoczność",
+        "actions": "Akcje",
+        "showing": "Wyświetlanie {from}–{to} z {total} magazynów",
+        "pageOf": "Strona {current} z {total}"
+      },
+      "vat": {
+        "header": "Kraje magazynów — VAT",
+        "description": "Ustaw procent VAT dla każdego kraju magazynu.",
+        "country": "Kraj",
+        "slug": "Slug",
+        "code": "Kod",
+        "vatPct": "VAT (%)",
+        "action": "Akcja",
+        "save": "Zapisz",
+        "vatError": "VAT musi być liczbą między 0 a 100"
+      },
+      "delete": {
+        "title": "Usuń magazyn",
+        "description": "Czy na pewno chcesz usunąć magazyn \"{name}\" w {country}? Tej akcji nie można cofnąć i wpłynie na wszystkie powiązane produkty i ceny."
+      }
+    },
+    "currencies": {
+      "title": "Kursy walut",
+      "description": "Zarządzaj kursami wymiany walut",
+      "tableTitle": "Kursy wymiany",
+      "from": "Waluta źródłowa",
+      "to": "Waluta docelowa",
+      "rate": "Kurs",
+      "action": "Akcja",
+      "loading": "Ładowanie...",
+      "noRates": "Brak zdefiniowanych kursów wymiany",
+      "update": "Zaktualizuj",
+      "delete": "Usuń",
+      "selectFrom": "Skąd",
+      "selectTo": "Dokąd",
+      "addRate": "Dodaj kurs",
+      "errors": {
+        "positiveNumber": "Kurs musi być liczbą dodatnią",
+        "fetchFailed": "Nie udało się pobrać kursów wymiany",
+        "unexpected": "Wystąpił nieoczekiwany błąd"
+      }
+    },
+    "banners": {
+      "delete": {
+        "title": "Czy jesteś pewny?",
+        "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
+        "cannotUndo": "Tej akcji nie można cofnąć.",
+        "deleteBtn": "Usuń baner"
+      }
+    },
+    "items": {
+      "title": "Zarządzanie produktami",
+      "description": "Zarządzaj wszystkimi produktami i pozycjami magazynowymi.",
+      "addNew": "Dodaj nowy produkt",
+      "regenSlugs": "Regeneruj sligi",
+      "regenSlugsLoading": "Regenerowanie...",
+      "stats": {
+        "total": "Łącznie",
+        "totalDesc": "produktów",
+        "selected": "Wybrane",
+        "displayed": "Wyświetlane",
+        "hidden": "Ukryte",
+        "ofTotal": "z {total}",
+        "ofSelected": "z {total} wybranych"
+      },
+      "table": {
+        "header": "Nazwa",
+        "description": "Opis",
+        "image": "Zdjęcie",
+        "articleId": "Nr artykułu",
+        "brand": "Marka",
+        "category": "Kategoria",
+        "quantity": "Ilość",
+        "status": "Status",
+        "actions": "Akcje",
+        "visible": "Widoczny",
+        "hidden": "Ukryty",
+        "uncategorized": "Bez kategorii"
+      },
+      "search": {
+        "placeholder": "Szukaj produktów...",
+        "minChars": "Wpisz min. 2 znaki",
+        "searching": "Szukanie..."
+      },
+      "filters": {
+        "brand": "Marka",
+        "allBrands": "Wszystkie marki",
+        "category": "Kategoria",
+        "allCategories": "Wszystkie kategorie",
+        "hideHidden": "Ukryj ukryte",
+        "visibleOnly": "Tylko widoczne",
+        "showAll": "Pokaż wszystkie",
+        "perPage": "Na stronę",
+        "clearAll": "Wyczyść filtry"
+      },
+      "batch": {
+        "pageSelected": "Wybrano {count} na stronie",
+        "allSelected": "Wybrano wszystkie {total}",
+        "selectAll": "Wybierz wszystkie {total}",
+        "makeVisible": "Ustaw widoczne",
+        "hide": "Ukryj",
+        "delete": "Usuń",
+        "translate": "Tłumacz",
+        "clear": "Wyczyść"
+      },
+      "pagination": {
+        "showing": "Wyświetlanie {from}–{to} z {total}"
+      },
+      "empty": {
+        "filtered": "Nie znaleziono produktów spełniających kryteria.",
+        "empty": "Nie ma jeszcze żadnych produktów."
+      },
+      "delete": {
+        "title": "Usuń produkt",
+        "description": "Czy na pewno chcesz usunąć produkt \"{name}\" (ID artykułu: {articleId})? Tej akcji nie można cofnąć i zostaną usunięte wszystkie powiązane dane."
+      }
+    },
+    "discountLevels": {
+      "title": "Poziomy rabatów",
+      "description": "Zarządzaj poziomami rabatów i przypisuj je użytkownikom.",
+      "addNew": "Dodaj nowy poziom",
+      "empty": {
+        "title": "Brak poziomów rabatu",
+        "description": "Utwórz swój pierwszy poziom rabatu, klikając przycisk powyżej."
+      },
+      "table": {
+        "level": "Poziom",
+        "discountPct": "Rabat %",
+        "usersCount": "Użytkownicy",
+        "createdAt": "Utworzono",
+        "actions": "Akcje",
+        "levelCell": "Poziom {level}",
+        "usersCell": "{count} użytkownik(ów)"
+      },
+      "modal": {
+        "addTitle": "Dodaj poziom rabatu",
+        "editTitle": "Edytuj poziom rabatu",
+        "levelLabel": "Numer poziomu",
+        "levelPlaceholder": "np. 1",
+        "levelHint": "Unikalna liczba całkowita identyfikująca poziom",
+        "discountLabel": "Procent rabatu",
+        "discountPlaceholder": "np. 10",
+        "discountHint": "Wartość od 0 do 100",
+        "levelError": "Poziom musi być liczbą całkowitą większą od 0",
+        "discountError": "Rabat musi wynosić od 0 do 100",
+        "creating": "Tworzenie...",
+        "updating": "Aktualizowanie...",
+        "createBtn": "Utwórz poziom",
+        "updateBtn": "Zapisz zmiany",
+        "cancel": "Anuluj"
+      },
+      "delete": {
+        "title": "Usuń poziom rabatu",
+        "description": "Czy na pewno chcesz usunąć poziom rabatu {level} ({percentage}%)?",
+        "hasUsers": "Ten poziom rabatu jest aktualnie przypisany do {count} użytkownika/użytkowników. Usunięcie spowoduje usunięcie poziomu rabatu od wszystkich przypisanych użytkowników.",
+        "warningTitle": "Uwaga: Użytkownicy zostaną dotknięci",
+        "cannotUndo": "Tej operacji nie można cofnąć.",
+        "deleting": "Usuwanie...",
+        "deleteBtn": "Usuń poziom",
+        "successMsg": "Poziom rabatu został pomyślnie usunięty!"
+      }
+    },
+    "delivery": {
+      "title": "Dostawa",
+      "description": "Zarządzaj ustawieniami dostawy i metodami wysyłki.",
+      "stats": {
+        "active": "Aktywne dostawy",
+        "today": "Dostarczone dzisiaj",
+        "pending": "Oczekujące wysyłki",
+        "avgTime": "Śr. czas dostawy",
+        "days": "dni"
+      },
+      "shipping": {
+        "title": "Metody wysyłki",
+        "standard": "Dostawa standardowa",
+        "express": "Dostawa ekspresowa",
+        "pickup": "Odbiór osobisty",
+        "days": "dni",
+        "free": "Bezpłatna",
+        "enabled": "Włączona",
+        "disabled": "Wyłączona"
+      },
+      "carriers": {
+        "title": "Firmy kurierskie",
+        "dhl": "DHL Express",
+        "inPost": "InPost Paczkomat",
+        "polish": "Poczta Polska",
+        "active": "Aktywna",
+        "inactive": "Nieaktywna"
+      }
+    },
+    "promo": {
+      "title": "Zarządzanie promocjami",
+      "description": "Zarządzaj promocjami, kodami rabatowymi i oznaczeniami produktów.",
+      "tabs": {
+        "promos": "Promocje",
+        "badges": "Oznaczenia"
+      },
+      "promos": {
+        "title": "Aktywne promocje",
+        "comingSoon": "Wkrótce..."
+      },
+      "badges": {
+        "title": "Produkty z oznaczeniami",
+        "allBadges": "Wszystkie oznaczenia",
+        "assignBadge": "Przypisz oznaczenie",
+        "loading": "Ładowanie...",
+        "empty": "Nie znaleziono produktów z aktywnymi oznaczeniami.",
+        "table": {
+          "articleId": "Nr artykułu",
+          "name": "Nazwa",
+          "badge": "Oznaczenie",
+          "warehouse": "Magazyn",
+          "priceQty": "Cena / Ilość",
+          "actions": "Akcje"
+        },
+        "names": {
+          "NEW_ARRIVALS": "Nowości",
+          "BESTSELLER": "Bestseller",
+          "HOT_DEALS": "Gorące okazje",
+          "LIMITED_EDITION": "Limitowana edycja",
+          "USED": "Używane",
+          "ABSENT": "Brak (Usuń)"
+        }
+      },
+      "editBadge": {
+        "title": "Edytuj oznaczenie",
+        "articleId": "Nr artykułu",
+        "warehouse": "Magazyn",
+        "badge": "Oznaczenie",
+        "cancel": "Anuluj",
+        "saving": "Zapisywanie...",
+        "save": "Zapisz"
+      },
+      "assignBadge": {
+        "title": "Przypisz oznaczenie do produktu",
+        "articleId": "Nr artykułu",
+        "placeholder": "Wpisz nr artykułu...",
+        "search": "Szukaj",
+        "searching": "...",
+        "pricingVariant": "Wariant cenowy (Magazyn)",
+        "badge": "Oznaczenie",
+        "cancel": "Anuluj",
+        "saving": "Zapisywanie...",
+        "assign": "Przypisz"
+      }
+    },
+    "messages": {
+      "title": "Wiadomości",
+      "description": "Zarządzaj wiadomościami i zapytaniami od klientów.",
+      "stats": {
+        "total": "Łącznie wiadomości",
+        "today": "Dzisiaj",
+        "todayDesc": "wiadomości dzisiaj",
+        "thisWeek": "W tym tygodniu",
+        "thisWeekDesc": "wiadomości w tym tygodniu"
+      },
+      "table": {
+        "header": "Ostatnie wiadomości",
+        "description": "Najnowsze wiadomości i zapytania klientów.",
+        "customer": "Klient",
+        "orderId": "ID zamówienia",
+        "message": "Wiadomość",
+        "date": "Data",
+        "actions": "Akcje",
+        "view": "Pokaż",
+        "reply": "Odpowiedz",
+        "delete": "Usuń",
+        "empty": "Nie znaleziono wiadomości."
+      },
+      "quickActions": {
+        "title": "Szybkie akcje",
+        "description": "Typowe zadania zarządzania wiadomościami.",
+        "broadcast": "Wyślij do wszystkich",
+        "templates": "Szablony wiadomości",
+        "autoResponses": "Automatyczne odpowiedzi",
+        "export": "Eksportuj wiadomości"
+      }
+    },
+    "bulkUpload": {
+      "title": "Masowe przesyłanie",
+      "description": "Importuj pliki CSV lub Excel, aby zaktualizować ceny i stany magazynowe",
+      "exportItems": "Eksportuj produkty",
+      "bulkActions": "Masowe akcje",
+      "bulkActionsModal": {
+        "title": "Masowe akcje",
+        "updateSchneider": "Zaktualizuj ceny Schneider Ukraine",
+        "updating": "Aktualizowanie...",
+        "done": "Gotowe",
+        "updated": "Zaktualizowano",
+        "created": "Utworzono"
+      },
+      "modes": {
+        "prices": "Ceny i stany magazynowe",
+        "descriptions": "Opisy produktów"
+      },
+      "mapping": {
+        "title": "Mapowanie kolumn",
+        "description": "Przeciągnij etykiety do nagłówków tabeli poniżej",
+        "required": "Wymagane pola",
+        "optional": "Opcjonalne pola",
+        "translation": "Pola tłumaczeń",
+        "item": "Pola produktu"
+      },
+      "uploadBtn": "Prześlij produkty",
+      "uploadingBtn": "Przesyłanie..."
+    },
+    "pages": {
+      "title": "Zarządzanie stronami",
+      "description": "Twórz i zarządzaj stronami i treściami.",
+      "createNew": "Utwórz nową stronę",
+      "loading": "Ładowanie...",
+      "availableTranslations": "Dostępne tłumaczenia: {count} z {total}",
+      "published": "Opublikowane",
+      "draft": "Szkic",
+      "missing": "Brak",
+      "noTranslation": "Brak tłumaczenia",
+      "updatedAt": "Zaktualizowano: {date}",
+      "edit": "Edytuj",
+      "hide": "Ukryj",
+      "show": "Pokaż",
+      "create": "Utwórz",
+      "empty": "Nie ma jeszcze żadnych stron. Utwórz pierwszą!",
+      "createPage": "Utwórz stronę",
+      "confirmDelete": "Czy na pewno chcesz usunąć tę stronę?",
+      "deleteError": "Nie udało się usunąć strony",
+      "publishError": "Nie udało się zaktualizować statusu strony"
+    },
+    "banners": {
+      "title": "Zarządzanie banerami",
+      "description": "Zarządzaj banerami wyświetlanymi na stronie głównej.",
+      "addNew": "Dodaj baner",
+      "filters": {
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "stats": {
+        "total": "Łącznie banerów",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "list": {
+        "dragToReorder": "Przeciągnij, aby zmienić kolejność",
+        "listTitle": "Banery — {pos} — {dev} — {loc}",
+        "empty": "Brak banerów",
+        "createFirst": "Utwórz swój pierwszy baner",
+        "untitled": "Baner bez tytułu",
+        "order": "Kolejność: {order}"
+      },
+      "modal": {
+        "addTitle": "Dodaj nowy baner",
+        "editTitle": "Edytuj baner",
+        "titleLabel": "Tytuł (opcjonalnie)",
+        "titlePlaceholder": "Wpisz tytuł banera",
+        "imageUrl": "URL obrazu *",
+        "imageUrlPlaceholder": "https://example.com/baner.jpg",
+        "linkUrl": "URL linku (opcjonalnie)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Pozycja",
+        "device": "Urządzenie",
+        "locale": "Język",
+        "active": "Aktywny",
+        "activeDesc": "Wyświetl ten baner odwiedzającym",
+        "saving": "Zapisywanie...",
+        "cancel": "Anuluj",
+        "createBtn": "Utwórz baner",
+        "updateBtn": "Zaktualizuj baner"
+      },
+      "delete": {
+        "title": "Czy jesteś pewny?",
+        "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
+        "cannotUndo": "Tej akcji nie można cofnąć.",
+        "deleteBtn": "Usuń baner"
+      }
+    },
+    "uploads": {
+      "title": "Zarządzanie zdjęciami",
+      "description": "Zarządzaj przesłanymi zdjęciami dla strony",
+      "uploadMultiple": "Prześlij wiele",
+      "uploadImage": "Prześlij zdjęcie",
+      "searchPlaceholder": "Szukaj po nazwie pliku...",
+      "pathPlaceholder": "Filtruj według ścieżki...",
+      "stats": "{count} zdjęć łącznie",
+      "statsFiltered": " (przefiltrowane)",
+      "empty": {
+        "title": "Nie przesłano jeszcze żadnych zdjęć",
+        "uploadBtn": "Prześlij swoje pierwsze zdjęcie"
+      },
+      "pagination": {
+        "previous": "Poprzednia",
+        "next": "Następna",
+        "pageOf": "Strona {current} z {total}"
+      },
+      "uploadDialog": {
+        "title": "Prześlij zdjęcie",
+        "description": "Wybierz plik, ustaw ścieżkę i nazwę pliku.",
+        "fileLabel": "Plik zdjęcia",
+        "pathLabel": "Cieśka",
+        "pathHint": "(np. products/omron)",
+        "pathDescription": "Katalog w magazynie plików. Zostaw puste dla głównego.",
+        "fileNameLabel": "Nazwa pliku",
+        "fileNameHint": "(opcjonalnie)",
+        "fileNamePlaceholder": "niestandardowa-nazwa (rozszerzenie dodane automatycznie)",
+        "fileNameDescription": "Zostaw puste, aby użyć oryginalnej nazwy.",
+        "cancel": "Anuluj",
+        "uploading": "Przesyłanie...",
+        "upload": "Prześlij"
+      },
+      "editDialog": {
+        "title": "Edytuj zdjęcie",
+        "description": "Zmień nazwę pliku lub przenieś do innej ścieżki.",
+        "fileNameLabel": "Nazwa pliku",
+        "fileNameHint": "Rozszerzenie zostanie zachowane automatycznie.",
+        "pathLabel": "Ścieżka",
+        "cancel": "Anuluj",
+        "saving": "Zapisywanie...",
+        "saveBtn": "Zapisz zmiany"
+      },
+      "deleteDialog": {
+        "title": "Usuń zdjęcie",
+        "description": "Czy na pewno chcesz usunąć \"{name}\"? Plik zostanie usunięty z dysku i nie można tego cofnąć.",
+        "cancel": "Anuluj",
+        "deleting": "Usuwanie...",
+        "deleteBtn": "Usuń"
+      },
+      "multiUpload": {
+        "title": "Prześlij wiele zdjęć",
+        "description": "Wybierz wiele plików do przesłania. Zostaną zapisane z oryginalnymi nazwami.",
+        "selectedFiles": "Wybrano {count} plików",
+        "pathLabel": "Ścieżka",
+        "pathHint": "(np. products/gallery)",
+        "pathDescription": "Katalog dla wszystkich wybranych plików. Zostaw puste dla głównego.",
+        "uploading": "Przesyłanie...",
+        "uploadingProgress": "{current} / {total}",
+        "cancel": "Anuluj",
+        "uploadAll": "Prześlij wszystkie"
+      },
+      "copyUrl": "Kopiuj URL",
+      "edit": "Edytuj",
+      "delete": "Usuń"
+    },
+    "orderStatus": {
+      "statusLabel": "Status zamówienia",
+      "deliveryId": "ID dostawy",
+      "deliveryPlaceholder": "Wprowadź ID dostawy...",
+      "updating": "Aktualizowanie...",
+      "updateBtn": "Zaktualizuj status",
+      "noPermission": "Nie masz uprawnień do aktualizacji tego zamówienia."
+    },
+    "warehouseModal": {
+      "addTitle": "Dodaj magazyn",
+      "editTitle": "Edytuj magazyn",
+      "addDesc": "Dodaj nowy magazyn do systemu.",
+      "editDesc": "Zaktualizuj dane magazynu.",
+      "displayedName": "Wyświetlana nazwa",
+      "displayedNamePlaceholder": "Wyświetlana nazwa magazynu",
+      "name": "Nazwa (wewnętrzna)",
+      "namePlaceholder": "Wewnętrzna nazwa magazynu",
+      "country": "Kraj",
+      "visible": "Widoczny",
+      "deliveryPoland": "Dostawa do Polski",
+      "deliveryUkraine": "Dostawa do Ukrainy",
+      "deliveryEurope": "Dostawa do Europy",
+      "days": "Dni",
+      "daysPlaceholder": "np. 3-5",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "createBtn": "Utwórz magazyn",
+      "updateBtn": "Zaktualizuj magazyn"
+    },
+    "categoryModal": {
+      "addTitle": "Dodaj kategorię",
+      "editTitle": "Edytuj kategorię",
+      "addDesc": "Utwórz nową kategorię produktów.",
+      "editDesc": "Zaktualizuj dane kategorii.",
+      "image": "Zdjęcie",
+      "defaultName": "Domyślna nazwa",
+      "slug": "Slug",
+      "categoryTranslations": "Tłumaczenia kategorii",
+      "subcategories": "Podkategorie",
+      "newSubcategoryPlaceholder": "Nowa podkategoria...",
+      "name": "Nazwa",
+      "visible": "Widoczna",
+      "translations": "Tłumaczenia",
+      "displayCategory": "Wyświetl kategorię",
+      "displayCategoryDesc": "Pokaż tę kategorię w nawigacji",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "createBtn": "Utwórz kategorię",
+      "updateBtn": "Zaktualizuj kategorię",
+      "networkError": "Błąd sieci. Spróbuj ponownie."
+    },
+    "bannerModal": {
+      "addTitle": "Dodaj nowy baner",
+      "editTitle": "Edytuj baner",
+      "titleLabel": "Tytuł",
+      "titlePlaceholder": "Tytuł banera",
+      "subtitle": "Podtytuł",
+      "subtitlePlaceholder": "Podtytuł banera",
+      "link": "Link",
+      "linkPlaceholder": "https://",
+      "image": "Zdjęcie",
+      "active": "Aktywny",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "createBtn": "Utwórz baner",
+      "updateBtn": "Zaktualizuj baner"
+    },
+    "priceModal": {
+      "title": "Edytuj cenę",
+      "description": "Zaktualizuj ceny i dostępność w magazynie",
+      "warehouse": "Magazyn",
+      "warehousePlaceholder": "Wybierz magazyn",
+      "price": "Cena",
+      "quantity": "Ilość",
+      "promoPrice": "Cena promocyjna",
+      "badge": "Oznaczenie",
+      "promoCode": "Kod promocyjny",
+      "promoCodePlaceholder": "Kod promocyjny",
+      "promoEndDate": "Data zakończenia promocji",
+      "margin": "Marża",
+      "initialPrice": "Cena początkowa",
+      "initialCurrency": "Waluta początkowa",
+      "currencyPlaceholder": "Wybierz walutę",
+      "cancel": "Anuluj",
+      "saveBtn": "Zapisz zmiany",
+      "badgeNone": "Brak",
+      "badgeNew": "Nowości",
+      "badgeBest": "Bestseller",
+      "badgeHot": "Gorące okazje",
+      "badgeLimited": "Limitowana edycja"
+    },
+    "detailModal": {
+      "title": "Edytuj szczegóły",
+      "description": "Zaktualizuj szczegóły produktu dla wybranego języka",
+      "localeLabel": "Język",
+      "localePlaceholder": "Wybierz język",
+      "itemName": "Nazwa produktu",
+      "itemNamePlaceholder": "Nazwa produktu",
+      "seller": "Sprzedawca",
+      "sellerPlaceholder": "Nazwa sprzedawcy",
+      "discount": "Rabat (%)",
+      "discountPlaceholder": "np. 10",
+      "description": "Opis",
+      "descriptionPlaceholder": "Opis produktu",
+      "specifications": "Specyfikacje",
+      "specificationsPlaceholder": "Specyfikacje produktu",
+      "cancel": "Anuluj",
+      "saveBtn": "Zapisz zmiany"
+    },
+    "translateModal": {
+      "title": "Tłumacz produkty",
+      "summary": "Tłumaczenie {current} z {total} produktów",
+      "done": "Gotowe",
+      "sourceLabel": "Język źródłowy",
+      "targetLabel": "Języki docelowe",
+      "loading": "Ładowanie...",
+      "empty": "Brak produktów do tłumaczenia",
+      "noTranslations": "Brak tłumaczeń",
+      "localesLabel": "Dostępne języki",
+      "noTranslationsAvailable": "Brak dostępnych tłumaczeń",
+      "fields": {
+        "name": "Nazwa",
+        "description": "Opis",
+        "specifications": "Specyfikacje",
+        "metaDescription": "Meta opis",
+        "metaKeywords": "Meta słowa kluczowe"
+      },
+      "translated": "Przetłumaczone",
+      "close": "Zamknij",
+      "cancel": "Anuluj",
+      "translating": "Tłumaczenie...",
+      "translateBtn": "Tłumacz"
+    },
+    "exportModal": {
+      "title": "Eksportuj produkty",
+      "subtitle": "Skonfiguruj opcje eksportu",
+      "sectionLocales": "Języki",
+      "localesSubtitle": "Wybierz języki do eksportu",
+      "localesNote": "Dane zostaną wyeksportowane dla każdego wybranego języka",
+      "sectionFields": "Pola",
+      "fieldsSubtitle": "Wybierz pola do eksportu",
+      "sectionFormat": "Format",
+      "selectAll": "Zaznacz wszystkie",
+      "selectNone": "Odznacz wszystkie",
+      "groups": {
+        "basic": "Podstawowe",
+        "pricing": "Ceny",
+        "meta": "Meta"
+      },
+      "footerStats": "Wybrano {fields} pole(s) w {locales} języku/językach",
+      "footerStatsPlural": "Wybrano {fields} pól w {locales} językach",
+      "cancel": "Anuluj",
+      "exporting": "Eksportowanie...",
+      "exportBtn": "Eksportuj",
+      "selectFieldError": "Wybierz co najmniej jedno pole"
+    },
+    "imagePicker": {
+      "label": "Wybierz zdjęcie",
+      "dialogTitle": "Wybierz zdjęcie",
+      "searchPlaceholder": "Szukaj plików...",
+      "empty": "Nie znaleziono zdjęć",
+      "paginationInfo": "Strona {page} z {total}",
+      "selectPrompt": "Wybierz zdjęcie z biblioteki",
+      "cancel": "Anuluj",
+      "select": "Wybierz"
+    }
   }
 }

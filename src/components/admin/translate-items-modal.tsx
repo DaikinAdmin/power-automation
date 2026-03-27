@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,7 @@ interface TranslateItemsModalProps {
 }
 
 export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: TranslateItemsModalProps) {
+  const t = useTranslations('adminDashboard');
   const [items, setItems] = useState<Record<string, ItemTranslationData>>({});
   const [removedSlugs, setRemovedSlugs] = useState<Set<string>>(new Set());
   const [sourceLang, setSourceLang] = useState<LocaleCode>('pl');
@@ -166,11 +168,11 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Translate Products</DialogTitle>
+          <DialogTitle>{t('translateModal.title')}</DialogTitle>
           <DialogDescription>
             {translationDone
-              ? 'Translation complete. Review results below.'
-              : `${currentItems.length} product(s) selected for translation.`}
+              ? t('translateModal.done')
+              : t('translateModal.summary', { count: currentItems.length })}
           </DialogDescription>
         </DialogHeader>
 
@@ -178,7 +180,7 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
         {!translationDone && (
           <div className="flex flex-wrap items-center gap-4 py-3 border-b">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap">Source:</label>
+              <label className="text-sm font-medium whitespace-nowrap">{t('translateModal.sourceLabel')}</label>
               <select
                 value={sourceLang}
                 onChange={(e) => setSourceLang(e.target.value as LocaleCode)}
@@ -191,7 +193,7 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
             </div>
 
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium whitespace-nowrap">Translate to:</label>
+              <label className="text-sm font-medium whitespace-nowrap">{t('translateModal.targetLabel')}</label>
               {LOCALES.filter(l => l.code !== sourceLang).map(l => (
                 <label
                   key={l.code}
@@ -215,10 +217,10 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-              <span className="ml-2 text-sm text-gray-500">Loading products...</span>
+              <span className="ml-2 text-sm text-gray-500">{t('translateModal.loading')}</span>
             </div>
           ) : currentItems.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">No items selected</div>
+            <div className="text-center py-12 text-gray-500">{t('translateModal.empty')}</div>
           ) : (
             currentItems.map(([slug, data]) => {
               const isExpanded = expandedItems.has(slug);
@@ -247,8 +249,8 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
                       )}
                       <span className="text-xs text-gray-400">
                         {localeKeys.length > 0
-                          ? `Locales: ${localeKeys.join(', ').toUpperCase()}`
-                          : 'No translations'}
+                          ? `${t('translateModal.localesLabel')} ${localeKeys.join(', ').toUpperCase()}`
+                          : t('translateModal.noTranslationsAvailable')}
                       </span>
                     </div>
                     {!translationDone && (
@@ -270,7 +272,7 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
                   {isExpanded && (
                     <div className="px-4 pb-3 border-t">
                       {localeKeys.length === 0 ? (
-                        <p className="text-sm text-gray-400 py-2">No translations available.</p>
+                        <p className="text-sm text-gray-400 py-2">{t('translateModal.noTranslations')}</p>
                       ) : (
                         <div className="space-y-3 pt-3">
                           {localeKeys.map(locale => {
@@ -283,34 +285,34 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
                                   </span>
                                   {translationDone && targetLangs.has(locale as LocaleCode) && (
                                     <span className="flex items-center gap-1 text-xs text-green-600">
-                                      <Check className="w-3 h-3" /> translated
+                                      <Check className="w-3 h-3" /> {t('translateModal.translated')}
                                     </span>
                                   )}
                                 </div>
                                 <div className="grid gap-1.5 text-xs">
                                   <div>
-                                    <span className="font-medium text-gray-500">Name: </span>
+                                    <span className="font-medium text-gray-500">{t('translateModal.fields.name')} </span>
                                     <span className="text-gray-800">{fields.itemName}</span>
                                   </div>
                                   <div>
-                                    <span className="font-medium text-gray-500">Description: </span>
+                                    <span className="font-medium text-gray-500">{t('translateModal.fields.description')} </span>
                                     <span className="text-gray-800 line-clamp-2">{fields.description}</span>
                                   </div>
                                   {fields.specifications && (
                                     <div>
-                                      <span className="font-medium text-gray-500">Specifications: </span>
+                                      <span className="font-medium text-gray-500">{t('translateModal.fields.specifications')} </span>
                                       <span className="text-gray-800 line-clamp-2">{fields.specifications}</span>
                                     </div>
                                   )}
                                   {fields.metaDescription && (
                                     <div>
-                                      <span className="font-medium text-gray-500">Meta Description: </span>
+                                      <span className="font-medium text-gray-500">{t('translateModal.fields.metaDescription')} </span>
                                       <span className="text-gray-800 line-clamp-1">{fields.metaDescription}</span>
                                     </div>
                                   )}
                                   {fields.metaKeyWords && (
                                     <div>
-                                      <span className="font-medium text-gray-500">Meta Keywords: </span>
+                                      <span className="font-medium text-gray-500">{t('translateModal.fields.metaKeywords')} </span>
                                       <span className="text-gray-800 line-clamp-1">{fields.metaKeyWords}</span>
                                     </div>
                                   )}
@@ -331,11 +333,11 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
         {/* Footer */}
         <DialogFooter className="border-t pt-4">
           {translationDone ? (
-            <Button onClick={onClose}>Close</Button>
+            <Button onClick={onClose}>{t('translateModal.close')}</Button>
           ) : (
             <>
               <Button variant="outline" onClick={onClose} disabled={isTranslating}>
-                Cancel
+                {t('translateModal.cancel')}
               </Button>
               <Button
                 onClick={handleTranslate}
@@ -345,10 +347,10 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
                 {isTranslating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Translating...
+                    {t('translateModal.translating')}
                   </>
                 ) : (
-                  `Translate ${currentItems.length} item(s)`
+                  t('translateModal.translateBtn', { count: currentItems.length })
                 )}
               </Button>
             </>

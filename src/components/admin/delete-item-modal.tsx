@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Item } from '@/helpers/types/item';
@@ -18,34 +19,34 @@ export function DeleteItemModal({
   onConfirm, 
   item 
 }: DeleteItemModalProps) {
+  const t = useTranslations('adminDashboard');
+
   if (!item) return null;
+
+  const itemName = item.itemDetails?.[0]?.itemName || 'Unnamed Item';
+  const brandName = item.brand?.name || item.brandSlug || '';
 
   const handleConfirm = async () => {
     await onConfirm(item);
     onClose();
   };
 
-  const itemName = item.itemDetails?.[0]?.itemName || 'Unnamed Item';
-  const brandName = item.brand?.name || item.brandSlug || '';
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Item</DialogTitle>
+          <DialogTitle>{t('items.delete.title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the item "{itemName}" {brandName ? `by ${brandName}` : ''} 
-            (Article ID: {item.articleId})? This action cannot be undone and will remove all associated 
-            data including prices, details, and related records.
+            {t('items.delete.description', { name: itemName, articleId: item.articleId })}
           </DialogDescription>
         </DialogHeader>
         
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="button" variant="destructive" onClick={handleConfirm}>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,14 @@ export function PriceEditModal({
   priceEntry,
   onSave,
 }: PriceEditModalProps) {
+  const t = useTranslations('adminDashboard');
+  const badgeLabels: Record<string, string> = {
+    ABSENT: t('priceModal.badgeNone'),
+    NEW_ARRIVALS: t('priceModal.badgeNew'),
+    BESTSELLER: t('priceModal.badgeBest'),
+    HOT_DEALS: t('priceModal.badgeHot'),
+    LIMITED_EDITION: t('priceModal.badgeLimited'),
+  };
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [formData, setFormData] = useState<ItemPrice>({
     id: "",
@@ -121,16 +130,16 @@ export function PriceEditModal({
     <Dialog open={isOpen} onOpenChange={handleCancel}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Price Details</DialogTitle>
+          <DialogTitle>{t('priceModal.title')}</DialogTitle>
           <DialogDescription>
-            Update the pricing information for this item.
+            {t('priceModal.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Warehouse *</Label>
+              <Label>{t('priceModal.warehouse')}</Label>
               <select
                 value={formData.warehouseId}
                 onChange={(e) =>
@@ -142,7 +151,7 @@ export function PriceEditModal({
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
                 required
               >
-                <option value="">Select Warehouse</option>
+                <option value="">{t('priceModal.warehousePlaceholder')}</option>
                 {warehouses.map((warehouse) => (
                   <option key={warehouse.id} value={warehouse.id}>
                     {warehouse.displayedName || warehouse.name}
@@ -152,7 +161,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Price(calculated from initPrice&margin) *</Label>
+              <Label>{t('priceModal.price')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -171,7 +180,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Quantity *</Label>
+              <Label>{t('priceModal.quantity')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -189,7 +198,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Promotion Price</Label>
+              <Label>{t('priceModal.promoPrice')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -209,7 +218,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Badge</Label>
+              <Label>{t('priceModal.badge')}</Label>
               <select
                 value={formData.badge || "ABSENT"}
                 onChange={(e) =>
@@ -222,14 +231,14 @@ export function PriceEditModal({
               >
                 {badgeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {badgeLabels[option.value] ?? option.value}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <Label>Promo Code</Label>
+              <Label>{t('priceModal.promoCode')}</Label>
               <Input
                 value={formData.promoCode || ""}
                 onChange={(e) =>
@@ -239,12 +248,12 @@ export function PriceEditModal({
                   }))
                 }
                 className="mt-1"
-                placeholder="Enter promo code"
+                placeholder={t('priceModal.promoCodePlaceholder')}
               />
             </div>
 
             <div>
-              <Label>Promo End Date</Label>
+              <Label>{t('priceModal.promoEndDate')}</Label>
               <Input
                 type="date"
                 value={
@@ -267,7 +276,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Margin (%)</Label>
+              <Label>{t('priceModal.margin')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -286,7 +295,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Initial Price</Label>
+              <Label>{t('priceModal.initialPrice')}</Label>
               <Input
                 type="number"
                 min="0"
@@ -306,7 +315,7 @@ export function PriceEditModal({
             </div>
 
             <div>
-              <Label>Initial Currency</Label>
+              <Label>{t('priceModal.initialCurrency')}</Label>
               <select
                 value={formData.initialCurrency ?? ""}
                 onChange={(e) =>
@@ -317,7 +326,7 @@ export function PriceEditModal({
                 }
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white mt-1"
               >
-                <option value="">Select Currency</option>
+                <option value="">{t('priceModal.currencyPlaceholder')}</option>
                 <option value="EUR">EUR</option>
                 <option value="PLN">PLN</option>
                 <option value="UAH">UAH</option>
@@ -329,18 +338,18 @@ export function PriceEditModal({
 
         <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={handleCancel}>
-            Cancel
+            {t('priceModal.cancel')}
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>{t('priceModal.saveBtn')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 const badgeOptions = [
-  { value: "ABSENT", label: "None" },
-  { value: "NEW_ARRIVALS", label: "New Arrivals" },
-  { value: "BESTSELLER", label: "Bestseller" },
-  { value: "HOT_DEALS", label: "Hot Deals" },
-  { value: "LIMITED_EDITION", label: "Limited Edition" },
+  { value: "ABSENT" },
+  { value: "NEW_ARRIVALS" },
+  { value: "BESTSELLER" },
+  { value: "HOT_DEALS" },
+  { value: "LIMITED_EDITION" },
 ];

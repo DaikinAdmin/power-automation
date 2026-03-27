@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,6 +35,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations('adminDashboard');
 
   useEffect(() => {
     let isMounted = true;
@@ -83,9 +85,9 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Orders Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('orders.title')}</h1>
         <p className="text-gray-600">
-          Monitor and manage customer orders.
+          {t('orders.description')}
         </p>
       </div>
 
@@ -93,7 +95,7 @@ export default function OrdersPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('orders.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{orderStats.total}</div>}
@@ -102,7 +104,7 @@ export default function OrdersPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('orders.stats.new')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{orderStats.new}</div>}
@@ -111,7 +113,7 @@ export default function OrdersPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Processing</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('orders.stats.processing')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{orderStats.processing}</div>}
@@ -120,7 +122,7 @@ export default function OrdersPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('orders.stats.revenue')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -129,7 +131,7 @@ export default function OrdersPage() {
               <>
                 <div className="text-2xl font-bold">{formatCurrency(orderStats.totalRevenue)}</div>
                 <p className="text-xs text-gray-600">
-                  From {orderStats.completed} completed orders
+                  {t('orders.stats.fromCompleted', { count: orderStats.completed })}
                 </p>
               </>
             )}
@@ -140,9 +142,9 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Orders</CardTitle>
+          <CardTitle>{t('orders.table.header')}</CardTitle>
           <CardDescription>
-            A list of all customer orders.
+            {t('orders.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,13 +157,13 @@ export default function OrdersPage() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Order ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Customer</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Items</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Total</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Date</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.orderId')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.customer')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.items')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.total')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.status')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.date')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('orders.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -192,11 +194,11 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="text-sm">
-                        {order.items.length} items
+                        {t('orders.table.itemsCount', { count: order.items.length })}
                         {order.items.length > 0 && order.items[0].itemDetails[0] && (
                           <div className="text-xs text-gray-600 truncate max-w-32">
                             {order.items[0].itemDetails[0].itemName}
-                            {order.items.length > 1 && ` +${order.items.length - 1} more`}
+                            {order.items.length > 1 && t('orders.table.more', { count: order.items.length - 1 })}
                           </div>
                         )}
                       </div>
@@ -217,10 +219,10 @@ export default function OrdersPage() {
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         <Link href={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-900 text-sm">
-                          View
+                          {t('orders.table.view')}
                         </Link>
                         <button className="text-green-600 hover:text-green-900 text-sm">
-                          Update
+                          {t('orders.table.update')}
                         </button>
                       </div>
                     </td>
@@ -229,7 +231,7 @@ export default function OrdersPage() {
                 {!isLoading && orders.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-gray-500">
-                      No orders found.
+                      {t('orders.table.empty')}
                     </td>
                   </tr>
                 )}

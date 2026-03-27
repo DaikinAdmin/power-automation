@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslations } from 'next-intl';
 
 import { OrderStatus } from '@/db/schema';
 import Link from 'next/link';
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const t = useTranslations('adminDashboard.dashboard');
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -79,9 +81,9 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-gray-600">
-          Overview of your business performance and recent activities.
+          {t('description')}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ export default function AdminDashboard() {
         {/* Total Users Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.totalUsers')}</CardTitle>
             <Users className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -99,7 +101,7 @@ export default function AdminDashboard() {
               <>
                 <div className="text-2xl font-bold">{stats?.totalUsers.toLocaleString()}</div>
                 <p className="text-xs text-gray-600">
-                  {stats && stats.userGrowth > 0 ? '+' : ''}{stats?.userGrowth.toFixed(1)}% from last month
+                  {stats && stats.userGrowth > 0 ? '+' : ''}{stats?.userGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>
               </>
             )}
@@ -109,7 +111,7 @@ export default function AdminDashboard() {
         {/* Total Orders Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.totalOrders')}</CardTitle>
             <ShoppingCart className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -119,7 +121,7 @@ export default function AdminDashboard() {
               <>
                 <div className="text-2xl font-bold">{stats?.totalOrders.toLocaleString()}</div>
                 <p className="text-xs text-gray-600">
-                  {stats && stats.orderGrowth > 0 ? '+' : ''}{stats?.orderGrowth.toFixed(1)}% from last month
+                  {stats && stats.orderGrowth > 0 ? '+' : ''}{stats?.orderGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>
               </>
             )}
@@ -129,7 +131,7 @@ export default function AdminDashboard() {
         {/* Total Items Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.totalProducts')}</CardTitle>
             <Package className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -139,7 +141,7 @@ export default function AdminDashboard() {
               <>
                 <div className="text-2xl font-bold">{stats?.totalItems.toLocaleString()}</div>
                 <p className="text-xs text-gray-600">
-                  {stats && stats.itemGrowth > 0 ? '+' : ''}{stats?.itemGrowth.toFixed(1)}% from last month
+                  {stats && stats.itemGrowth > 0 ? '+' : ''}{stats?.itemGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>
               </>
             )}
@@ -149,7 +151,7 @@ export default function AdminDashboard() {
         {/* Revenue Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('stats.revenue')}</CardTitle>
             <DollarSign className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
@@ -159,7 +161,7 @@ export default function AdminDashboard() {
               <>
                 <div className="text-2xl font-bold">{formatCurrency(stats?.revenue || 0)}</div>
                 <p className="text-xs text-gray-600">
-                  {stats && stats.revenueGrowth > 0 ? '+' : ''}{stats?.revenueGrowth.toFixed(1)}% from last month
+                  {stats && stats.revenueGrowth > 0 ? '+' : ''}{stats?.revenueGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>
               </>
             )}
@@ -172,10 +174,10 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Recent Orders</span>
+              <span>{t('recentOrders.title')}</span>
               <Link href="/admin/orders">
                 <Button variant="ghost" size="sm" className="text-xs">
-                  View All <ArrowRight className="ml-1 h-3 w-3" />
+                  {t('recentOrders.viewAll')} <ArrowRight className="ml-1 h-3 w-3" />
                 </Button>
               </Link>
             </CardTitle>
@@ -183,7 +185,7 @@ export default function AdminDashboard() {
               {isLoading ? (
                 <Skeleton className="h-4 w-full max-w-[250px]" />
               ) : (
-                `You have ${recentOrders.length} recent orders to process.`
+                t('recentOrders.subtitle', { count: recentOrders.length })
               )}
             </CardDescription>
           </CardHeader>
@@ -232,9 +234,9 @@ export default function AdminDashboard() {
         {/* Quick Actions Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>{t('stats.quickActions')}</CardTitle>
             <CardDescription>
-              Common administrative tasks and shortcuts.
+              {t('stats.quickActionsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -242,35 +244,35 @@ export default function AdminDashboard() {
               <Link href="/admin/items/new">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Add New Product</span>
+                  <span className="text-sm">{t('stats.addNewProduct')}</span>
                 </Button>
               </Link>
               
               <Link href="/admin/categories">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <List className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Manage Categories</span>
+                  <span className="text-sm">{t('stats.manageCategories')}</span>
                 </Button>
               </Link>
               
               <Link href="/admin/orders?status=NEW">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <Clock className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Process Pending Orders</span>
+                  <span className="text-sm">{t('stats.processOrders')}</span>
                 </Button>
               </Link>
               
               <Link href="/admin/currency-exchange">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <DollarSign className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Update Currency Exchange Rates</span>
+                  <span className="text-sm">{t('stats.updateCurrencies')}</span>
                 </Button>
               </Link>
               
               <Link href="/admin/reports">
                 <Button variant="outline" className="w-full justify-start text-left">
                   <FileText className="mr-2 h-4 w-4" />
-                  <span className="text-sm">Generate Reports</span>
+                  <span className="text-sm">{t('stats.generateReports')}</span>
                 </Button>
               </Link>
             </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +30,7 @@ interface ItemDetailEditModalProps {
 }
 
 export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: ItemDetailEditModalProps) {
+  const t = useTranslations('adminDashboard');
   const [formData, setFormData] = useState<ItemDetail>(itemDetail);
 
   useEffect(() => {
@@ -76,20 +78,20 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Item Details</DialogTitle>
-          <DialogDescription>Update the item details information for this locale.</DialogDescription>
+          <DialogTitle>{t('detailModal.title')}</DialogTitle>
+          <DialogDescription>{t('detailModal.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="locale">Locale *</Label>
+            <Label htmlFor="locale">{t('detailModal.localeLabel')}</Label>
             <select
               id="locale"
               value={formData.locale}
               onChange={(e) => handleInputChange('locale', e.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select a locale</option>
+              <option value="">{t('detailModal.localePlaceholder')}</option>
               {locales.map((locale) => (
                 <option key={locale.value} value={locale.value}>
                   {locale.label}
@@ -99,27 +101,27 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="itemName">Item Name *</Label>
+            <Label htmlFor="itemName">{t('detailModal.itemName')}</Label>
             <Input
               id="itemName"
               value={formData.itemName || ''}
               onChange={(e) => handleInputChange('itemName', e.target.value)}
-              placeholder="Enter item name"
+              placeholder={t('detailModal.itemNamePlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="seller">Seller</Label>
+            <Label htmlFor="seller">{t('detailModal.seller')}</Label>
             <Input
               id="seller"
               value={formData.seller || ''}
               onChange={(e) => handleInputChange('seller', e.target.value)}
-              placeholder="Enter seller name"
+              placeholder={t('detailModal.sellerPlaceholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="discount">Discount (%)</Label>
+            <Label htmlFor="discount">{t('detailModal.discount')}</Label>
             <Input
               id="discount"
               type="number"
@@ -127,29 +129,29 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
               max="100"
               value={formData.discount ?? ''}
               onChange={(e) => handleInputChange('discount', e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder="Enter discount percentage"
+              placeholder={t('detailModal.discountPlaceholder')}
             />
           </div>
 
           <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">{t('detailModal.description')}</Label>
             <textarea
               id="description"
               value={formData.description || ''}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Enter item description"
+              placeholder={t('detailModal.descriptionPlaceholder')}
               rows={4}
               className="w-full resize-y rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="specifications">Specifications</Label>
+            <Label htmlFor="specifications">{t('detailModal.specifications')}</Label>
             <textarea
               id="specifications"
               value={formData.specifications || ''}
               onChange={(e) => handleInputChange('specifications', e.target.value)}
-              placeholder="Enter item specifications"
+              placeholder={t('detailModal.specificationsPlaceholder')}
               rows={3}
               className="w-full resize-y rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
@@ -158,10 +160,10 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancel
+            {t('detailModal.cancel')}
           </Button>
           <Button type="button" onClick={handleSave}>
-            Save Changes
+            {t('detailModal.saveBtn')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -19,6 +20,7 @@ export function OrderStatusForm({
   statusOptions,
   canUpdate,
 }: OrderStatusFormProps) {
+  const t = useTranslations('adminDashboard');
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [deliveryId, setDeliveryId] = useState(initialDeliveryId ?? '');
@@ -68,7 +70,7 @@ export function OrderStatusForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="order-status" className="block text-sm font-medium text-gray-700">
-          Order Status
+          {t('orderStatus.statusLabel')}
         </label>
         <select
           id="order-status"
@@ -88,7 +90,7 @@ export function OrderStatusForm({
       {requiresDeliveryId && (
         <div>
           <label htmlFor="delivery-id" className="block text-sm font-medium text-gray-700">
-            Delivery ID
+            {t('orderStatus.deliveryId')}
           </label>
           <input
             id="delivery-id"
@@ -96,7 +98,7 @@ export function OrderStatusForm({
             value={deliveryId}
             onChange={(event) => setDeliveryId(event.target.value)}
             disabled={!canUpdate || isSubmitting}
-            placeholder="Enter delivery ticket ID"
+            placeholder={t('orderStatus.deliveryPlaceholder')}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
           />
         </div>
@@ -107,11 +109,11 @@ export function OrderStatusForm({
         disabled={!canUpdate || isSubmitting}
         className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? 'Updating…' : 'Update Order'}
+        {isSubmitting ? t('orderStatus.updating') : t('orderStatus.updateBtn')}
       </button>
 
       {!canUpdate && (
-        <p className="text-xs text-gray-500">You do not have permission to update this order.</p>
+        <p className="text-xs text-gray-500">{t('orderStatus.noPermission')}</p>
       )}
     </form>
   );

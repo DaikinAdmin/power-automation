@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ interface DeleteCategoryModalProps {
 export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: DeleteCategoryModalProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState('');
+  const t = useTranslations('adminDashboard');
 
   const handleDelete = async () => {
     if (!category) return;
@@ -49,7 +51,7 @@ export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: De
       onClose();
     } catch (error) {
       console.error('Error deleting category:', error);
-      setError('Network error. Please try again.');
+      setError(t('categories.delete.networkError'));
     } finally {
       setIsDeleting(false);
     }
@@ -64,10 +66,10 @@ export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: De
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
             <div>
-              <DialogTitle className="text-lg">Delete Category</DialogTitle>
+              <DialogTitle className="text-lg">{t('categories.delete.title')}</DialogTitle>
               <DialogDescription className="mt-2">
-                Are you sure you want to delete <strong>"{category?.name}"</strong>? 
-                This action cannot be undone.
+                Are you sure you want to delete <strong>"{category?.name}"</strong>?{' '}
+                {t('categories.delete.cannotUndo')}
               </DialogDescription>
             </div>
           </div>
@@ -86,7 +88,7 @@ export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: De
             onClick={onClose}
             disabled={isDeleting}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             type="button"
@@ -94,7 +96,7 @@ export function DeleteCategoryModal({ isOpen, onClose, onConfirm, category }: De
             onClick={handleDelete}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete Category'}
+            {isDeleting ? t('categories.delete.deleting') : t('categories.delete.deleteBtn')}
           </Button>
         </DialogFooter>
       </DialogContent>

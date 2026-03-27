@@ -674,5 +674,897 @@
     "confirmDescription": "Introduce tu contraseña para confirmar",
     "password": "Contraseña",
     "submit": "Confirmar"
+  },
+  "adminDashboard": {
+    "nav": {
+      "dashboard": "Panel",
+      "warehouses": "Almacenes",
+      "products": "Productos",
+      "bulkUpload": "Importar/Exportar",
+      "promo": "Promo",
+      "categories": "Categorías",
+      "brands": "Marcas",
+      "orders": "Pedidos",
+      "users": "Usuarios",
+      "pages": "Páginas",
+      "banners": "Banners",
+      "uploads": "Imágenes",
+      "currencies": "Monedas",
+      "payments": "Pagos",
+      "analytics": "Analítica",
+      "settings": "Configuración"
+    },
+    "dashboard": {
+      "title": "Panel de Administrador",
+      "description": "Resumen de métricas clave y acceso rápido a la gestión",
+      "stats": {
+        "totalProducts": "Total de Productos",
+        "totalOrders": "Total de Pedidos",
+        "totalUsers": "Total de Usuarios",
+        "totalRevenue": "Ingresos Totales",
+        "fromLastMonth": "del mes pasado",
+        "revenue": "Ingresos",
+        "recentOrders": "Pedidos Recientes",
+        "quickActions": "Acciones Rápidas",
+        "quickActionsDescription": "Acceso rápido a funciones de uso frecuente",
+        "addNewProduct": "Añadir Nuevo Producto",
+        "manageCategories": "Gestionar Categorías",
+        "processOrders": "Procesar Pedidos",
+        "updateCurrencies": "Actualizar Monedas",
+        "generateReports": "Generar Informes"
+      },
+      "recentOrders": {
+        "title": "Pedidos Recientes",
+        "subtitle": "Tienes {count} nuevos pedidos que necesitan atención",
+        "viewAll": "Ver Todos",
+        "orderId": "ID del Pedido",
+        "customer": "Cliente",
+        "total": "Total",
+        "status": "Estado",
+        "date": "Fecha"
+      }
+    },
+    "common": {
+      "actions": "Acciones",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "update": "Actualizar",
+      "refresh": "Actualizar",
+      "loading": "Cargando...",
+      "visible": "Visible",
+      "hidden": "Oculto",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageOf": "Página {current} de {total}",
+      "showing": "Mostrando {from}–{to} de {total} resultados"
+    },
+    "header": {
+      "profile": "Perfil",
+      "settings": "Configuración",
+      "logout": "Cerrar Sesión"
+    },
+    "brands": {
+      "title": "Gestión de Marcas",
+      "description": "Mantén el catálogo de marcas disponibles en el mercado.",
+      "addNew": "Añadir Nueva Marca",
+      "stats": {
+        "total": "Total de Marcas",
+        "totalDesc": "Registradas en todas las ubicaciones",
+        "visible": "Marcas Visibles",
+        "visibleDesc": "Actualmente mostradas a clientes",
+        "hidden": "Marcas Ocultas",
+        "hiddenDesc": "Disponibles para activación posterior",
+        "linkedItems": "Productos Vinculados",
+        "linkedItemsDesc": "Total de productos asociados con marcas"
+      },
+      "table": {
+        "header": "Marcas",
+        "empty": "No se encontraron marcas. Crea tu primera marca para comenzar.",
+        "alias": "Alias: {alias}",
+        "linked": "Productos vinculados: {count}",
+        "created": "Creado",
+        "updated": "Actualizado"
+      },
+      "modal": {
+        "addTitle": "Añadir Nueva Marca",
+        "editTitle": "Editar Marca",
+        "addDesc": "Proporciona información para registrar una nueva marca.",
+        "editDesc": "Actualiza los detalles de la marca y preferencias de visibilidad.",
+        "name": "Nombre",
+        "namePlaceholder": "Nombre de la marca",
+        "alias": "Alias",
+        "aliasPlaceholder": "Alias único",
+        "imageUrl": "URL de imagen",
+        "imagePlaceholder": "https://example.com/brand.png",
+        "library": "Biblioteca",
+        "createdAt": "Fecha de Creación",
+        "updatedAt": "Fecha de Actualización",
+        "visible": "Visible",
+        "saving": "Guardando…",
+        "cancel": "Cancelar",
+        "createBtn": "Crear Marca",
+        "updateBtn": "Actualizar Marca"
+      },
+      "delete": {
+        "title": "Eliminar Marca",
+        "description": "¿Estás seguro de que quieres eliminar la marca \"{name}\"? Esta acción no se puede deshacer."
+      }
+    },
+    "categories": {
+      "title": "Gestión de Categorías",
+      "description": "Gestiona las categorías y subcategorías de productos.",
+      "loading": "Cargando categorías...",
+      "addNew": "Añadir Nueva Categoría",
+      "stats": {
+        "total": "Total de Categorías",
+        "visible": "Visibles",
+        "hidden": "Ocultas",
+        "withSubs": "Con Subcategorías"
+      },
+      "table": {
+        "header": "Todas las Categorías",
+        "description": "Una lista de todas las categorías de productos en tu tienda.",
+        "name": "Nombre",
+        "slug": "Slug",
+        "subcategories": "Subcategorías",
+        "visibility": "Visibilidad",
+        "actions": "Acciones",
+        "noSubs": "Sin subcategorías",
+        "moreSubs": "+{count} más",
+        "empty": "No se encontraron categorías. Añade tu primera categoría para comenzar.",
+        "emptyPage": "No hay categorías en esta página.",
+        "showing": "Mostrando {from}–{to} de {total} resultados"
+      },
+      "delete": {
+        "title": "Eliminar Categoría",
+        "cannotUndo": "Esta acción no se puede deshacer.",
+        "deleting": "Eliminando...",
+        "deleteBtn": "Eliminar Categoría",
+        "networkError": "Error de red. Por favor, inténtalo de nuevo."
+      }
+    },
+    "orders": {
+      "title": "Gestión de Pedidos",
+      "description": "Monitorea y gestiona los pedidos de clientes.",
+      "stats": {
+        "total": "Total de Pedidos",
+        "new": "Nuevos Pedidos",
+        "processing": "En Proceso",
+        "revenue": "Ingresos",
+        "fromCompleted": "De {count} pedidos completados"
+      },
+      "table": {
+        "header": "Todos los Pedidos",
+        "description": "Una lista de todos los pedidos de clientes.",
+        "orderId": "ID del Pedido",
+        "customer": "Cliente",
+        "items": "Productos",
+        "total": "Total",
+        "status": "Estado",
+        "date": "Fecha",
+        "actions": "Acciones",
+        "view": "Ver",
+        "update": "Actualizar",
+        "itemsCount": "{count} productos",
+        "more": "+{count} más",
+        "empty": "No se encontraron pedidos."
+      }
+    },
+    "payments": {
+      "title": "Gestión de Pagos",
+      "description": "Monitorea y gestiona las transacciones de pago.",
+      "stats": {
+        "total": "Total de Pagos",
+        "completed": "Completados",
+        "failed": "Fallidos",
+        "revenue": "Ingresos"
+      },
+      "table": {
+        "header": "Todos los Pagos",
+        "description": "Busca y filtra transacciones de pago.",
+        "orderId": "ID del Pedido",
+        "clientEmail": "Email del Cliente",
+        "amount": "Importe",
+        "paymentStatus": "Estado del Pago",
+        "orderStatus": "Estado del Pedido",
+        "date": "Fecha",
+        "actions": "Acciones",
+        "empty": "No se encontraron pagos.",
+        "searchPlaceholder": "Buscar por email o ID de pedido...",
+        "allStatuses": "Todos los Estados",
+        "pending": "Pendiente",
+        "initiated": "Iniciado",
+        "processing": "En Proceso",
+        "completed": "Completado",
+        "failed": "Fallido",
+        "cancelled": "Cancelado",
+        "refunded": "Reembolsado"
+      },
+      "refund": "Reembolso",
+      "refunding": "Procesando reembolso...",
+      "refundConfirm": "¿Estás seguro de que quieres reembolsar este pago? Esta acción no se puede deshacer.",
+      "refundSuccess": "Reembolso procesado correctamente"
+    },
+    "users": {
+      "title": "Gestión de Usuarios",
+      "description": "Gestiona y monitorea todos los usuarios en tu aplicación.",
+      "stats": {
+        "total": "Total de Usuarios",
+        "verified": "Usuarios Verificados",
+        "verifiedPct": "{pct}% del total",
+        "admins": "Administradores",
+        "employers": "Empleados"
+      },
+      "table": {
+        "header": "Todos los Usuarios",
+        "description": "Una lista de todos los usuarios registrados en tu aplicación.",
+        "name": "Nombre",
+        "email": "Correo",
+        "company": "Nombre de Empresa",
+        "role": "Rol",
+        "status": "Estado",
+        "joined": "Se unió",
+        "actions": "Acciones",
+        "noCompany": "Sin empresa",
+        "verified": "Verificado",
+        "unverified": "No verificado"
+      },
+      "edit": {
+        "title": "Editar Usuario",
+        "id": "ID",
+        "name": "Nombre",
+        "email": "Correo",
+        "company": "Empresa",
+        "noCompany": "Sin empresa",
+        "created": "Creado",
+        "editableFields": "Campos Editables",
+        "role": "Rol",
+        "rolePlaceholder": "Seleccionar rol",
+        "roleUser": "Usuario",
+        "roleEmployee": "Empleado",
+        "roleAdmin": "Administrador",
+        "emailVerified": "Email Verificado",
+        "verified": "Verificado",
+        "notVerified": "No verificado",
+        "discountLevel": "Nivel de Descuento",
+        "revert": "Revertir",
+        "update": "Actualizar"
+      },
+      "delete": {
+        "title": "Eliminar Usuario",
+        "description": "¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.",
+        "role": "Rol",
+        "created": "Creado",
+        "cancel": "Cancelar",
+        "deleteBtn": "Eliminar Usuario"
+      }
+    },
+    "warehouses": {
+      "title": "Gestión de Almacenes",
+      "description": "Gestiona las ubicaciones de almacenes y la distribución de inventario.",
+      "addNew": "Añadir Nuevo Almacén",
+      "stats": {
+        "total": "Total de Almacenes",
+        "countries": "Países",
+        "visible": "Almacenes Visibles"
+      },
+      "table": {
+        "header": "Todos los Almacenes",
+        "description": "Gestiona las ubicaciones de tus almacenes y su estado de visibilidad.",
+        "displayedName": "Nombre Mostrado",
+        "name": "Nombre",
+        "country": "País",
+        "itemPrices": "Precios de Productos",
+        "prices": "{count} precios",
+        "visibility": "Visibilidad",
+        "actions": "Acciones",
+        "showing": "Mostrando {from}–{to} de {total} almacenes",
+        "pageOf": "Página {current} de {total}"
+      },
+      "vat": {
+        "header": "Países de Almacenes — IVA",
+        "description": "Establece el porcentaje de IVA para cada país de almacén.",
+        "country": "País",
+        "slug": "Slug",
+        "code": "Código",
+        "vatPct": "IVA (%)",
+        "action": "Acción",
+        "save": "Guardar",
+        "vatError": "El IVA debe ser un número entre 0 y 100"
+      },
+      "delete": {
+        "title": "Eliminar Almacén",
+        "description": "¿Estás seguro de que quieres eliminar el almacén \"{name}\" en {country}? Esta acción no se puede deshacer y afectará a todos los productos y precios asociados."
+      }
+    },
+    "currencies": {
+      "title": "Tipos de Cambio",
+      "description": "Gestiona los tipos de cambio entre monedas",
+      "tableTitle": "Tipos de Cambio",
+      "from": "Moneda Origen",
+      "to": "Moneda Destino",
+      "rate": "Tipo",
+      "action": "Acción",
+      "loading": "Cargando...",
+      "noRates": "No hay tipos de cambio definidos",
+      "update": "Actualizar",
+      "delete": "Eliminar",
+      "selectFrom": "Desde",
+      "selectTo": "Hasta",
+      "addRate": "Añadir Tipo",
+      "errors": {
+        "positiveNumber": "El tipo debe ser un número positivo",
+        "fetchFailed": "No se pudieron obtener los tipos de cambio",
+        "unexpected": "Ocurrió un error inesperado"
+      }
+    },
+    "banners": {
+      "delete": {
+        "title": "¿Estás seguro?",
+        "description": "Esto eliminará permanentemente el banner \"{title}\" de la posición {position}.",
+        "cannotUndo": "Esta acción no se puede deshacer.",
+        "deleteBtn": "Eliminar Banner"
+      }
+    },
+    "items": {
+      "title": "Gestión de productos",
+      "description": "Gestiona todos los productos y artículos del inventario.",
+      "addNew": "Añadir nuevo producto",
+      "regenSlugs": "Regenerar slugs",
+      "regenSlugsLoading": "Regenerando...",
+      "stats": {
+        "total": "Total",
+        "totalDesc": "productos",
+        "selected": "Seleccionados",
+        "displayed": "Mostrados",
+        "hidden": "Ocultos",
+        "ofTotal": "de {total}",
+        "ofSelected": "de {total} seleccionados"
+      },
+      "table": {
+        "header": "Nombre",
+        "description": "Descripción",
+        "image": "Imagen",
+        "articleId": "N° de artículo",
+        "brand": "Marca",
+        "category": "Categoría",
+        "quantity": "Cantidad",
+        "status": "Estado",
+        "actions": "Acciones",
+        "visible": "Visible",
+        "hidden": "Oculto",
+        "uncategorized": "Sin categoría"
+      },
+      "search": {
+        "placeholder": "Buscar productos...",
+        "minChars": "Ingresa mín. 2 caracteres",
+        "searching": "Buscando..."
+      },
+      "filters": {
+        "brand": "Marca",
+        "allBrands": "Todas las marcas",
+        "category": "Categoría",
+        "allCategories": "Todas las categorías",
+        "hideHidden": "Ocultar ocultos",
+        "visibleOnly": "Solo visibles",
+        "showAll": "Mostrar todos",
+        "perPage": "Por página",
+        "clearAll": "Limpiar filtros"
+      },
+      "batch": {
+        "pageSelected": "{count} seleccionados en la página",
+        "allSelected": "Todos {total} seleccionados",
+        "selectAll": "Seleccionar todos {total}",
+        "makeVisible": "Hacer visible",
+        "hide": "Ocultar",
+        "delete": "Eliminar",
+        "translate": "Traducir",
+        "clear": "Limpiar"
+      },
+      "pagination": {
+        "showing": "Mostrando {from}–{to} de {total}"
+      },
+      "empty": {
+        "filtered": "No se encontraron productos con los criterios especificados.",
+        "empty": "Aún no hay productos."
+      },
+      "delete": {
+        "title": "Eliminar Producto",
+        "description": "¿Estás seguro de que quieres eliminar el producto \"{name}\" (ID de artículo: {articleId})? Esta acción no se puede deshacer y eliminará todos los datos asociados."
+      }
+    },
+    "discountLevels": {
+      "title": "Niveles de descuento",
+      "description": "Gestiona los niveles de descuento y asígnalos a usuarios.",
+      "addNew": "Añadir nuevo nivel",
+      "empty": {
+        "title": "Sin niveles de descuento",
+        "description": "Crea tu primer nivel de descuento haciendo clic en el botón de arriba."
+      },
+      "table": {
+        "level": "Nivel",
+        "discountPct": "Descuento %",
+        "usersCount": "Usuarios",
+        "createdAt": "Creado",
+        "actions": "Acciones",
+        "levelCell": "Nivel {level}",
+        "usersCell": "{count} usuario(s)"
+      },
+      "modal": {
+        "addTitle": "Añadir nivel de descuento",
+        "editTitle": "Editar nivel de descuento",
+        "levelLabel": "Número de nivel",
+        "levelPlaceholder": "ej. 1",
+        "levelHint": "Número entero único que identifica el nivel",
+        "discountLabel": "Porcentaje de descuento",
+        "discountPlaceholder": "ej. 10",
+        "discountHint": "Valor entre 0 y 100",
+        "levelError": "El nivel debe ser un entero mayor que 0",
+        "discountError": "El descuento debe estar entre 0 y 100",
+        "creating": "Creando...",
+        "updating": "Actualizando...",
+        "createBtn": "Crear nivel",
+        "updateBtn": "Guardar cambios",
+        "cancel": "Cancelar"
+      },
+      "delete": {
+        "title": "Eliminar Nivel de Descuento",
+        "description": "¿Estás seguro de que quieres eliminar el nivel de descuento {level} ({percentage}%)?",
+        "hasUsers": "Este nivel de descuento está actualmente asignado a {count} usuario(s). Al eliminar se quitará el nivel de descuento de todos los usuarios afectados.",
+        "warningTitle": "Advertencia: Usuarios afectados",
+        "cannotUndo": "Esta acción no se puede deshacer.",
+        "deleting": "Eliminando...",
+        "deleteBtn": "Eliminar nivel",
+        "successMsg": "¡Nivel de descuento eliminado correctamente!"
+      }
+    },
+    "delivery": {
+      "title": "Entrega",
+      "description": "Gestiona la configuración de entrega y los métodos de envío.",
+      "stats": {
+        "active": "Entregas activas",
+        "today": "Entregado hoy",
+        "pending": "Envíos pendientes",
+        "avgTime": "Tiempo promedio de entrega",
+        "days": "días"
+      },
+      "shipping": {
+        "title": "Métodos de envío",
+        "standard": "Envío estándar",
+        "express": "Envío exprés",
+        "pickup": "Recogida en tienda",
+        "days": "días",
+        "free": "Gratis",
+        "enabled": "Activado",
+        "disabled": "Desactivado"
+      },
+      "carriers": {
+        "title": "Transportistas",
+        "dhl": "DHL Express",
+        "inPost": "InPost Paczkomat",
+        "polish": "Correos polacos",
+        "active": "Activo",
+        "inactive": "Inactivo"
+      }
+    },
+    "promo": {
+      "title": "Gestión de promociones",
+      "description": "Gestiona promociones, códigos de descuento y etiquetas de productos.",
+      "tabs": {
+        "promos": "Promociones",
+        "badges": "Etiquetas"
+      },
+      "promos": {
+        "title": "Promociones activas",
+        "comingSoon": "Próximamente..."
+      },
+      "badges": {
+        "title": "Productos con etiquetas",
+        "allBadges": "Todas las etiquetas",
+        "assignBadge": "Asignar etiqueta",
+        "loading": "Cargando...",
+        "empty": "No se encontraron productos con etiquetas activas.",
+        "table": {
+          "articleId": "N° de artículo",
+          "name": "Nombre",
+          "badge": "Etiqueta",
+          "warehouse": "Almacén",
+          "priceQty": "Precio / Cantidad",
+          "actions": "Acciones"
+        },
+        "names": {
+          "NEW_ARRIVALS": "Novedades",
+          "BESTSELLER": "Más vendido",
+          "HOT_DEALS": "Ofertas calientes",
+          "LIMITED_EDITION": "Edición limitada",
+          "USED": "Usado",
+          "ABSENT": "Sin etiqueta (Eliminar)"
+        }
+      },
+      "editBadge": {
+        "title": "Editar etiqueta",
+        "articleId": "N° de artículo",
+        "warehouse": "Almacén",
+        "badge": "Etiqueta",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "save": "Guardar"
+      },
+      "assignBadge": {
+        "title": "Asignar etiqueta a producto",
+        "articleId": "N° de artículo",
+        "placeholder": "Introduce el n° de artículo...",
+        "search": "Buscar",
+        "searching": "...",
+        "pricingVariant": "Variante de precio (Almacén)",
+        "badge": "Etiqueta",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "assign": "Asignar"
+      }
+    },
+    "messages": {
+      "title": "Mensajes",
+      "description": "Gestiona los mensajes y consultas de los clientes.",
+      "stats": {
+        "total": "Total de mensajes",
+        "today": "Hoy",
+        "todayDesc": "mensajes hoy",
+        "thisWeek": "Esta semana",
+        "thisWeekDesc": "mensajes esta semana"
+      },
+      "table": {
+        "header": "Mensajes recientes",
+        "description": "Últimos mensajes y consultas de clientes.",
+        "customer": "Cliente",
+        "orderId": "ID de pedido",
+        "message": "Mensaje",
+        "date": "Fecha",
+        "actions": "Acciones",
+        "view": "Ver",
+        "reply": "Responder",
+        "delete": "Eliminar",
+        "empty": "No se encontraron mensajes."
+      },
+      "quickActions": {
+        "title": "Acciones rápidas",
+        "description": "Tareas comunes de gestión de mensajes.",
+        "broadcast": "Enviar difusión",
+        "templates": "Plantillas de mensajes",
+        "autoResponses": "Respuestas automáticas",
+        "export": "Exportar mensajes"
+      }
+    },
+    "bulkUpload": {
+      "title": "Carga masiva",
+      "description": "Carga archivos CSV o Excel para actualizar precios e inventario",
+      "exportItems": "Exportar productos",
+      "bulkActions": "Acciones masivas",
+      "bulkActionsModal": {
+        "title": "Acciones masivas",
+        "updateSchneider": "Actualizar precios Schneider Ukraine",
+        "updating": "Actualizando...",
+        "done": "Listo",
+        "updated": "Actualizado",
+        "created": "Creado"
+      },
+      "modes": {
+        "prices": "Precios e inventario",
+        "descriptions": "Descripciones de productos"
+      },
+      "mapping": {
+        "title": "Mapear columnas",
+        "description": "Arrastra etiquetas a los encabezados de tabla de abajo",
+        "required": "Campos requeridos",
+        "optional": "Campos opcionales",
+        "translation": "Campos de traducción",
+        "item": "Campos de producto"
+      },
+      "uploadBtn": "Subir productos",
+      "uploadingBtn": "Subiendo..."
+    },
+    "pages": {
+      "title": "Gestión de páginas",
+      "description": "Crea y gestiona páginas y contenidos.",
+      "createNew": "Crear nueva página",
+      "loading": "Cargando...",
+      "availableTranslations": "Traducciones disponibles: {count} de {total}",
+      "published": "Publicado",
+      "draft": "Borrador",
+      "missing": "Faltante",
+      "noTranslation": "Sin traducción",
+      "updatedAt": "Actualizado: {date}",
+      "edit": "Editar",
+      "hide": "Ocultar",
+      "show": "Mostrar",
+      "create": "Crear",
+      "empty": "Aún no hay páginas. ¡Crea la primera!",
+      "createPage": "Crear página",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar esta página?",
+      "deleteError": "No se pudo eliminar la página",
+      "publishError": "No se pudo actualizar el estado de la página"
+    },
+    "banners": {
+      "title": "Gestión de banners",
+      "description": "Gestiona los banners que se muestran en la página principal.",
+      "addNew": "Añadir banner",
+      "filters": {
+        "all": "Todos",
+        "active": "Activos",
+        "inactive": "Inactivos"
+      },
+      "stats": {
+        "total": "Total de banners",
+        "active": "Activos",
+        "inactive": "Inactivos"
+      },
+      "list": {
+        "dragToReorder": "Arrastra para reordenar",
+        "listTitle": "Banners — {pos} — {dev} — {loc}",
+        "empty": "No hay banners",
+        "createFirst": "Crea tu primer banner",
+        "untitled": "Banner sin título",
+        "order": "Orden: {order}"
+      },
+      "modal": {
+        "addTitle": "Añadir nuevo banner",
+        "editTitle": "Editar banner",
+        "titleLabel": "Título (opcional)",
+        "titlePlaceholder": "Escribe el título del banner",
+        "imageUrl": "URL de imagen *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "URL del enlace (opcional)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Posición",
+        "device": "Dispositivo",
+        "locale": "Idioma",
+        "active": "Activo",
+        "activeDesc": "Mostrar este banner a los visitantes",
+        "saving": "Guardando...",
+        "cancel": "Cancelar",
+        "createBtn": "Crear banner",
+        "updateBtn": "Actualizar banner"
+      },
+      "delete": {
+        "title": "¿Estás seguro?",
+        "description": "Esto eliminará permanentemente el banner \"{title}\" de la posición {position}.",
+        "cannotUndo": "Esta acción no se puede deshacer.",
+        "deleteBtn": "Eliminar Banner"
+      }
+    },
+    "uploads": {
+      "title": "Imágenes subidas",
+      "description": "Gestionar imágenes subidas para el sitio",
+      "uploadMultiple": "Subir múltiples",
+      "uploadImage": "Subir imagen",
+      "searchPlaceholder": "Buscar por nombre de archivo...",
+      "pathPlaceholder": "Filtrar por ruta...",
+      "stats": "{count} imágenes en total",
+      "statsFiltered": " (filtrado)",
+      "empty": {
+        "title": "No se han subido imágenes todavía",
+        "uploadBtn": "Sube tu primera imagen"
+      },
+      "pagination": {
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "pageOf": "Página {current} de {total}"
+      },
+      "uploadDialog": {
+        "title": "Subir imagen",
+        "description": "Elige un archivo, establece una ruta y nombre de archivo personalizados.",
+        "fileLabel": "Archivo de imagen",
+        "pathLabel": "Ruta",
+        "pathHint": "(ej. products/omron)",
+        "pathDescription": "Directorio en el almacén de archivos. Deja vacío para la raíz.",
+        "fileNameLabel": "Nombre del archivo",
+        "fileNameHint": "(opcional)",
+        "fileNamePlaceholder": "nombre-personalizado (extensión añadida automáticamente)",
+        "fileNameDescription": "Deja vacío para usar el nombre original.",
+        "cancel": "Cancelar",
+        "uploading": "Subiendo...",
+        "upload": "Subir"
+      },
+      "editDialog": {
+        "title": "Editar imagen",
+        "description": "Cambia el nombre del archivo o muévelo a una ruta diferente.",
+        "fileNameLabel": "Nombre del archivo",
+        "fileNameHint": "La extensión se preservará automáticamente.",
+        "pathLabel": "Ruta",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "saveBtn": "Guardar cambios"
+      },
+      "deleteDialog": {
+        "title": "Eliminar imagen",
+        "description": "¿Estás seguro de que quieres eliminar \"{name}\"? Esto eliminará el archivo del disco y no se puede deshacer.",
+        "cancel": "Cancelar",
+        "deleting": "Eliminando...",
+        "deleteBtn": "Eliminar"
+      },
+      "multiUpload": {
+        "title": "Subir múltiples imágenes",
+        "description": "Selecciona múltiples archivos para subir. Se guardarán con sus nombres originales.",
+        "selectedFiles": "{count} archivos seleccionados",
+        "pathLabel": "Ruta",
+        "pathHint": "(ej. products/gallery)",
+        "pathDescription": "Directorio para todos los archivos seleccionados. Deja vacío para la raíz.",
+        "uploading": "Subiendo...",
+        "uploadingProgress": "{current} / {total}",
+        "cancel": "Cancelar",
+        "uploadAll": "Subir todos"
+      },
+      "copyUrl": "Copiar URL",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "orderStatus": {
+      "statusLabel": "Estado del pedido",
+      "deliveryId": "ID de entrega",
+      "deliveryPlaceholder": "Introduce el ID de entrega...",
+      "updating": "Actualizando...",
+      "updateBtn": "Actualizar estado",
+      "noPermission": "No tienes permiso para actualizar este pedido."
+    },
+    "warehouseModal": {
+      "addTitle": "Añadir almacén",
+      "editTitle": "Editar almacén",
+      "addDesc": "Añadir un nuevo almacén al sistema.",
+      "editDesc": "Actualizar los datos del almacén.",
+      "displayedName": "Nombre mostrado",
+      "displayedNamePlaceholder": "Nombre mostrado del almacén",
+      "name": "Nombre (interno)",
+      "namePlaceholder": "Nombre interno del almacén",
+      "country": "País",
+      "visible": "Visible",
+      "deliveryPoland": "Entrega a Polonia",
+      "deliveryUkraine": "Entrega a Ucrania",
+      "deliveryEurope": "Entrega a Europa",
+      "days": "Días",
+      "daysPlaceholder": "ej. 3-5",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "createBtn": "Crear almacén",
+      "updateBtn": "Actualizar almacén"
+    },
+    "categoryModal": {
+      "addTitle": "Añadir categoría",
+      "editTitle": "Editar categoría",
+      "addDesc": "Crear una nueva categoría de productos.",
+      "editDesc": "Actualizar los datos de la categoría.",
+      "image": "Imagen",
+      "defaultName": "Nombre predeterminado",
+      "slug": "Slug",
+      "categoryTranslations": "Traducciones de categoría",
+      "subcategories": "Subcategorías",
+      "newSubcategoryPlaceholder": "Nueva subcategoría...",
+      "name": "Nombre",
+      "visible": "Visible",
+      "translations": "Traducciones",
+      "displayCategory": "Mostrar categoría",
+      "displayCategoryDesc": "Mostrar esta categoría en la navegación",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "createBtn": "Crear categoría",
+      "updateBtn": "Actualizar categoría",
+      "networkError": "Error de red. Inténtalo de nuevo."
+    },
+    "bannerModal": {
+      "addTitle": "Añadir nuevo banner",
+      "editTitle": "Editar banner",
+      "titleLabel": "Título",
+      "titlePlaceholder": "Título del banner",
+      "subtitle": "Subtítulo",
+      "subtitlePlaceholder": "Subtítulo del banner",
+      "link": "Enlace",
+      "linkPlaceholder": "https://",
+      "image": "Imagen",
+      "active": "Activo",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "createBtn": "Crear banner",
+      "updateBtn": "Actualizar banner"
+    },
+    "priceModal": {
+      "title": "Editar precio",
+      "description": "Actualiza precios y disponibilidad en almacén",
+      "warehouse": "Almacén",
+      "warehousePlaceholder": "Selecciona almacén",
+      "price": "Precio",
+      "quantity": "Cantidad",
+      "promoPrice": "Precio promocional",
+      "badge": "Etiqueta",
+      "promoCode": "Código promocional",
+      "promoCodePlaceholder": "Código promocional",
+      "promoEndDate": "Fecha de fin de promoción",
+      "margin": "Margen",
+      "initialPrice": "Precio inicial",
+      "initialCurrency": "Moneda inicial",
+      "currencyPlaceholder": "Selecciona moneda",
+      "cancel": "Cancelar",
+      "saveBtn": "Guardar cambios",
+      "badgeNone": "Sin etiqueta",
+      "badgeNew": "Novedades",
+      "badgeBest": "Más vendido",
+      "badgeHot": "Ofertas calientes",
+      "badgeLimited": "Edición limitada"
+    },
+    "detailModal": {
+      "title": "Editar detalles",
+      "description": "Actualiza los detalles del producto para el idioma seleccionado",
+      "localeLabel": "Idioma",
+      "localePlaceholder": "Selecciona idioma",
+      "itemName": "Nombre del producto",
+      "itemNamePlaceholder": "Nombre del producto",
+      "seller": "Vendedor",
+      "sellerPlaceholder": "Nombre del vendedor",
+      "discount": "Descuento (%)",
+      "discountPlaceholder": "ej. 10",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción del producto",
+      "specifications": "Especificaciones",
+      "specificationsPlaceholder": "Especificaciones del producto",
+      "cancel": "Cancelar",
+      "saveBtn": "Guardar cambios"
+    },
+    "translateModal": {
+      "title": "Traducir productos",
+      "summary": "Traduciendo {current} de {total} productos",
+      "done": "Listo",
+      "sourceLabel": "Idioma fuente",
+      "targetLabel": "Idiomas destino",
+      "loading": "Cargando...",
+      "empty": "No hay productos para traducir",
+      "noTranslations": "Sin traducciones",
+      "localesLabel": "Idiomas disponibles",
+      "noTranslationsAvailable": "No hay traducciones disponibles",
+      "fields": {
+        "name": "Nombre",
+        "description": "Descripción",
+        "specifications": "Especificaciones",
+        "metaDescription": "Meta descripción",
+        "metaKeywords": "Meta palabras clave"
+      },
+      "translated": "Traducido",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "translating": "Traduciendo...",
+      "translateBtn": "Traducir"
+    },
+    "exportModal": {
+      "title": "Exportar productos",
+      "subtitle": "Configura las opciones de exportación",
+      "sectionLocales": "Idiomas",
+      "localesSubtitle": "Selecciona los idiomas a exportar",
+      "localesNote": "Los datos se exportarán para cada idioma seleccionado",
+      "sectionFields": "Campos",
+      "fieldsSubtitle": "Selecciona los campos a exportar",
+      "sectionFormat": "Formato",
+      "selectAll": "Seleccionar todos",
+      "selectNone": "Deseleccionar todos",
+      "groups": {
+        "basic": "Básico",
+        "pricing": "Precios",
+        "meta": "Meta"
+      },
+      "footerStats": "{fields} campo(s) seleccionado(s) en {locales} idioma(s)",
+      "footerStatsPlural": "{fields} campos seleccionados en {locales} idiomas",
+      "cancel": "Cancelar",
+      "exporting": "Exportando...",
+      "exportBtn": "Exportar",
+      "selectFieldError": "Selecciona al menos un campo"
+    },
+    "imagePicker": {
+      "label": "Seleccionar imagen",
+      "dialogTitle": "Seleccionar imagen",
+      "searchPlaceholder": "Buscar archivos...",
+      "empty": "No se encontraron imágenes",
+      "paginationInfo": "Página {page} de {total}",
+      "selectPrompt": "Selecciona una imagen de la biblioteca",
+      "cancel": "Cancelar",
+      "select": "Seleccionar"
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ItemModal } from '@/components/admin/item-modal';
@@ -18,6 +19,7 @@ export default function ItemsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations('adminDashboard');
 
   // Read initial state from URL
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -208,9 +210,9 @@ export default function ItemsPage() {
 
   const getSelectionText = () => {
     if (selectAllMode === 'all') {
-      return `All ${pagination.totalItems} filtered items selected`;
+      return t('items.batch.allSelected', { total: pagination.totalItems });
     } else if (selectedItems.size > 0) {
-      return `${selectedItems.size} item(s) selected on this page`;
+      return t('items.batch.pageSelected', { count: selectedItems.size });
     }
     return '';
   };
@@ -363,9 +365,9 @@ export default function ItemsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Items Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('items.title')}</h1>
           <p className="text-gray-600">
-            Manage all products and inventory items.
+            {t('items.description')}
           </p>
         </div>
         <div className="flex gap-3">
@@ -376,10 +378,10 @@ export default function ItemsPage() {
             className="border-orange-500 text-orange-600 hover:bg-orange-50"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isRegenSlugsLoading ? 'animate-spin' : ''}`} />
-            {isRegenSlugsLoading ? 'Regenerating...' : 'Regenerate Slugs'}
+            {isRegenSlugsLoading ? t('items.regenSlugsLoading') : t('items.regenSlugs')}
           </Button>
           <Button onClick={handleCreateItem} className="bg-blue-600 text-white hover:bg-blue-700">
-            Add New Item
+            {t('items.addNew')}
           </Button>
         </div>
       </div>
@@ -388,46 +390,46 @@ export default function ItemsPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Items</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('items.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-gray-600">All items in database</p>
+            <p className="text-xs text-gray-600">{t('items.stats.totalDesc')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Selected Items</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('items.stats.selected')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.selected}</div>
             <p className="text-xs text-gray-600">
-              {stats.total > 0 ? Math.round((stats.selected / stats.total) * 100) : 0}% of total
+              {t('items.stats.ofTotal', { pct: stats.total > 0 ? Math.round((stats.selected / stats.total) * 100) : 0 })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Displayed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('items.stats.displayed')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.displayed}</div>
             <p className="text-xs text-gray-600">
-              {stats.selected > 0 ? Math.round((stats.displayed / stats.selected) * 100) : 0}% of selected
+              {t('items.stats.ofSelected', { pct: stats.selected > 0 ? Math.round((stats.displayed / stats.selected) * 100) : 0 })}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hidden</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('items.stats.hidden')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.hidden}</div>
             <p className="text-xs text-gray-600">
-              {stats.selected > 0 ? Math.round((stats.hidden / stats.selected) * 100) : 0}% of selected
+              {t('items.stats.ofSelected', { pct: stats.selected > 0 ? Math.round((stats.hidden / stats.selected) * 100) : 0 })}
             </p>
           </CardContent>
         </Card>
@@ -436,9 +438,9 @@ export default function ItemsPage() {
       {/* Items Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Items</CardTitle>
+          <CardTitle>{t('items.table.header')}</CardTitle>
           <CardDescription>
-            Manage your inventory items with full CRUD operations.
+            {t('items.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -446,22 +448,22 @@ export default function ItemsPage() {
             <div>
               <input
                 type="text"
-                placeholder="Search by article ID, alias, or brand (min 3 characters)..."
+                placeholder={t('items.search.placeholder')}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {searchInput.length > 0 && searchInput.length < 3 && (
-                <p className="text-xs text-gray-500 mt-1">Type at least 3 characters to search</p>
+                <p className="text-xs text-gray-500 mt-1">{t('items.search.minChars')}</p>
               )}
               {searchInput.length >= 3 && searchInput !== searchTerm && (
-                <p className="text-xs text-blue-500 mt-1">Searching...</p>
+                <p className="text-xs text-blue-500 mt-1">{t('items.search.searching')}</p>
               )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('items.filters.brand')}</label>
                 <select
                   value={selectedBrand}
                   onChange={(e) => {
@@ -471,7 +473,7 @@ export default function ItemsPage() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">All Brands</option>
+                  <option value="">{t('items.filters.allBrands')}</option>
                   {allBrands.map((brand) => (
                     <option key={brand.alias} value={brand.alias}>
                       {brand.name}
@@ -481,7 +483,7 @@ export default function ItemsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('items.filters.category')}</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => {
@@ -491,7 +493,7 @@ export default function ItemsPage() {
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">All Categories</option>
+                  <option value="">{t('items.filters.allCategories')}</option>
                   {filters.categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -501,7 +503,7 @@ export default function ItemsPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hide Hidden</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('items.filters.hideHidden')}</label>
                 <button
                   onClick={() => {
                     const next = !hideHidden;
@@ -518,19 +520,19 @@ export default function ItemsPage() {
                   {hideHidden ? (
                     <>
                       <Eye className="w-4 h-4" />
-                      <span>Visible Only</span>
+                      <span>{t('items.filters.visibleOnly')}</span>
                     </>
                   ) : (
                     <>
                       <EyeOff className="w-4 h-4" />
-                      <span>Show All</span>
+                      <span>{t('items.filters.showAll')}</span>
                     </>
                   )}
                 </button>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Items per page</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('items.filters.perPage')}</label>
                 <select
                   value={pageSize}
                   onChange={(e) => {
@@ -564,7 +566,7 @@ export default function ItemsPage() {
                 }}
                 className="text-gray-600"
               >
-                Clear All Filters
+                {t('items.filters.clearAll')}
               </Button>
             )}
           </div>
@@ -584,7 +586,7 @@ export default function ItemsPage() {
                       onClick={() => setSelectAllMode('all')}
                       className="text-blue-600 underline h-auto p-0"
                     >
-                      Select all {pagination.totalItems} items
+                      {t('items.batch.selectAll', { total: pagination.totalItems })}
                     </Button>
                   )}
                 </div>
@@ -597,7 +599,7 @@ export default function ItemsPage() {
                     className="border-green-600 text-green-600 hover:bg-green-50"
                   >
                     <Eye className="w-4 h-4 mr-1" />
-                    Make Visible
+                    {t('items.batch.makeVisible')}
                   </Button>
                   <Button
                     variant="outline"
@@ -607,7 +609,7 @@ export default function ItemsPage() {
                     className="border-orange-600 text-orange-600 hover:bg-orange-50"
                   >
                     <EyeOff className="w-4 h-4 mr-1" />
-                    Hide
+                    {t('items.batch.hide')}
                   </Button>
                   <Button
                     variant="outline"
@@ -616,7 +618,7 @@ export default function ItemsPage() {
                     disabled={isProcessingBatch}
                     className="border-red-600 text-red-600 hover:bg-red-50"
                   >
-                    🗑️ Delete
+                    🗑️ {t('items.batch.delete')}
                   </Button>
                   <Button
                     variant="outline"
@@ -626,7 +628,7 @@ export default function ItemsPage() {
                     className="border-blue-600 text-blue-600 hover:bg-blue-50"
                   >
                     <Languages className="w-4 h-4 mr-1" />
-                    Translate
+                    {t('items.batch.translate')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -637,7 +639,7 @@ export default function ItemsPage() {
                     }}
                     disabled={isProcessingBatch}
                   >
-                    Clear
+                    {t('items.batch.clear')}
                   </Button>
                 </div>
               </div>
@@ -657,13 +659,13 @@ export default function ItemsPage() {
                       title={selectAllMode === 'all' ? 'All filtered items selected' : 'Select all on page'}
                     />
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Image</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Article ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Brand</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Category</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Quantity</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.image')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.articleId')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.brand')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.category')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.quantity')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.status')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('items.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -704,7 +706,7 @@ export default function ItemsPage() {
                       </td>
                       <td className="py-3 px-4">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {item.category?.name || 'Uncategorized'}
+                          {item.category?.name || t('items.table.uncategorized')}
                         </span>
                       </td>
                       <td className="py-3 px-4">
@@ -727,7 +729,7 @@ export default function ItemsPage() {
                             )}
                           </Button>
                           <span className="text-sm text-gray-600">
-                            {item.isDisplayed ? 'Visible' : 'Hidden'}
+                            {item.isDisplayed ? t('items.table.visible') : t('items.table.hidden')}
                           </span>
                         </div>
                       </td>
@@ -744,7 +746,7 @@ export default function ItemsPage() {
                 {items.length === 0 && (
                   <tr>
                     <td colSpan={8} className="py-8 text-center text-gray-500">
-                      {searchTerm || selectedBrand || selectedCategory ? 'No items match your filters.' : 'No items found. Add your first item to get started.'}
+                      {searchTerm || selectedBrand || selectedCategory ? t('items.empty.filtered') : t('items.empty.empty')}
                     </td>
                   </tr>
                 )}
@@ -756,7 +758,7 @@ export default function ItemsPage() {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-gray-500">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, pagination.totalItems)} of {pagination.totalItems} items
+                {t('items.pagination.showing', { from: (currentPage - 1) * pageSize + 1, to: Math.min(currentPage * pageSize, pagination.totalItems), total: pagination.totalItems })}
               </div>
               <div className="flex items-center gap-2">
                 <Button

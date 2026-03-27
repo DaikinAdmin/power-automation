@@ -705,5 +705,901 @@
     "confirmDescription": "Please enter your password to confirm",
     "password": "Password",
     "submit": "Submit"
+  },
+  "adminDashboard": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "warehouses": "Warehouses",
+      "products": "Products",
+      "bulkUpload": "Import/Export",
+      "promo": "Promo",
+      "categories": "Categories",
+      "brands": "Brands",
+      "orders": "Orders",
+      "users": "Users",
+      "pages": "Pages",
+      "banners": "Banners",
+      "uploads": "Images",
+      "currencies": "Currencies",
+      "payments": "Payments",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    },
+    "dashboard": {
+      "title": "Admin Panel",
+      "description": "Overview of key metrics and quick access to management",
+      "stats": {
+        "totalProducts": "Total Products",
+        "totalOrders": "Total Orders",
+        "totalUsers": "Total Users",
+        "totalRevenue": "Total Revenue",
+        "fromLastMonth": "from last month",
+        "revenue": "Revenue",
+        "recentOrders": "Recent Orders",
+        "quickActions": "Quick Actions",
+        "quickActionsDescription": "Quick access to frequently used features",
+        "addNewProduct": "Add New Product",
+        "manageCategories": "Manage Categories",
+        "processOrders": "Process Orders",
+        "updateCurrencies": "Update Currencies",
+        "generateReports": "Generate Reports"
+      },
+      "recentOrders": {
+        "title": "Recent Orders",
+        "subtitle": "You have {count} new orders that need attention",
+        "viewAll": "View All",
+        "orderId": "Order ID",
+        "customer": "Customer",
+        "total": "Total",
+        "status": "Status",
+        "date": "Date"
+      }
+    },
+    "common": {
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "update": "Update",
+      "refresh": "Refresh",
+      "loading": "Loading...",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {current} of {total}",
+      "showing": "Showing {from} to {to} of {total} results"
+    },
+    "header": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "brands": {
+      "title": "Brand Management",
+      "description": "Maintain the catalog of brands available across the marketplace.",
+      "addNew": "Add New Brand",
+      "stats": {
+        "total": "Total Brands",
+        "totalDesc": "Registered across all locales",
+        "visible": "Visible Brands",
+        "visibleDesc": "Currently displayed to customers",
+        "hidden": "Hidden Brands",
+        "hiddenDesc": "Available for later activation",
+        "linkedItems": "Linked Items",
+        "linkedItemsDesc": "Total items associated with brands"
+      },
+      "table": {
+        "header": "Brands",
+        "empty": "No brands found. Create your first brand to get started.",
+        "alias": "Alias: {alias}",
+        "linked": "Linked items: {count}",
+        "created": "Created",
+        "updated": "Updated"
+      },
+      "modal": {
+        "addTitle": "Add New Brand",
+        "editTitle": "Edit Brand",
+        "addDesc": "Provide information to register a new brand.",
+        "editDesc": "Update brand details and visibility preferences.",
+        "name": "Name",
+        "namePlaceholder": "Brand name",
+        "alias": "Alias",
+        "aliasPlaceholder": "Unique alias",
+        "imageUrl": "Image URL",
+        "imagePlaceholder": "https://example.com/brand.png",
+        "library": "Library",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At",
+        "visible": "Visible",
+        "saving": "Saving…",
+        "cancel": "Cancel",
+        "createBtn": "Create Brand",
+        "updateBtn": "Update Brand"
+      },
+      "delete": {
+        "title": "Delete Brand",
+        "description": "Are you sure you want to delete the brand \"{name}\"? This action cannot be undone."
+      }
+    },
+    "categories": {
+      "title": "Categories Management",
+      "description": "Manage product categories and subcategories.",
+      "loading": "Loading categories...",
+      "addNew": "Add New Category",
+      "stats": {
+        "total": "Total Categories",
+        "visible": "Visible",
+        "hidden": "Hidden",
+        "withSubs": "With Subcategories"
+      },
+      "table": {
+        "header": "All Categories",
+        "description": "A list of all product categories in your store.",
+        "name": "Name",
+        "slug": "Slug",
+        "subcategories": "Subcategories",
+        "visibility": "Visibility",
+        "actions": "Actions",
+        "noSubs": "No subcategories",
+        "moreSubs": "+{count} more",
+        "empty": "No categories found. Add your first category to get started.",
+        "emptyPage": "No categories on this page.",
+        "showing": "Showing {from} to {to} of {total} results"
+      },
+      "delete": {
+        "title": "Delete Category",
+        "cannotUndo": "This action cannot be undone.",
+        "deleting": "Deleting...",
+        "deleteBtn": "Delete Category",
+        "networkError": "Network error. Please try again."
+      }
+    },
+    "orders": {
+      "title": "Orders Management",
+      "description": "Monitor and manage customer orders.",
+      "stats": {
+        "total": "Total Orders",
+        "new": "New Orders",
+        "processing": "Processing",
+        "revenue": "Revenue",
+        "fromCompleted": "From {count} completed orders"
+      },
+      "table": {
+        "header": "All Orders",
+        "description": "A list of all customer orders.",
+        "orderId": "Order ID",
+        "customer": "Customer",
+        "items": "Items",
+        "total": "Total",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions",
+        "view": "View",
+        "update": "Update",
+        "itemsCount": "{count} items",
+        "more": "+{count} more",
+        "empty": "No orders found."
+      }
+    },
+    "payments": {
+      "title": "Payments Management",
+      "description": "Monitor and manage payment transactions.",
+      "stats": {
+        "total": "Total Payments",
+        "completed": "Completed",
+        "failed": "Failed",
+        "revenue": "Revenue"
+      },
+      "table": {
+        "header": "All Payments",
+        "description": "Search and filter payment transactions.",
+        "orderId": "Order ID",
+        "clientEmail": "Client Email",
+        "amount": "Amount",
+        "paymentStatus": "Payment Status",
+        "orderStatus": "Order Status",
+        "date": "Date",
+        "actions": "Actions",
+        "empty": "No payments found.",
+        "searchPlaceholder": "Search by email or order ID...",
+        "allStatuses": "All Statuses",
+        "pending": "Pending",
+        "initiated": "Initiated",
+        "processing": "Processing",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      },
+      "refund": "Refund",
+      "refunding": "Refunding...",
+      "refundConfirm": "Are you sure you want to refund this payment? This action cannot be undone.",
+      "refundSuccess": "Refund processed successfully"
+    },
+    "users": {
+      "title": "Users Management",
+      "description": "Manage and monitor all users in your application.",
+      "stats": {
+        "total": "Total Users",
+        "verified": "Verified Users",
+        "verifiedPct": "{pct}% of total",
+        "admins": "Admins",
+        "employers": "Employers"
+      },
+      "table": {
+        "header": "All Users",
+        "description": "A list of all users registered in your application.",
+        "name": "Name",
+        "email": "Email",
+        "company": "Company Name",
+        "role": "Role",
+        "status": "Status",
+        "joined": "Joined",
+        "actions": "Actions",
+        "noCompany": "No company",
+        "verified": "Verified",
+        "unverified": "Unverified"
+      },
+      "edit": {
+        "title": "Edit User",
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "company": "Company",
+        "noCompany": "No company",
+        "created": "Created",
+        "editableFields": "Editable Fields",
+        "role": "Role",
+        "rolePlaceholder": "Select role",
+        "roleUser": "User",
+        "roleEmployee": "Employer",
+        "roleAdmin": "Admin",
+        "emailVerified": "Email Verified",
+        "verified": "Verified",
+        "notVerified": "Not verified",
+        "discountLevel": "Discount Level",
+        "revert": "Revert",
+        "update": "Update"
+      },
+      "delete": {
+        "title": "Delete User",
+        "description": "Are you sure you want to delete this user? This action cannot be undone.",
+        "role": "Role",
+        "created": "Created",
+        "cancel": "Cancel",
+        "deleteBtn": "Delete User"
+      }
+    },
+    "warehouses": {
+      "title": "Warehouses Management",
+      "description": "Manage warehouse locations and inventory distribution.",
+      "addNew": "Add New Warehouse",
+      "stats": {
+        "total": "Total Warehouses",
+        "countries": "Countries",
+        "visible": "Visible Warehouses"
+      },
+      "table": {
+        "header": "All Warehouses",
+        "description": "Manage your warehouse locations and their visibility status.",
+        "displayedName": "Displayed Name",
+        "name": "Name",
+        "country": "Country",
+        "itemPrices": "Item Prices",
+        "prices": "{count} prices",
+        "visibility": "Visibility",
+        "actions": "Actions",
+        "showing": "Showing {from} to {to} of {total} warehouses",
+        "pageOf": "Page {current} of {total}"
+      },
+      "vat": {
+        "header": "Warehouse Countries — VAT",
+        "description": "Set the VAT percentage for each warehouse country.",
+        "country": "Country",
+        "slug": "Slug",
+        "code": "Code",
+        "vatPct": "VAT (%)",
+        "action": "Action",
+        "save": "Save",
+        "vatError": "VAT must be a number between 0 and 100"
+      },
+      "delete": {
+        "title": "Delete Warehouse",
+        "description": "Are you sure you want to delete the warehouse \"{name}\" in {country}? This action cannot be undone and will affect all associated items and prices."
+      }
+    },
+    "currencies": {
+      "title": "Currency Exchange Rates",
+      "description": "Manage exchange rates between currencies",
+      "tableTitle": "Exchange Rates",
+      "from": "Currency From",
+      "to": "Currency To",
+      "rate": "Rate",
+      "action": "Action",
+      "loading": "Loading...",
+      "noRates": "No exchange rates defined yet",
+      "update": "Update",
+      "delete": "Delete",
+      "selectFrom": "From",
+      "selectTo": "To",
+      "addRate": "Add Rate",
+      "errors": {
+        "positiveNumber": "Rate must be a positive number",
+        "fetchFailed": "Failed to fetch exchange rates",
+        "unexpected": "An unexpected error occurred"
+      }
+    },
+    "banners": {
+      "delete": {
+        "title": "Are you sure?",
+        "description": "This will permanently delete the banner \"{title}\" from position {position}.",
+        "cannotUndo": "This action cannot be undone.",
+        "deleteBtn": "Delete Banner"
+      }
+    },
+    "items": {
+      "title": "Items Management",
+      "description": "Manage all products and inventory items.",
+      "addNew": "Add New Item",
+      "regenSlugs": "Regenerate Slugs",
+      "regenSlugsLoading": "Regenerating...",
+      "stats": {
+        "total": "Total Items",
+        "totalDesc": "All items in database",
+        "selected": "Selected Items",
+        "displayed": "Displayed",
+        "hidden": "Hidden",
+        "ofTotal": "{pct}% of total",
+        "ofSelected": "{pct}% of selected"
+      },
+      "table": {
+        "header": "All Items",
+        "description": "Manage your inventory items with full CRUD operations.",
+        "image": "Image",
+        "articleId": "Article ID",
+        "brand": "Brand",
+        "category": "Category",
+        "quantity": "Quantity",
+        "status": "Status",
+        "actions": "Actions",
+        "visible": "Visible",
+        "hidden": "Hidden",
+        "uncategorized": "Uncategorized"
+      },
+      "search": {
+        "placeholder": "Search by article ID, alias, or brand (min 3 characters)...",
+        "minChars": "Type at least 3 characters to search",
+        "searching": "Searching..."
+      },
+      "filters": {
+        "brand": "Brand",
+        "allBrands": "All Brands",
+        "category": "Category",
+        "allCategories": "All Categories",
+        "hideHidden": "Hide Hidden",
+        "visibleOnly": "Visible Only",
+        "showAll": "Show All",
+        "perPage": "Items per page",
+        "clearAll": "Clear All Filters"
+      },
+      "batch": {
+        "pageSelected": "{count} item(s) selected on this page",
+        "allSelected": "All {total} filtered items selected",
+        "selectAll": "Select all {total} items",
+        "makeVisible": "Make Visible",
+        "hide": "Hide",
+        "delete": "Delete",
+        "translate": "Translate",
+        "clear": "Clear"
+      },
+      "pagination": {
+        "showing": "Showing {from} to {to} of {total} items"
+      },
+      "empty": {
+        "filtered": "No items match your filters.",
+        "empty": "No items found. Add your first item to get started."
+      },
+      "delete": {
+        "title": "Delete Item",
+        "description": "Are you sure you want to delete the item \"{name}\" (Article ID: {articleId})? This action cannot be undone and will remove all associated data including prices, details, and related records."
+      }
+    },
+    "discountLevels": {
+      "title": "Discount Levels",
+      "description": "Manage customer discount levels and percentages",
+      "addNew": "Add New Level",
+      "empty": {
+        "title": "No discount levels found",
+        "description": "Create your first discount level to get started"
+      },
+      "table": {
+        "level": "Level",
+        "discountPct": "Discount Percentage",
+        "usersCount": "Users Count",
+        "createdAt": "Created At",
+        "actions": "Actions",
+        "levelCell": "Level {n}",
+        "usersCell": "{count} users"
+      },
+      "modal": {
+        "addTitle": "Add New Discount Level",
+        "editTitle": "Edit Discount Level",
+        "levelLabel": "Level",
+        "levelPlaceholder": "e.g., 1, 2, 3...",
+        "levelHint": "Numeric level identifier (must be unique)",
+        "discountLabel": "Discount Percentage",
+        "discountPlaceholder": "e.g., 5, 10, 15...",
+        "discountHint": "Percentage discount for this level (0-100%)",
+        "levelError": "Level must be a positive number",
+        "discountError": "Discount percentage must be between 0 and 100",
+        "creating": "Creating...",
+        "updating": "Updating...",
+        "createBtn": "Create Level",
+        "updateBtn": "Update Level",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete Discount Level",
+        "description": "Are you sure you want to delete discount level {level} ({percentage}%)?",
+        "hasUsers": "This discount level is currently assigned to {count} user(s). Deleting it will remove the discount level from all affected users.",
+        "warningTitle": "Warning: Users Affected",
+        "cannotUndo": "This action cannot be undone.",
+        "deleting": "Deleting...",
+        "deleteBtn": "Delete Level",
+        "successMsg": "Discount level deleted successfully!"
+      }
+    },
+    "delivery": {
+      "title": "Delivery Management",
+      "description": "Manage shipping methods, carriers, and delivery tracking.",
+      "stats": {
+        "active": "Active Deliveries",
+        "today": "Delivered Today",
+        "pending": "Pending Shipment",
+        "avgTime": "Avg Delivery Time",
+        "days": "days"
+      },
+      "shipping": {
+        "title": "Shipping Methods",
+        "description": "Configure available shipping options.",
+        "standard": "Standard Shipping",
+        "standardDays": "5-7 business days",
+        "express": "Express Shipping",
+        "expressDays": "2-3 business days",
+        "overnight": "Overnight Shipping",
+        "overnightDays": "1 business day",
+        "active": "Active",
+        "inactive": "Inactive",
+        "addMethod": "Add Shipping Method"
+      },
+      "carriers": {
+        "title": "Delivery Carriers",
+        "description": "Manage shipping carrier integrations.",
+        "connected": "Connected"
+      }
+    },
+    "promo": {
+      "title": "Promo",
+      "description": "Manage promotions and product badges",
+      "tabs": {
+        "promos": "Promos",
+        "badges": "Badges"
+      },
+      "promos": {
+        "title": "Promos",
+        "comingSoon": "Coming soon..."
+      },
+      "badges": {
+        "title": "Products with Badges",
+        "allBadges": "All badges",
+        "assignBadge": "Assign Badge",
+        "loading": "Loading...",
+        "empty": "No products with active badges found.",
+        "table": {
+          "articleId": "Article ID",
+          "name": "Name",
+          "badge": "Badge",
+          "warehouse": "Warehouse",
+          "priceQty": "Price / Qty",
+          "actions": "Actions"
+        },
+        "names": {
+          "NEW_ARRIVALS": "New Arrivals",
+          "BESTSELLER": "Bestseller",
+          "HOT_DEALS": "Hot Deals",
+          "LIMITED_EDITION": "Limited Edition",
+          "USED": "Used",
+          "ABSENT": "None (Remove)"
+        }
+      },
+      "editBadge": {
+        "title": "Edit Badge",
+        "articleId": "Article ID",
+        "warehouse": "Warehouse",
+        "badge": "Badge",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save"
+      },
+      "assignBadge": {
+        "title": "Assign Badge",
+        "articleId": "Article ID",
+        "placeholder": "Enter article ID...",
+        "search": "Search",
+        "searching": "...",
+        "pricingVariant": "Pricing Variant (Warehouse)",
+        "badge": "Badge",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "assign": "Assign"
+      }
+    },
+    "messages": {
+      "title": "Messages Management",
+      "description": "Monitor and respond to customer messages and inquiries.",
+      "stats": {
+        "total": "Total Messages",
+        "today": "Today",
+        "todayDesc": "New messages today",
+        "thisWeek": "This Week",
+        "thisWeekDesc": "Messages this week"
+      },
+      "table": {
+        "header": "Recent Messages",
+        "description": "Latest customer messages and inquiries.",
+        "customer": "Customer",
+        "orderId": "Order ID",
+        "message": "Message",
+        "date": "Date",
+        "actions": "Actions",
+        "view": "View",
+        "reply": "Reply",
+        "delete": "Delete",
+        "empty": "No messages found."
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "description": "Common message management tasks.",
+        "broadcast": "Send Broadcast",
+        "templates": "Message Templates",
+        "autoResponses": "Auto-Responses",
+        "export": "Export Messages"
+      }
+    },
+    "bulkUpload": {
+      "title": "Bulk Upload",
+      "description": "Upload CSV or Excel files to update item prices and inventory",
+      "exportItems": "Export Items",
+      "bulkActions": "Bulk Actions",
+      "bulkActionsModal": {
+        "title": "Bulk Actions",
+        "updateSchneider": "Update Schneider Ukraine Prices",
+        "updating": "Updating...",
+        "done": "Done",
+        "updated": "Updated",
+        "created": "Created"
+      },
+      "modes": {
+        "prices": "Prices & Inventory",
+        "descriptions": "Product Descriptions"
+      },
+      "mapping": {
+        "title": "Map Columns",
+        "description": "Drag labels to table headers below",
+        "required": "Required Fields",
+        "optional": "Optional Fields",
+        "translation": "Translation Fields",
+        "item": "Item Fields"
+      },
+      "uploadBtn": "Upload Items",
+      "uploadingBtn": "Uploading..."
+    },
+    "pages": {
+      "title": "Page Management",
+      "description": "Create and edit static pages for different languages",
+      "createNew": "Create New Page",
+      "loading": "Loading...",
+      "availableTranslations": "Available translations: {count} of {total}",
+      "published": "Published",
+      "draft": "Draft",
+      "missing": "Missing",
+      "noTranslation": "Translation not created",
+      "updatedAt": "Updated: {date}",
+      "edit": "Edit",
+      "hide": "Hide",
+      "show": "Show",
+      "create": "Create",
+      "empty": "No pages yet. Create the first one!",
+      "createPage": "Create Page",
+      "confirmDelete": "Are you sure you want to delete this page?",
+      "deleteError": "Error deleting page",
+      "publishError": "Error updating publish status"
+    },
+    "banners": {
+      "title": "Banner Management",
+      "description": "Manage promotional banners across different pages and devices",
+      "addNew": "Add New Banner",
+      "filters": {
+        "title": "Filters",
+        "position": "Position",
+        "device": "Device",
+        "locale": "Locale"
+      },
+      "stats": {
+        "total": "Total Banners",
+        "active": "Active",
+        "hidden": "Hidden"
+      },
+      "list": {
+        "dragToReorder": "Drag to reorder",
+        "listTitle": "Banners — {pos} — {dev} — {loc}",
+        "empty": "No banners found for this configuration",
+        "createFirst": "Create First Banner",
+        "untitled": "Untitled Banner",
+        "order": "Order: {order}"
+      },
+      "modal": {
+        "addTitle": "Create New Banner",
+        "editTitle": "Edit Banner",
+        "titleLabel": "Title (Optional)",
+        "titlePlaceholder": "Enter banner title",
+        "imageUrl": "Image URL *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "Link URL (Optional)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Position",
+        "device": "Device",
+        "locale": "Locale",
+        "active": "Active",
+        "activeDesc": "Show this banner to visitors",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "createBtn": "Create Banner",
+        "updateBtn": "Update Banner"
+      },
+      "delete": {
+        "title": "Are you sure?",
+        "description": "This will permanently delete the banner \"{title}\" from position {position}.",
+        "cannotUndo": "This action cannot be undone.",
+        "deleteBtn": "Delete Banner"
+      }
+    },
+    "uploads": {
+      "title": "Image Uploads",
+      "description": "Manage uploaded images for the site",
+      "uploadMultiple": "Upload Multiple",
+      "uploadImage": "Upload Image",
+      "searchPlaceholder": "Search by filename...",
+      "pathPlaceholder": "Filter by path...",
+      "stats": "{count} images total",
+      "statsFiltered": " (filtered)",
+      "empty": {
+        "title": "No images uploaded yet",
+        "uploadBtn": "Upload your first image"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "pageOf": "Page {current} of {total}"
+      },
+      "uploadDialog": {
+        "title": "Upload Image",
+        "description": "Choose a file, set a custom path and filename.",
+        "fileLabel": "Image File",
+        "pathLabel": "Path",
+        "pathHint": "(e.g. products/omron)",
+        "pathDescription": "Directory inside the uploads storage. Leave empty for root.",
+        "fileNameLabel": "File Name",
+        "fileNameHint": "(optional)",
+        "fileNamePlaceholder": "custom-name (extension auto-added)",
+        "fileNameDescription": "Leave empty to use the original filename.",
+        "cancel": "Cancel",
+        "uploading": "Uploading...",
+        "upload": "Upload"
+      },
+      "editDialog": {
+        "title": "Edit Image",
+        "description": "Change the filename or move to a different path. The file will be moved on disk.",
+        "fileNameLabel": "File Name",
+        "fileNameHint": "Extension will be preserved automatically.",
+        "pathLabel": "Path",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "saveBtn": "Save Changes"
+      },
+      "deleteDialog": {
+        "title": "Delete Image",
+        "description": "Are you sure you want to delete \"{name}\"? This will remove the file from disk and cannot be undone.",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "deleteBtn": "Delete"
+      },
+      "multiUpload": {
+        "title": "Upload Multiple Images",
+        "description": "Select multiple files to upload. They will be saved with their original names.",
+        "selectedFiles": "{count} files selected",
+        "pathLabel": "Path",
+        "pathHint": "(e.g. products/gallery)",
+        "pathDescription": "Directory for all selected files. Leave empty for root.",
+        "uploading": "Uploading...",
+        "uploadingProgress": "{current} / {total}",
+        "cancel": "Cancel",
+        "uploadAll": "Upload All"
+      },
+      "copyUrl": "Copy URL",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "orderStatus": {
+      "statusLabel": "Order Status",
+      "deliveryId": "Delivery ID",
+      "deliveryPlaceholder": "Enter delivery ticket ID",
+      "updating": "Updating\u2026",
+      "updateBtn": "Update Order",
+      "noPermission": "You do not have permission to update this order."
+    },
+    "warehouseModal": {
+      "addTitle": "Add New Warehouse",
+      "editTitle": "Edit Warehouse",
+      "addDesc": "Fill in the warehouse information below.",
+      "editDesc": "Update the warehouse information below.",
+      "displayedName": "Displayed Name",
+      "displayedNamePlaceholder": "Warehouse name to Display",
+      "name": "Name",
+      "namePlaceholder": "Warehouse name",
+      "country": "Country",
+      "visible": "Visible",
+      "deliveryPoland": "Delivery Poland",
+      "deliveryUkraine": "Delivery Ukraine",
+      "deliveryEurope": "Delivery Europe",
+      "days": "days",
+      "daysPlaceholder": "Days",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "createBtn": "Create",
+      "updateBtn": "Update"
+    },
+    "categoryModal": {
+      "addTitle": "Add New Category",
+      "editTitle": "Edit Category",
+      "addDesc": "Create a new category for your products.",
+      "editDesc": "Update the category information and translations.",
+      "image": "Image",
+      "defaultName": "Default Name",
+      "slug": "Slug",
+      "categoryTranslations": "Category Translations",
+      "subcategories": "Subcategories",
+      "newSubcategoryPlaceholder": "New subcategory name",
+      "name": "Name",
+      "visible": "Visible",
+      "translations": "Translations",
+      "displayCategory": "Display Category",
+      "displayCategoryDesc": "Show this category on the website",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "createBtn": "Create Category",
+      "updateBtn": "Update Category",
+      "networkError": "Network error. Please try again."
+    },
+    "bannerModal": {
+      "addTitle": "Create New Banner",
+      "editTitle": "Edit Banner",
+      "titleLabel": "Title (Optional)",
+      "titlePlaceholder": "Enter banner title",
+      "imageUrl": "Image URL *",
+      "imageUrlPlaceholder": "https://example.com/banner.jpg",
+      "linkUrl": "Link URL (Optional)",
+      "linkUrlPlaceholder": "https://example.com/promo",
+      "position": "Position",
+      "device": "Device",
+      "locale": "Locale",
+      "active": "Active",
+      "activeDesc": "Show this banner to visitors",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "createBtn": "Create Banner",
+      "updateBtn": "Update Banner"
+    },
+    "priceModal": {
+      "title": "Edit Price Details",
+      "description": "Update the pricing information for this item.",
+      "warehouse": "Warehouse *",
+      "warehousePlaceholder": "Select Warehouse",
+      "price": "Price (calculated from initial price & margin) *",
+      "quantity": "Quantity *",
+      "promoPrice": "Promotion Price",
+      "badge": "Badge",
+      "promoCode": "Promo Code",
+      "promoCodePlaceholder": "Enter promo code",
+      "promoEndDate": "Promo End Date",
+      "margin": "Margin (%)",
+      "initialPrice": "Initial Price",
+      "initialCurrency": "Initial Currency",
+      "currencyPlaceholder": "Select Currency",
+      "cancel": "Cancel",
+      "saveBtn": "Save Changes",
+      "badgeNone": "None",
+      "badgeNew": "New Arrivals",
+      "badgeBest": "Bestseller",
+      "badgeHot": "Hot Deals",
+      "badgeLimited": "Limited Edition"
+    },
+    "detailModal": {
+      "title": "Edit Item Details",
+      "description": "Update the item details information for this locale.",
+      "localeLabel": "Locale *",
+      "localePlaceholder": "Select a locale",
+      "itemName": "Item Name *",
+      "itemNamePlaceholder": "Enter item name",
+      "seller": "Seller",
+      "sellerPlaceholder": "Enter seller name",
+      "discount": "Discount (%)",
+      "discountPlaceholder": "Enter discount percentage",
+      "description": "Description *",
+      "descriptionPlaceholder": "Enter item description",
+      "specifications": "Specifications",
+      "specificationsPlaceholder": "Enter item specifications",
+      "cancel": "Cancel",
+      "saveBtn": "Save Changes"
+    },
+    "translateModal": {
+      "title": "Translate Products",
+      "summary": "{count} product(s) selected for translation.",
+      "done": "Translation complete. Review results below.",
+      "sourceLabel": "Source:",
+      "targetLabel": "Translate to:",
+      "loading": "Loading products...",
+      "empty": "No items selected",
+      "noTranslations": "No translations available.",
+      "localesLabel": "Locales:",
+      "noTranslationsAvailable": "No translations",
+      "fields": {
+        "name": "Name:",
+        "description": "Description:",
+        "specifications": "Specifications:",
+        "metaDescription": "Meta Description:",
+        "metaKeywords": "Meta Keywords:"
+      },
+      "translated": "translated",
+      "close": "Close",
+      "cancel": "Cancel",
+      "translating": "Translating...",
+      "translateBtn": "Translate {count} item(s)"
+    },
+    "exportModal": {
+      "title": "Export Items",
+      "subtitle": "Select locales, fields and format",
+      "sectionLocales": "Locales",
+      "localesSubtitle": "Data will be fetched per locale",
+      "localesNote": "\ud83d\udcca Each locale will be a separate sheet (XLSX) or file (CSV).",
+      "sectionFields": "Fields",
+      "fieldsSubtitle": "{selected} of {total} selected",
+      "sectionFormat": "Format",
+      "selectAll": "All",
+      "selectNone": "None",
+      "groups": {
+        "basic": "Basic Info & Details",
+        "pricing": "Pricing & Stock",
+        "meta": "SEO & Meta"
+      },
+      "footerStats": "{locales} locale · {fields} fields",
+      "footerStatsPlural": "{locales} locales · {fields} fields",
+      "cancel": "Cancel",
+      "exporting": "Exporting\u2026",
+      "exportBtn": "\u2193 Export {format}",
+      "selectFieldError": "Select at least one field to export."
+    },
+    "imagePicker": {
+      "label": "Select Image",
+      "dialogTitle": "Select Image",
+      "searchPlaceholder": "Search by name...",
+      "empty": "No images found",
+      "paginationInfo": "{total} images, page {current} of {totalPages}",
+      "selectPrompt": "Select an image",
+      "cancel": "Cancel",
+      "select": "Select"
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Search, RefreshCw, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -41,6 +42,7 @@ export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [refundingPaymentId, setRefundingPaymentId] = useState<string | null>(null);
+  const t = useTranslations('adminDashboard');
 
   useEffect(() => {
     loadPayments();
@@ -97,7 +99,7 @@ export default function PaymentsPage() {
   };
 
   const handleRefund = async (paymentId: string) => {
-    if (!confirm('Are you sure you want to refund this payment? This action cannot be undone.')) {
+    if (!confirm(t('payments.refundConfirm'))) {
       return;
     }
 
@@ -118,7 +120,7 @@ export default function PaymentsPage() {
 
       // Reload payments to show updated status
       await loadPayments();
-      alert('Refund processed successfully');
+      alert(t('payments.refundSuccess'));
     } catch (err: any) {
       alert(err.message || 'Failed to process refund');
     } finally {
@@ -167,9 +169,9 @@ export default function PaymentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Payments Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('payments.title')}</h1>
         <p className="text-gray-600">
-          Monitor and manage payment transactions.
+          {t('payments.description')}
         </p>
       </div>
 
@@ -177,7 +179,7 @@ export default function PaymentsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{paymentStats.total}</div>}
@@ -186,7 +188,7 @@ export default function PaymentsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments.stats.completed')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold text-green-600">{paymentStats.completed}</div>}
@@ -195,7 +197,7 @@ export default function PaymentsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments.stats.failed')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold text-red-600">{paymentStats.failed}</div>}
@@ -204,7 +206,7 @@ export default function PaymentsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('payments.stats.revenue')}</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -219,9 +221,9 @@ export default function PaymentsPage() {
       {/* Payments Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Payments</CardTitle>
+          <CardTitle>{t('payments.table.header')}</CardTitle>
           <CardDescription>
-            Search and filter payment transactions.
+            {t('payments.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -231,7 +233,7 @@ export default function PaymentsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
-                placeholder="Search by email or order ID..."
+                placeholder={t('payments.table.searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -242,21 +244,21 @@ export default function PaymentsPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="ALL">All Statuses</option>
-              <option value="PENDING">Pending</option>
-              <option value="INITIATED">Initiated</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="FAILED">Failed</option>
-              <option value="CANCELLED">Cancelled</option>
-              <option value="REFUNDED">Refunded</option>
+              <option value="ALL">{t('payments.table.allStatuses')}</option>
+              <option value="PENDING">{t('payments.table.pending')}</option>
+              <option value="INITIATED">{t('payments.table.initiated')}</option>
+              <option value="PROCESSING">{t('payments.table.processing')}</option>
+              <option value="COMPLETED">{t('payments.table.completed')}</option>
+              <option value="FAILED">{t('payments.table.failed')}</option>
+              <option value="CANCELLED">{t('payments.table.cancelled')}</option>
+              <option value="REFUNDED">{t('payments.table.refunded')}</option>
             </select>
             <button
               onClick={loadPayments}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
             >
               <RefreshCw className="h-4 w-4" />
-              Refresh
+              {t('common.refresh')}
             </button>
           </div>
 
@@ -275,20 +277,20 @@ export default function PaymentsPage() {
             </div>
           ) : filteredPayments.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No payments found.
+              {t('payments.table.empty')}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-gray-50">
-                    <th className="text-left p-3 font-semibold text-sm">Order ID</th>
-                    <th className="text-left p-3 font-semibold text-sm">Client Email</th>
-                    <th className="text-left p-3 font-semibold text-sm">Amount</th>
-                    <th className="text-left p-3 font-semibold text-sm">Payment Status</th>
-                    <th className="text-left p-3 font-semibold text-sm">Order Status</th>
-                    <th className="text-left p-3 font-semibold text-sm">Date</th>
-                    <th className="text-left p-3 font-semibold text-sm">Actions</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.orderId')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.clientEmail')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.amount')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.paymentStatus')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.orderStatus')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.date')}</th>
+                    <th className="text-left p-3 font-semibold text-sm">{t('payments.table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -338,7 +340,7 @@ export default function PaymentsPage() {
                             disabled={refundingPaymentId === payment.id}
                             className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                           >
-                            {refundingPaymentId === payment.id ? 'Processing...' : 'Refund'}
+                            {refundingPaymentId === payment.id ? t('payments.refunding') : t('payments.refund')}
                           </button>
                         )}
                       </td>

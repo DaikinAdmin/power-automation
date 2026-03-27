@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,7 @@ export function DiscountLevelModal({
   onSuccess,
   discountLevel,
 }: DiscountLevelModalProps) {
+  const t = useTranslations('adminDashboard');
   const [formData, setFormData] = useState({
     level: '',
     discountPercentage: '',
@@ -85,13 +87,13 @@ export function DiscountLevelModal({
       const discountPercentage = parseFloat(formData.discountPercentage);
 
       if (isNaN(level) || level < 1) {
-        setError('Level must be a positive number');
+        setError(t('discountLevels.modal.levelError'));
         setLoading(false);
         return;
       }
 
       if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-        setError('Discount percentage must be between 0 and 100');
+        setError(t('discountLevels.modal.discountError'));
         setLoading(false);
         return;
       }
@@ -143,37 +145,37 @@ export function DiscountLevelModal({
         >
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h2 className="text-xl font-bold mb-4">
-              {isEditing ? 'Edit Discount Level' : 'Add New Discount Level'}
+              {isEditing ? t('discountLevels.modal.editTitle') : t('discountLevels.modal.addTitle')}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="level">Level</Label>
+                <Label htmlFor="level">{t('discountLevels.modal.levelLabel')}</Label>
                 <Input
                   id="level"
                   name="level"
                   type="number"
                   value={formData.level}
                   onChange={handleInputChange}
-                  placeholder="e.g., 1, 2, 3..."
+                  placeholder={t('discountLevels.modal.levelPlaceholder')}
                   min="1"
                   required
                   disabled={loading}
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Numeric level identifier (must be unique)
+                  {t('discountLevels.modal.levelHint')}
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="discountPercentage">Discount Percentage</Label>
+                <Label htmlFor="discountPercentage">{t('discountLevels.modal.discountLabel')}</Label>
                 <Input
                   id="discountPercentage"
                   name="discountPercentage"
                   type="number"
                   value={formData.discountPercentage}
                   onChange={handleInputChange}
-                  placeholder="e.g., 5, 10, 15..."
+                  placeholder={t('discountLevels.modal.discountPlaceholder')}
                   min="0"
                   max="100"
                   step="0.01"
@@ -181,7 +183,7 @@ export function DiscountLevelModal({
                   disabled={loading}
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Percentage discount for this level (0-100%)
+                  {t('discountLevels.modal.discountHint')}
                 </p>
               </div>
 
@@ -195,7 +197,7 @@ export function DiscountLevelModal({
                   onClick={onClose}
                   disabled={loading}
                 >
-                  Cancel
+                  {t('discountLevels.modal.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -204,10 +206,10 @@ export function DiscountLevelModal({
                   {loading ? (
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>{isEditing ? 'Updating...' : 'Creating...'}</span>
+                      <span>{isEditing ? t('discountLevels.modal.updating') : t('discountLevels.modal.creating')}</span>
                     </div>
                   ) : (
-                    isEditing ? 'Update Level' : 'Create Level'
+                    isEditing ? t('discountLevels.modal.updateBtn') : t('discountLevels.modal.createBtn')
                   )}
                 </Button>
               </div>
