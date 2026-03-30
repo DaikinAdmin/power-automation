@@ -136,7 +136,8 @@ export async function PUT(request: NextRequest) {
 
     if (existing) {
       const effectiveMargin = existing.margin ?? 20;
-      const calculatedPrice = Math.round(price * (1 + effectiveMargin / 100) * 100) / 100;
+      const priceExVat = price / 1.2;
+      const calculatedPrice = Math.round(priceExVat * (1 + effectiveMargin / 100) * 100) / 100;
       const quantityChanged = existing.quantity !== catalogItem.total_warehouse;
       const priceChanged = existing.initialPrice !== price;
 
@@ -175,7 +176,8 @@ export async function PUT(request: NextRequest) {
       updated++;
     } else {
       const defaultMargin = 20;
-      const calculatedPrice = Math.round(price * (1 + defaultMargin / 100) * 100) / 100;
+      const priceExVat = price / 1.2;
+      const calculatedPrice = Math.round(priceExVat * (1 + defaultMargin / 100) * 100) / 100;
       await db.insert(schema.itemPrice).values({
         itemSlug: item.slug,
         warehouseId: WAREHOUSE_ID,
