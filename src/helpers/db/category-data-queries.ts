@@ -94,6 +94,14 @@ export async function getCategoryPageData(
     );
   }
   
+  // Sort: in-stock items first
+  categoryItems.sort((a, b) => {
+    const aInStock = a.prices.some(p => p.quantity > 0);
+    const bInStock = b.prices.some(p => p.quantity > 0);
+    if (aInStock !== bInStock) return aInStock ? -1 : 1;
+    return 0;
+  });
+
   // Calculate pagination
   const totalItems = categoryItems.length;
   const totalPages = Math.ceil(totalItems / pagination.limit);

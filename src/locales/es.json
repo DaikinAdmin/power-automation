@@ -133,14 +133,19 @@
     "backToShop": "Volver a la Tienda",
     "createAccount": "Crear Cuenta",
     "login": "Iniciar Sesión",
+    "deliveryDetails": "Detalles de entrega",
     "form": {
       "firstName": "Nombre",
       "lastName": "Apellido",
+      "name": "Nombre completo",
       "phoneNumber": "Número de Teléfono",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "No llamar para confirmar el pedido",
       "city": "Ciudad",
       "country": "País",
+      "street": "Calle y número",
+      "postalCode": "Código postal",
+      "vatNumber": "Número de IVA",
       "email": "Correo Electrónico Comercial",
       "password": "Contraseña",
       "forgotPassword": "¿Olvidaste tu Contraseña?"
@@ -219,7 +224,8 @@
       "issueInvoice": "Emitir factura",
       "issuingInvoice": "Emitiendo factura...",
       "processing": "Procesando...",
-      "alreadyPaid": "Ya pagado"
+      "alreadyPaid": "Ya pagado",
+      "invoiceContactMessage": "¡Gracias! Un gestor se pondrá en contacto contigo en breve para aclarar los detalles y emitir la factura."
     },
     "additionalInfo": {
       "text": "Después del pago, recibirás un correo de confirmación. Si tienes alguna pregunta, contacta con nuestro servicio de atención al cliente."
@@ -338,11 +344,25 @@
     "profile": {
       "title": "Configuración del perfil",
       "subtitle": "Actualiza tu información personal. Tu dirección de correo electrónico permanece de solo lectura por seguridad.",
-      "accountDetails": "Detalles de la cuenta",
-      "accountDescription": "Los campos editables llegarán con el hito de administración de perfil.",
-      "email": "Correo electrónico:",
-      "name": "Nombre:",
-      "editNote": "Pronto mostraremos campos editables (nombre, teléfono, dirección), incluida la validación y el historial de auditoría."
+      "email": "Correo electrónico",
+      "name": "Nombre completo",
+      "personalInfo": "Información personal",
+      "countryCode": "Código de país",
+      "phone": "Teléfono",
+      "vatNumber": "Número de IVA",
+      "companyName": "Nombre de empresa",
+      "companyPosition": "Cargo",
+      "addressTitle": "Dirección de entrega",
+      "address": {
+        "country": "País",
+        "city": "Ciudad",
+        "street": "Calle y número",
+        "postalCode": "Código postal"
+      },
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "saveSuccess": "¡Cambios guardados exitosamente!",
+      "saveError": "Error al guardar. Por favor, inténtalo de nuevo."
     }
   },
   "product": {

@@ -133,14 +133,19 @@
     "backToShop": "Back to Shop",
     "createAccount": "Create Account",
     "login": "Login",
+    "deliveryDetails": "Delivery details",
     "form": {
       "firstName": "First Name",
       "lastName": "Last Name",
+      "name": "Full name",
       "phoneNumber": "Phone Number",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Don't call to confirm the order",
       "city": "City",
       "country": "Country",
+      "street": "Street & number",
+      "postalCode": "Postal code",
+      "vatNumber": "VAT number",
       "email": "Commercial Email",
       "password": "Password",
       "forgotPassword": "Forgot Password?"
@@ -219,7 +224,8 @@
       "issueInvoice": "Issue Invoice",
       "issuingInvoice": "Issuing Invoice...",
       "processing": "Processing...",
-      "alreadyPaid": "Already Paid"
+      "alreadyPaid": "Already Paid",
+      "invoiceContactMessage": "Thank you! A manager will contact you shortly to clarify the details and issue an invoice."
     },
     "additionalInfo": {
       "text": "After payment, you will receive a confirmation email. If you have any questions, please contact our customer service."
@@ -369,11 +375,25 @@
     "profile": {
       "title": "Profile settings",
       "subtitle": "Update your personal information. Your email address stays read-only for security.",
-      "accountDetails": "Account details",
-      "accountDescription": "Editable fields will arrive with the profile management milestone.",
-      "email": "Email:",
-      "name": "Name:",
-      "editNote": "We'll surface editable fields (name, phone, address) here soon, including validation and audit history."
+      "email": "Email",
+      "name": "Full name",
+      "personalInfo": "Personal information",
+      "countryCode": "Country code",
+      "phone": "Phone",
+      "vatNumber": "VAT number",
+      "companyName": "Company name",
+      "companyPosition": "Position",
+      "addressTitle": "Delivery address",
+      "address": {
+        "country": "Country",
+        "city": "City",
+        "street": "Street & number",
+        "postalCode": "Postal code"
+      },
+      "save": "Save",
+      "saving": "Saving...",
+      "saveSuccess": "Changes saved successfully!",
+      "saveError": "Save error. Please try again."
     }
   },
   "product": {

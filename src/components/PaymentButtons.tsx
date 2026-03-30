@@ -101,56 +101,29 @@ interface IssueInvoiceButtonProps {
   disabled: boolean;
   label: string;
   processingLabel: string;
+  contactMessage?: string;
 }
 
 export function IssueInvoiceButton({
-  orderId,
+  orderId: _orderId,
   disabled,
   label,
-  processingLabel,
+  contactMessage,
 }: IssueInvoiceButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleClick = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/payments/invoice/initiate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to request invoice');
-      }
-
-      setIsDone(true);
-    } catch (err: any) {
-      setError(err.message || 'Failed to request invoice');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleClick = () => {
+    setIsDone(true);
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <button
         onClick={handleClick}
-        disabled={disabled || isLoading || isDone}
+        disabled={disabled || isDone}
         className="w-full bg-gray-700 text-white py-4 px-6 rounded-lg font-semibold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
-        {isLoading ? (
-          <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            {processingLabel}
-          </>
-        ) : isDone ? (
+        {isDone ? (
           <>
             <CheckCircle2 className="w-5 h-5" />
             {label}
@@ -162,8 +135,10 @@ export function IssueInvoiceButton({
           </>
         )}
       </button>
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
+      {isDone && (
+        <p className="text-sm text-gray-700 bg-gray-100 rounded-lg px-4 py-3">
+          {contactMessage}
+        </p>
       )}
     </div>
   );

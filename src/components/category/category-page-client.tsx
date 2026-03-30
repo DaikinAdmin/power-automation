@@ -173,6 +173,10 @@ export function CategoryPageClient({
         return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
       })
       .sort((a, b) => {
+        const aInStock = a.prices.some((p: any) => p.quantity > 0);
+        const bInStock = b.prices.some((p: any) => p.quantity > 0);
+        if (aInStock !== bInStock) return aInStock ? -1 : 1;
+
         const aDetails = a.details;
         const bDetails = b.details;
         const aPrice = a.prices[0]?.promotionPrice || a.prices[0]?.price || 0;

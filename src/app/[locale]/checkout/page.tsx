@@ -1,12 +1,13 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { Phone, ArrowLeft, Eye, EyeOff, Trash2 } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import Image from "next/image";
 import { countryCodes } from "@/helpers/country-codes";
+import { parseAddress, type AddressFields } from "@/helpers/address";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTranslations } from "next-intl";
@@ -30,6 +31,14 @@ interface CheckoutForm {
   city: string;
   country: string;
   email: string;
+}
+
+interface DeliveryInfo {
+  name: string;
+  phone: string;
+  countryCode: string;
+  vatNumber: string;
+  address: AddressFields;
 }
 
 interface LoginForm {
@@ -70,6 +79,14 @@ export default function CheckoutPage({
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderError, setOrderError] = useState("");
 
+  const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
+    name: "",
+    phone: "",
+    countryCode: "+48",
+    vatNumber: "",
+    address: { country: "", city: "", street: "", postalCode: "" },
+  });
+
   const { cartItems, updateCartQuantity, removeFromCart, getTotalCartItems } =
     useCart();
   const {
@@ -88,6 +105,25 @@ export default function CheckoutPage({
   const { convertToCurrency, formatAs } = useCurrency();
   const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
   const session = authClient.useSession();
+
+  // Populate delivery form from session when user logs in
+  useEffect(() => {
+    if (!session.data?.user) return;
+    const u = session.data.user as typeof session.data.user & {
+      phoneNumber?: string;
+      countryCode?: string;
+      vatNumber?: string;
+      addressLine?: string;
+    };
+    if (!u) return;
+    setDeliveryInfo({
+      name: u.name ?? "",
+      phone: u.phoneNumber ?? "",
+      countryCode: u.countryCode ?? "+48",
+      vatNumber: u.vatNumber ?? "",
+      address: parseAddress(u.addressLine),
+    });
+  }, [session.data?.user?.id]);
 
   // Format a price in domain currency; if domain currency equals item currency, returns empty string
   const formatPaymentPrice = (item: typeof cartItems[number], qty = 1) => {
@@ -199,7 +235,14 @@ export default function CheckoutPage({
         customerInfo: session.data.user.email
           ? {
               email: session.data.user.email,
-              name: session.data.user.name,
+              name: deliveryInfo.name || session.data.user.name,
+              phone: deliveryInfo.phone,
+              countryCode: deliveryInfo.countryCode,
+              vatNumber: deliveryInfo.vatNumber,
+              country: deliveryInfo.address.country,
+              city: deliveryInfo.address.city,
+              street: deliveryInfo.address.street,
+              postalCode: deliveryInfo.address.postalCode,
             }
           : checkoutForm,
         deliveryId: null, // You can add delivery selection later
@@ -221,6 +264,22 @@ export default function CheckoutPage({
       }
 
       setOrderSuccess(true);
+
+      // Sync updated delivery info back to the user profile (fire-and-forget)
+      if (session.data?.user) {
+        fetch("/api/user/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: deliveryInfo.name || undefined,
+            phoneNumber: deliveryInfo.phone || undefined,
+            countryCode: deliveryInfo.countryCode || undefined,
+            vatNumber: deliveryInfo.vatNumber || undefined,
+            address: deliveryInfo.address,
+          }),
+        }).catch(() => {/* non-critical, ignore */});
+      }
+
       // Clear cart after successful order
       cartItems.forEach((item) => removeFromCart(item.id));
 
@@ -573,11 +632,97 @@ export default function CheckoutPage({
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">{t("welcome")}</h3>
-                <p className="text-gray-600">
-                  {t("loggedInAs")} {session.data.user.email}
+              <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+                <h3 className="text-lg font-semibold">{t("welcome")}</h3>
+                <p className="text-sm text-gray-500">
+                  {t("loggedInAs")} <span className="font-medium">{session.data.user.email}</span>
                 </p>
+
+                {/* Delivery details — pre-filled from profile, editable */}
+                <div className="pt-2 space-y-4">
+                  <h4 className="font-medium text-gray-800">{t("deliveryDetails")}</h4>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.name")}</label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.name}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <select
+                      value={deliveryInfo.countryCode}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, countryCode: e.target.value }))}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      {countryCodes.map((item) => (
+                        <option key={item.code} value={item.code}>{item.code} ({item.country})</option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      value={deliveryInfo.phone}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, phone: e.target.value }))}
+                      placeholder={t("form.phonePlaceholder")}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.vatNumber")}</label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.vatNumber}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, vatNumber: e.target.value }))}
+                      placeholder="PL1234567890"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.country")}</label>
+                      <input
+                        type="text"
+                        value={deliveryInfo.address.country}
+                        onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: { ...p.address, country: e.target.value } }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.postalCode")}</label>
+                      <input
+                        type="text"
+                        value={deliveryInfo.address.postalCode}
+                        onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: { ...p.address, postalCode: e.target.value } }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.city")}</label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.address.city}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: { ...p.address, city: e.target.value } }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t("form.street")}</label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.address.street}
+                      onChange={(e) => setDeliveryInfo((p) => ({ ...p, address: { ...p.address, street: e.target.value } }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
               </div>
             )}
 

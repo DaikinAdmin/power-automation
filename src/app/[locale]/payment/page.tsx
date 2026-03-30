@@ -363,6 +363,7 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                     disabled={isLoading || orderData.status === 'COMPLETED'}
                     label={t('buttons.issueInvoice')}
                     processingLabel={t('buttons.issuingInvoice')}
+                    contactMessage={t('buttons.invoiceContactMessage')}
                   />
                 </div>
               </div>

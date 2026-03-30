@@ -133,14 +133,19 @@
     "backToShop": "Wróć do sklepu",
     "createAccount": "Utwórz konto",
     "login": "Zaloguj się",
+    "deliveryDetails": "Szczegóły dostawy",
     "form": {
       "firstName": "Imię",
       "lastName": "Nazwisko",
+      "name": "Imię i nazwisko",
       "phoneNumber": "Numer telefonu",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Nie dzwoń w celu potwierdzenia zamówienia",
       "city": "Miasto",
       "country": "Kraj",
+      "street": "Ulica i numer",
+      "postalCode": "Kod pocztowy",
+      "vatNumber": "Numer VAT",
       "email": "E-mail handlowy",
       "password": "Hasło",
       "forgotPassword": "Zapomniałeś hasła?"
@@ -219,7 +224,8 @@
       "issueInvoice": "Wystaw fakturę",
       "issuingInvoice": "Wystawiamy fakturę...",
       "processing": "Przetwarzanie...",
-      "alreadyPaid": "Już opłacone"
+      "alreadyPaid": "Już opłacone",
+      "invoiceContactMessage": "Dziękujemy! Menedżer skontaktuje się z Tobą wkrótce, aby doprecyzować szczegóły i wystawić fakturę."
     },
     "additionalInfo": {
       "text": "Po dokonaniu płatności otrzymasz e-mail z potwierdzeniem. W razie pytań skontaktuj się z naszym działem obsługi klienta."
@@ -369,11 +375,25 @@
     "profile": {
       "title": "Ustawienia profilu",
       "subtitle": "Zaktualizuj swoje dane osobowe. Twój adres e-mail pozostaje tylko do odczytu ze względów bezpieczeństwa.",
-      "accountDetails": "Szczegóły konta",
-      "accountDescription": "Edytowalne pola pojawią się wraz z kamieniem milowym zarządzania profilem.",
-      "email": "Email:",
-      "name": "Imię:",
-      "editNote": "Wkrótce udostępnimy edytowalne pola (imię, telefon, adres), w tym walidację i historię audytu."
+      "email": "Email",
+      "name": "Imię i nazwisko",
+      "personalInfo": "Dane osobowe",
+      "countryCode": "Kod kraju",
+      "phone": "Telefon",
+      "vatNumber": "Numer NIP/VAT",
+      "companyName": "Nazwa firmy",
+      "companyPosition": "Stanowisko",
+      "addressTitle": "Adres dostawy",
+      "address": {
+        "country": "Kraj",
+        "city": "Miasto",
+        "street": "Ulica i numer",
+        "postalCode": "Kod pocztowy"
+      },
+      "save": "Zapisz",
+      "saving": "Zapisywanie...",
+      "saveSuccess": "Zmiany zapisane pomyślnie!",
+      "saveError": "Błąd zapisu. Spróbuj ponownie."
     }
   },
   "product": {
