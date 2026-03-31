@@ -220,12 +220,19 @@
     "buttons": {
       "proceedToPayment": "Proceder al pago",
       "payWithLiqPay": "Pagar con LiqPay",
+      "payWithLiqPayInstallment": "Pagar a plazos (LiqPay)",
       "payWithPrzelewy24": "Pagar con Przelewy24",
       "issueInvoice": "Emitir factura",
       "issuingInvoice": "Emitiendo factura...",
       "processing": "Procesando...",
       "alreadyPaid": "Ya pagado",
       "invoiceContactMessage": "¡Gracias! Un gestor se pondrá en contacto contigo en breve para aclarar los detalles y emitir la factura."
+    },
+    "cashOnDelivery": {
+      "info": "Su pedido ha sido confirmado. El pago se realizará en el momento de la entrega."
+    },
+    "bankTransfer": {
+      "info": "Para pagar por transferencia bancaria, solicite una factura a continuación. Un gestor se pondrá en contacto con usted en breve."
     },
     "additionalInfo": {
       "text": "Después del pago, recibirás un correo de confirmación. Si tienes alguna pregunta, contacta con nuestro servicio de atención al cliente."
@@ -388,7 +395,7 @@
     },
     "actions": {
       "addToCart": "Añadir al carrito",
-      "outOfStock": "Agotado",
+      "outOfStock": "Bajo pedido",
       "askPrice": "Consultar precio",
       "addToWishlist": "Añadir a favoritos",
       "compare": "Comparar",
@@ -398,7 +405,7 @@
     "availability": {
       "inStock": "En stock",
       "inStockQty": "{quantity} en stock",
-      "outOfStock": "Agotado"
+      "outOfStock": "Bajo pedido"
     },
     "tabs": {
       "delivery": "Entrega y disponibilidad",

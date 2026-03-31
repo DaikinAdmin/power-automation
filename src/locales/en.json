@@ -220,12 +220,19 @@
     "buttons": {
       "proceedToPayment": "Proceed to Payment",
       "payWithLiqPay": "Pay with LiqPay",
+      "payWithLiqPayInstallment": "Pay in installments (LiqPay)",
       "payWithPrzelewy24": "Pay with Przelewy24",
       "issueInvoice": "Issue Invoice",
       "issuingInvoice": "Issuing Invoice...",
       "processing": "Processing...",
       "alreadyPaid": "Already Paid",
       "invoiceContactMessage": "Thank you! A manager will contact you shortly to clarify the details and issue an invoice."
+    },
+    "cashOnDelivery": {
+      "info": "Your order is confirmed. Payment will be collected upon delivery."
+    },
+    "bankTransfer": {
+      "info": "To pay by bank transfer, please request an invoice below. A manager will contact you shortly."
     },
     "additionalInfo": {
       "text": "After payment, you will receive a confirmation email. If you have any questions, please contact our customer service."
@@ -419,7 +426,7 @@
     },
     "actions": {
       "addToCart": "Add to Cart",
-      "outOfStock": "Out of Stock",
+      "outOfStock": "To order",
       "askPrice": "Ask Price",
       "addToWishlist": "Add to Wishlist",
       "compare": "Compare",
@@ -429,7 +436,7 @@
     "availability": {
       "inStock": "In stock",
       "inStockQty": "{quantity} in stock",
-      "outOfStock": "Out of stock"
+      "outOfStock": "To order"
     },
     "tabs": {
       "delivery": "Delivery & Availability",

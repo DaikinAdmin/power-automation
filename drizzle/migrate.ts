@@ -16,10 +16,13 @@ async function runMigration() {
 	if (!dbUrl) throw new Error('No database url found')
         console.log('Using database URL:', dbUrl);
 
+	// Strip Prisma-specific ?schema= query param that postgres-js doesn't understand
+	const cleanDbUrl = dbUrl.replace(/[?&]schema=[^&]*/g, '').replace(/\?$/, '');
+
 	// Check if we're connecting to local Docker postgres (hostname contains 'postgres' or 'localhost')
 	const isLocalDocker = dbUrl.includes('@postgres:') || dbUrl.includes('@localhost:');
 
-	const client = postgres(dbUrl, {
+	const client = postgres(cleanDbUrl, {
 		max: 1,
 		// SSL must be `require`. `true` or `verify-full` do not work since Railway uses self-signed certificates.
 		// Disable SSL for local Docker postgres container

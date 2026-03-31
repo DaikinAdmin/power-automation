@@ -95,6 +95,47 @@ export function LiqPayButton({
   );
 }
 
+/* ─────────────────────────────── LiqPay Installments ── */
+export function LiqPayInstallmentButton({
+  isThisLoading,
+  disabled,
+  isCompleted,
+  onClick,
+  processingLabel,
+  alreadyPaidLabel,
+  label,
+}: PaymentButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || isCompleted}
+      className="w-full bg-[#69c84b] text-white py-4 px-6 rounded-lg font-semibold hover:bg-[#458a2f] disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+    >
+      {isThisLoading ? (
+        <>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          {processingLabel}
+        </>
+      ) : isCompleted ? (
+        <>
+          <CheckCircle2 className="w-5 h-5" />
+          {alreadyPaidLabel}
+        </>
+      ) : (
+        <>
+          <img src="/imgs/installments-liqpay.png" alt="LiqPay Installment" className="w-5 h-5" />
+          {label ?? (
+            <>
+              <span>Оплата частинами</span>
+              <span className="font-black tracking-tight">Приватбанк</span>
+            </>
+          )}
+        </>
+      )}
+    </button>
+  );
+}
+
 /* ──────────────────────────────────────── IssueInvoice ── */
 interface IssueInvoiceButtonProps {
   orderId: string;

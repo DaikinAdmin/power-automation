@@ -55,6 +55,20 @@ export const paymentStatus = pgEnum("PaymentStatus", [
   "CANCELLED",
   "REFUNDED",
 ]);
+export const deliveryType = pgEnum("DeliveryType", [
+  "PICKUP",
+  "USER_ADDRESS",
+  "NOVA_POSHTA",
+  "COURIER",
+]);
+export const deliveryStatus = pgEnum("DeliveryStatus", [
+  "PENDING",
+  "PROCESSING",
+  "IN_TRANSIT",
+  "DELIVERED",
+  "RETURNED",
+  "CANCELLED",
+]);
 
 // export const prismaMigrations = pgTable("_prisma_migrations", {
 // 	id: varchar({ length: 36 }).primaryKey().notNull(),
@@ -606,6 +620,49 @@ export const order = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("cascade"),
+  ]
+);
+
+export const delivery = pgTable(
+  "delivery",
+  {
+    id: text()
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    userId: text().notNull(),
+    orderId: text(),
+    type: deliveryType().notNull(),
+    // City (for Nova Poshta dept/courier)
+    city: text(),
+    cityRef: text("city_ref"),
+    // Nova Poshta warehouse/department
+    warehouseRef: text("warehouse_ref"),
+    warehouseDesc: text("warehouse_desc"),
+    // Courier / address delivery
+    street: text(),
+    building: text(),
+    flat: text(),
+    // Carrier tracking number (накладна TTN)
+    trackingNumber: text("tracking_number"),
+    // Payment method tied to this delivery
+    paymentMethod: text("payment_method"),
+    status: deliveryStatus().default("PENDING").notNull(),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [user.id],
+      name: "delivery_userId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
+    index("delivery_userId_idx").on(table.userId),
+    index("delivery_orderId_idx").on(table.orderId),
   ]
 );
 

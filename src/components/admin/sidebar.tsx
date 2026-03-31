@@ -110,6 +110,11 @@ export function AdminSidebar({ className }: SidebarProps) {
       href: '/admin/payments',
       icon: <CreditCard className="h-5 w-5" />
     },
+        {
+      title: 'Delivery',
+      href: '/admin/delivery',
+      icon: <Package className="h-5 w-5" />
+    },
     {
       title: t('analytics'),
       href: '/admin/analytics',

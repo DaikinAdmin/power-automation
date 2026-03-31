@@ -115,7 +115,7 @@
     "adjustFilters": "Spróbuj dostosować filtry",
     "viewAllProducts": "Zobacz wszystkie produkty",
     "inStock": "w magazynie",
-    "outOfStock": "Brak w magazynie",
+    "outOfStock": "Na zamówienie",
     "from": "Od",
     "moreLocations": "więcej lokalizacji",
     "moreLocation": "więcej lokalizacja",
@@ -182,8 +182,14 @@
       "acceptTerms": "Proszę zaakceptować warunki i umowę użytkownika",
       "pleaseLogin": "Proszę się zalogować, aby złożyć zamówienie",
       "cartEmpty": "Twój koszyk jest pusty",
-      "orderSuccess": "Zamówienie złożone pomyślnie! Wkrótce otrzymasz e-mail z potwierdzeniem.",
-      "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:"
+      "orderSuccess": "Zamówienie złożone pomyślnie!",
+      "orderCreated": "Zamówienie utworzone pomyślnie! ID zamówienia:",
+      "redirectingToPayment": "Przekierowanie do systemu płatności..."
+    },
+    "dialog": {
+      "cashOnDeliveryInfo": "Twoje zamówienie zostało potwierdzone. Płatność przy odbiorze przesyłki.",
+      "bankTransferInfo": "Twoje zamówienie zostało potwierdzone. Menedżer skontaktuje się z Tobą w celu wystawienia faktury.",
+      "goToDashboard": "Przejdź do panelu"
     }
   },
   "payment": {
@@ -220,12 +226,19 @@
     "buttons": {
       "proceedToPayment": "Przejdź do płatności",
       "payWithLiqPay": "Zapłać przez LiqPay",
+      "payWithLiqPayInstallment": "Płatność ratalna (LiqPay)",
       "payWithPrzelewy24": "Zapłać przez Przelewy24",
       "issueInvoice": "Wystaw fakturę",
       "issuingInvoice": "Wystawiamy fakturę...",
       "processing": "Przetwarzanie...",
       "alreadyPaid": "Już opłacone",
       "invoiceContactMessage": "Dziękujemy! Menedżer skontaktuje się z Tobą wkrótce, aby doprecyzować szczegóły i wystawić fakturę."
+    },
+    "cashOnDelivery": {
+      "info": "Twoje zamówienie zostało potwierdzone. Płatność zostanie pobrana przy odbiorze przesyłki."
+    },
+    "bankTransfer": {
+      "info": "Aby zapłacić przelewem bankowym, zamów fakturę poniżej. Menedżer skontaktuje się z Tobą wkrótce."
     },
     "additionalInfo": {
       "text": "Po dokonaniu płatności otrzymasz e-mail z potwierdzeniem. W razie pytań skontaktuj się z naszym działem obsługi klienta."
@@ -419,7 +432,7 @@
     },
     "actions": {
       "addToCart": "Dodaj do koszyka",
-      "outOfStock": "Brak w magazynie",
+      "outOfStock": "Na zamówienie",
       "askPrice": "Zapytaj o cenę",
       "addToWishlist": "Dodaj do ulubionych",
       "compare": "Porównaj",
@@ -429,7 +442,7 @@
     "availability": {
       "inStock": "Dostępny",
       "inStockQty": "{quantity} szt. w magazynie",
-      "outOfStock": "Brak w magazynie"
+      "outOfStock": "Na zamówienie"
     },
     "tabs": {
       "delivery": "Dostawa i dostępność",
@@ -484,7 +497,7 @@
       "title": "Wybierz magazyn",
       "inStock": "{quantity} w magazynie",
       "warehouse": "Magazyn",
-      "outOfStockTitle": "Towar niedostępny w magazynie",
+      "outOfStockTitle": "Towar na zamówienie",
       "lastPrice": "Ostatnia cena",
       "contactManager": "W celu zamówienia skontaktuj się z menedżerem",
       "switchToAvailable": "Przejdź do dostępnego magazynu",
@@ -504,7 +517,7 @@
     },
     "productCatalogCard": {
       "buy": "Kup",
-      "outOfStock": "Brak",
+      "outOfStock": "Na zamówienie",
       "addToCompare": "Dodaj do porównania",
       "inCompare": "W porównaniu",
       "from": "od",
