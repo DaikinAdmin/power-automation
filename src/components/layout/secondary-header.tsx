@@ -11,13 +11,12 @@ import {
 import { BiSolidCategory } from "react-icons/bi";
 import { FaCircleUser, FaHeart } from "react-icons/fa6";
 import { MdShoppingCart } from "react-icons/md";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCart } from "@/components/cart-context";
 import { useCompare } from "@/components/compare-context";
 import Settings from "@/components/auth/settings";
 import SignOut from "@/components/auth/sign-out";
 import { useCategories } from "@/hooks/useCategories";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import HeaderSearch from "../searchInput";
 import { motion, AnimatePresence } from "framer-motion";

@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/languge-switcher';
 import { 
@@ -110,8 +109,8 @@ export function AdminSidebar({ className }: SidebarProps) {
       href: '/admin/payments',
       icon: <CreditCard className="h-5 w-5" />
     },
-        {
-      title: 'Delivery',
+    {
+      title: t('delivery'),
       href: '/admin/delivery',
       icon: <Package className="h-5 w-5" />
     },

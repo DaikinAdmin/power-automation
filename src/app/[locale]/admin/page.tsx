@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 
 import { OrderStatus } from '@/db/schema';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { 
   ShoppingCart, 
   Package, 

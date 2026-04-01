@@ -1,8 +1,8 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Package, MapPin, Calendar, CreditCard } from 'lucide-react';
 

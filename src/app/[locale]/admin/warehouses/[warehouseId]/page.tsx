@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation'
 import { 
   Card, 
   CardContent, 
@@ -22,7 +22,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface WarehouseItem {
   id: string;

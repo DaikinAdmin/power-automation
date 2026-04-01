@@ -4,7 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter } from '@/i18n/navigation'
 import { useLocale, useTranslations } from "next-intl";
 
 import CardWrapper from "../card-wrapper";

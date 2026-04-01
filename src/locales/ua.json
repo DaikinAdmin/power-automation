@@ -755,6 +755,7 @@
       "uploads": "Зображення",
       "currencies": "Валюти",
       "payments": "Платежі",
+      "delivery": "Доставки",
       "analytics": "Аналітика",
       "settings": "Налаштування"
     },
@@ -1185,32 +1186,62 @@
       }
     },
     "delivery": {
-      "title": "Доставка",
-      "description": "Керуйте налаштуваннями доставки та методами відправлення.",
+      "title": "Доставки",
+      "description": "Управління доставками замовлень",
       "stats": {
-        "active": "Активні доставки",
-        "today": "Доставлено сьогодні",
-        "pending": "Очікує відправки",
-        "avgTime": "Сер. час доставки",
-        "days": "днів"
+        "total": "Всього",
+        "inTransit": "В дорозі",
+        "pending": "Очікують",
+        "delivered": "Доставлено"
       },
-      "shipping": {
-        "title": "Методи доставки",
-        "standard": "Стандартна доставка",
-        "express": "Експрес доставка",
-        "pickup": "Самовивіз",
-        "days": "днів",
-        "free": "Безкоштовно",
-        "enabled": "Увімкнено",
-        "disabled": "Вимкнено"
+      "filters": {
+        "allStatuses": "Всі статуси",
+        "allTypes": "Всі типи"
       },
-      "carriers": {
-        "title": "Перевізники",
-        "dhl": "DHL Express",
-        "inPost": "InPost Paczkomat",
-        "polish": "Пошта Польщі",
-        "active": "Активний",
-        "inactive": "Неактивний"
+      "table": {
+        "customer": "Замовник",
+        "type": "Тип",
+        "addressWarehouse": "Адреса / Відділення",
+        "tracking": "ТТН",
+        "status": "Статус",
+        "order": "Ордер",
+        "date": "Дата",
+        "empty": "Доставок не знайдено",
+        "edit": "Редагувати"
+      },
+      "type": {
+        "PICKUP": "Самовивіз",
+        "USER_ADDRESS": "Адреса",
+        "NOVA_POSHTA": "Нова Пошта",
+        "COURIER": "Кур'єр"
+      },
+      "status": {
+        "PENDING": "Очікує",
+        "PROCESSING": "Обробляється",
+        "IN_TRANSIT": "В дорозі",
+        "DELIVERED": "Доставлено",
+        "RETURNED": "Повернено",
+        "CANCELLED": "Скасовано"
+      },
+      "modal": {
+        "title": "Редагувати доставку",
+        "labelType": "Тип",
+        "labelCity": "Місто",
+        "labelWarehouse": "Відділення",
+        "labelAddress": "Адреса",
+        "labelCustomer": "Замовник",
+        "labelOrder": "Ордер",
+        "labelStatus": "Статус доставки",
+        "labelTracking": "ТТН / Накладна",
+        "trackingPlaceholder": "Номер накладної",
+        "cancel": "Скасувати",
+        "saving": "Збереження...",
+        "save": "Зберегти"
+      },
+      "toast": {
+        "loadError": "Не вдалося завантажити доставки",
+        "saveSuccess": "Доставку оновлено",
+        "saveError": "Помилка збереження"
       }
     },
     "promo": {
@@ -1629,6 +1660,39 @@
       "selectPrompt": "Виберіть зображення з бібліотеки",
       "cancel": "Скасувати",
       "select": "Вибрати"
+    }
+  },
+  "novaPostDelivery": {
+    "city": "Місто",
+    "startTypingCityName": "Почніть вводити назву міста…",
+    "searching": "Пошук",
+    "warehouseOrPostomat": "Відділення / Поштомат",
+    "searchByNumberOrAddress": "Пошук за номером або адресою…",
+    "loading": "Завантаження",
+    "nothingFound": "Нічого не знайдено",
+    "selectCityFirst": "Спочатку оберіть місто",
+    "selectWarehouse": "Оберіть відділення",
+    "deliveryMethod": "Спосіб доставки",
+    "novaPostOffice": "Відділення Нової пошти",
+    "novaPostCourier": "Кур'єр Нової пошти",
+    "warehousePickup": "Самовивіз зі складу",
+    "paymentMethod": "Спосіб оплати",
+    "street": "Вулиця",
+    "streetPlaceholder": "вул. Шевченка",
+    "building": "Будинок",
+    "buildingPlaceholder": "12А",
+    "apartmentOrOffice": "Квартира / Офіс",
+    "apartmentOrOfficePlaceholder": "42",
+    "deliveryOption": {
+      "warehouse": { "label": "Самовивіз", "description": "З нашого складу" },
+      "nova_dept": { "label": "Відділення", "description": "Нової Пошти" },
+      "nova_courier": { "label": "Кур'єр", "description": "Нова Пошта" }
+    },
+    "paymentOption": {
+      "online_card": { "label": "Картою онлайн", "description": "Visa / Mastercard" },
+      "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
+      "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
+      "installment": { "label": "Оплата частинами", "description": "ПриватБанк · Monobank" }
     }
   }
 }

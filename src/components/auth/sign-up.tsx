@@ -13,7 +13,7 @@ import { Button } from '../ui/button'
 import { SignupSchema, CompanySignupSchema, PrivateSignupSchema } from '@/helpers/zod/signup-schema'
 import { signUp } from '@/lib/auth-client'
 import { Eye, EyeOff, Building2, User } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { europeanCountries } from '@/helpers/country-codes'
 import { useLocale, useTranslations } from 'next-intl'
 
@@ -366,11 +366,11 @@ const SignUp = () => {
                                     />
                                     <label htmlFor="userAgreement" className="ml-2 text-sm text-gray-700">
                                         {t('termsAccept')}{' '}
-                                        <Link href={`/${locale}/terms`} className="text-blue-600 hover:text-blue-800 underline">
+                                        <Link href="/terms" className="text-blue-600 hover:text-blue-800 underline">
                                             {t('termsOfService')}
                                         </Link>
                                         {' '}{t('and')}{' '}
-                                        <Link href={`/${locale}/privacy`} className="text-blue-600 hover:text-blue-800 underline">
+                                        <Link href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
                                             {t('userAgreement')}
                                         </Link>
                                     </label>

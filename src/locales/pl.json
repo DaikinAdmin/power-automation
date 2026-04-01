@@ -755,6 +755,7 @@
       "uploads": "Zdjęcia",
       "currencies": "Waluty",
       "payments": "Płatności",
+      "delivery": "Dostawy",
       "analytics": "Analityka",
       "settings": "Ustawienia"
     },
@@ -1185,32 +1186,62 @@
       }
     },
     "delivery": {
-      "title": "Dostawa",
-      "description": "Zarządzaj ustawieniami dostawy i metodami wysyłki.",
+      "title": "Dostawy",
+      "description": "Zarządzaj dostawami zamówień",
       "stats": {
-        "active": "Aktywne dostawy",
-        "today": "Dostarczone dzisiaj",
-        "pending": "Oczekujące wysyłki",
-        "avgTime": "Śr. czas dostawy",
-        "days": "dni"
+        "total": "Łącznie",
+        "inTransit": "W transporcie",
+        "pending": "Oczekujące",
+        "delivered": "Dostarczone"
       },
-      "shipping": {
-        "title": "Metody wysyłki",
-        "standard": "Dostawa standardowa",
-        "express": "Dostawa ekspresowa",
-        "pickup": "Odbiór osobisty",
-        "days": "dni",
-        "free": "Bezpłatna",
-        "enabled": "Włączona",
-        "disabled": "Wyłączona"
+      "filters": {
+        "allStatuses": "Wszystkie statusy",
+        "allTypes": "Wszystkie typy"
       },
-      "carriers": {
-        "title": "Firmy kurierskie",
-        "dhl": "DHL Express",
-        "inPost": "InPost Paczkomat",
-        "polish": "Poczta Polska",
-        "active": "Aktywna",
-        "inactive": "Nieaktywna"
+      "table": {
+        "customer": "Zamawiający",
+        "type": "Typ",
+        "addressWarehouse": "Adres / Oddział",
+        "tracking": "Nr listu",
+        "status": "Status",
+        "order": "Zamówienie",
+        "date": "Data",
+        "empty": "Nie znaleziono dostaw",
+        "edit": "Edytuj"
+      },
+      "type": {
+        "PICKUP": "Odbiór osobisty",
+        "USER_ADDRESS": "Adres",
+        "NOVA_POSHTA": "Nova Poshta",
+        "COURIER": "Kurier"
+      },
+      "status": {
+        "PENDING": "Oczekuje",
+        "PROCESSING": "W realizacji",
+        "IN_TRANSIT": "W transporcie",
+        "DELIVERED": "Dostarczone",
+        "RETURNED": "Zwrócone",
+        "CANCELLED": "Anulowane"
+      },
+      "modal": {
+        "title": "Edytuj dostawę",
+        "labelType": "Typ",
+        "labelCity": "Miasto",
+        "labelWarehouse": "Oddział",
+        "labelAddress": "Adres",
+        "labelCustomer": "Zamawiający",
+        "labelOrder": "Zamówienie",
+        "labelStatus": "Status dostawy",
+        "labelTracking": "Nr listu przewozowego",
+        "trackingPlaceholder": "Numer listu przewozowego",
+        "cancel": "Anuluj",
+        "saving": "Zapisywanie...",
+        "save": "Zapisz"
+      },
+      "toast": {
+        "loadError": "Nie udało się załadować dostaw",
+        "saveSuccess": "Dostawa zaktualizowana",
+        "saveError": "Błąd zapisu"
       }
     },
     "promo": {
@@ -1629,6 +1660,39 @@
       "selectPrompt": "Wybierz zdjęcie z biblioteki",
       "cancel": "Anuluj",
       "select": "Wybierz"
+    }
+  },
+  "novaPostDelivery": {
+    "city": "Miasto",
+    "startTypingCityName": "Zacznij wpisywać nazwę miasta…",
+    "searching": "Szukam",
+    "warehouseOrPostomat": "Oddział / Paczkomat",
+    "searchByNumberOrAddress": "Szukaj po numerze lub adresie…",
+    "loading": "Ładowanie",
+    "nothingFound": "Nic nie znaleziono",
+    "selectCityFirst": "Najpierw wybierz miasto",
+    "selectWarehouse": "Wybierz oddział",
+    "deliveryMethod": "Metoda dostawy",
+    "novaPostOffice": "Oddział Nova Poshta",
+    "novaPostCourier": "Kurier Nova Poshta",
+    "warehousePickup": "Odbiór z magazynu",
+    "paymentMethod": "Metoda płatności",
+    "street": "Ulica",
+    "streetPlaceholder": "ul. Szewczenki",
+    "building": "Budynek",
+    "buildingPlaceholder": "12A",
+    "apartmentOrOffice": "Mieszkanie / Biuro",
+    "apartmentOrOfficePlaceholder": "42",
+    "deliveryOption": {
+      "warehouse": { "label": "Odbiór własny", "description": "Z naszego magazynu" },
+      "nova_dept": { "label": "Oddział", "description": "Nova Poshta" },
+      "nova_courier": { "label": "Kurier", "description": "Nova Poshta" }
+    },
+    "paymentOption": {
+      "online_card": { "label": "Kartą online", "description": "Visa / Mastercard" },
+      "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
+      "cash_on_delivery": { "label": "Za pobraniem", "description": "Płatność przy odbiorze" },
+      "installment": { "label": "Płatność ratalna", "description": "PrivatBank · Monobank" }
     }
   }
 }

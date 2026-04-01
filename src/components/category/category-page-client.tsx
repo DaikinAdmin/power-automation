@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "@/components/cart-context";
 import { CartItemType } from "@/helpers/types/item";
 import { useCatalogPricing } from "@/hooks/useCatalogPricing";

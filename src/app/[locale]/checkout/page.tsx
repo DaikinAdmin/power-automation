@@ -4,7 +4,7 @@ import { use, useState, useEffect } from "react";
 import { Phone, ArrowLeft, Eye, EyeOff, Trash2, X, CheckCircle2, Loader2 } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { countryCodes } from "@/helpers/country-codes";
 import { parseAddress, type AddressFields } from "@/helpers/address";
@@ -12,7 +12,7 @@ import { useCartTotals } from "@/hooks/useCartTotals";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "@/components/languge-switcher";
-import { useRouter } from "next/navigation";
+import { useRouter } from '@/i18n/navigation'
 import { useDomainConfig } from "@/hooks/useDomain";
 import type { SupportedCurrency } from "@/helpers/currency";
 import type { DomainKey } from "@/lib/domain-config";
@@ -374,7 +374,7 @@ export default function CheckoutPage({
       }
 
       // PL locale or fallback: redirect to payment page
-      router.push(`/${locale}/payment?orderId=${result.order.id}`);
+      router.push(`/payment?orderId=${result.order.id}`);
     } catch (error: any) {
       setOrderError(error.message || "Failed to create order");
       console.error("Order submission error:", error);
@@ -709,7 +709,7 @@ export default function CheckoutPage({
                     {/* Forgot Password Link */}
                     <div className="text-right">
                       <Link
-                        href={`/${locale}/forgot-password`}
+                        href="/forgot-password"
                         className="text-sm text-blue-600 hover:text-blue-800"
                       >
                         {t("form.forgotPassword")}
@@ -811,8 +811,8 @@ export default function CheckoutPage({
                   </div>
                 </div>
 
-                {/* Nova Post delivery selector — UA locale only */}
-                {locale === "ua" && (
+                {/* Nova Post delivery selector — UA domain only */}
+                {domainConfig.key === "ua" && (
                   <div className="pt-2">
                     <h4 className="font-medium text-gray-800 mb-3">{t("deliveryDetails")}</h4>
                     <NovaPostDelivery onChange={setNovaPostState} initialState={lastDeliveryInitial} />
@@ -1015,7 +1015,7 @@ export default function CheckoutPage({
             <button
               onClick={() => {
                 setPaymentDialog({ open: false, type: null, orderId: null });
-                router.push(`/${locale}/dashboard`);
+                router.push('/dashboard');
               }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
             >
@@ -1041,7 +1041,7 @@ export default function CheckoutPage({
             <button
               onClick={() => {
                 setPaymentDialog({ open: false, type: null, orderId: null });
-                router.push(`/${locale}/dashboard`);
+                router.push('/dashboard');
               }}
               className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-600 transition-colors"
             >

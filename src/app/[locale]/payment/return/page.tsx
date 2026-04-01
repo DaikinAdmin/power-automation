@@ -2,10 +2,10 @@
 
 import { use, useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Loader2, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation'
 import LanguageSwitcher from "@/components/languge-switcher";
 
 interface PaymentReturnPageProps {
@@ -170,7 +170,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
                 <p className="text-gray-600">{t('success.emailSent')}</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href={`/${locale}/orders`}
+                    href="/orders"
                     className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
                   >
                     {t('success.viewOrders')}
@@ -227,7 +227,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
                 <p className="text-gray-600 mb-6">{t('failed.tryAgain')}</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href={`/${locale}/payment?orderId=${orderId}`}
+                    href={`/payment?orderId=${orderId}`}
                     className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
                   >
                     {t('failed.retryPayment')}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { parseAddress, formatAddress, type AddressFields } from "@/helpers/address";
+import { parseAddress, type AddressFields } from "@/helpers/address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,15 @@ interface ProfileFormProps {
     companyPosition?: string;
     addressLine?: string;
   };
+}
+
+function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      {children}
+    </div>
+  );
 }
 
 export default function ProfileForm({ user }: ProfileFormProps) {
@@ -77,77 +86,34 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           <CardTitle>{t("personalInfo")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("email")}
-            </label>
+          <Field label={t("email")}>
             <Input value={user.email} readOnly className="bg-gray-50 text-gray-500" />
-          </div>
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("name")} *
-            </label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
+          <Field label={`${t("name")} *`}>
+            <Input value={name} onChange={(e) => setName(e.target.value)} required />
+          </Field>
 
           <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("countryCode")}
-              </label>
-              <Input
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                placeholder="+48"
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("phone")}
-              </label>
-              <Input
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="123-456-7890"
-              />
-            </div>
+            <Field label={t("countryCode")}>
+              <Input value={countryCode} onChange={(e) => setCountryCode(e.target.value)} placeholder="+48" />
+            </Field>
+            <Field label={t("phone")} className="col-span-2">
+              <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="123-456-7890" />
+            </Field>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("vatNumber")}
-            </label>
-            <Input
-              value={vatNumber}
-              onChange={(e) => setVatNumber(e.target.value)}
-              placeholder="PL1234567890"
-            />
-          </div>
+          <Field label={t("vatNumber")}>
+            <Input value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} placeholder="PL1234567890" />
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("companyName")}
-            </label>
-            <Input
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-          </div>
+          <Field label={t("companyName")}>
+            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("companyPosition")}
-            </label>
-            <Input
-              value={companyPosition}
-              onChange={(e) => setCompanyPosition(e.target.value)}
-            />
-          </div>
+          <Field label={t("companyPosition")}>
+            <Input value={companyPosition} onChange={(e) => setCompanyPosition(e.target.value)} />
+          </Field>
         </CardContent>
       </Card>
 
@@ -158,49 +124,21 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("address.country")}
-              </label>
-              <Input
-                value={address.country}
-                onChange={(e) => handleAddressChange("country", e.target.value)}
-                placeholder="Польща"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("address.postalCode")}
-              </label>
-              <Input
-                value={address.postalCode}
-                onChange={(e) => handleAddressChange("postalCode", e.target.value)}
-                placeholder="00-001"
-              />
-            </div>
+            <Field label={t("address.country")}>
+              <Input value={address.country} onChange={(e) => handleAddressChange("country", e.target.value)} placeholder="Польща" />
+            </Field>
+            <Field label={t("address.postalCode")}>
+              <Input value={address.postalCode} onChange={(e) => handleAddressChange("postalCode", e.target.value)} placeholder="00-001" />
+            </Field>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("address.city")}
-            </label>
-            <Input
-              value={address.city}
-              onChange={(e) => handleAddressChange("city", e.target.value)}
-              placeholder="Варшава"
-            />
-          </div>
+          <Field label={t("address.city")}>
+            <Input value={address.city} onChange={(e) => handleAddressChange("city", e.target.value)} placeholder="Варшава" />
+          </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {t("address.street")}
-            </label>
-            <Input
-              value={address.street}
-              onChange={(e) => handleAddressChange("street", e.target.value)}
-              placeholder="вул. Прикладна 12/3"
-            />
-          </div>
+          <Field label={t("address.street")}>
+            <Input value={address.street} onChange={(e) => handleAddressChange("street", e.target.value)} placeholder="вул. Прикладна 12/3" />
+          </Field>
         </CardContent>
       </Card>
 

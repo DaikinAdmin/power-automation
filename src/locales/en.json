@@ -749,6 +749,7 @@
       "uploads": "Images",
       "currencies": "Currencies",
       "payments": "Payments",
+      "delivery": "Deliveries",
       "analytics": "Analytics",
       "settings": "Settings"
     },
@@ -1179,32 +1180,62 @@
       }
     },
     "delivery": {
-      "title": "Delivery Management",
-      "description": "Manage shipping methods, carriers, and delivery tracking.",
+      "title": "Deliveries",
+      "description": "Manage order deliveries",
       "stats": {
-        "active": "Active Deliveries",
-        "today": "Delivered Today",
-        "pending": "Pending Shipment",
-        "avgTime": "Avg Delivery Time",
-        "days": "days"
+        "total": "Total",
+        "inTransit": "In Transit",
+        "pending": "Pending",
+        "delivered": "Delivered"
       },
-      "shipping": {
-        "title": "Shipping Methods",
-        "description": "Configure available shipping options.",
-        "standard": "Standard Shipping",
-        "standardDays": "5-7 business days",
-        "express": "Express Shipping",
-        "expressDays": "2-3 business days",
-        "overnight": "Overnight Shipping",
-        "overnightDays": "1 business day",
-        "active": "Active",
-        "inactive": "Inactive",
-        "addMethod": "Add Shipping Method"
+      "filters": {
+        "allStatuses": "All statuses",
+        "allTypes": "All types"
       },
-      "carriers": {
-        "title": "Delivery Carriers",
-        "description": "Manage shipping carrier integrations.",
-        "connected": "Connected"
+      "table": {
+        "customer": "Customer",
+        "type": "Type",
+        "addressWarehouse": "Address / Warehouse",
+        "tracking": "Tracking",
+        "status": "Status",
+        "order": "Order",
+        "date": "Date",
+        "empty": "No deliveries found",
+        "edit": "Edit"
+      },
+      "type": {
+        "PICKUP": "Pickup",
+        "USER_ADDRESS": "Address",
+        "NOVA_POSHTA": "Nova Poshta",
+        "COURIER": "Courier"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "IN_TRANSIT": "In Transit",
+        "DELIVERED": "Delivered",
+        "RETURNED": "Returned",
+        "CANCELLED": "Cancelled"
+      },
+      "modal": {
+        "title": "Edit Delivery",
+        "labelType": "Type",
+        "labelCity": "City",
+        "labelWarehouse": "Warehouse",
+        "labelAddress": "Address",
+        "labelCustomer": "Customer",
+        "labelOrder": "Order",
+        "labelStatus": "Delivery Status",
+        "labelTracking": "Tracking Number",
+        "trackingPlaceholder": "Tracking number",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save"
+      },
+      "toast": {
+        "loadError": "Failed to load deliveries",
+        "saveSuccess": "Delivery updated",
+        "saveError": "Save error"
       }
     },
     "promo": {
@@ -1627,6 +1658,39 @@
       "selectPrompt": "Select an image",
       "cancel": "Cancel",
       "select": "Select"
+    }
+  },
+  "novaPostDelivery": {
+    "city": "City",
+    "startTypingCityName": "Start typing city name…",
+    "searching": "Searching",
+    "warehouseOrPostomat": "Warehouse / Postomat",
+    "searchByNumberOrAddress": "Search by number or address…",
+    "loading": "Loading",
+    "nothingFound": "Nothing found",
+    "selectCityFirst": "Select a city first",
+    "selectWarehouse": "Select warehouse",
+    "deliveryMethod": "Delivery method",
+    "novaPostOffice": "Nova Poshta department",
+    "novaPostCourier": "Nova Poshta courier",
+    "warehousePickup": "Pickup from warehouse",
+    "paymentMethod": "Payment method",
+    "street": "Street",
+    "streetPlaceholder": "Shevchenko St.",
+    "building": "Building",
+    "buildingPlaceholder": "12A",
+    "apartmentOrOffice": "Apt / Office",
+    "apartmentOrOfficePlaceholder": "42",
+    "deliveryOption": {
+      "warehouse": { "label": "Pickup", "description": "From our warehouse" },
+      "nova_dept": { "label": "Department", "description": "Nova Poshta" },
+      "nova_courier": { "label": "Courier", "description": "Nova Poshta" }
+    },
+    "paymentOption": {
+      "online_card": { "label": "Card online", "description": "Visa / Mastercard" },
+      "bank_transfer": { "label": "Bank transfer", "description": "Invoice" },
+      "cash_on_delivery": { "label": "Cash on delivery", "description": "Pay on receipt" },
+      "installment": { "label": "Installments", "description": "PrivatBank · Monobank" }
     }
   }
 }

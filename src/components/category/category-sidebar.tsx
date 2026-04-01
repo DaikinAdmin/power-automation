@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import PriceFilter from "@/components/category/price-filter";
 
@@ -83,7 +83,7 @@ export function CategorySidebar({
             (category) => (
               <Link
                 key={category.id}
-                href={`/${locale}/category/${category.slug}`}
+                href={`/category/${category.slug}`}
                 className={`block px-3 py-1 text-sm rounded-md transition-colors ${
                   category.slug === currentSlug
                     ? "bg-red-500 text-white font-medium"

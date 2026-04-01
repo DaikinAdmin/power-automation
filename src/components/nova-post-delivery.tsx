@@ -1,159 +1,19 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import type {
+  DeliveryMethod,
+  PaymentMethod,
+  NpCity,
+  NpWarehouse,
+  NovaPostDeliveryState,
+  CardOption,
+  InputProps,
+} from "@/types/nova-poshta";
+import { useDebounce } from "@/hooks/useDebounce";
+import { getDeliveryOptions, getPaymentOptions } from "@/constants/nova-poshta";
+import { useTranslations } from "next-intl";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export type DeliveryMethod = "warehouse" | "nova_dept" | "nova_courier" | "";
-export type PaymentMethod = "online_card" | "cash_on_delivery" | "bank_transfer" | "installment" | "";
-
-export interface NpCity {
-  ref: string;
-  name: string;
-  settlementType: string;
-}
-
-export interface NovaPostDeliveryState {
-  method: DeliveryMethod;
-  payment: PaymentMethod;
-  city: NpCity | null;
-  warehouseRef: string;
-  warehouseDesc: string;
-  street: string;
-  building: string;
-  flat: string;
-  isValid: boolean;
-}
-
-interface NpWarehouse {
-  ref: string;
-  number: string;
-  description: string;
-  shortAddress: string;
-  postMachineType: string;
-}
-
-interface InputProps {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (value: string) => void;
-}
-
-interface CardOption<T extends string> {
-  value: T;
-  label: string;
-  description?: string;
-  icon: React.ReactNode;
-}
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const DELIVERY_OPTIONS: CardOption<DeliveryMethod>[] = [
-  {
-    value: "warehouse",
-    label: "Самовивіз",
-    description: "З нашого складу",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    value: "nova_dept",
-    label: "Відділення",
-    description: "Нової Пошти",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="7" width="20" height="14" rx="2" />
-        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
-      </svg>
-    ),
-  },
-  {
-    value: "nova_courier",
-    label: "Кур'єр",
-    description: "Нова Пошта",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="3" width="15" height="13" rx="1" />
-        <path d="M16 8h4l3 5v3h-7V8z" />
-        <circle cx="5.5" cy="18.5" r="2.5" />
-        <circle cx="18.5" cy="18.5" r="2.5" />
-      </svg>
-    ),
-  },
-];
-
-const ONLINE_CARD_OPTION: CardOption<PaymentMethod> = {
-  value: "online_card",
-  label: "Картою онлайн",
-  description: "Visa / Mastercard",
-  icon: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2" />
-      <line x1="1" y1="10" x2="23" y2="10" />
-    </svg>
-  ),
-};
-
-const BANK_TRANSFER_OPTION: CardOption<PaymentMethod> = {
-  value: "bank_transfer",
-  label: "Банківський переказ",
-  description: "Рахунок-фактура",
-  icon: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23" />
-      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-    </svg>
-  ),
-};
-
-const CASH_ON_DELIVERY_OPTION: CardOption<PaymentMethod> = {
-  value: "cash_on_delivery",
-  label: "Накладений платіж",
-  description: "Оплата при отриманні",
-  icon: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="6" width="20" height="12" rx="2" />
-      <circle cx="12" cy="12" r="2" />
-    </svg>
-  ),
-};
-
-const INSTALLMENT_OPTION: CardOption<PaymentMethod> = {
-  value: "installment",
-  label: "Оплата частинами",
-  description: "ПриватБанк · Monobank",
-  icon: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="5" width="20" height="14" rx="2" />
-      <path d="M2 10h20" />
-      <path d="M7 15h2M12 15h2" />
-    </svg>
-  ),
-};
-
-const PAYMENT_OPTIONS: Record<DeliveryMethod, CardOption<PaymentMethod>[]> = {
-  warehouse: [ONLINE_CARD_OPTION, INSTALLMENT_OPTION, BANK_TRANSFER_OPTION],
-  nova_dept: [ONLINE_CARD_OPTION, INSTALLMENT_OPTION, BANK_TRANSFER_OPTION, CASH_ON_DELIVERY_OPTION],
-  nova_courier: [ONLINE_CARD_OPTION, INSTALLMENT_OPTION, BANK_TRANSFER_OPTION, CASH_ON_DELIVERY_OPTION],
-  "": [],
-};
-
-// ─── Hooks ───────────────────────────────────────────────────────────────────
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
-  return debounced;
-}
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
+export type { DeliveryMethod, PaymentMethod, NpCity, NovaPostDeliveryState };
 
 function CardSelector<T extends string>({
   label,
@@ -220,6 +80,7 @@ function CityAutocomplete({
   value: NpCity | null;
   onSelect: (city: NpCity | null) => void;
 }) {
+  const t = useTranslations('novaPostDelivery');
   const [query, setQuery] = useState(value?.name ?? "");
   const [results, setResults] = useState<NpCity[]>([]);
   const [open, setOpen] = useState(false);
@@ -252,11 +113,11 @@ function CityAutocomplete({
   return (
     <div className="mb-5 relative" ref={ref}>
       <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-        Місто
+        {t("city")}
       </label>
       <input
         type="text"
-        placeholder="Почніть вводити назву міста..."
+        placeholder={t("startTypingCityName")}
         value={query}
         autoComplete="off"
         onChange={(e) => {
@@ -269,7 +130,7 @@ function CityAutocomplete({
       />
       {loading && (
         <span className="absolute right-3 top-10 text-xs text-gray-400 animate-pulse">
-          Пошук…
+          {t("searching")}…
         </span>
       )}
       {open && results.length > 0 && (
@@ -303,6 +164,7 @@ function WarehouseSelect({
   value: string;
   onChange: (ref: string, description: string) => void;
 }) {
+  const t = useTranslations('novaPostDelivery');
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 350);
   const [warehouses, setWarehouses] = useState<NpWarehouse[]>([]);
@@ -327,11 +189,11 @@ function WarehouseSelect({
   return (
     <div className="mb-5">
       <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-        Відділення / Поштомат
+        {t("warehouseOrPostomat")}
       </label>
       <input
         type="text"
-        placeholder="Пошук за номером або адресою…"
+        placeholder={t("searchByNumberOrAddress")}
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -339,11 +201,11 @@ function WarehouseSelect({
         }}
         className="w-full px-4 py-3 text-sm bg-gray-50 border-2 border-gray-200 rounded-lg outline-none focus:border-red-400 mb-2 box-border"
       />
-      {loading && <p className="text-xs text-gray-400 mb-2 animate-pulse">Завантаження…</p>}
+      {loading && <p className="text-xs text-gray-400 mb-2 animate-pulse">{t("loading")}…</p>}
       {!loading && cityRef && warehouses.length === 0 && (
-        <p className="text-xs text-gray-400 mb-2">Нічого не знайдено</p>
+        <p className="text-xs text-gray-400 mb-2">{t("nothingFound")}</p>
       )}
-      {!cityRef && <p className="text-xs text-gray-400 mb-2">Спочатку оберіть місто</p>}
+      {!cityRef && <p className="text-xs text-gray-400 mb-2">{t("selectCityFirst")}</p>}
       {warehouses.length > 0 && (
         <div className="relative">
           <select
@@ -354,7 +216,7 @@ function WarehouseSelect({
             }}
             className="w-full px-4 py-3 pr-10 text-sm text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-lg appearance-none outline-none cursor-pointer transition focus:border-red-400"
           >
-            <option value="" disabled>Оберіть відділення…</option>
+            <option value="" disabled>{t("selectWarehouse")}</option>
             {warehouses.map((w) => (
               <option key={w.ref} value={w.ref}>{w.description}</option>
             ))}
@@ -367,18 +229,18 @@ function WarehouseSelect({
 }
 
 const Input: React.FC<InputProps> = ({ label, placeholder, value, onChange }) => (
-  <div className="mb-5">
-    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-      {label}
-    </label>
-    <input
-      type="text"
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full px-4 py-3 text-sm text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-lg outline-none transition focus:border-red-400 box-border"
-    />
-  </div>
+    <div className="mb-5">
+      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+        {label}
+      </label>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-4 py-3 text-sm text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-lg outline-none transition focus:border-red-400 box-border"
+      />
+    </div>
 );
 
 // ─── Main component ──────────────────────────────────────────────────────────
@@ -390,6 +252,9 @@ export default function NovaPostDelivery({
   onChange?: (state: NovaPostDeliveryState) => void;
   initialState?: Partial<NovaPostDeliveryState> | null;
 }) {
+  const t = useTranslations('novaPostDelivery');
+  const deliveryOptions = getDeliveryOptions(t as (key: string) => string);
+  const paymentOptions = getPaymentOptions(t as (key: string) => string);
   const [method, setMethod] = useState<DeliveryMethod>("");
   const [city, setCity] = useState<NpCity | null>(null);
   const [warehouseRef, setWarehouseRef] = useState<string>("");
@@ -444,12 +309,12 @@ export default function NovaPostDelivery({
         <span className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
           1
         </span>
-        <span className="text-sm font-semibold text-gray-700">Спосіб доставки</span>
+        <span className="text-sm font-semibold text-gray-700">{t("deliveryMethod")}</span>
       </div>
 
       <CardSelector<DeliveryMethod>
         label=""
-        options={DELIVERY_OPTIONS}
+        options={deliveryOptions}
         value={method}
         onChange={handleMethodChange}
       />
@@ -459,7 +324,7 @@ export default function NovaPostDelivery({
         <div className="p-4 sm:p-5 bg-red-50 rounded-xl border-2 border-red-100 mb-5">
           <div className="flex items-center gap-2 text-xs font-semibold text-red-500 uppercase tracking-wider mb-4">
             <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-            Нова Пошта · Відділення / Поштомат
+            {t("novaPostOffice")}
           </div>
           <CityAutocomplete
             value={city}
@@ -484,13 +349,13 @@ export default function NovaPostDelivery({
         <div className="p-4 sm:p-5 bg-red-50 rounded-xl border-2 border-red-100 mb-5">
           <div className="flex items-center gap-2 text-xs font-semibold text-red-500 uppercase tracking-wider mb-4">
             <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-            Нова Пошта · Кур'єр
+            {t("novaPostCourier")}
           </div>
           <CityAutocomplete value={city} onSelect={setCity} />
-          <Input label="Вулиця" placeholder="напр. вул. Шевченка" value={street} onChange={setStreet} />
+          <Input label={t("street")} placeholder={t("streetPlaceholder")} value={street} onChange={setStreet} />
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Будинок" placeholder="напр. 42Б" value={building} onChange={setBuilding} />
-            <Input label="Квартира / офіс" placeholder="напр. 15" value={flat} onChange={setFlat} />
+            <Input label={t("building")} placeholder={t("buildingPlaceholder")} value={building} onChange={setBuilding} />
+            <Input label={t("apartmentOrOffice")} placeholder={t("apartmentOrOfficePlaceholder")} value={flat} onChange={setFlat} />
           </div>
         </div>
       )}
@@ -502,9 +367,9 @@ export default function NovaPostDelivery({
             <path d="M12 16v-4M12 8h.01" />
           </svg>
           <div>
-            <p className="m-0 mb-1 text-sm font-semibold text-red-700">Самовивіз зі складу</p>
+            <p className="m-0 mb-1 text-sm font-semibold text-red-700">{t("warehousePickup")}</p>
             <p className="m-0 text-sm text-red-500 leading-snug">
-              м. Київ, вул. Складська, 14. Пн–Пт 09:00–18:00, Сб 10:00–15:00.
+              м. Житомир, вул. Київська, 111
             </p>
           </div>
         </div>
@@ -518,11 +383,11 @@ export default function NovaPostDelivery({
             <span className="w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
               2
             </span>
-            <span className="text-sm font-semibold text-gray-700">Спосіб оплати</span>
+            <span className="text-sm font-semibold text-gray-700">{t("paymentMethod")}</span>
           </div>
           <CardSelector<PaymentMethod>
             label=""
-            options={PAYMENT_OPTIONS[method]}
+            options={paymentOptions[method]}
             value={payment}
             onChange={setPayment}
           />

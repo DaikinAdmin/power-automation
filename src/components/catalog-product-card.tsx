@@ -1,7 +1,7 @@
 "use client";
 
 import { MouseEvent, ReactNode } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { GitCompare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WarehouseAvailability } from "@/components/warehouse-availability";

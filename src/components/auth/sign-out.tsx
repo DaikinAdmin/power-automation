@@ -3,7 +3,7 @@
 import { Button } from "../ui/button";
 import { authClient, signOut } from "@/lib/auth-client";
 import { useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { LogOut } from "lucide-react";
 
@@ -18,7 +18,7 @@ const SignOut = () => {
       <Button
         variant="ghost"
         onClick={() => {
-          router.push(`/${locale}/signin`);
+          router.push('/signin');
         }}
       >
         <LogOut size={16} />
@@ -35,7 +35,7 @@ const SignOut = () => {
         await signOut({
           fetchOptions: {
             onSuccess: () => {
-              router.push(`/${locale}/signin`);
+              router.push('/signin');
             },
           },
         });

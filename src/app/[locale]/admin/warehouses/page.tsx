@@ -13,7 +13,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useAdminWarehouses } from '@/hooks/useAdminWarehouses';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { toast } from 'sonner';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface Warehouse extends Warehouses {
   id: string;

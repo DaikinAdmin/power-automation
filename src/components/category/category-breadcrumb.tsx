@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 interface CategoryBreadcrumbProps {
@@ -16,14 +16,14 @@ export function CategoryBreadcrumb({
     <div className="mb-6 overflow-x-auto">
       <nav className="flex items-center space-x-2 text-sm text-gray-600 whitespace-nowrap">
         <Link
-          href={`/${locale}`}
+          href="/"
           className="hover:text-blue-600 transition-colors"
         >
           {t("breadcrumb.home")}
         </Link>
         <span>/</span>
         <Link
-          href={`/${locale}/categories`}
+          href="/categories"
           className="hover:text-blue-600 transition-colors"
         >
           {t("breadcrumb.allCategories")}

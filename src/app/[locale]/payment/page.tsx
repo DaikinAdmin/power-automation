@@ -2,10 +2,10 @@
 
 import { use, useState, useEffect, useRef } from "react";
 import { ArrowLeft, CreditCard, Lock, XCircle, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import LanguageSwitcher from "@/components/languge-switcher";
 import { useCurrency } from "@/hooks/useCurrency";
 import {
