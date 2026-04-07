@@ -238,21 +238,23 @@ export async function POST(request: NextRequest) {
             newInitialCurrency = oldPrice.initialCurrency ?? null;
           }
 
+          const priceUpdateFields: Record<string, any> = {
+            price: newPrice,
+            initialPrice: newInitialPrice,
+            margin: newMargin,
+            initialCurrency: newInitialCurrency as any,
+            quantity: item.quantity !== undefined ? item.quantity : oldPrice.quantity,
+            badge: (item.badge as any) || 'ABSENT',
+            updatedAt: new Date().toISOString(),
+          };
+          if (item.promoCode !== undefined) priceUpdateFields.promoCode = item.promoCode || null;
+          if (item.promoPrice !== undefined) priceUpdateFields.promotionPrice = item.promoPrice || null;
+          if (item.promoStartDate !== undefined) priceUpdateFields.promoStartDate = item.promoStartDate || null;
+          if (item.promoEndDate !== undefined) priceUpdateFields.promoEndDate = item.promoEndDate || null;
+
           await db
             .update(schema.itemPrice)
-            .set({
-              price: newPrice,
-              initialPrice: newInitialPrice,
-              margin: newMargin,
-              initialCurrency: newInitialCurrency as any,
-              quantity: item.quantity !== undefined ? item.quantity : oldPrice.quantity,
-              badge: (item.badge as any) || 'ABSENT',
-              promoCode: item.promoCode !== undefined ? item.promoCode || null : oldPrice.promoCode,
-              promotionPrice: item.promoPrice !== undefined ? item.promoPrice || null : oldPrice.promotionPrice,
-              promoStartDate: item.promoStartDate !== undefined ? item.promoStartDate || null : oldPrice.promoStartDate,
-              promoEndDate: item.promoEndDate !== undefined ? item.promoEndDate || null : oldPrice.promoEndDate,
-              updatedAt: new Date().toISOString(),
-            })
+            .set(priceUpdateFields)
             .where(eq(schema.itemPrice.id, oldPrice.id));
           
           updated++;
