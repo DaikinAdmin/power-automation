@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
 import ProfileForm from '@/components/dashboard/profile-form';
+import type { AuthUser } from '@/helpers/types/user';
 
 export default async function DashboardProfilePage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -12,14 +13,7 @@ export default async function DashboardProfilePage() {
     redirect('/');
   }
 
-  const u = session.user as typeof session.user & {
-    phoneNumber?: string;
-    countryCode?: string;
-    vatNumber?: string;
-    companyName?: string;
-    companyPosition?: string;
-    addressLine?: string;
-  };
+  const user = session.user as AuthUser;
 
   const t = await getTranslations('dashboard.profile');
 
@@ -32,14 +26,14 @@ export default async function DashboardProfilePage() {
 
       <ProfileForm
         user={{
-          name: u.name ?? '',
-          email: u.email ?? '',
-          phoneNumber: u.phoneNumber,
-          countryCode: u.countryCode,
-          vatNumber: u.vatNumber,
-          companyName: u.companyName,
-          companyPosition: u.companyPosition,
-          addressLine: u.addressLine,
+          name: user.name ?? '',
+          email: user.email ?? '',
+          phoneNumber: user.phoneNumber,
+          countryCode: user.countryCode,
+          vatNumber: user.vatNumber,
+          companyName: user.companyName,
+          companyPosition: user.companyPosition,
+          addressLine: user.addressLine,
         }}
       />
     </div>

@@ -7,88 +7,10 @@ import { toast } from 'sonner';
 import { formatCurrency, formatDate } from '@/helpers/formatting';
 import { OrderStatusForm } from '@/components/admin/order-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const statusOptions = ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING', 'DELIVERY', 'COMPLETED', 'CANCELLED', 'REFUND'];
-
-const DELIVERY_STATUS_OPTIONS = ['PENDING', 'PROCESSING', 'IN_TRANSIT', 'DELIVERED', 'RETURNED', 'CANCELLED'];
-
-const DELIVERY_TYPE_LABELS: Record<string, string> = {
-  PICKUP: 'Самовивіз',
-  USER_ADDRESS: 'Адреса користувача',
-  NOVA_POSHTA: 'Нова Пошта',
-  COURIER: "Кур'єр",
-};
-
-const DELIVERY_STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Очікує',
-  PROCESSING: 'Обробляється',
-  IN_TRANSIT: 'В дорозі',
-  DELIVERED: 'Доставлено',
-  RETURNED: 'Повернено',
-  CANCELLED: 'Скасовано',
-};
-
-const DELIVERY_STATUS_COLORS: Record<string, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  PROCESSING: 'bg-blue-100 text-blue-800',
-  IN_TRANSIT: 'bg-indigo-100 text-indigo-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-  RETURNED: 'bg-orange-100 text-orange-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-};
-
-type OrderLineItem = {
-  itemId: string;
-  articleId: string;
-  name: string;
-  quantity: number;
-  warehouseId: string;
-  warehouseName?: string | null;
-  warehouseDisplayedName?: string | null;
-  warehouseCountry?: string | null;
-  basePrice?: number | null;
-  baseSpecialPrice?: number | null;
-  unitPrice?: number | null;
-  lineTotal?: number | null;
-};
-
-type DeliveryRecord = {
-  id: string;
-  userId: string;
-  orderId: string | null;
-  type: string;
-  city: string | null;
-  cityRef: string | null;
-  warehouseRef: string | null;
-  warehouseDesc: string | null;
-  street: string | null;
-  building: string | null;
-  flat: string | null;
-  trackingNumber: string | null;
-  paymentMethod: string | null;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type OrderDetail = {
-  id: string;
-  status: string;
-  originalTotalPrice: number;
-  totalPrice: string | null;
-  deliveryId: string | null;
-  comment: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    phoneNumber: string | null;
-    countryCode: string | null;
-  } | null;
-  lineItems: OrderLineItem[] | null;
-};
+import { ORDER_STATUS_OPTIONS } from '@/constants/order';
+import { DELIVERY_STATUS_OPTIONS, TYPE_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/constants/delivery';
+import type { DeliveryRecord } from '@/types/delivery';
+import type { OrderDetail } from '@/types/order';
 
 interface OrderDetailClientProps {
   orderId: string;
@@ -377,7 +299,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
               <dl className="mt-4 space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <dt className="font-medium">Тип</dt>
-                  <dd>{DELIVERY_TYPE_LABELS[delivery.type] ?? delivery.type}</dd>
+                  <dd>{TYPE_LABELS[delivery.type] ?? delivery.type}</dd>
                 </div>
                 {delivery.city && (
                   <div className="flex justify-between">
@@ -408,8 +330,8 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 <div className="flex justify-between items-center">
                   <dt className="font-medium">Статус</dt>
                   <dd>
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${DELIVERY_STATUS_COLORS[delivery.status] ?? 'bg-gray-100 text-gray-800'}`}>
-                      {DELIVERY_STATUS_LABELS[delivery.status] ?? delivery.status}
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[delivery.status] ?? 'bg-gray-100 text-gray-800'}`}>
+                      {STATUS_LABELS[delivery.status] ?? delivery.status}
                     </span>
                   </dd>
                 </div>
@@ -436,7 +358,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   orderId={order.id}
                   initialStatus={order.status}
                   initialDeliveryId={order.deliveryId}
-                  statusOptions={statusOptions}
+                  statusOptions={[...ORDER_STATUS_OPTIONS]}
                   canUpdate={canUpdate}
                 />
               ) : (
@@ -471,7 +393,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     >
                       {DELIVERY_STATUS_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>
-                          {DELIVERY_STATUS_LABELS[opt] ?? opt}
+                          {STATUS_LABELS[opt] ?? opt}
                         </option>
                       ))}
                     </select>

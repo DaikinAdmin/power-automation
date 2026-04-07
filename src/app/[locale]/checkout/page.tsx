@@ -17,6 +17,7 @@ import { useDomainConfig } from "@/hooks/useDomain";
 import type { SupportedCurrency } from "@/helpers/currency";
 import type { DomainKey } from "@/lib/domain-config";
 import NovaPostDelivery, { type NovaPostDeliveryState, type NpCity } from "@/components/nova-post-delivery";
+import type { DeliveryInfo } from '@/types/delivery';
 
 const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
   pl: "PLN",
@@ -34,13 +35,6 @@ interface CheckoutForm {
   email: string;
 }
 
-interface DeliveryInfo {
-  name: string;
-  phone: string;
-  countryCode: string;
-  vatNumber: string;
-  address: AddressFields;
-}
 
 interface LoginForm {
   email: string;
@@ -114,19 +108,19 @@ export default function CheckoutPage({
   // Populate delivery form from session when user logs in
   useEffect(() => {
     if (!session.data?.user) return;
-    const u = session.data.user as typeof session.data.user & {
+    const user = session.data.user as typeof session.data.user & {
       phoneNumber?: string;
       countryCode?: string;
       vatNumber?: string;
       addressLine?: string;
     };
-    if (!u) return;
+    if (!user) return;
     setDeliveryInfo({
-      name: u.name ?? "",
-      phone: u.phoneNumber ?? "",
-      countryCode: u.countryCode ?? "+48",
-      vatNumber: u.vatNumber ?? "",
-      address: parseAddress(u.addressLine),
+      name: user.name ?? "",
+      phone: user.phoneNumber ?? "",
+      countryCode: user.countryCode ?? "+48",
+      vatNumber: user.vatNumber ?? "",
+      address: parseAddress(user.addressLine),
     });
   }, [session.data?.user?.id]);
 
@@ -134,29 +128,29 @@ export default function CheckoutPage({
   useEffect(() => {
     if (!session.data?.user || locale !== "ua") return;
     fetch("/api/delivery/last")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
-        const d = data?.delivery;
-        if (!d) return;
+        const lastDelivery = data?.delivery;
+        if (!lastDelivery) return;
         const methodMap: Record<string, string> = {
           PICKUP: "warehouse",
           NOVA_POSHTA: "nova_dept",
           COURIER: "nova_courier",
         };
-        const method = methodMap[d.type] ?? "";
+        const method = methodMap[lastDelivery.type] ?? "";
         if (!method) return;
         const city: NpCity | null =
-          d.city && d.cityRef
-            ? { ref: d.cityRef, name: d.city, settlementType: "" }
+          lastDelivery.city && lastDelivery.cityRef
+            ? { ref: lastDelivery.cityRef, name: lastDelivery.city, settlementType: "" }
             : null;
         setLastDeliveryInitial({
           method: method as NovaPostDeliveryState["method"],
           city,
-          warehouseRef: d.warehouseRef ?? "",
-          warehouseDesc: d.warehouseDesc ?? "",
-          street: d.street ?? "",
-          building: d.building ?? "",
-          flat: d.flat ?? "",
+          warehouseRef: lastDelivery.warehouseRef ?? "",
+          warehouseDesc: lastDelivery.warehouseDesc ?? "",
+          street: lastDelivery.street ?? "",
+          building: lastDelivery.building ?? "",
+          flat: lastDelivery.flat ?? "",
         });
       })
       .catch(() => {/* non-critical */});

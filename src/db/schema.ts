@@ -974,6 +974,7 @@ export const uploadedImage = pgTable(
 export type Badge = (typeof badge.enumValues)[number];
 export type CartStatus = (typeof cartStatus.enumValues)[number];
 export type Currency = (typeof currency.enumValues)[number];
+export type { DeliveryStatus } from '@/helpers/delivery';
 export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export type OutOfStockStatus = (typeof outOfStockStatus.enumValues)[number];
 export type PaymentStatus = (typeof paymentStatus.enumValues)[number];

@@ -3,27 +3,21 @@ import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import * as schema from '@/db/schema';
-import type { DeliveryStatus } from '@/db/schema';
+import { isValidDeliveryStatus } from '@/helpers/delivery';
+import { isUserAdmin } from '@/helpers/db/queries';
+import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
+import logger from '@/lib/logger';
 
-const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
-const VALID_DELIVERY_STATUSES: DeliveryStatus[] = [
-  'PENDING', 'PROCESSING', 'IN_TRANSIT', 'DELIVERED', 'RETURNED', 'CANCELLED',
-];
-
-async function ensureAuthorized(request: NextRequest) {
+async function checkAdminAccess(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+    throw new UnauthorizedError('Authentication required');
   }
-  const [user] = await db
-    .select({ role: schema.user.role })
-    .from(schema.user)
-    .where(eq(schema.user.id, session.user.id))
-    .limit(1);
-  if (!user?.role || !AUTHORIZED_ROLES.has(user.role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  const isAdmin = await isUserAdmin(session.user.id);
+  if (!isAdmin) {
+    throw new ForbiddenError('Admin access required');
   }
-  return { session, role: user.role };
+  return session;
 }
 
 // GET /api/admin/delivery/[id]
@@ -31,10 +25,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const authResult = await ensureAuthorized(request);
-    if ('error' in authResult) return authResult.error;
+  const startTime = Date.now();
+  const endpoint = 'GET /api/admin/delivery/[id]';
 
+  try {
+    await checkAdminAccess(request);
     const { id } = await params;
 
     const [row] = await db
@@ -81,36 +76,38 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error fetching delivery:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { 
+      endpoint, 
+      duration: Date.now() - startTime 
+    });
   }
 }
 
-// PATCH /api/admin/delivery/[id] — update status and/or trackingNumber
+// PATCH /api/admin/delivery/[id]
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const endpoint = 'PATCH /api/admin/delivery/[id]';
+
   try {
-    const authResult = await ensureAuthorized(request);
-    if ('error' in authResult) return authResult.error;
-
+    await checkAdminAccess(request);
     const { id } = await params;
-    const body = await request.json() as {
-      status?: string;
-      trackingNumber?: string | null;
-    };
-
+    
+    const body = await request.json();
     const { status, trackingNumber } = body;
 
-    if (status !== undefined && !VALID_DELIVERY_STATUSES.includes(status as DeliveryStatus)) {
-      return NextResponse.json({ error: 'Invalid delivery status' }, { status: 400 });
+    // Валідація через BadRequestError, як у bulk
+    if (status !== undefined && !isValidDeliveryStatus(status)) {
+      throw new BadRequestError('Invalid delivery status');
     }
 
-    const updateData: Partial<typeof schema.delivery.$inferInsert> & { updatedAt: string } = {
+    const updateData: any = {
       updatedAt: new Date().toISOString(),
     };
-    if (status !== undefined) updateData.status = status as DeliveryStatus;
+    
+    if (status !== undefined) updateData.status = status;
     if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber ?? null;
 
     const [updated] = await db
@@ -123,9 +120,17 @@ export async function PATCH(
       return NextResponse.json({ error: 'Delivery not found' }, { status: 404 });
     }
 
+    logger.info('Delivery updated successfully', { 
+      endpoint, 
+      deliveryId: id,
+      duration: Date.now() - startTime 
+    });
+
     return NextResponse.json({ delivery: updated });
   } catch (error) {
-    console.error('Error updating delivery:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorHandler(error, request, { 
+      endpoint, 
+      duration: Date.now() - startTime 
+    });
   }
 }

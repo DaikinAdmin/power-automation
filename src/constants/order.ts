@@ -1,0 +1,9 @@
+export const ORDER_STATUS_OPTIONS = [
+  'NEW',
+  'WAITING_FOR_PAYMENT',
+  'PROCESSING',
+  'DELIVERY',
+  'COMPLETED',
+  'CANCELLED',
+  'REFUND',
+] as const;

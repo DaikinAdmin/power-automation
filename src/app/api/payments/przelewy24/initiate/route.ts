@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     const proto = request.headers.get('x-forwarded-proto') ?? 'https';
     const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
     const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
-    const returnUrl = `${baseUrl}/payment/return?orderId=${orderId}`;
+    const returnUrl = `${baseUrl}/payment/return?orderId=${orderId}&provider=przelewy24`;
     const statusUrl = `${baseUrl}/api/payments/przelewy24/callback`;
 
     // Calculate signature (sign)

@@ -10,12 +10,12 @@ import LanguageSwitcher from "@/components/languge-switcher";
 
 interface PaymentReturnPageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ orderId?: string }>;
+  searchParams: Promise<{ orderId?: string; provider?: string }>;
 }
 
 export default function PaymentReturnPage({ params, searchParams }: PaymentReturnPageProps) {
   const { locale } = use(params);
-  const { orderId } = use(searchParams);
+  const { orderId, provider } = use(searchParams);
   const t = useTranslations('paymentReturn');
   const router = useRouter();
 
@@ -43,24 +43,35 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Actively check the payment status with LiqPay
-      const checkResponse = await fetch('/api/payments/liqpay/check-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
-      });
-      const checkData = await checkResponse.json();
-
-      // Also fetch the full order for display
+      // Fetch the full order for display
       const orderResponse = await fetch(`/api/orders/${orderId}`);
       const orderResult = await orderResponse.json();
       if (orderResponse.ok) {
         setOrderData(orderResult.order);
       }
 
-      if (checkData.paymentStatus === 'COMPLETED' || checkData.orderStatus === 'PROCESSING' || checkData.orderStatus === 'COMPLETED') {
+      let resolvedPaymentStatus: string | undefined;
+      let resolvedOrderStatus: string | undefined;
+
+      if (provider === 'przelewy24') {
+        // Przelewy24 status is set via webhook — read directly from order data
+        resolvedPaymentStatus = orderResult.order?.payment?.status;
+        resolvedOrderStatus = orderResult.order?.status;
+      } else {
+        // LiqPay (and installments) — actively poll check-status
+        const checkResponse = await fetch('/api/payments/liqpay/check-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId }),
+        });
+        const checkData = await checkResponse.json();
+        resolvedPaymentStatus = checkData.paymentStatus;
+        resolvedOrderStatus = checkData.orderStatus;
+      }
+
+      if (resolvedPaymentStatus === 'COMPLETED' || resolvedOrderStatus === 'PROCESSING' || resolvedOrderStatus === 'COMPLETED') {
         setPaymentStatus('success');
-      } else if (checkData.paymentStatus === 'FAILED') {
+      } else if (resolvedPaymentStatus === 'FAILED') {
         setPaymentStatus('failed');
       } else if (attempt < MAX_RETRIES) {
         setPaymentStatus('pending');
