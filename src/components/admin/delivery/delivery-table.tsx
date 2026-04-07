@@ -52,8 +52,8 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
               deliveries.map((d) => (
                 <tr key={d.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{d.user.name ?? '—'}</div>
-                    <div className="text-xs text-gray-500">{d.user.email ?? ''}</div>
+                    <div className="font-medium text-gray-900">{d.user?.name ?? '—'}</div>
+                    <div className="text-xs text-gray-500">{d.user?.email ?? ''}</div>
                   </td>
                   <td className="px-4 py-3 text-gray-700">{t(`type.${d.type}` as Parameters<typeof t>[0], { default: d.type })}</td>
                   <td className="px-4 py-3 text-gray-700">

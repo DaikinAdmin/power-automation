@@ -74,7 +74,7 @@ export function DeliveryEditModal({ delivery, onClose, onSaved }: Props) {
           )}
           <div className="flex justify-between">
             <dt className="font-medium text-gray-700">{t('modal.labelCustomer')}</dt>
-            <dd>{delivery.user.name ?? delivery.user.email ?? '—'}</dd>
+            <dd>{delivery.user?.name ?? delivery.user?.email ?? '—'}</dd>
           </div>
           {delivery.orderId && (
             <div className="flex justify-between">
