@@ -36,6 +36,7 @@ export function PriceEditModal({
     BESTSELLER: t('priceModal.badgeBest'),
     HOT_DEALS: t('priceModal.badgeHot'),
     LIMITED_EDITION: t('priceModal.badgeLimited'),
+    USED: t('priceModal.badgeRefurbished'),
   };
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [formData, setFormData] = useState<ItemPrice>({
@@ -352,4 +353,5 @@ const badgeOptions = [
   { value: "BESTSELLER" },
   { value: "HOT_DEALS" },
   { value: "LIMITED_EDITION" },
+  { value: "USED" },
 ];

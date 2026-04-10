@@ -24,6 +24,7 @@ interface CatalogProductCardProps {
   currency?: string;
   badge?: BadgeConfig;
   stockBadge?: BadgeConfig;
+  refurbishedBadge?: BadgeConfig;
   brand?: string | null;
   categoryName?: string | null;
   warehouseLabel?: string;
@@ -52,6 +53,7 @@ const CatalogProductCard = ({
   currency: _currency = "€",
   badge,
   stockBadge,
+  refurbishedBadge,
   brand,
   categoryName,
   warehouseLabel,
@@ -219,6 +221,17 @@ const CatalogProductCard = ({
             }`.trim()}
           >
             {stockBadge.text}
+          </span>
+        </div>
+      )}
+      {refurbishedBadge && (
+        <div className="absolute top-9 right-2 z-10">
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded ${
+              refurbishedBadge.className || ""
+            }`.trim()}
+          >
+            {refurbishedBadge.text}
           </span>
         </div>
       )}

@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { category, subcategories, brand, warehouse, item, itemDetails, itemPrice } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-type Badge = 'NEW_ARRIVALS' | 'BESTSELLER' | 'HOT_DEALS' | 'LIMITED_EDITION' | 'ABSENT';
+type Badge = 'NEW_ARRIVALS' | 'BESTSELLER' | 'HOT_DEALS' | 'LIMITED_EDITION' | 'ABSENT' | 'USED';
 
 export async function convertUploadTypeToItems(uploadData: UploadType[]): Promise<BulkUploadItem[]> {
   const items: Item[] = [];
@@ -220,6 +220,7 @@ function mapBadge(badgeString: string): Badge {
     'BESTSELLER': 'BESTSELLER',
     'HOT_DEALS': 'HOT_DEALS',
     'LIMITED_EDITION': 'LIMITED_EDITION',
+    'USED': 'USED',
     'ABSENT': 'ABSENT'
   };
 

@@ -91,6 +91,7 @@ export default function WarehouseSelector({
     NEW_ARRIVALS: tBadges('new'),
     LIMITED_EDITION: tBadges('limited'),
     ABSENT: tBadges('standard'),
+    USED: tBadges('refurbished'),
   };
 
   return (

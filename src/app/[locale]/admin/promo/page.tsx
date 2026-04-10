@@ -39,7 +39,7 @@ const BADGE_LABELS: Record<BadgeValue, string> = {
   BESTSELLER: "Bestseller",
   HOT_DEALS: "Hot Deals",
   LIMITED_EDITION: "Limited Edition",
-  USED: "Used",
+  USED: "Refurbished",
   ABSENT: "None (Remove)",
 };
 
@@ -48,7 +48,7 @@ const BADGE_COLORS: Record<BadgeValue, string> = {
   BESTSELLER: "bg-yellow-100 text-yellow-800 border-yellow-200",
   HOT_DEALS: "bg-red-100 text-red-800 border-red-200",
   LIMITED_EDITION: "bg-purple-100 text-purple-800 border-purple-200",
-  USED: "bg-gray-200 text-gray-700 border-gray-300",
+  USED: "bg-teal-100 text-teal-800 border-teal-200",
   ABSENT: "bg-gray-50 text-gray-400 border-gray-200",
 };
 

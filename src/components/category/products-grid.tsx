@@ -71,6 +71,7 @@ export function ProductsGrid({
         const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
         const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as SupportedCurrency) ?? 'EUR');
         const hasMultipleWarehouses = item.prices.length > 1;
+        const totalQuantity = item.prices.reduce((sum: number, p: any) => sum + (p.quantity ?? 0), 0);
 
         const badge = originalPrice
           ? {
@@ -80,11 +81,16 @@ export function ProductsGrid({
           : undefined;
 
         const stockBadge = {
-          text: inStock ? `${quantity} ${t("inStock")}` : t("outOfStock"),
+          text: inStock ? `${totalQuantity} ${t("inStock")}` : t("outOfStock"),
           className: inStock
             ? "bg-green-500 text-white"
             : "bg-red-500 text-white",
         };
+
+        const isRefurbished = item.prices.some((p: any) => p.badge === "USED");
+        const refurbishedBadge = isRefurbished
+          ? { text: t("refurbished"), className: "bg-teal-500 text-white" }
+          : undefined;
 
         const warehouseLabel = `${t("from")} ${
           displayedName || warehouseName || "Unknown Warehouse"
@@ -131,6 +137,7 @@ export function ProductsGrid({
             viewMode={viewMode}
             badge={badge}
             stockBadge={stockBadge}
+            refurbishedBadge={refurbishedBadge}
             brand={item.brand?.name || undefined}
             warehouseLabel={warehouseLabel}
             warehouseExtraLabel={warehouseExtraLabel}

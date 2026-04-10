@@ -43,6 +43,7 @@ export function ProductPriceCard({
       'NEW_ARRIVALS': t('price.badges.new'),
       'LIMITED_EDITION': t('price.badges.limited'),
       'ABSENT': t('price.badges.standard'),
+      'USED': t('price.badges.refurbished'),
     };
     return badgeMap[badge] || badge;
   };

@@ -116,6 +116,7 @@
     "viewAllProducts": "Zobacz wszystkie produkty",
     "inStock": "w magazynie",
     "outOfStock": "Na zamówienie",
+    "refurbished": "Odnowiony",
     "from": "Od",
     "moreLocations": "więcej lokalizacji",
     "moreLocation": "więcej lokalizacja",
@@ -427,7 +428,8 @@
         "hotDeal": "Gorąca oferta",
         "new": "Nowość",
         "limited": "Limitowana",
-        "standard": "Standard"
+        "standard": "Standard",
+        "refurbished": "Odnowiony"
       }
     },
     "actions": {
@@ -1274,7 +1276,7 @@
           "BESTSELLER": "Bestseller",
           "HOT_DEALS": "Gorące okazje",
           "LIMITED_EDITION": "Limitowana edycja",
-          "USED": "Używane",
+          "USED": "Odnowione",
           "ABSENT": "Brak (Usuń)"
         }
       },
@@ -1584,7 +1586,8 @@
       "badgeNew": "Nowości",
       "badgeBest": "Bestseller",
       "badgeHot": "Gorące okazje",
-      "badgeLimited": "Limitowana edycja"
+      "badgeLimited": "Limitowana edycja",
+      "badgeRefurbished": "Odnowione"
     },
     "detailModal": {
       "title": "Edytuj szczegóły",

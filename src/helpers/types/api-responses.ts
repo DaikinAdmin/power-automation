@@ -89,7 +89,7 @@ export interface ItemListResponse {
   price: number;
   promotionPrice: number | null;
   quantity: number;
-  badge: 'NEW_ARRIVALS' | 'BESTSELLER' | 'HOT_DEALS' | 'LIMITED_EDITION' | 'ABSENT' | null;
+  badge: 'NEW_ARRIVALS' | 'BESTSELLER' | 'HOT_DEALS' | 'LIMITED_EDITION' | 'USED' | 'ABSENT' | null;
   warehouseSlug: string;
 }
 

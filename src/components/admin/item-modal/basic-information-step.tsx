@@ -73,6 +73,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
     { value: 'BESTSELLER', label: 'Bestseller' },
     { value: 'HOT_DEALS', label: 'Hot Deals' },
     { value: 'LIMITED_EDITION', label: 'Limited Edition' },
+    { value: 'USED', label: 'Refurbished' },
   ];
 
   useEffect(() => {

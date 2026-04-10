@@ -116,6 +116,7 @@
     "viewAllProducts": "View All Products",
     "inStock": "in stock",
     "outOfStock": "Out of stock",
+    "refurbished": "Refurbished",
     "from": "From",
     "moreLocations": "more locations",
     "moreLocation": "more location",
@@ -421,7 +422,8 @@
         "hotDeal": "Hot Deal",
         "new": "New",
         "limited": "Limited",
-        "standard": "Standard"
+        "standard": "Standard",
+        "refurbished": "Refurbished"
       }
     },
     "actions": {
@@ -1268,7 +1270,7 @@
           "BESTSELLER": "Bestseller",
           "HOT_DEALS": "Hot Deals",
           "LIMITED_EDITION": "Limited Edition",
-          "USED": "Used",
+          "USED": "Refurbished",
           "ABSENT": "None (Remove)"
         }
       },
@@ -1582,7 +1584,8 @@
       "badgeNew": "New Arrivals",
       "badgeBest": "Bestseller",
       "badgeHot": "Hot Deals",
-      "badgeLimited": "Limited Edition"
+      "badgeLimited": "Limited Edition",
+      "badgeRefurbished": "Refurbished"
     },
     "detailModal": {
       "title": "Edit Item Details",

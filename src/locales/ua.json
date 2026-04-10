@@ -116,6 +116,7 @@
     "viewAllProducts": "Переглянути всі продукти",
     "inStock": "в наявності",
     "outOfStock": "Під замовлення",
+    "refurbished": "Відновлений",
     "from": "Від",
     "moreLocations": "більше локацій",
     "moreLocation": "більше локація",
@@ -427,7 +428,8 @@
         "hotDeal": "Гаряча пропозиція",
         "new": "Новинка",
         "limited": "Обмежена",
-        "standard": "Стандарт"
+        "standard": "Стандарт",
+        "refurbished": "Відновлений"
       }
     },
     "actions": {
@@ -1274,7 +1276,7 @@
           "BESTSELLER": "Бестселер",
           "HOT_DEALS": "Гарячі пропозиції",
           "LIMITED_EDITION": "Лімітована серія",
-          "USED": "Вживані",
+          "USED": "Відновлені",
           "ABSENT": "Без позначки (Видалити)"
         }
       },
@@ -1584,7 +1586,8 @@
       "badgeNew": "Новинки",
       "badgeBest": "Бестселер",
       "badgeHot": "Гарячі пропозиції",
-      "badgeLimited": "Лімітована серія"
+      "badgeLimited": "Лімітована серія",
+      "badgeRefurbished": "Відновлені"
     },
     "detailModal": {
       "title": "Редагувати деталі",
