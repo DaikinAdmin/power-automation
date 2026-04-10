@@ -1,1 +1,1 @@
-ALTER TABLE "warehouse_countries" ADD COLUMN "vatPercentage" double precision NOT NULL;
+ALTER TABLE "warehouse_countries" ADD COLUMN IF NOT EXISTS "vatPercentage" double precision NOT NULL;
