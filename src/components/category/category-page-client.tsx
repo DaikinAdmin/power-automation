@@ -75,7 +75,7 @@ export function CategoryPageClient({
       }
     });
     
-    const newUrl = `/${locale}/category/${categorySlug}${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `/category/${categorySlug}${params.toString() ? `?${params.toString()}` : ''}`;
     router.push(newUrl);
   };
 

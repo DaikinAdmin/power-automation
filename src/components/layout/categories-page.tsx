@@ -62,7 +62,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     } else {
       params.delete('pageSize');
     }
-    const newUrl = `/${locale}/categories${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ''}`;
     router.push(newUrl, { scroll: false });
   };
 
@@ -106,7 +106,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     }
     
     // Update URL
-    const newUrl = `/${locale}/categories${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ''}`;
     router.push(newUrl, { scroll: false });
   };
 
