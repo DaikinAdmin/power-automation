@@ -1,55 +1,20 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Package, MapPin, Calendar, CreditCard } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
-
-type Payment = {
-  id: string;
-  status: string;
-  currency: string;
-  amount: number;
-  paymentMethod?: string | null;
-  sessionId?: string | null;
-  transactionId?: string | null;
-};
-
-type OrderLineItem = {
-  itemId: string;
-  articleId: string;
-  slug: string;
-  name: string;
-  quantity: number;
-  unitPrice?: number | null;
-  lineTotal?: number | null;
-  warehouseId?: string;
-  warehouseName?: string;
-  warehouseDisplayedName?: string;
-  warehouseCountry?: string;
-};
-
-type OrderDetails = {
-  id: string;
-  status: string;
-  totalPrice: string | null;
-  originalTotalPrice: number;
-  createdAt: string;
-  updatedAt: string;
-  lineItems: OrderLineItem[];
-  deliveryId?: string | null;
-  payment?: Payment | null;
-};
+import { formatCurrency, formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
+import type { OrderDetail } from '@/types/order';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('dashboard.orders.detail');
-  const [order, setOrder] = useState<OrderDetails | null>(null);
+  const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
@@ -72,7 +37,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           throw new Error(data.error || 'Failed to fetch order');
         }
 
-        const data = (await response.json()) as { order: OrderDetails };
+        const data = (await response.json()) as { order: OrderDetail };
         if (!isMounted) return;
         setOrder(data.order);
       } catch (err: any) {
@@ -325,12 +290,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             <CardHeader>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
-                {t('orderItems', { count: order.lineItems.length })}
+                {t('orderItems', { count: order.lineItems?.length ?? 0 })}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {order.lineItems.map((item, index) => (
+                {(order.lineItems ?? []).map((item, index) => (
                   <div key={`${item.itemId}-${index}`} className="flex justify-between items-start border-b pb-4 last:border-b-0">
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{item.name}</h4>

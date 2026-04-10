@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,15 @@ interface ItemWithBadges {
 }
 
 export default function PromoPage() {
+  const t = useTranslations('adminDashboard');
+  const BADGE_LABELS: Record<BadgeValue, string> = {
+    NEW_ARRIVALS: t('promo.badges.names.NEW_ARRIVALS'),
+    BESTSELLER: t('promo.badges.names.BESTSELLER'),
+    HOT_DEALS: t('promo.badges.names.HOT_DEALS'),
+    LIMITED_EDITION: t('promo.badges.names.LIMITED_EDITION'),
+    USED: t('promo.badges.names.USED'),
+    ABSENT: t('promo.badges.names.ABSENT'),
+  };
   const [badgeItems, setBadgeItems] = useState<ItemWithBadges[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -282,24 +292,24 @@ export default function PromoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Promo</h1>
-        <p className="text-gray-600">Manage promotions and product badges</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('promo.title')}</h1>
+        <p className="text-gray-600">{t('promo.description')}</p>
       </div>
 
       <Tabs defaultValue="badges">
         <TabsList>
-          <TabsTrigger value="promos">Promos</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
+          <TabsTrigger value="promos">{t('promo.tabs.promos')}</TabsTrigger>
+          <TabsTrigger value="badges">{t('promo.tabs.badges')}</TabsTrigger>
         </TabsList>
 
         {/* Promos tab — placeholder */}
         <TabsContent value="promos" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Promos</CardTitle>
+              <CardTitle>{t('promo.promos.title')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500">Coming soon...</p>
+              <p className="text-gray-500">{t('promo.promos.comingSoon')}</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -309,7 +319,7 @@ export default function PromoPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-semibold">Products with Badges</h2>
+                <h2 className="text-lg font-semibold">{t('promo.badges.title')}</h2>
                 <Select
                   value={badgeFilter ?? "ALL"}
                   onValueChange={(v) =>
@@ -317,10 +327,10 @@ export default function PromoPage() {
                   }
                 >
                   <SelectTrigger className="w-44 h-8 text-sm">
-                    <SelectValue placeholder="All badges" />
+                    <SelectValue placeholder={t('promo.badges.allBadges')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All badges</SelectItem>
+                    <SelectItem value="ALL">{t('promo.badges.allBadges')}</SelectItem>
                     {BADGE_VALUES.filter((v) => v !== "ABSENT").map((v) => (
                       <SelectItem key={v} value={v}>
                         {BADGE_LABELS[v]}
@@ -331,7 +341,7 @@ export default function PromoPage() {
               </div>
               <Button onClick={() => setAssignModal(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Assign Badge
+                {t('promo.badges.assignBadge')}
               </Button>
             </div>
 
@@ -339,11 +349,11 @@ export default function PromoPage() {
               <CardContent className="p-0">
                 {isLoading ? (
                   <div className="p-10 text-center text-gray-500">
-                    Loading...
+                    {t('promo.badges.loading')}
                   </div>
                 ) : filteredRows.length === 0 ? (
                   <div className="p-10 text-center text-gray-500">
-                    No products with active badges found.
+                    {t('promo.badges.empty')}
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
@@ -351,22 +361,22 @@ export default function PromoPage() {
                       <thead className="bg-gray-50 border-b">
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Article ID
+                            {t('promo.badges.table.articleId')}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
+                            {t('promo.badges.table.name')}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Badge
+                            {t('promo.badges.table.badge')}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Warehouse
+                            {t('promo.badges.table.warehouse')}
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Price / Qty
+                            {t('promo.badges.table.priceQty')}
                           </th>
                           <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
+                            {t('promo.badges.table.actions')}
                           </th>
                         </tr>
                       </thead>
@@ -471,24 +481,24 @@ export default function PromoPage() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Edit Badge</DialogTitle>
+            <DialogTitle>{t('promo.editBadge.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-xs text-gray-500">Article ID</Label>
+              <Label className="text-xs text-gray-500">{t('promo.editBadge.articleId')}</Label>
               <p className="mt-0.5 font-mono text-sm font-medium">
                 {editModal.articleId}
               </p>
             </div>
             <div>
-              <Label className="text-xs text-gray-500">Warehouse</Label>
+              <Label className="text-xs text-gray-500">{t('promo.editBadge.warehouse')}</Label>
               <p className="mt-0.5 text-sm">
                 {editModal.priceEntry?.warehouse?.displayedName ||
                   editModal.priceEntry?.warehouse?.name}
               </p>
             </div>
             <div>
-              <Label>Badge</Label>
+              <Label>{t('promo.editBadge.badge')}</Label>
               <Select
                 value={editBadge}
                 onValueChange={(v) => setEditBadge(v as BadgeValue)}
@@ -511,10 +521,10 @@ export default function PromoPage() {
               variant="outline"
               onClick={() => setEditModal((prev) => ({ ...prev, open: false }))}
             >
-              Cancel
+              {t('promo.editBadge.cancel')}
             </Button>
             <Button onClick={handleEditSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save"}
+              {isSaving ? t('promo.editBadge.saving') : t('promo.editBadge.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -527,11 +537,11 @@ export default function PromoPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Assign Badge</DialogTitle>
+            <DialogTitle>{t('promo.assignBadge.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Article ID</Label>
+              <Label>{t('promo.assignBadge.articleId')}</Label>
               <div className="flex gap-2 mt-1">
                 <Input
                   value={assignArticleId}
@@ -540,14 +550,14 @@ export default function PromoPage() {
                     setAssignSearchResult(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleAssignSearch()}
-                  placeholder="Enter article ID..."
+                  placeholder={t('promo.assignBadge.placeholder')}
                 />
                 <Button
                   variant="outline"
                   onClick={handleAssignSearch}
                   disabled={assignSearchLoading || !assignArticleId.trim()}
                 >
-                  {assignSearchLoading ? "..." : "Search"}
+                  {assignSearchLoading ? t('promo.assignBadge.searching') : t('promo.assignBadge.search')}
                 </Button>
               </div>
             </div>
@@ -564,7 +574,7 @@ export default function PromoPage() {
                 </div>
 
                 <div>
-                  <Label>Pricing Variant (Warehouse)</Label>
+                  <Label>{t('promo.assignBadge.pricingVariant')}</Label>
                   <Select
                     value={assignPriceId}
                     onValueChange={setAssignPriceId}
@@ -592,7 +602,7 @@ export default function PromoPage() {
                 </div>
 
                 <div>
-                  <Label>Badge</Label>
+                  <Label>{t('promo.assignBadge.badge')}</Label>
                   <Select
                     value={assignBadge}
                     onValueChange={(v) => setAssignBadge(v as BadgeValue)}
@@ -614,13 +624,13 @@ export default function PromoPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={resetAssignModal}>
-              Cancel
+              {t('promo.assignBadge.cancel')}
             </Button>
             <Button
               onClick={handleAssignSave}
               disabled={isSaving || !assignSearchResult || !assignPriceId}
             >
-              {isSaving ? "Saving..." : "Assign"}
+              {isSaving ? t('promo.assignBadge.saving') : t('promo.assignBadge.assign')}
             </Button>
           </DialogFooter>
         </DialogContent>

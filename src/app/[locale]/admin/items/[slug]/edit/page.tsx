@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from '@/i18n/navigation'
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { BasicInformationStep } from "@/components/admin/item-modal/basic-information-step";
@@ -174,7 +174,13 @@ export default function EditItemPage({
       });
 
       if (response.ok) {
-        router.back();
+        const data = await response.json();
+        const updatedSlug = data.newSlug as string | undefined;
+        if (updatedSlug && updatedSlug !== itemId) {
+          router.replace(`/admin/items/${updatedSlug}/edit`);
+        } else {
+          router.back();
+        }
       } else {
         const errorData = await response.json();
         alert(errorData.error || "Failed to update item");

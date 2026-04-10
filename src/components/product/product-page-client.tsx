@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -185,13 +185,28 @@ export default function ProductPageClient({
     }
   }, [productName]);
 
-  const handleOpinionSubmit = (data: {
+  const handleOpinionSubmit = async (data: {
     name: string;
     email: string;
     opinion: string;
   }) => {
-    console.log("Opinion submitted:", data);
-    // Here you would typically send the data to your API
+    try {
+      await fetch('/api/opinions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          itemId: product?.id,
+          itemSlug: product?.articleId,
+          productName: product?.itemDetails?.[0]?.itemName || product?.articleId || id,
+          comment: data.opinion,
+          locale,
+          name: data.name,
+          email: data.email,
+        }),
+      });
+    } catch {
+      // silently ignore — email will still be sent server-side on best-effort
+    }
   };
 
   const handleAddToCart = () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Card,
   CardContent,
@@ -137,6 +138,7 @@ type Currency = "EUR" | "PLN" | "UAH";
 type UploadMode = "prices" | "descriptions";
 
 export default function BulkUploadPage() {
+  const t = useTranslations('adminDashboard');
   const [uploadState, setUploadState] = useState<UploadState>({
     status: "idle",
     progress: 0,
@@ -769,9 +771,9 @@ export default function BulkUploadPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bulk Upload</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('bulkUpload.title')}</h1>
           <p className="text-gray-600">
-            Upload CSV or Excel files to update item prices and inventory
+            {t('bulkUpload.description')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -781,11 +783,11 @@ export default function BulkUploadPage() {
             className="flex items-center gap-2 shrink-0"
           >
             <Download className="w-4 h-4" />
-            Export Items
+            {t('bulkUpload.exportItems')}
           </Button>
           <Button variant="outline" onClick={() => { setBulkActionsOpen(true); setSchneiderResult(null); }}>
             <Zap className="mr-2 h-4 w-4" />
-            Bulk Actions
+            {t('bulkUpload.bulkActions')}
           </Button>
         </div>
       </div>
@@ -798,7 +800,7 @@ export default function BulkUploadPage() {
       <Dialog open={bulkActionsOpen} onOpenChange={setBulkActionsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Bulk Actions</DialogTitle>
+            <DialogTitle>{t('bulkUpload.bulkActionsModal.title')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <Button
@@ -806,15 +808,15 @@ export default function BulkUploadPage() {
               onClick={handleUpdateSchneiderPrices}
               disabled={schneiderLoading}
             >
-              {schneiderLoading ? "Updating..." : "Update Schneider Ukraine Prices"}
+              {schneiderLoading ? t('bulkUpload.bulkActionsModal.updating') : t('bulkUpload.bulkActionsModal.updateSchneider')}
             </Button>
             {schneiderResult && (
               <div className="rounded-md bg-muted px-4 py-3 text-sm">
-                <p className="font-medium">Done</p>
+                <p className="font-medium">{t('bulkUpload.bulkActionsModal.done')}</p>
                 <p className="text-muted-foreground">
-                  Updated: <span className="font-semibold text-foreground">{schneiderResult.updated}</span>
+                  {t('bulkUpload.bulkActionsModal.updated')}: <span className="font-semibold text-foreground">{schneiderResult.updated}</span>
                   &nbsp;&middot;&nbsp;
-                  Created: <span className="font-semibold text-foreground">{schneiderResult.created}</span>
+                  {t('bulkUpload.bulkActionsModal.created')}: <span className="font-semibold text-foreground">{schneiderResult.created}</span>
                 </p>
               </div>
             )}
@@ -832,7 +834,7 @@ export default function BulkUploadPage() {
               : "text-gray-600 hover:text-gray-900"
           }`}
         >
-          Prices & Inventory
+          {t('bulkUpload.modes.prices')}
         </button>
         <button
           onClick={() => handleModeChange("descriptions")}
@@ -842,7 +844,7 @@ export default function BulkUploadPage() {
               : "text-gray-600 hover:text-gray-900"
           }`}
         >
-          Product Descriptions
+          {t('bulkUpload.modes.descriptions')}
         </button>
       </div>
 
@@ -850,15 +852,15 @@ export default function BulkUploadPage() {
       {parsedData && (
         <Card>
           <CardHeader>
-            <CardTitle>Map Columns</CardTitle>
+            <CardTitle>{t('bulkUpload.mapping.title')}</CardTitle>
             <CardDescription>
-              Drag labels to table headers below
+              {t('bulkUpload.mapping.description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <h4 className="text-sm font-semibold mb-3 text-red-600">
-                Required Fields
+                {t('bulkUpload.mapping.required')}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {(uploadMode === "descriptions"
@@ -896,7 +898,7 @@ export default function BulkUploadPage() {
             {uploadMode === "prices" && (
               <div>
                 <h4 className="text-sm font-semibold mb-3 text-blue-600">
-                  Optional Fields
+                  {t('bulkUpload.mapping.optional')}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {optionalFields.map(({ key, label }) => (
@@ -931,7 +933,7 @@ export default function BulkUploadPage() {
             {uploadMode === "descriptions" && (
               <div>
                 <h4 className="text-sm font-semibold mb-3 text-green-600">
-                  Translation Fields
+                  {t('bulkUpload.mapping.translation')}
                 </h4>
                 <div className="space-y-2">
                   {(
@@ -988,7 +990,7 @@ export default function BulkUploadPage() {
             {uploadMode === "descriptions" && (
               <div>
                 <h4 className="text-sm font-semibold mb-3 text-purple-600">
-                  Item Fields
+                  {t('bulkUpload.mapping.item')}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {itemFields.map(({ key, label }) => (
@@ -1361,8 +1363,8 @@ export default function BulkUploadPage() {
                 className="bg-blue-600 text-white hover:bg-blue-700"
               >
                 {uploadState.status === "uploading"
-                  ? "Uploading..."
-                  : "Upload Items"}
+                  ? t('bulkUpload.uploadingBtn')
+                  : t('bulkUpload.uploadBtn')}
               </Button>
             </div>
           )}

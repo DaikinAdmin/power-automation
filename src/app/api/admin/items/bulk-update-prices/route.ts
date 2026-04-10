@@ -9,7 +9,8 @@ import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } f
 
 interface BulkUpdateItem {
   articleId: string;
-  initialPrice: number;
+  initialPrice?: number;
+  price?: number;
   quantity: number;
   currency?: string;
   badge?: string;
@@ -218,30 +219,51 @@ export async function POST(request: NextRequest) {
             });
 
           // Update existing price with new values
-          const effectiveMargin = item.margin ?? 20;
-          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+          let newPrice: number;
+          let newInitialPrice: number | null;
+          let newMargin: number;
+          let newInitialCurrency: string | null;
+
+          if (item.initialPrice !== undefined && item.initialPrice !== null) {
+            const effectiveMargin = item.margin ?? oldPrice.margin ?? 20;
+            newPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+            newInitialPrice = item.initialPrice;
+            newMargin = effectiveMargin;
+            newInitialCurrency = (item.currency as any) || oldPrice.initialCurrency || null;
+          } else {
+            // Preserve existing price/margin/currency — only badge/quantity/promo changed
+            newPrice = oldPrice.price;
+            newInitialPrice = oldPrice.initialPrice ?? null;
+            newMargin = oldPrice.margin ?? 20;
+            newInitialCurrency = oldPrice.initialCurrency ?? null;
+          }
+
+          const priceUpdateFields: Record<string, any> = {
+            price: newPrice,
+            initialPrice: newInitialPrice,
+            margin: newMargin,
+            initialCurrency: newInitialCurrency as any,
+            quantity: item.quantity !== undefined ? item.quantity : oldPrice.quantity,
+            badge: (item.badge as any) || 'ABSENT',
+            updatedAt: new Date().toISOString(),
+          };
+          if (item.promoCode !== undefined) priceUpdateFields.promoCode = item.promoCode || null;
+          if (item.promoPrice !== undefined) priceUpdateFields.promotionPrice = item.promoPrice || null;
+          if (item.promoStartDate !== undefined) priceUpdateFields.promoStartDate = item.promoStartDate || null;
+          if (item.promoEndDate !== undefined) priceUpdateFields.promoEndDate = item.promoEndDate || null;
+
           await db
             .update(schema.itemPrice)
-            .set({
-              price: calculatedPrice,
-              initialPrice: item.initialPrice,
-              quantity: item.quantity,
-              badge: (item.badge as any) || 'ABSENT',
-              promoCode: item.promoCode || null,
-              promotionPrice: item.promoPrice || null,
-              promoStartDate: item.promoStartDate || null,
-              promoEndDate: item.promoEndDate || null,
-              margin: effectiveMargin,
-              initialCurrency: (item.currency as any) || null,
-              updatedAt: new Date().toISOString(),
-            })
+            .set(priceUpdateFields)
             .where(eq(schema.itemPrice.id, oldPrice.id));
           
           updated++;
         } else {
           // Create new price record
           const effectiveMargin = item.margin ?? 20;
-          const calculatedPrice = Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100;
+          const calculatedPrice = item.initialPrice != null
+            ? Math.round(item.initialPrice * (1 + effectiveMargin / 100) * 100) / 100
+            : Math.round((item.price ?? 0) * 100) / 100;
           await db
             .insert(schema.itemPrice)
             .values({

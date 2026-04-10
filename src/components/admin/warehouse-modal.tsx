@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ export function WarehouseModal({
   onSave,
   warehouse,
 }: WarehouseModalProps) {
+  const t = useTranslations('adminDashboard');
   const [formData, setFormData] = useState({
     name: warehouse?.name || "",
     countrySlug: warehouse?.countrySlug || "other",
@@ -134,12 +136,10 @@ export function WarehouseModal({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {warehouse ? "Edit Warehouse" : "Add New Warehouse"}
+            {warehouse ? t('warehouseModal.editTitle') : t('warehouseModal.addTitle')}
           </DialogTitle>
           <DialogDescription>
-            {warehouse
-              ? "Update the warehouse information below."
-              : "Fill in the warehouse information below."}
+            {warehouse ? t('warehouseModal.editDesc') : t('warehouseModal.addDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -147,7 +147,7 @@ export function WarehouseModal({
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="displayedName" className="text-right">
-                Displayed Name
+                {t('warehouseModal.displayedName')}
               </Label>
               <Input
                 id="displayedName"
@@ -159,14 +159,14 @@ export function WarehouseModal({
                   }))
                 }
                 className="col-span-3"
-                placeholder="Warehouse name to Display"
+                placeholder={t('warehouseModal.displayedNamePlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                {t('warehouseModal.name')}
               </Label>
               <Input
                 id="name"
@@ -175,14 +175,14 @@ export function WarehouseModal({
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 className="col-span-3"
-                placeholder="Warehouse name"
+                placeholder={t('warehouseModal.namePlaceholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="countrySlug" className="text-right">
-                Country
+                {t('warehouseModal.country')}
               </Label>
               <select
                 id="countrySlug"
@@ -206,7 +206,7 @@ export function WarehouseModal({
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="visible" className="text-right">
-                Visible
+                {t('warehouseModal.visible')}
               </Label>
               <div className="col-span-3">
                 <Switch
@@ -222,7 +222,7 @@ export function WarehouseModal({
             {/* Delivery days */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="deliveryDaysPoland" className="text-right">
-                Delivery Poland
+                {t('warehouseModal.deliveryPoland')}
               </Label>
               <div className="col-span-3 flex items-center gap-2">
                 <Input
@@ -238,17 +238,17 @@ export function WarehouseModal({
                     }))
                   }
                   className="w-full"
-                  placeholder="Days"
+                  placeholder={t('warehouseModal.daysPlaceholder')}
                 />
                 <span className="text-sm text-gray-500 whitespace-nowrap">
-                  days
+                  {t('warehouseModal.days')}
                 </span>
               </div>
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="deliveryDaysUkraine" className="text-right">
-                Delivery Ukraine
+                {t('warehouseModal.deliveryUkraine')}
               </Label>
               <div className="col-span-3 flex items-center gap-2">
                 <Input
@@ -264,17 +264,17 @@ export function WarehouseModal({
                     }))
                   }
                   className="w-full"
-                  placeholder="Days"
+                  placeholder={t('warehouseModal.daysPlaceholder')}
                 />
                 <span className="text-sm text-gray-500 whitespace-nowrap">
-                  days
+                  {t('warehouseModal.days')}
                 </span>
               </div>
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="deliveryDaysEurope" className="text-right">
-                Delivery Europe
+                {t('warehouseModal.deliveryEurope')}
               </Label>
               <div className="col-span-3 flex items-center gap-2">
                 <Input
@@ -290,10 +290,10 @@ export function WarehouseModal({
                     }))
                   }
                   className="w-full"
-                  placeholder="Days"
+                  placeholder={t('warehouseModal.daysPlaceholder')}
                 />
                 <span className="text-sm text-gray-500 whitespace-nowrap">
-                  days
+                  {t('warehouseModal.days')}
                 </span>
               </div>
             </div>
@@ -301,10 +301,10 @@ export function WarehouseModal({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t('warehouseModal.cancel')}
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : warehouse ? "Update" : "Create"}
+              {isLoading ? t('warehouseModal.saving') : warehouse ? t('warehouseModal.updateBtn') : t('warehouseModal.createBtn')}
             </Button>
           </DialogFooter>
         </form>

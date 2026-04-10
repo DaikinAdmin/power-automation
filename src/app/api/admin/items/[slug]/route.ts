@@ -169,6 +169,14 @@ export async function GET(
     }
 }
 
+function generateItemSlug(brandSlug: string | null | undefined, articleId: string): string {
+    const base = brandSlug ? `${brandSlug}_${articleId}` : articleId;
+    return base
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
@@ -229,6 +237,9 @@ export async function PUT(
             }
         }
 
+        // Compute new slug based on current brandSlug and articleId
+        const newSlug = generateItemSlug(data.brandSlug, data.articleId);
+
         // Delete existing prices and details
         await db
             .delete(schema.itemPrice)
@@ -244,6 +255,7 @@ export async function PUT(
         const [updatedItem] = await db
             .update(schema.item)
             .set({
+                slug: newSlug,
                 articleId: data.articleId,
                 isDisplayed: data.isDisplayed,
                 itemImageLink: imageLinks,
@@ -419,6 +431,7 @@ export async function PUT(
 
         const responseData = {
             ...updatedItem,
+            newSlug: updatedItem.slug,
             itemDetails: updatedItemDetails,
             itemPrice: updatedItemPrices,
         };

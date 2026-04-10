@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { DiscountLevelModal, DeleteDiscountLevelModal } from '@/components/admin';
@@ -19,6 +20,7 @@ interface DiscountLevel {
 
 export default function DiscountLevelsPage() {
   const router = useRouter();
+  const t = useTranslations('adminDashboard');
   const [discountLevels, setDiscountLevels] = useState<DiscountLevel[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,22 +97,22 @@ export default function DiscountLevelsPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Discount Levels</h1>
-          <p className="text-gray-600 mt-1">Manage customer discount levels and percentages</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('discountLevels.title')}</h1>
+          <p className="text-gray-600 mt-1">{t('discountLevels.description')}</p>
         </div>
         <Button onClick={handleAddNew} className="flex items-center space-x-2">
           <Plus size={16} />
-          <span>Add New Level</span>
+          <span>{t('discountLevels.addNew')}</span>
         </Button>
       </div>
 
       {discountLevels.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-500 text-lg mb-2">No discount levels found</div>
-          <p className="text-gray-400 mb-4">Create your first discount level to get started</p>
+          <div className="text-gray-500 text-lg mb-2">{t('discountLevels.empty.title')}</div>
+          <p className="text-gray-400 mb-4">{t('discountLevels.empty.description')}</p>
           <Button onClick={handleAddNew}>
             <Plus size={16} className="mr-2" />
-            Add New Level
+            {t('discountLevels.addNew')}
           </Button>
         </div>
       ) : (
@@ -119,19 +121,19 @@ export default function DiscountLevelsPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Level
+                  {t('discountLevels.table.level')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Discount Percentage
+                  {t('discountLevels.table.discountPct')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Users Count
+                  {t('discountLevels.table.usersCount')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created At
+                  {t('discountLevels.table.createdAt')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('discountLevels.table.actions')}
                 </th>
               </tr>
             </thead>
@@ -147,7 +149,7 @@ export default function DiscountLevelsPage() {
                       </div>
                       <div className="ml-3">
                         <div className="text-sm font-medium text-gray-900">
-                          Level {discountLevel.level}
+                          {t('discountLevels.table.levelCell', { level: discountLevel.level })}
                         </div>
                       </div>
                     </div>
@@ -158,7 +160,7 @@ export default function DiscountLevelsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {discountLevel._count?.users || 0} users
+                    {t('discountLevels.table.usersCell', { count: discountLevel._count?.users || 0 })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(discountLevel.createdAt).toLocaleDateString()}

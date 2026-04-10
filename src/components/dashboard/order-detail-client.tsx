@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 import { formatCurrency, formatDate } from '@/helpers/formatting';
 import { Skeleton } from '@/components/ui/skeleton';

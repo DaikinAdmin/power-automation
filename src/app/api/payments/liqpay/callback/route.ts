@@ -10,6 +10,10 @@ import {
   LIQPAY_SUCCESS_STATUSES,
   LIQPAY_FAILURE_STATUSES,
 } from '@/lib/liqpay';
+import {
+  sendPaymentSuccessEmails,
+  type PaymentEmailData,
+} from '@/lib/order-emails';
 
 // ---------------------------------------------------------------------------
 // LiqPay configuration
@@ -140,6 +144,49 @@ export async function POST(request: NextRequest) {
         liqpayPaymentId: payload.payment_id,
         duration,
       });
+
+      // Send payment success emails (non-blocking)
+      try {
+        const [paidOrder] = await db
+          .select()
+          .from(schema.order)
+          .where(eq(schema.order.id, payment.orderId))
+          .limit(1);
+        const [orderUser] = await db
+          .select()
+          .from(schema.user)
+          .where(eq(schema.user.id, paidOrder.userId))
+          .limit(1);
+
+        if (orderUser && paidOrder) {
+          const lineItems = Array.isArray(paidOrder.lineItems) ? paidOrder.lineItems as any[] : [];
+          const emailData: PaymentEmailData = {
+            orderId: paidOrder.id,
+            orderShortId: paidOrder.id.substring(0, 8),
+            customerName: orderUser.name,
+            customerEmail: orderUser.email,
+            customerPhone: orderUser.phoneNumber || undefined,
+            companyName: orderUser.companyName || undefined,
+            totalPrice: paidOrder.totalPrice,
+            originalTotalPrice: paidOrder.originalTotalPrice,
+            lineItems: lineItems.map((li: any) => ({
+              name: li.name || li.articleId,
+              articleId: li.articleId,
+              quantity: li.quantity,
+              unitPrice: li.unitPrice,
+              lineTotal: li.lineTotal,
+              warehouseName: li.warehouseName,
+            })),
+            paymentMethod: payload.paytype || 'LiqPay',
+            paymentAmount: payload.amount,
+            paymentCurrency: payload.currency || 'UAH',
+            transactionId: String(payload.payment_id),
+          };
+          sendPaymentSuccessEmails(emailData);
+        }
+      } catch (emailErr) {
+        logger.error('Failed to send payment success emails from callback', { error: String(emailErr) });
+      }
     }
     // ------------------------------------------------------------------
     // 6. Handle terminal failure / reversal statuses

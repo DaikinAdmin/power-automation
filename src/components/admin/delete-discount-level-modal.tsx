@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import FormError from '@/components/form-error';
 import { FormSuccess } from '@/components/form-success';
@@ -33,6 +34,7 @@ export function DeleteDiscountLevelModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const t = useTranslations('adminDashboard');
 
   useEffect(() => {
     if (isOpen) {
@@ -99,13 +101,12 @@ export function DeleteDiscountLevelModal({
               <div className="flex-shrink-0">
                 <AlertTriangle className="h-6 w-6 text-red-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Delete Discount Level</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('discountLevels.delete.title')}</h2>
             </div>
 
             <div className="mb-6">
               <p className="text-gray-600 mb-4">
-                Are you sure you want to delete <strong>Level {discountLevel.level}</strong> with{' '}
-                <strong>{discountLevel.discountPercentage}% discount</strong>?
+                {t('discountLevels.delete.description', { level: discountLevel.level, percentage: discountLevel.discountPercentage })}
               </p>
 
               {hasUsers && (
@@ -116,13 +117,11 @@ export function DeleteDiscountLevelModal({
                     </div>
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-yellow-800">
-                        Warning: Users Affected
+                        {t('discountLevels.delete.warningTitle')}
                       </h3>
                       <div className="mt-2 text-sm text-yellow-700">
                         <p>
-                          This discount level is currently assigned to{' '}
-                          <strong>{discountLevel._count?.users} user(s)</strong>. 
-                          Deleting it will remove the discount level from all affected users.
+                          {t('discountLevels.delete.hasUsers', { count: discountLevel._count?.users ?? 0 })}
                         </p>
                       </div>
                     </div>
@@ -131,7 +130,7 @@ export function DeleteDiscountLevelModal({
               )}
 
               <p className="text-sm text-gray-500">
-                This action cannot be undone.
+                {t('discountLevels.delete.cannotUndo')}
               </p>
             </div>
 
@@ -145,7 +144,7 @@ export function DeleteDiscountLevelModal({
                 onClick={onClose}
                 disabled={loading}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={handleDelete}
@@ -155,10 +154,10 @@ export function DeleteDiscountLevelModal({
                 {loading ? (
                   <div className="flex items-center space-x-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Deleting...</span>
+                    <span>{t('discountLevels.delete.deleting')}</span>
                   </div>
                 ) : (
-                  'Delete Level'
+                  t('discountLevels.delete.deleteBtn')
                 )}
               </Button>
             </div>

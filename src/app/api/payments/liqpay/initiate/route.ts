@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
       result_url: resultUrl,
       server_url: serverUrl,
       language: 'uk',
-      paytypes: 'card,privat24,gpay,apay,paypart,moment_part,cash,invoice, qr',
+      paytypes: 'card,privat24,gpay,apayqr',
     };
 
     // buildCheckoutUrl internally calls buildData() + buildSignature()

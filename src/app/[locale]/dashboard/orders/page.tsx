@@ -1,39 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
-
-type Payment = {
-  id: string;
-  status: string;
-  currency: string;
-  amount: number;
-  paymentMethod?: string | null;
-};
-
-type OrderLineItem = {
-  itemId: string;
-  articleId: string;
-  name: string;
-  quantity: number;
-  unitPrice?: number | null;
-  lineTotal?: number | null;
-};
-
-type OrderListItem = {
-  id: string;
-  status: string;
-  totalPrice: string | null;
-  originalTotalPrice: number;
-  createdAt: string;
-  lineItems: OrderLineItem[];
-  payment?: Payment | null;
-};
+import { formatCurrency, formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
+import type { OrderListItem } from '@/types/order';
 
 export default function DashboardOrdersPage() {
   const t = useTranslations('dashboard.orders');
@@ -134,25 +108,6 @@ export default function DashboardOrdersPage() {
     }
     // Fallback to original price in EUR
     return formatCurrency(order.originalTotalPrice);
-  };
-
-  const getPaymentStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
-      case 'PENDING':
-      case 'INITIATED':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'FAILED':
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800';
-      case 'REFUNDED':
-        return 'bg-purple-100 text-purple-800';
-      case 'PROCESSING':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   };
 
   return (

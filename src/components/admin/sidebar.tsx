@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/components/languge-switcher';
 import { 
   LayoutDashboard, 
   Package, 
@@ -35,84 +36,91 @@ interface SidebarItem {
 export function AdminSidebar({ className }: SidebarProps) {
   const pathname = usePathname();
 
+  const t = useTranslations('adminDashboard.nav');
+
   const sidebarItems: SidebarItem[] = [
     {
-      title: 'Dashboard',
+      title: t('dashboard'),
       href: '/admin',
       icon: <LayoutDashboard className="h-5 w-5" />
     },
     {
-      title: 'Warehouses',
+      title: t('warehouses'),
       href: '/admin/warehouses',
       icon: <Warehouse className="h-5 w-5" />
     },
     {
-      title: 'Products',
+      title: t('products'),
       href: '/admin/items',
       icon: <Package className="h-5 w-5" />
     },
     {
-      title: 'Bulk Upload',
+      title: t('bulkUpload'),
       href: '/admin/bulk-upload',
       icon: <Upload className="h-5 w-5" />
     },
     {
-      title: 'Promo',
+      title: t('promo'),
       href: '/admin/promo',
       icon: <Tag className="h-5 w-5" />
     },
     {
-      title: 'Categories',
+      title: t('categories'),
       href: '/admin/categories',
       icon: <Tags className="h-5 w-5" />
     },
     {
-      title: 'Brands',
+      title: t('brands'),
       href: '/admin/brands',
       icon: <BadgeCheck className="h-5 w-5" />
     },
     {
-      title: 'Orders',
+      title: t('orders'),
       href: '/admin/orders',
       icon: <ShoppingCart className="h-5 w-5" />
     },
     {
-      title: 'Users',
+      title: t('users'),
       href: '/admin/users',
       icon: <Users className="h-5 w-5" />
     },
     {
-      title: 'Pages',
+      title: t('pages'),
       href: '/admin/pages',
       icon: <FileText className="h-5 w-5" />
     },
     {
-      title: 'Banners',
+      title: t('banners'),
       href: '/admin/banners',
       icon: <Wallpaper className="h-5 w-5" />
     },
     {
-      title: 'Uploads',
+      title: t('uploads'),
       href: '/admin/uploads',
       icon: <ImageUp className="h-5 w-5" />
     },
     {
-      title: 'Currency Exchange',
+      title: t('currencies'),
       href: '/admin/currency-exchange',
       icon: <DollarSign className="h-5 w-5" />
     },
     {
-      title: 'Payments',
+      title: t('payments'),
       href: '/admin/payments',
       icon: <CreditCard className="h-5 w-5" />
     },
     {
-      title: 'Analytics',
+      title: t('delivery'),
+      href: '/admin/delivery',
+      icon: <Package className="h-5 w-5" />
+    },
+    {
+      title: t('analytics'),
       href: '/admin/analytics',
       icon: <BarChart3 className="h-5 w-5" />
     },
     {
-      title: 'Settings',
+      title: t('settings'),
       href: '/admin/settings',
       icon: <Settings className="h-5 w-5" />
     }
@@ -122,9 +130,10 @@ export function AdminSidebar({ className }: SidebarProps) {
     <div className={cn("pb-12 w-64 border-r min-h-screen", className)}>
       <div className="space-y-4 py-4">
         <div className="px-4 py-2">
-          <h2 className="mb-2 px-2 text-xl font-semibold tracking-tight">
-            Admin Panel
-          </h2>
+          <div className="mb-2 px-2 flex items-center justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">Admin Panel</h2>
+            <LanguageSwitcher />
+          </div>
           <div className="space-y-1">
             {sidebarItems.map((item) => (
               <Link

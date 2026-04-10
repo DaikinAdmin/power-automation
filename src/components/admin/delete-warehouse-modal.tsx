@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Warehouse } from '@/db/schema';
@@ -17,6 +18,8 @@ export function DeleteWarehouseModal({
   onConfirm, 
   warehouse 
 }: DeleteWarehouseModalProps) {
+  const t = useTranslations('adminDashboard');
+
   if (!warehouse) return null;
 
   const handleConfirm = () => {
@@ -28,19 +31,18 @@ export function DeleteWarehouseModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Warehouse</DialogTitle>
+          <DialogTitle>{t('warehouses.delete.title')}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the warehouse "{warehouse.name}" in {warehouse.countrySlug}? 
-            This action cannot be undone and will affect all associated items and prices.
+            {t('warehouses.delete.description', { name: warehouse.name ?? '', country: warehouse.countrySlug ?? '' })}
           </DialogDescription>
         </DialogHeader>
         
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="button" variant="destructive" onClick={handleConfirm}>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogFooter>
       </DialogContent>

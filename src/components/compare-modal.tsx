@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { CompareItem } from './compare-context';
 import { useCurrency } from '@/hooks/useCurrency';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import parse from 'html-react-parser';
 

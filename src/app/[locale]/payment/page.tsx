@@ -1,16 +1,17 @@
 'use client';
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { ArrowLeft, CreditCard, Lock, XCircle, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import LanguageSwitcher from "@/components/languge-switcher";
 import { useCurrency } from "@/hooks/useCurrency";
 import {
   Przelewy24Button,
   LiqPayButton,
+  LiqPayInstallmentButton,
   IssueInvoiceButton,
 } from "@/components/PaymentButtons";
 import { useDomainConfig } from "@/hooks/useDomain";
@@ -42,7 +43,6 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
   const [error, setError] = useState('');
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
-  const [installmentModalOpen, setInstallmentModalOpen] = useState(false);
   const [installmentLoading, setInstallmentLoading] = useState(false);
   const isLoading = loadingProvider !== null || installmentLoading;
 
@@ -336,34 +336,65 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
 
                 {/* Payment Buttons */}
                 <div className="space-y-3">
-                  {allowedProviders.includes('przelewy24') && (
-                    <Przelewy24Button
-                      onClick={() => handlePayment('przelewy24')}
-                      isThisLoading={loadingProvider === 'przelewy24'}
-                      disabled={isLoading}
-                      isCompleted={orderData.status === 'COMPLETED'}
-                      processingLabel={t('buttons.processing')}
-                      alreadyPaidLabel={t('buttons.alreadyPaid')}
-                      label={t('buttons.payWithPrzelewy24')}
-                    />
+                  {orderData.payment?.paymentMethod === 'cash_on_delivery' ? (
+                    <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
+                      {t('cashOnDelivery.info')}
+                    </div>
+                  ) : orderData.payment?.paymentMethod === 'bank_transfer' ? (
+                    <>
+                      <p className="text-sm text-gray-600 mb-2">{t('bankTransfer.info')}</p>
+                      <IssueInvoiceButton
+                        orderId={orderId!}
+                        disabled={isLoading || orderData.status === 'COMPLETED'}
+                        label={t('buttons.issueInvoice')}
+                        processingLabel={t('buttons.issuingInvoice')}
+                        contactMessage={t('buttons.invoiceContactMessage')}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {allowedProviders.includes('przelewy24') && (
+                        <Przelewy24Button
+                          onClick={() => handlePayment('przelewy24')}
+                          isThisLoading={loadingProvider === 'przelewy24'}
+                          disabled={isLoading}
+                          isCompleted={orderData.status === 'COMPLETED'}
+                          processingLabel={t('buttons.processing')}
+                          alreadyPaidLabel={t('buttons.alreadyPaid')}
+                          label={t('buttons.payWithPrzelewy24')}
+                        />
+                      )}
+                      {allowedProviders.includes('liqpay') && (
+                        <LiqPayButton
+                          onClick={() => handlePayment('liqpay')}
+                          isThisLoading={loadingProvider === 'liqpay'}
+                          disabled={isLoading}
+                          isCompleted={orderData.status === 'COMPLETED'}
+                          processingLabel={t('buttons.processing')}
+                          alreadyPaidLabel={t('buttons.alreadyPaid')}
+                          label={t('buttons.payWithLiqPay')}
+                        />
+                      )}
+                      {allowedProviders.includes('liqpay') && (
+                        <LiqPayInstallmentButton
+                          onClick={() => handleInstallment('moment_part', 0)}
+                          isThisLoading={installmentLoading}
+                          disabled={isLoading}
+                          isCompleted={orderData.status === 'COMPLETED'}
+                          processingLabel={t('buttons.processing')}
+                          alreadyPaidLabel={t('buttons.alreadyPaid')}
+                          label={t('buttons.payWithLiqPayInstallment')}
+                        />
+                      )}
+                      <IssueInvoiceButton
+                        orderId={orderId!}
+                        disabled={isLoading || orderData.status === 'COMPLETED'}
+                        label={t('buttons.issueInvoice')}
+                        processingLabel={t('buttons.issuingInvoice')}
+                        contactMessage={t('buttons.invoiceContactMessage')}
+                      />
+                    </>
                   )}
-                  {allowedProviders.includes('liqpay') && (
-                    <LiqPayButton
-                      onClick={() => handlePayment('liqpay')}
-                      isThisLoading={loadingProvider === 'liqpay'}
-                      disabled={isLoading}
-                      isCompleted={orderData.status === 'COMPLETED'}
-                      processingLabel={t('buttons.processing')}
-                      alreadyPaidLabel={t('buttons.alreadyPaid')}
-                      label={t('buttons.payWithLiqPay')}
-                    />
-                  )}
-                  <IssueInvoiceButton
-                    orderId={orderId!}
-                    disabled={isLoading || orderData.status === 'COMPLETED'}
-                    label={t('buttons.issueInvoice')}
-                    processingLabel={t('buttons.issuingInvoice')}
-                  />
                 </div>
               </div>
 

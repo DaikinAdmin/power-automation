@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { mapOrderForUser } from '../shared';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, NotFoundError, BadRequestError } from '@/lib/error-handler';
@@ -58,6 +58,7 @@ export async function GET(
       })
       .from(schema.payment)
       .where(eq(schema.payment.orderId, order.id))
+      .orderBy(desc(schema.payment.createdAt))
       .limit(1);
 
     // Parse lineItems to get itemIds

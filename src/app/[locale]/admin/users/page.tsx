@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -44,6 +45,7 @@ function EditUserModal({
     emailVerified: false,
     discountLevel: ''
   });
+  const t = useTranslations('adminDashboard');
 
   useEffect(() => {
     if (user) {
@@ -75,53 +77,53 @@ function EditUserModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{t('users.edit.title')}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4 max-h-96 overflow-y-auto">
           {/* Read-only fields */}
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-medium">ID</Label>
+            <Label className="text-right font-medium">{t('users.edit.id')}</Label>
             <div className="col-span-3 text-sm text-gray-600 font-mono">{user.id}</div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-medium">Name</Label>
+            <Label className="text-right font-medium">{t('users.edit.name')}</Label>
             <div className="col-span-3 text-sm">{user.name}</div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-medium">Email</Label>
+            <Label className="text-right font-medium">{t('users.edit.email')}</Label>
             <div className="col-span-3 text-sm">{user.email}</div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-medium">Company</Label>
-            <div className="col-span-3 text-sm">{user.companyName || 'No company'}</div>
+            <Label className="text-right font-medium">{t('users.edit.company')}</Label>
+            <div className="col-span-3 text-sm">{user.companyName || t('users.edit.noCompany')}</div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right font-medium">Created</Label>
+            <Label className="text-right font-medium">{t('users.edit.created')}</Label>
             <div className="col-span-3 text-sm">{format(new Date(user.createdAt), 'MMM dd, yyyy HH:mm')}</div>
           </div>
           
           <div className="border-t pt-4 mt-2">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Editable Fields</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">{t('users.edit.editableFields')}</h3>
             
             {/* Editable fields */}
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
               <Label htmlFor="role" className="text-right">
-                Role
+                {t('users.edit.role')}
               </Label>
               <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
                 <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder={t('users.edit.rolePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="employee">Employer</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="user">{t('users.edit.roleUser')}</SelectItem>
+                  <SelectItem value="employee">{t('users.edit.roleEmployee')}</SelectItem>
+                  <SelectItem value="admin">{t('users.edit.roleAdmin')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4 mb-4">
               <Label htmlFor="emailVerified" className="text-right">
-                Email Verified
+                {t('users.edit.emailVerified')}
               </Label>
               <div className="col-span-3 flex items-center gap-2">
                 <Switch
@@ -130,13 +132,13 @@ function EditUserModal({
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, emailVerified: checked }))}
                 />
                 <span className="text-sm text-gray-600">
-                  {formData.emailVerified ? 'Verified' : 'Not verified'}
+                  {formData.emailVerified ? t('users.edit.verified') : t('users.edit.notVerified')}
                 </span>
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="discountLevel" className="text-right">
-                Discount Level
+                {t('users.edit.discountLevel')}
               </Label>
               <Input
                 id="discountLevel"
@@ -151,10 +153,10 @@ function EditUserModal({
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={handleRevert}>
-            Revert
+            {t('users.edit.revert')}
           </Button>
           <Button onClick={handleUpdate}>
-            Update
+            {t('users.edit.update')}
           </Button>
         </div>
       </DialogContent>
@@ -174,34 +176,35 @@ function DeleteUserModal({
   onClose: () => void, 
   onConfirm: (user: User) => void 
 }) {
+  const t = useTranslations('adminDashboard');
   if (!user) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete User</DialogTitle>
+          <DialogTitle>{t('users.delete.title')}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-gray-600 mb-4">
-            Are you sure you want to delete this user? This action cannot be undone.
+            {t('users.delete.description')}
           </p>
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="text-sm">
               <div className="font-medium">{user.name}</div>
               <div className="text-gray-600">{user.email}</div>
               <div className="text-xs text-gray-500 mt-1">
-                Role: {user.role} | Created: {format(new Date(user.createdAt), 'MMM dd, yyyy')}
+                {t('users.delete.role')}: {user.role} | {t('users.delete.created')}: {format(new Date(user.createdAt), 'MMM dd, yyyy')}
               </div>
             </div>
           </div>
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('users.delete.cancel')}
           </Button>
           <Button variant="destructive" onClick={() => onConfirm(user)}>
-            Delete User
+            {t('users.delete.deleteBtn')}
           </Button>
         </div>
       </DialogContent>
@@ -215,6 +218,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const t = useTranslations('adminDashboard');
 
   useEffect(() => {
     fetchUsers();
@@ -314,9 +318,9 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Users Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('users.title')}</h1>
         <p className="text-gray-600">
-          Manage and monitor all users in your application.
+          {t('users.description')}
         </p>
       </div>
 
@@ -324,7 +328,7 @@ export default function UsersPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('users.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.total}</div>
@@ -333,19 +337,19 @@ export default function UsersPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Verified Users</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('users.stats.verified')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.verified}</div>
             <p className="text-xs text-gray-600">
-              {userStats.total > 0 ? Math.round((userStats.verified / userStats.total) * 100) : 0}% of total
+              {t('users.stats.verifiedPct', { pct: userStats.total > 0 ? Math.round((userStats.verified / userStats.total) * 100) : 0 })}
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('users.stats.admins')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.admins}</div>
@@ -354,7 +358,7 @@ export default function UsersPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Employers</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('users.stats.employers')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.employers}</div>
@@ -365,9 +369,9 @@ export default function UsersPage() {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle>{t('users.table.header')}</CardTitle>
           <CardDescription>
-            A list of all users registered in your application.
+            {t('users.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -375,13 +379,13 @@ export default function UsersPage() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Email</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Company Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Role</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Joined</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.name')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.email')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.company')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.role')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.status')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.joined')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -395,7 +399,7 @@ export default function UsersPage() {
                       {user.companyName ? (
                         <span className="font-medium">{user.companyName}</span>
                       ) : (
-                        <span className="text-gray-400 italic">No company</span>
+                        <span className="text-gray-400 italic">{t('users.table.noCompany')}</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
@@ -415,7 +419,7 @@ export default function UsersPage() {
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {user.emailVerified ? 'Verified' : 'Unverified'}
+                        {user.emailVerified ? t('users.table.verified') : t('users.table.unverified')}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-600">

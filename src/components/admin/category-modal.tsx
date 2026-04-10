@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -63,6 +64,7 @@ interface CategoryModalProps {
 }
 
 export function CategoryModal({ isOpen, onClose, onSave, category, mode }: CategoryModalProps) {
+  const t = useTranslations('adminDashboard');
   const [subcategories, setSubcategories] = useState<SubcategoryEntry[]>([]);
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [expandedSubIndex, setExpandedSubIndex] = useState<number | null>(null);
@@ -235,12 +237,10 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
       <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Add New Category' : 'Edit Category'}
+            {mode === 'create' ? t('categoryModal.addTitle') : t('categoryModal.editTitle')}
           </DialogTitle>
           <DialogDescription>
-            {mode === 'create'
-              ? 'Create a new category for your products.'
-              : 'Update the category information and translations.'}
+            {mode === 'create' ? t('categoryModal.addDesc') : t('categoryModal.editDesc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -249,7 +249,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
             {/* Image */}
             <div className="space-y-1">
-              <Label>Image</Label>
+              <Label>{t('categoryModal.image')}</Label>
               <div className="flex gap-2">
                 <Input
                   placeholder="https://example.com/image.png or pick from library"
@@ -275,7 +275,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Default Name</FormLabel>
+                    <FormLabel>{t('categoryModal.defaultName')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Category name"
@@ -296,7 +296,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel>{t('categoryModal.slug')}</FormLabel>
                     <FormControl>
                       <Input placeholder="category-slug" {...field} disabled={isLoading} />
                     </FormControl>
@@ -308,7 +308,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
             {/* Category Translations */}
             <div className="space-y-2">
-              <Label>Category Translations</Label>
+              <Label>{t('categoryModal.categoryTranslations')}</Label>
               <Tabs defaultValue="pl">
                 <TabsList className="grid grid-cols-4 w-full">
                   {LOCALES.map((locale) => (
@@ -334,12 +334,12 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
             {/* Subcategories */}
             <div className="space-y-2">
-              <Label>Subcategories</Label>
+              <Label>{t('categoryModal.subcategories')}</Label>
 
               {/* Add new subcategory */}
               <div className="flex gap-2">
                 <Input
-                  placeholder="New subcategory name"
+                  placeholder={t('categoryModal.newSubcategoryPlaceholder')}
                   value={newSubcategoryName}
                   onChange={(e) => setNewSubcategoryName(e.target.value)}
                   onKeyDown={(e) => {
@@ -400,7 +400,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                           {/* Name + Slug */}
                           <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1">
-                              <Label className="text-xs">Name</Label>
+                              <Label className="text-xs">{t('categoryModal.name')}</Label>
                               <Input
                                 value={sub.name}
                                 onChange={(e) => {
@@ -415,7 +415,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                               />
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-xs">Slug</Label>
+                              <Label className="text-xs">{t('categoryModal.slug')}</Label>
                               <Input
                                 value={sub.slug}
                                 onChange={(e) =>
@@ -436,12 +436,12 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                               }
                               disabled={isLoading}
                             />
-                            <Label className="text-xs">Visible</Label>
+                            <Label className="text-xs">{t('categoryModal.visible')}</Label>
                           </div>
 
                           {/* Subcategory Translations */}
                           <div className="space-y-1">
-                            <Label className="text-xs">Translations</Label>
+                            <Label className="text-xs">{t('categoryModal.translations')}</Label>
                             <Tabs defaultValue="pl">
                               <TabsList className="grid grid-cols-4 w-full h-7">
                                 {LOCALES.map((locale) => (
@@ -484,8 +484,8 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Display Category</FormLabel>
-                    <div className="text-sm text-gray-600">Show this category on the website</div>
+                    <FormLabel className="text-base">{t('categoryModal.displayCategory')}</FormLabel>
+                    <div className="text-sm text-gray-600">{t('categoryModal.displayCategoryDesc')}</div>
                   </div>
                   <FormControl>
                     <Switch
@@ -507,14 +507,14 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-                Cancel
+                {t('categoryModal.cancel')}
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading
-                  ? 'Saving...'
+                  ? t('categoryModal.saving')
                   : mode === 'create'
-                  ? 'Create Category'
-                  : 'Update Category'}
+                  ? t('categoryModal.createBtn')
+                  : t('categoryModal.updateBtn')}
               </Button>
             </DialogFooter>
           </form>

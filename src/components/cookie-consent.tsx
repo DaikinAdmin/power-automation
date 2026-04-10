@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
 const CONSENT_KEY = "cookie_consent";
@@ -65,7 +65,7 @@ export default function CookieConsent() {
           <p className="text-gray-600 text-xs md:text-sm">
             {t("description")}{" "}
             <Link
-              href={`/${locale}/privacy-policy`}
+              href="/privacy-policy"
               className="underline text-red-600 hover:text-red-800 whitespace-nowrap"
             >
               {t("learnMore")}

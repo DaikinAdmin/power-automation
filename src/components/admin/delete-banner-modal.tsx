@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,29 +34,26 @@ export function DeleteBannerModal({
   onConfirm,
   banner,
 }: DeleteBannerModalProps) {
+  const t = useTranslations('adminDashboard');
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t('banners.delete.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the banner{' '}
-            <span className="font-semibold">
-              "{banner?.title || 'Untitled'}"
-            </span>{' '}
-            from position <span className="font-semibold">{banner?.position}</span>.
+            {t('banners.delete.description', { title: banner?.title || 'Untitled', position: banner?.position ?? '' })}
             <br />
             <br />
-            This action cannot be undone.
+            {t('banners.delete.cannotUndo')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
           >
-            Delete Banner
+            {t('banners.delete.deleteBtn')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

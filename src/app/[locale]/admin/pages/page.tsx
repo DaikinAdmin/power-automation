@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface PageContent {
   id: number;
@@ -29,6 +30,7 @@ const LOCALES = [
 
 export default function PagesAdminPage() {
   const router = useRouter();
+  const t = useTranslations('adminDashboard');
   const [groupedPages, setGroupedPages] = useState<GroupedPages>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,7 +56,7 @@ export default function PagesAdminPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Ви впевнені, що хочете видалити цю сторінку?')) {
+    if (!confirm(t('pages.confirmDelete'))) {
       return;
     }
 
@@ -66,11 +68,11 @@ export default function PagesAdminPage() {
       if (response.ok) {
         fetchPages();
       } else {
-        alert('Помилка при видаленні сторінки');
+        alert(t('pages.deleteError'));
       }
     } catch (error) {
       console.error('Error deleting page:', error);
-      alert('Помилка при видаленні сторінки');
+      alert(t('pages.deleteError'));
     }
   };
 
@@ -89,11 +91,11 @@ export default function PagesAdminPage() {
       if (response.ok) {
         fetchPages();
       } else {
-        alert('Помилка при оновленні статусу публікації');
+        alert(t('pages.publishError'));
       }
     } catch (error) {
       console.error('Error updating publish status:', error);
-      alert('Помилка при оновленні статусу публікації');
+      alert(t('pages.publishError'));
     }
   };
 
@@ -104,7 +106,7 @@ export default function PagesAdminPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg">Завантаження...</p>
+        <p className="text-lg">{t('pages.loading')}</p>
       </div>
     );
   }
@@ -113,14 +115,14 @@ export default function PagesAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Управління сторінками</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('pages.title')}</h1>
           <p className="text-muted-foreground">
-            Створюйте та редагуйте статичні сторінки для різних мов
+            {t('pages.description')}
           </p>
         </div>
         <Button onClick={() => router.push('/admin/pages/new')}>
           <Plus className="mr-2 h-4 w-4" />
-          Створити нову сторінку
+          {t('pages.createNew')}
         </Button>
       </div>
 
@@ -135,7 +137,7 @@ export default function PagesAdminPage() {
                 </span>
               </CardTitle>
               <CardDescription>
-                Доступні переклади: {pages.length} з {LOCALES.length}
+                {t('pages.availableTranslations', { count: pages.length, total: LOCALES.length })}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -158,14 +160,14 @@ export default function PagesAdminPage() {
                                 : 'bg-gray-100 text-gray-800'
                             }`}
                           >
-                            {page.isPublished ? 'Опубліковано' : 'Чернетка'}
+                            {page.isPublished ? t('pages.published') : t('pages.draft')}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground truncate">
                           {page.title}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Оновлено: {new Date(page.updatedAt).toLocaleDateString('uk-UA')}
+                          {t('pages.updatedAt', { date: new Date(page.updatedAt).toLocaleDateString() })}
                         </p>
                         <div className="flex gap-2">
                           <Button
@@ -174,7 +176,7 @@ export default function PagesAdminPage() {
                             onClick={() => router.push(`/admin/pages/${page.id}/edit`)}
                           >
                             <Edit className="h-3 w-3 mr-1" />
-                            Редагувати
+                            {t('pages.edit')}
                           </Button>
                           <Button
                             size="sm"
@@ -182,7 +184,7 @@ export default function PagesAdminPage() {
                             onClick={() => togglePublish(page)}
                           >
                             <Eye className="h-3 w-3 mr-1" />
-                            {page.isPublished ? 'Приховати' : 'Показати'}
+                            {page.isPublished ? t('pages.hide') : t('pages.show')}
                           </Button>
                           <Button
                             size="sm"
@@ -205,11 +207,11 @@ export default function PagesAdminPage() {
                             {locale.name}
                           </span>
                           <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-600">
-                            Відсутня
+                            {t('pages.missing')}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Переклад не створено
+                          {t('pages.noTranslation')}
                         </p>
                         <Button
                           size="sm"
@@ -220,7 +222,7 @@ export default function PagesAdminPage() {
                           }
                         >
                           <Plus className="h-3 w-3 mr-1" />
-                          Створити
+                          {t('pages.create')}
                         </Button>
                       </div>
                     );
@@ -236,11 +238,11 @@ export default function PagesAdminPage() {
             <CardContent className="pt-6">
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
-                  Сторінок поки немає. Створіть першу!
+                  {t('pages.empty')}
                 </p>
                 <Button onClick={() => router.push('/admin/pages/new')}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Створити сторінку
+                  {t('pages.createPage')}
                 </Button>
               </div>
             </CardContent>

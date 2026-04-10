@@ -1,7 +1,7 @@
 ﻿'use client';
 import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useMemo } from 'react';
 import { X, Plus, Minus, ShoppingBag, ArrowLeft, Trash2, MapPin } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { CartItemType } from '@/helpers/types/item';
 import { useCurrency } from '@/hooks/useCurrency';
 import { parsePriceString, SupportedCurrency } from '@/helpers/currency';

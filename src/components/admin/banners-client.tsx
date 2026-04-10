@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -74,6 +75,7 @@ function SortableBannerItem({
   onDrop: (e: React.DragEvent, banner: Banner) => void;
   isDragging: boolean;
 }) {
+  const t = useTranslations('adminDashboard');
   return (
     <div
       draggable
@@ -111,13 +113,13 @@ function SortableBannerItem({
           </h3>
           {!banner.isActive && (
             <Badge variant="secondary" className="bg-gray-200 text-gray-600">
-              Hidden
+              {t('banners.stats.hidden')}
             </Badge>
           )}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
-            Order: {banner.sortOrder ?? 0}
+            {t('banners.list.order', { order: banner.sortOrder ?? 0 })}
           </span>
           {banner.linkUrl && (
             <a
@@ -170,6 +172,7 @@ function SortableBannerItem({
 }
 
 export function BannersClient() {
+  const t = useTranslations('adminDashboard');
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [position, setPosition] = useState('home_top');
@@ -362,24 +365,24 @@ export function BannersClient() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Banner Management</h1>
-          <p className="text-gray-600">Manage promotional banners across different pages and devices</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('banners.title')}</h1>
+          <p className="text-gray-600">{t('banners.description')}</p>
         </div>
         <Button onClick={handleCreateBanner} className="bg-blue-600 text-white hover:bg-blue-700">
           <Plus className="mr-2 h-4 w-4" />
-          Add New Banner
+          {t('banners.addNew')}
         </Button>
       </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Filters</CardTitle>
+          <CardTitle className="text-lg">{t('banners.filters.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Position</label>
+              <label className="text-sm font-medium text-gray-700">{t('banners.filters.position')}</label>
               <Select value={position} onValueChange={setPosition}>
                 <SelectTrigger>
                   <SelectValue />
@@ -395,7 +398,7 @@ export function BannersClient() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Device</label>
+              <label className="text-sm font-medium text-gray-700">{t('banners.filters.device')}</label>
               <Select value={device} onValueChange={setDevice}>
                 <SelectTrigger>
                   <SelectValue />
@@ -411,7 +414,7 @@ export function BannersClient() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Locale</label>
+              <label className="text-sm font-medium text-gray-700">{t('banners.filters.locale')}</label>
               <Select value={locale} onValueChange={setLocale}>
                 <SelectTrigger>
                   <SelectValue />
@@ -435,7 +438,7 @@ export function BannersClient() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-900">{banners.length}</div>
-              <div className="text-sm text-gray-600">Total Banners</div>
+              <div className="text-sm text-gray-600">{t('banners.stats.total')}</div>
             </div>
           </CardContent>
         </Card>
@@ -443,7 +446,7 @@ export function BannersClient() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">{activeBanners.length}</div>
-              <div className="text-sm text-gray-600">Active</div>
+              <div className="text-sm text-gray-600">{t('banners.stats.active')}</div>
             </div>
           </CardContent>
         </Card>
@@ -451,7 +454,7 @@ export function BannersClient() {
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-400">{inactiveBanners.length}</div>
-              <div className="text-sm text-gray-600">Hidden</div>
+              <div className="text-sm text-gray-600">{t('banners.stats.hidden')}</div>
             </div>
           </CardContent>
         </Card>
@@ -462,11 +465,15 @@ export function BannersClient() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>
-              Banners for {POSITIONS.find(p => p.value === position)?.label} - {DEVICES.find(d => d.value === device)?.label} - {LOCALES.find(l => l.value === locale)?.label}
+              {t('banners.list.listTitle', {
+                pos: POSITIONS.find(p => p.value === position)?.label ?? position,
+                dev: DEVICES.find(d => d.value === device)?.label ?? device,
+                loc: LOCALES.find(l => l.value === locale)?.label ?? locale,
+              })}
             </CardTitle>
             {banners.length > 0 && (
               <Badge variant="outline" className="text-xs">
-                Drag to reorder
+                {t('banners.list.dragToReorder')}
               </Badge>
             )}
           </div>
@@ -483,9 +490,9 @@ export function BannersClient() {
               <div className="text-gray-400 mb-2">
                 <Plus className="h-12 w-12 mx-auto" />
               </div>
-              <p className="text-gray-600 mb-4">No banners found for this configuration</p>
+              <p className="text-gray-600 mb-4">{t('banners.list.empty')}</p>
               <Button onClick={handleCreateBanner} variant="outline">
-                Create First Banner
+                {t('banners.list.createFirst')}
               </Button>
             </div>
           ) : (

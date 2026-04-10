@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useCart } from "@/components/cart-context";
 import PageLayout from '@/components/layout/page-layout';
 import { CartItemType } from '@/helpers/types/item';
@@ -29,8 +30,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
-  const [pageSize, setPageSize] = useState(16);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const currentPage = Number(searchParams?.get('page') || '1');
+  const pageSize = Number(searchParams?.get('pageSize') || '16');
 
   const {
     viewMode,
@@ -46,6 +48,23 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const urlBrands = searchParams?.getAll('brand') || [];
   const urlWarehouses = searchParams?.getAll('warehouse') || [];
   const searchQuery = searchParams?.get('search') || '';
+
+  const updatePageInURL = (page: number, newPageSize?: number) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (page > 1) {
+      params.set('page', String(page));
+    } else {
+      params.delete('page');
+    }
+    const size = newPageSize ?? pageSize;
+    if (size !== 16) {
+      params.set('pageSize', String(size));
+    } else {
+      params.delete('pageSize');
+    }
+    const newUrl = `/${locale}/categories${params.toString() ? `?${params.toString()}` : ''}`;
+    router.push(newUrl, { scroll: false });
+  };
 
   // Use custom hook for fetching all category data
   const {
@@ -77,6 +96,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     
     // Add new values
     values.forEach(value => params.append(filterType, value));
+
+    // Reset to page 1 on filter change
+    params.delete('page');
     
     // Keep search query if exists
     if (searchQuery) {
@@ -95,7 +117,6 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlBrands.filter(b => b !== brand);
     
     updateURLParams('brand', currentSelected);
-    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleWarehouseSelectionWithURL = (warehouseId: string, checked: boolean) => {
@@ -104,18 +125,16 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       : urlWarehouses.filter(w => w !== warehouseId);
     
     updateURLParams('warehouse', currentSelected);
-    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Handler for page size change
   const handlePageSizeChange = (newSize: number) => {
-    setPageSize(newSize);
-    setCurrentPage(1); // Reset to first page when page size changes
+    updatePageInURL(1, newSize);
   };
 
   // Handler for page change
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    updatePageInURL(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -155,6 +174,10 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
     })
     .sort((a, b) => {
+      const aInStock = a.prices.some((p: any) => p.quantity > 0);
+      const bInStock = b.prices.some((p: any) => p.quantity > 0);
+      if (aInStock !== bInStock) return aInStock ? -1 : 1;
+
       const aDetails = a.details;
       const bDetails = b.details;
       const aPrice = a.prices[0]?.promotionPrice || a.prices[0]?.price || 0;
@@ -186,7 +209,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   // Reset to page 1 if current page is out of bounds
   useEffect(() => {
     if (totalPages > 0 && currentPage > totalPages) {
-      setCurrentPage(1);
+      updatePageInURL(1);
     }
   }, [totalPages, currentPage]);
 

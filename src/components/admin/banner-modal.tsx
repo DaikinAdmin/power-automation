@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -77,6 +78,7 @@ export function BannerModal({
   currentDevice,
   currentLocale,
 }: BannerModalProps) {
+  const t = useTranslations('adminDashboard');
   const [formData, setFormData] = useState({
     title: "",
     imageUrl: "",
@@ -136,7 +138,7 @@ export function BannerModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {banner ? "Edit Banner" : "Create New Banner"}
+            {banner ? t('banners.modal.editTitle') : t('banners.modal.addTitle')}
           </DialogTitle>
         </DialogHeader>
 
@@ -144,27 +146,27 @@ export function BannerModal({
           <div className="space-y-4">
             {/* Title */}
             <div className="space-y-2">
-              <Label htmlFor="title">Title (Optional)</Label>
+              <Label htmlFor="title">{t('banners.modal.titleLabel')}</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                placeholder="Enter banner title"
+                placeholder={t('banners.modal.titlePlaceholder')}
               />
             </div>
 
             {/* Image URL */}
             <div className="space-y-2">
-              <Label htmlFor="imageUrl">Image URL *</Label>
+              <Label htmlFor="imageUrl">{t('banners.modal.imageUrl')}</Label>
               <Input
                 id="imageUrl"
                 value={formData.imageUrl}
                 onChange={(e) =>
                   setFormData({ ...formData, imageUrl: e.target.value })
                 }
-                placeholder="https://example.com/banner.jpg"
+                placeholder={t('banners.modal.imageUrlPlaceholder')}
                 required
               />
               {formData.imageUrl && (
@@ -182,21 +184,21 @@ export function BannerModal({
 
             {/* Link URL */}
             <div className="space-y-2">
-              <Label htmlFor="linkUrl">Link URL (Optional)</Label>
+              <Label htmlFor="linkUrl">{t('banners.modal.linkUrl')}</Label>
               <Input
                 id="linkUrl"
                 value={formData.linkUrl}
                 onChange={(e) =>
                   setFormData({ ...formData, linkUrl: e.target.value })
                 }
-                placeholder="https://example.com/promo"
+                placeholder={t('banners.modal.linkUrlPlaceholder')}
                 type="url"
               />
             </div>
 
             {/* Position */}
             <div className="space-y-2">
-              <Label htmlFor="position">Position</Label>
+              <Label htmlFor="position">{t('banners.modal.position')}</Label>
               <Select
                 value={formData.position}
                 onValueChange={(value) =>
@@ -218,7 +220,7 @@ export function BannerModal({
 
             {/* Device */}
             <div className="space-y-2">
-              <Label htmlFor="device">Device</Label>
+              <Label htmlFor="device">{t('banners.modal.device')}</Label>
               <Select
                 value={formData.device}
                 onValueChange={(value) =>
@@ -240,7 +242,7 @@ export function BannerModal({
 
             {/* Locale */}
             <div className="space-y-2">
-              <Label htmlFor="locale">Locale</Label>
+              <Label htmlFor="locale">{t('banners.modal.locale')}</Label>
               <Select
                 value={formData.locale}
                 onValueChange={(value) =>
@@ -264,10 +266,10 @@ export function BannerModal({
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="isActive" className="text-base">
-                  Active
+                  {t('banners.modal.active')}
                 </Label>
                 <div className="text-sm text-gray-500">
-                  Show this banner to visitors
+                  {t('banners.modal.activeDesc')}
                 </div>
               </div>
               <Switch
@@ -287,14 +289,14 @@ export function BannerModal({
               onClick={onClose}
               disabled={isSaving}
             >
-              Cancel
+              {t('banners.modal.cancel')}
             </Button>
             <Button type="submit" disabled={isSaving}>
               {isSaving
-                ? "Saving..."
+                ? t('banners.modal.saving')
                 : banner
-                  ? "Update Banner"
-                  : "Create Banner"}
+                  ? t('banners.modal.updateBtn')
+                  : t('banners.modal.createBtn')}
             </Button>
           </DialogFooter>
         </form>

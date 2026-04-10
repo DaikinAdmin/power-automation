@@ -1,47 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { toast } from 'sonner';
 
 import { formatCurrency, formatDate } from '@/helpers/formatting';
 import { OrderStatusForm } from '@/components/admin/order-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const statusOptions = ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING', 'DELIVERY', 'COMPLETED', 'CANCELLED', 'REFUND'];
-
-type OrderLineItem = {
-  itemId: string;
-  articleId: string;
-  name: string;
-  quantity: number;
-  warehouseId: string;
-  warehouseName?: string | null;
-  warehouseDisplayedName?: string | null;
-  warehouseCountry?: string | null;
-  basePrice?: number | null;
-  baseSpecialPrice?: number | null;
-  unitPrice?: number | null;
-  lineTotal?: number | null;
-};
-
-type OrderDetail = {
-  id: string;
-  status: string;
-  originalTotalPrice: number;
-  totalPrice: string | null;
-  deliveryId: string | null;
-  comment: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    phoneNumber: string | null;
-    countryCode: string | null;
-  } | null;
-  lineItems: OrderLineItem[] | null;
-};
+import { ORDER_STATUS_OPTIONS } from '@/constants/order';
+import { DELIVERY_STATUS_OPTIONS, TYPE_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/constants/delivery';
+import type { DeliveryRecord } from '@/types/delivery';
+import type { OrderDetail } from '@/types/order';
 
 interface OrderDetailClientProps {
   orderId: string;
@@ -51,9 +20,15 @@ type FetchState = 'idle' | 'loading' | 'loaded' | 'error' | 'not_found';
 
 export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
+  const [delivery, setDelivery] = useState<DeliveryRecord | null>(null);
   const [canUpdate, setCanUpdate] = useState(false);
   const [status, setStatus] = useState<FetchState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Delivery edit state
+  const [deliveryStatus, setDeliveryStatus] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [isSavingDelivery, setIsSavingDelivery] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -79,12 +54,18 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
         const data = (await response.json()) as {
           order: OrderDetail;
+          delivery: DeliveryRecord | null;
           viewerRole: string;
         };
 
         if (!isMounted) return;
 
         setOrder(data.order);
+        if (data.delivery) {
+          setDelivery(data.delivery);
+          setDeliveryStatus(data.delivery.status);
+          setTrackingNumber(data.delivery.trackingNumber ?? '');
+        }
         setCanUpdate(data.viewerRole === 'admin' || data.viewerRole === 'employee');
         setStatus('loaded');
       } catch (error: any) {
@@ -103,6 +84,32 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
   const lineItems = order?.lineItems ?? [];
   const showSkeleton = status === 'loading' || status === 'idle';
+
+  const handleSaveDelivery = async () => {
+    if (!delivery || isSavingDelivery) return;
+    setIsSavingDelivery(true);
+    try {
+      const res = await fetch(`/api/admin/delivery/${delivery.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: deliveryStatus || undefined,
+          trackingNumber: trackingNumber.trim() || null,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || 'Failed to update delivery');
+      }
+      const updated = await res.json();
+      setDelivery(updated.delivery);
+      toast.success('Доставку оновлено');
+    } catch (err: any) {
+      toast.error(err.message || 'Помилка оновлення доставки');
+    } finally {
+      setIsSavingDelivery(false);
+    }
+  };
 
   if (status === 'not_found') {
     return (
@@ -276,6 +283,67 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
               </div>
             )}
           </section>
+
+          {/* Delivery Details */}
+          <section className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">Доставка</h2>
+            {showSkeleton ? (
+              <div className="mt-4 space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-4 w-56" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            ) : !delivery ? (
+              <p className="mt-3 text-sm text-gray-500">Дані доставки відсутні.</p>
+            ) : (
+              <dl className="mt-4 space-y-2 text-sm text-gray-700">
+                <div className="flex justify-between">
+                  <dt className="font-medium">Тип</dt>
+                  <dd>{TYPE_LABELS[delivery.type] ?? delivery.type}</dd>
+                </div>
+                {delivery.city && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Місто</dt>
+                    <dd>{delivery.city}</dd>
+                  </div>
+                )}
+                {delivery.warehouseDesc && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Відділення</dt>
+                    <dd>{delivery.warehouseDesc}</dd>
+                  </div>
+                )}
+                {(delivery.street || delivery.building) && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Адреса</dt>
+                    <dd>
+                      {[delivery.street, delivery.building, delivery.flat].filter(Boolean).join(', ')}
+                    </dd>
+                  </div>
+                )}
+                {delivery.paymentMethod && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Метод оплати</dt>
+                    <dd>{delivery.paymentMethod.replace(/_/g, ' ')}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <dt className="font-medium">Статус</dt>
+                  <dd>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[delivery.status] ?? 'bg-gray-100 text-gray-800'}`}>
+                      {STATUS_LABELS[delivery.status] ?? delivery.status}
+                    </span>
+                  </dd>
+                </div>
+                {delivery.trackingNumber && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">ТТН / Накладна</dt>
+                    <dd className="font-mono">{delivery.trackingNumber}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+          </section>
         </div>
 
         <div className="space-y-6">
@@ -290,7 +358,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   orderId={order.id}
                   initialStatus={order.status}
                   initialDeliveryId={order.deliveryId}
-                  statusOptions={statusOptions}
+                  statusOptions={[...ORDER_STATUS_OPTIONS]}
                   canUpdate={canUpdate}
                 />
               ) : (
@@ -298,6 +366,64 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
               )}
             </div>
           </section>
+
+          {/* Delivery management card */}
+          {(delivery || showSkeleton) && (
+            <section className="rounded-lg border bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900">Керування доставкою</h2>
+              <p className="mt-1 text-sm text-gray-600">Оновіть статус і номер ТТН.</p>
+              {showSkeleton ? (
+                <div className="mt-4 space-y-3">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-28" />
+                </div>
+              ) : delivery ? (
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label htmlFor="delivery-status" className="block text-sm font-medium text-gray-700">
+                      Статус доставки
+                    </label>
+                    <select
+                      id="delivery-status"
+                      value={deliveryStatus}
+                      onChange={(e) => setDeliveryStatus(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    >
+                      {DELIVERY_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {STATUS_LABELS[opt] ?? opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="tracking-number" className="block text-sm font-medium text-gray-700">
+                      ТТН / Накладна
+                    </label>
+                    <input
+                      id="tracking-number"
+                      type="text"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      placeholder="Номер накладної"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveDelivery}
+                    disabled={!canUpdate || isSavingDelivery}
+                    className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSavingDelivery ? 'Збереження...' : 'Зберегти'}
+                  </button>
+                </div>
+              ) : null}
+            </section>
+          )}
         </div>
       </div>
     </div>

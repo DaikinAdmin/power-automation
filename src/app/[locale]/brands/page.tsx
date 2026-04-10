@@ -1,6 +1,6 @@
 import PageLayout from "@/components/layout/page-layout";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -64,7 +64,7 @@ export default async function BrandsPage({
                     key={brand.alias}
                     className="bg-white rounded-lg shadow-sm border p-4 flex items-center justify-center hover:shadow-md transition cursor-pointer"
                   >
-                    <Link href={`/${locale}/categories?brand=${brand.alias}`}>
+                    <Link href={`/categories?brand=${brand.alias}`}>
                       <img
                         src={brand.imageLink}
                         alt={brand.name}

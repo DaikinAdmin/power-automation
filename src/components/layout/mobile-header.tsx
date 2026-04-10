@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { Menu, Search, Heart, ShoppingCart, X } from "lucide-react";
 import { useState } from "react";

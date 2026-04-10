@@ -115,7 +115,7 @@
     "adjustFilters": "Спробуйте налаштувати фільтри",
     "viewAllProducts": "Переглянути всі продукти",
     "inStock": "в наявності",
-    "outOfStock": "Немає в наявності",
+    "outOfStock": "Під замовлення",
     "from": "Від",
     "moreLocations": "більше локацій",
     "moreLocation": "більше локація",
@@ -133,14 +133,19 @@
     "backToShop": "Повернутися до магазину",
     "createAccount": "Створити обліковий запис",
     "login": "Увійти",
+    "deliveryDetails": "Деталі доставки",
     "form": {
       "firstName": "Ім'я",
       "lastName": "Прізвище",
+      "name": "Ім'я та прізвище",
       "phoneNumber": "Номер телефону",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Не телефонуйте для підтвердження замовлення",
       "city": "Місто",
       "country": "Країна",
+      "street": "Вулиця та номер",
+      "postalCode": "Поштовий індекс",
+      "vatNumber": "Номер ПДВ",
       "email": "Комерційний Email",
       "password": "Пароль",
       "forgotPassword": "Забули пароль?"
@@ -177,8 +182,14 @@
       "acceptTerms": "Будь ласка, прийміть умови та угоду користувача",
       "pleaseLogin": "Будь ласка, увійдіть, щоб оформити замовлення",
       "cartEmpty": "Ваш кошик порожній",
-      "orderSuccess": "Замовлення оформлено успішно! Ви отримаєте email з підтвердженням незабаром.",
-      "orderCreated": "Замовлення створено успішно! ID замовлення:"
+      "orderSuccess": "Замовлення оформлено успішно!",
+      "orderCreated": "Замовлення створено успішно! ID замовлення:",
+      "redirectingToPayment": "Перенаправлення на платіжну систему..."
+    },
+    "dialog": {
+      "cashOnDeliveryInfo": "Ваше замовлення підтверджено. Оплата здійснюється при отриманні посилки у відділенні Нової Пошти або кур'єру.",
+      "bankTransferInfo": "Ваше замовлення підтверджено. Менеджер зв'яжеться з вами найближчим часом для уточнення деталей та виставлення рахунку-фактури.",
+      "goToDashboard": "Перейти до кабінету"
     }
   },
   "payment": {
@@ -215,11 +226,19 @@
     "buttons": {
       "proceedToPayment": "Перейти до оплати",
       "payWithLiqPay": "Оплата LiqPay",
+      "payWithLiqPayInstallment": "Оплата частинами від ПриватБанку",
       "payWithPrzelewy24": "Оплата Przelewy24",
       "issueInvoice": "Виставити рахунок",
       "issuingInvoice": "Виставляємо рахунок...",
       "processing": "Обробка...",
-      "alreadyPaid": "Вже оплачено"
+      "alreadyPaid": "Вже оплачено",
+      "invoiceContactMessage": "Дякуємо! Менеджер зв'яжеться з вами найближчим часом для уточнення деталей та виставлення рахунку."
+    },
+    "cashOnDelivery": {
+      "info": "Ваше замовлення підтверджено. Оплата здійснюється при отриманні посилки у відділенні Нової Пошти або кур'єру."
+    },
+    "bankTransfer": {
+      "info": "Для оплати безготівковим розрахунком замовте рахунок-фактуру нижче. Менеджер зв'яжеться з вами найближчим часом."
     },
     "additionalInfo": {
       "text": "Після оплати ви отримаєте email з підтвердженням. Якщо у вас виникнуть запитання, зв'яжіться з нашою службою підтримки."
@@ -338,11 +357,25 @@
     "profile": {
       "title": "Налаштування профілю",
       "subtitle": "Оновіть свою особисту інформацію. Ваша адреса електронної пошти залишається тільки для читання з міркувань безпеки.",
-      "accountDetails": "Деталі облікового запису",
-      "accountDescription": "Поля для редагування з'являться з етапом керування профілем.",
-      "email": "Email:",
-      "name": "Ім'я:",
-      "editNote": "Ми незабаром надамо поля для редагування (ім'я, телефон, адреса), включаючи валідацію та історію аудиту."
+      "email": "Email",
+      "name": "Ім'я та прізвище",
+      "personalInfo": "Особиста інформація",
+      "countryCode": "Код країни",
+      "phone": "Телефон",
+      "vatNumber": "Номер ПДВ (VAT)",
+      "companyName": "Назва компанії",
+      "companyPosition": "Посада",
+      "addressTitle": "Адреса доставки",
+      "address": {
+        "country": "Країна",
+        "city": "Місто",
+        "street": "Вулиця та номер",
+        "postalCode": "Поштовий індекс"
+      },
+      "save": "Зберегти",
+      "saving": "Збереження...",
+      "saveSuccess": "Зміни збережено успішно!",
+      "saveError": "Помилка збереження. Спробуйте ще раз."
     }
   },
   "paymentReturn": {
@@ -399,7 +432,7 @@
     },
     "actions": {
       "addToCart": "Додати в кошик",
-      "outOfStock": "Немає в наявності",
+      "outOfStock": "Під замовлення",
       "askPrice": "Запитати ціну",
       "addToWishlist": "Додати до обраного",
       "compare": "Порівняти",
@@ -409,7 +442,7 @@
     "availability": {
       "inStock": "В наявності",
       "inStockQty": "{quantity} шт. в наявності",
-      "outOfStock": "Немає в наявності"
+      "outOfStock": "Під замовлення"
     },
     "tabs": {
       "delivery": "Доставка та наявність",
@@ -464,11 +497,11 @@
       "title": "Оберіть склад",
       "inStock": "{quantity} в наявності",
       "warehouse": "Склад",
-      "outOfStockTitle": "Товар відсутній на складі",
+      "outOfStockTitle": "Товар під замовлення",
       "lastPrice": "Остання ціна",
       "contactManager": "Для замовлення уточнюйте у менеджера",
       "switchToAvailable": "Перейти до доступного складу",
-      "noStockAvailable": "Немає в наявності",
+      "noStockAvailable": "Під замовлення",
       "requestWhenAvailable": "Сповістити про наявність",
       "requestFormTitle": "Замовити {itemName} при наявності",
       "yourName": "Ваше ім'я",
@@ -484,7 +517,7 @@
     },
     "productCatalogCard": {
       "buy": "Купити",
-      "outOfStock": "Немає в наявності",
+      "outOfStock": "Під замовлення",
       "addToCompare": "Додати до порівняння",
       "inCompare": "У порівнянні",
       "from": "від",
@@ -705,5 +738,961 @@
     "confirmDescription": "Введіть пароль для підтвердження",
     "password": "Пароль",
     "submit": "Підтвердити"
+  },
+  "adminDashboard": {
+    "nav": {
+      "dashboard": "Панель",
+      "warehouses": "Склади",
+      "products": "Товари",
+      "bulkUpload": "Імпорт/експорт",
+      "promo": "Promo",
+      "categories": "Категорії",
+      "brands": "Бренди",
+      "orders": "Замовлення",
+      "users": "Користувачі",
+      "pages": "Сторінки",
+      "banners": "Банери",
+      "uploads": "Зображення",
+      "currencies": "Валюти",
+      "payments": "Платежі",
+      "delivery": "Доставки",
+      "analytics": "Аналітика",
+      "settings": "Налаштування"
+    },
+    "dashboard": {
+      "title": "Панель адміністратора",
+      "description": "Огляд ключових показників та швидкий доступ до управління",
+      "stats": {
+        "totalProducts": "Загальна кількість товарів",
+        "totalOrders": "Загальна кількість замовлень",
+        "totalUsers": "Загальна кількість користувачів",
+        "totalRevenue": "Загальний дохід",
+        "fromLastMonth": "за останній місяць",
+        "revenue": "Дохід",
+        "recentOrders": "Останні замовлення",
+        "quickActions": "Швидкі дії",
+        "quickActionsDescription": "Швидкий доступ до часто використовуваних функцій",
+        "addNewProduct": "Додати новий товар",
+        "manageCategories": "Управління категоріями",
+        "processOrders": "Обробка замовлень",
+        "updateCurrencies": "Оновлення валют",
+        "generateReports": "Генерація звітів"
+      },
+      "recentOrders": {
+        "title": "Останні замовлення",
+        "subtitle": "Ви маєте {count} нових замовлень, які потребують уваги",
+        "viewAll": "Переглянути всі",
+        "orderId": "ID замовлення",
+        "customer": "Клієнт",
+        "total": "Сума",
+        "status": "Статус",
+        "date": "Дата"
+      }
+    },
+    "common": {
+      "actions": "Дії",
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "cancel": "Скасувати",
+      "save": "Зберегти",
+      "update": "Оновити",
+      "refresh": "Оновити",
+      "loading": "Завантаження...",
+      "visible": "Видимий",
+      "hidden": "Прихований",
+      "previous": "Попередній",
+      "next": "Наступний",
+      "pageOf": "Сторінка {current} з {total}",
+      "showing": "Показано {from}–{to} з {total} результатів"
+    },
+    "header": {
+      "profile": "Профіль",
+      "settings": "Налаштування",
+      "logout": "Вийти"
+    },
+    "brands": {
+      "title": "Управління брендами",
+      "description": "Ведення каталогу брендів доступних у магазині.",
+      "addNew": "Додати новий бренд",
+      "stats": {
+        "total": "Всього брендів",
+        "totalDesc": "Зареєстровано у всіх локалях",
+        "visible": "Видимі бренди",
+        "visibleDesc": "Наразі відображаються клієнтам",
+        "hidden": "Приховані бренди",
+        "hiddenDesc": "Доступні для пізнішої активації",
+        "linkedItems": "Пов'язані товари",
+        "linkedItemsDesc": "Загальна кількість товарів пов'язаних з брендами"
+      },
+      "table": {
+        "header": "Бренди",
+        "empty": "Брендів не знайдено. Створіть перший бренд, щоб почати.",
+        "alias": "Псевдонім: {alias}",
+        "linked": "Пов'язані товари: {count}",
+        "created": "Створено",
+        "updated": "Оновлено"
+      },
+      "modal": {
+        "addTitle": "Додати новий бренд",
+        "editTitle": "Редагувати бренд",
+        "addDesc": "Введіть інформацію для реєстрації нового бренду.",
+        "editDesc": "Оновіть дані бренду та налаштування видимості.",
+        "name": "Назва",
+        "namePlaceholder": "Назва бренду",
+        "alias": "Псевдонім",
+        "aliasPlaceholder": "Унікальний псевдонім",
+        "imageUrl": "URL зображення",
+        "imagePlaceholder": "https://example.com/brand.png",
+        "library": "Бібліотека",
+        "createdAt": "Дата створення",
+        "updatedAt": "Дата оновлення",
+        "visible": "Видимий",
+        "saving": "Збереження…",
+        "cancel": "Скасувати",
+        "createBtn": "Створити бренд",
+        "updateBtn": "Оновити бренд"
+      },
+      "delete": {
+        "title": "Видалити бренд",
+        "description": "Ви впевнені, що хочете видалити бренд \"{name}\"? Цю дію не можна скасувати."
+      }
+    },
+    "categories": {
+      "title": "Управління категоріями",
+      "description": "Управляйте категоріями та підкатегоріями товарів.",
+      "loading": "Завантаження категорій...",
+      "addNew": "Додати нову категорію",
+      "stats": {
+        "total": "Всього категорій",
+        "visible": "Видимі",
+        "hidden": "Приховані",
+        "withSubs": "З підкатегоріями"
+      },
+      "table": {
+        "header": "Всі категорії",
+        "description": "Список усіх категорій товарів у магазині.",
+        "name": "Назва",
+        "slug": "Slug",
+        "subcategories": "Підкатегорії",
+        "visibility": "Видимість",
+        "actions": "Дії",
+        "noSubs": "Немає підкатегорій",
+        "moreSubs": "+{count} ще",
+        "empty": "Категорій не знайдено. Додайте першу категорію, щоб почати.",
+        "emptyPage": "На цій сторінці немає категорій.",
+        "showing": "Показано {from}–{to} з {total} результатів"
+      },
+      "delete": {
+        "title": "Видалити категорію",
+        "cannotUndo": "Цю дію не можна скасувати.",
+        "deleting": "Видалення...",
+        "deleteBtn": "Видалити категорію",
+        "networkError": "Помилка мережі. Спробуйте ще раз."
+      }
+    },
+    "orders": {
+      "title": "Управління замовленнями",
+      "description": "Моніторинг та управління замовленнями клієнтів.",
+      "stats": {
+        "total": "Всього замовлень",
+        "new": "Нові замовлення",
+        "processing": "В обробці",
+        "revenue": "Дохід",
+        "fromCompleted": "З {count} завершених замовлень"
+      },
+      "table": {
+        "header": "Всі замовлення",
+        "description": "Список усіх замовлень клієнтів.",
+        "orderId": "ID замовлення",
+        "customer": "Клієнт",
+        "items": "Товари",
+        "total": "Сума",
+        "status": "Статус",
+        "date": "Дата",
+        "actions": "Дії",
+        "view": "Переглянути",
+        "update": "Оновити",
+        "itemsCount": "{count} товарів",
+        "more": "+{count} ще",
+        "empty": "Замовлень не знайдено."
+      }
+    },
+    "payments": {
+      "title": "Управління платежами",
+      "description": "Моніторинг та управління платіжними транзакціями.",
+      "stats": {
+        "total": "Всього платежів",
+        "completed": "Завершені",
+        "failed": "Невдалі",
+        "revenue": "Дохід"
+      },
+      "table": {
+        "header": "Всі платежі",
+        "description": "Пошук та фільтрація платіжних транзакцій.",
+        "orderId": "ID замовлення",
+        "clientEmail": "Email клієнта",
+        "amount": "Сума",
+        "paymentStatus": "Статус платежу",
+        "orderStatus": "Статус замовлення",
+        "date": "Дата",
+        "actions": "Дії",
+        "empty": "Платежів не знайдено.",
+        "searchPlaceholder": "Пошук за email або ID замовлення...",
+        "allStatuses": "Всі статуси",
+        "pending": "Очікується",
+        "initiated": "Ініційовано",
+        "processing": "В обробці",
+        "completed": "Завершено",
+        "failed": "Невдало",
+        "cancelled": "Скасовано",
+        "refunded": "Повернуто"
+      },
+      "refund": "Повернення",
+      "refunding": "Обробка повернення...",
+      "refundConfirm": "Ви впевнені, що хочете повернути цей платіж? Цю дію не можна скасувати.",
+      "refundSuccess": "Повернення успішно оброблено"
+    },
+    "users": {
+      "title": "Управління користувачами",
+      "description": "Керуйте та моніторте всіх користувачів у додатку.",
+      "stats": {
+        "total": "Всього користувачів",
+        "verified": "Верифіковані",
+        "verifiedPct": "{pct}% від загального",
+        "admins": "Адміністратори",
+        "employers": "Співробітники"
+      },
+      "table": {
+        "header": "Всі користувачі",
+        "description": "Список усіх зареєстрованих користувачів у додатку.",
+        "name": "Ім'я",
+        "email": "Email",
+        "company": "Назва компанії",
+        "role": "Роль",
+        "status": "Статус",
+        "joined": "Приєднався",
+        "actions": "Дії",
+        "noCompany": "Без компанії",
+        "verified": "Верифікований",
+        "unverified": "Не верифікований"
+      },
+      "edit": {
+        "title": "Редагувати користувача",
+        "id": "ID",
+        "name": "Ім'я",
+        "email": "Email",
+        "company": "Компанія",
+        "noCompany": "Без компанії",
+        "created": "Створено",
+        "editableFields": "Редаговані поля",
+        "role": "Роль",
+        "rolePlaceholder": "Оберіть роль",
+        "roleUser": "Користувач",
+        "roleEmployee": "Співробітник",
+        "roleAdmin": "Адміністратор",
+        "emailVerified": "Email верифіковано",
+        "verified": "Верифіковано",
+        "notVerified": "Не верифіковано",
+        "discountLevel": "Рівень знижки",
+        "revert": "Скинути",
+        "update": "Оновити"
+      },
+      "delete": {
+        "title": "Видалити користувача",
+        "description": "Ви впевнені, що хочете видалити цього користувача? Цю дію не можна скасувати.",
+        "role": "Роль",
+        "created": "Створено",
+        "cancel": "Скасувати",
+        "deleteBtn": "Видалити користувача"
+      }
+    },
+    "warehouses": {
+      "title": "Управління складами",
+      "description": "Управляйте розташуванням складів та розподілом запасів.",
+      "addNew": "Додати новий склад",
+      "stats": {
+        "total": "Всього складів",
+        "countries": "Країни",
+        "visible": "Видимі склади"
+      },
+      "table": {
+        "header": "Всі склади",
+        "description": "Управляйте розташуванням складів та їх видимістю.",
+        "displayedName": "Відображувана назва",
+        "name": "Назва",
+        "country": "Країна",
+        "itemPrices": "Ціни товарів",
+        "prices": "{count} цін",
+        "visibility": "Видимість",
+        "actions": "Дії",
+        "showing": "Показано {from}–{to} з {total} складів",
+        "pageOf": "Сторінка {current} з {total}"
+      },
+      "vat": {
+        "header": "Країни складів — ПДВ",
+        "description": "Встановіть відсоток ПДВ для кожної країни складу.",
+        "country": "Країна",
+        "slug": "Slug",
+        "code": "Код",
+        "vatPct": "ПДВ (%)",
+        "action": "Дія",
+        "save": "Зберегти",
+        "vatError": "ПДВ має бути числом від 0 до 100"
+      },
+      "delete": {
+        "title": "Видалити склад",
+        "description": "Ви впевнені, що хочете видалити склад \"{name}\" у {country}? Цю дію не можна скасувати і це вплине на всі пов'язані товари та ціни."
+      }
+    },
+    "currencies": {
+      "title": "Курси обміну валют",
+      "description": "Управляйте курсами обміну між валютами",
+      "tableTitle": "Курси обміну",
+      "from": "Валюта з",
+      "to": "Валюта в",
+      "rate": "Курс",
+      "action": "Дія",
+      "loading": "Завантаження...",
+      "noRates": "Курси обміну ще не визначені",
+      "update": "Оновити",
+      "delete": "Видалити",
+      "selectFrom": "Звідки",
+      "selectTo": "Куди",
+      "addRate": "Додати курс",
+      "errors": {
+        "positiveNumber": "Курс має бути додатнім числом",
+        "fetchFailed": "Не вдалося завантажити курси обміну",
+        "unexpected": "Виникла непередбачена помилка"
+      }
+    },
+    "banners": {
+      "delete": {
+        "title": "Ви впевнені?",
+        "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
+        "cannotUndo": "Цю дію не можна скасувати.",
+        "deleteBtn": "Видалити банер"
+      }
+    },
+    "items": {
+      "title": "Управління товарами",
+      "description": "Керуйте всіма товарами та позиціями інвентарю.",
+      "addNew": "Додати новий товар",
+      "regenSlugs": "Регенерувати слаги",
+      "regenSlugsLoading": "Регенерування...",
+      "stats": {
+        "total": "Всього",
+        "totalDesc": "товарів",
+        "selected": "Вибрано",
+        "displayed": "Відображено",
+        "hidden": "Приховано",
+        "ofTotal": "з {total}",
+        "ofSelected": "з {total} вибраних"
+      },
+      "table": {
+        "header": "Назва",
+        "description": "Опис",
+        "image": "Зображення",
+        "articleId": "Номер артикулу",
+        "brand": "Бренд",
+        "category": "Категорія",
+        "quantity": "Кількість",
+        "status": "Статус",
+        "actions": "Дії",
+        "visible": "Видимий",
+        "hidden": "Прихований",
+        "uncategorized": "Без категорії"
+      },
+      "search": {
+        "placeholder": "Пошук товарів...",
+        "minChars": "Введіть мін. 2 символи",
+        "searching": "Пошук..."
+      },
+      "filters": {
+        "brand": "Бренд",
+        "allBrands": "Всі бренди",
+        "category": "Категорія",
+        "allCategories": "Всі категорії",
+        "hideHidden": "Приховати приховані",
+        "visibleOnly": "Тільки видимі",
+        "showAll": "Показати всі",
+        "perPage": "На сторінку",
+        "clearAll": "Очистити фільтри"
+      },
+      "batch": {
+        "pageSelected": "Вибрано {count} на сторінці",
+        "allSelected": "Вибрано всі {total}",
+        "selectAll": "Вибрати всі {total}",
+        "makeVisible": "Зробити видимими",
+        "hide": "Приховати",
+        "delete": "Видалити",
+        "translate": "Перекласти",
+        "clear": "Очистити"
+      },
+      "pagination": {
+        "showing": "Відображення {from}–{to} з {total}"
+      },
+      "empty": {
+        "filtered": "Не знайдено товарів за заданими критеріями.",
+        "empty": "Товарів ще немає."
+      },
+      "delete": {
+        "title": "Видалити товар",
+        "description": "Ви впевнені, що хочете видалити товар \"{name}\" (ID артикулу: {articleId})? Цю дію не можна скасувати, всі пов'язані дані будуть видалені."
+      }
+    },
+    "discountLevels": {
+      "title": "Рівні знижок",
+      "description": "Керуйте рівнями знижок та призначайте їх користувачам.",
+      "addNew": "Додати новий рівень",
+      "empty": {
+        "title": "Немає рівнів знижок",
+        "description": "Створіть свій перший рівень знижки, натиснувши кнопку вище."
+      },
+      "table": {
+        "level": "Рівень",
+        "discountPct": "Знижка %",
+        "usersCount": "Користувачі",
+        "createdAt": "Створено",
+        "actions": "Дії",
+        "levelCell": "Рівень {level}",
+        "usersCell": "{count} користувач(ів)"
+      },
+      "modal": {
+        "addTitle": "Додати рівень знижки",
+        "editTitle": "Редагувати рівень знижки",
+        "levelLabel": "Номер рівня",
+        "levelPlaceholder": "напр. 1",
+        "levelHint": "Унікальне ціле число, яке ідентифікує рівень",
+        "discountLabel": "Відсоток знижки",
+        "discountPlaceholder": "напр. 10",
+        "discountHint": "Значення від 0 до 100",
+        "levelError": "Рівень має бути цілим числом більше 0",
+        "discountError": "Знижка має бути від 0 до 100",
+        "creating": "Створення...",
+        "updating": "Оновлення...",
+        "createBtn": "Створити рівень",
+        "updateBtn": "Зберегти зміни",
+        "cancel": "Скасувати"
+      },
+      "delete": {
+        "title": "Видалити рівень знижки",
+        "description": "Ви впевнені, що хочете видалити рівень знижки {level} ({percentage}%)?",
+        "hasUsers": "Цей рівень знижки наразі призначено {count} користувачу/користувачам. Видалення прибере рівень знижки від усіх призначених користувачів.",
+        "warningTitle": "Увага: Користувачі постраждають",
+        "cannotUndo": "Цю дію неможливо скасувати.",
+        "deleting": "Видалення...",
+        "deleteBtn": "Видалити рівень",
+        "successMsg": "Рівень знижки успішно видалено!"
+      }
+    },
+    "delivery": {
+      "title": "Доставки",
+      "description": "Управління доставками замовлень",
+      "stats": {
+        "total": "Всього",
+        "inTransit": "В дорозі",
+        "pending": "Очікують",
+        "delivered": "Доставлено"
+      },
+      "filters": {
+        "allStatuses": "Всі статуси",
+        "allTypes": "Всі типи"
+      },
+      "table": {
+        "customer": "Замовник",
+        "type": "Тип",
+        "addressWarehouse": "Адреса / Відділення",
+        "tracking": "ТТН",
+        "status": "Статус",
+        "order": "Ордер",
+        "date": "Дата",
+        "empty": "Доставок не знайдено",
+        "edit": "Редагувати"
+      },
+      "type": {
+        "PICKUP": "Самовивіз",
+        "USER_ADDRESS": "Адреса",
+        "NOVA_POSHTA": "Нова Пошта",
+        "COURIER": "Кур'єр"
+      },
+      "status": {
+        "PENDING": "Очікує",
+        "PROCESSING": "Обробляється",
+        "IN_TRANSIT": "В дорозі",
+        "DELIVERED": "Доставлено",
+        "RETURNED": "Повернено",
+        "CANCELLED": "Скасовано"
+      },
+      "modal": {
+        "title": "Редагувати доставку",
+        "labelType": "Тип",
+        "labelCity": "Місто",
+        "labelWarehouse": "Відділення",
+        "labelAddress": "Адреса",
+        "labelCustomer": "Замовник",
+        "labelOrder": "Ордер",
+        "labelStatus": "Статус доставки",
+        "labelTracking": "ТТН / Накладна",
+        "trackingPlaceholder": "Номер накладної",
+        "cancel": "Скасувати",
+        "saving": "Збереження...",
+        "save": "Зберегти"
+      },
+      "toast": {
+        "loadError": "Не вдалося завантажити доставки",
+        "saveSuccess": "Доставку оновлено",
+        "saveError": "Помилка збереження"
+      }
+    },
+    "promo": {
+      "title": "Управління акціями",
+      "description": "Керуйте акціями, промокодами та позначками товарів.",
+      "tabs": {
+        "promos": "Акції",
+        "badges": "Позначки"
+      },
+      "promos": {
+        "title": "Активні акції",
+        "comingSoon": "Скоро..."
+      },
+      "badges": {
+        "title": "Товари з позначками",
+        "allBadges": "Всі позначки",
+        "assignBadge": "Призначити позначку",
+        "loading": "Завантаження...",
+        "empty": "Не знайдено товарів з активними позначками.",
+        "table": {
+          "articleId": "Номер артикулу",
+          "name": "Назва",
+          "badge": "Позначка",
+          "warehouse": "Склад",
+          "priceQty": "Ціна / Кількість",
+          "actions": "Дії"
+        },
+        "names": {
+          "NEW_ARRIVALS": "Новинки",
+          "BESTSELLER": "Бестселер",
+          "HOT_DEALS": "Гарячі пропозиції",
+          "LIMITED_EDITION": "Лімітована серія",
+          "USED": "Вживані",
+          "ABSENT": "Без позначки (Видалити)"
+        }
+      },
+      "editBadge": {
+        "title": "Редагувати позначку",
+        "articleId": "Номер артикулу",
+        "warehouse": "Склад",
+        "badge": "Позначка",
+        "cancel": "Скасувати",
+        "saving": "Збереження...",
+        "save": "Зберегти"
+      },
+      "assignBadge": {
+        "title": "Призначити позначку товару",
+        "articleId": "Номер артикулу",
+        "placeholder": "Введіть номер артикулу...",
+        "search": "Пошук",
+        "searching": "...",
+        "pricingVariant": "Ціновий варіант (Склад)",
+        "badge": "Позначка",
+        "cancel": "Скасувати",
+        "saving": "Збереження...",
+        "assign": "Призначити"
+      }
+    },
+    "messages": {
+      "title": "Повідомлення",
+      "description": "Керуйте повідомленнями та запитами від клієнтів.",
+      "stats": {
+        "total": "Всього повідомлень",
+        "today": "Сьогодні",
+        "todayDesc": "повідомлень сьогодні",
+        "thisWeek": "Цього тижня",
+        "thisWeekDesc": "повідомлень цього тижня"
+      },
+      "table": {
+        "header": "Останні повідомлення",
+        "description": "Найновіші повідомлення та запити клієнтів.",
+        "customer": "Клієнт",
+        "orderId": "ID замовлення",
+        "message": "Повідомлення",
+        "date": "Дата",
+        "actions": "Дії",
+        "view": "Переглянути",
+        "reply": "Відповісти",
+        "delete": "Видалити",
+        "empty": "Повідомлень не знайдено."
+      },
+      "quickActions": {
+        "title": "Швидкі дії",
+        "description": "Загальні завдання з управління повідомленнями.",
+        "broadcast": "Надіслати всім",
+        "templates": "Шаблони повідомлень",
+        "autoResponses": "Автовідповіді",
+        "export": "Експортувати повідомлення"
+      }
+    },
+    "bulkUpload": {
+      "title": "Масове завантаження",
+      "description": "Завантажуйте CSV або Excel файли для оновлення цін та залишків",
+      "exportItems": "Експортувати товари",
+      "bulkActions": "Масові дії",
+      "bulkActionsModal": {
+        "title": "Масові дії",
+        "updateSchneider": "Оновити ціни Schneider Ukraine",
+        "updating": "Оновлення...",
+        "done": "Готово",
+        "updated": "Оновлено",
+        "created": "Створено"
+      },
+      "modes": {
+        "prices": "Ціни та залишки",
+        "descriptions": "Описи товарів"
+      },
+      "mapping": {
+        "title": "Зіставлення колонок",
+        "description": "Перетягніть мітки до заголовків таблиці нижче",
+        "required": "Обов'язкові поля",
+        "optional": "Необов'язкові поля",
+        "translation": "Поля перекладу",
+        "item": "Поля товару"
+      },
+      "uploadBtn": "Завантажити товари",
+      "uploadingBtn": "Завантаження..."
+    },
+    "pages": {
+      "title": "Управління сторінками",
+      "description": "Створюйте та керуйте сторінками та контентом.",
+      "createNew": "Створити нову сторінку",
+      "loading": "Завантаження...",
+      "availableTranslations": "Доступні переклади: {count} з {total}",
+      "published": "Опубліковано",
+      "draft": "Чернетка",
+      "missing": "Відсутня",
+      "noTranslation": "Переклад не створено",
+      "updatedAt": "Оновлено: {date}",
+      "edit": "Редагувати",
+      "hide": "Приховати",
+      "show": "Показати",
+      "create": "Створити",
+      "empty": "Сторінок поки немає. Створіть першу!",
+      "createPage": "Створити сторінку",
+      "confirmDelete": "Ви впевнені, що хочете видалити цю сторінку?",
+      "deleteError": "Не вдалося видалити сторінку",
+      "publishError": "Не вдалося оновити статус сторінки"
+    },
+    "banners": {
+      "title": "Управління банерами",
+      "description": "Керуйте банерами, що відображаються на головній сторінці.",
+      "addNew": "Додати банер",
+      "filters": {
+        "all": "Всі",
+        "active": "Активні",
+        "inactive": "Неактивні"
+      },
+      "stats": {
+        "total": "Всього банерів",
+        "active": "Активні",
+        "inactive": "Неактивні"
+      },
+      "list": {
+        "dragToReorder": "Перетягніть для зміни порядку",
+        "listTitle": "Банери — {pos} — {dev} — {loc}",
+        "empty": "Немає банерів",
+        "createFirst": "Створіть свій перший банер",
+        "untitled": "Банер без назви",
+        "order": "Порядок: {order}"
+      },
+      "modal": {
+        "addTitle": "Додати новий банер",
+        "editTitle": "Редагувати банер",
+        "titleLabel": "Заголовок (необов'язково)",
+        "titlePlaceholder": "Введіть заголовок банера",
+        "imageUrl": "URL зображення *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "URL посилання (необов'язково)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Позиція",
+        "device": "Пристрій",
+        "locale": "Мова",
+        "active": "Активний",
+        "activeDesc": "Показувати цей банер відвідувачам",
+        "saving": "Збереження...",
+        "cancel": "Скасувати",
+        "createBtn": "Створити банер",
+        "updateBtn": "Оновити банер"
+      },
+      "delete": {
+        "title": "Ви впевнені?",
+        "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
+        "cannotUndo": "Цю дію неможливо скасувати.",
+        "deleteBtn": "Видалити банер"
+      }
+    },
+    "uploads": {
+      "title": "Завантажені зображення",
+      "description": "Управління завантаженими зображеннями для сайту",
+      "uploadMultiple": "Завантажити кілька",
+      "uploadImage": "Завантажити зображення",
+      "searchPlaceholder": "Пошук за назвою файлу...",
+      "pathPlaceholder": "Фільтрувати за шляхом...",
+      "stats": "{count} зображень загалом",
+      "statsFiltered": " (відфільтровано)",
+      "empty": {
+        "title": "Зображень ще немає",
+        "uploadBtn": "Завантажте своє перше зображення"
+      },
+      "pagination": {
+        "previous": "Назад",
+        "next": "Далі",
+        "pageOf": "Сторінка {current} з {total}"
+      },
+      "uploadDialog": {
+        "title": "Завантажити зображення",
+        "description": "Виберіть файл, встановіть шлях та ім'я файлу.",
+        "fileLabel": "Файл зображення",
+        "pathLabel": "Шлях",
+        "pathHint": "(напр. products/omron)",
+        "pathDescription": "Каталог в сховищі файлів. Залиште порожнім для кореня.",
+        "fileNameLabel": "Назва файлу",
+        "fileNameHint": "(необов'язково)",
+        "fileNamePlaceholder": "власна-назва (розширення додається автоматично)",
+        "fileNameDescription": "Залиште порожнім, щоб використати оригінальну назву.",
+        "cancel": "Скасувати",
+        "uploading": "Завантаження...",
+        "upload": "Завантажити"
+      },
+      "editDialog": {
+        "title": "Редагувати зображення",
+        "description": "Змініть назву файлу або перемістіть до іншого шляху.",
+        "fileNameLabel": "Назва файлу",
+        "fileNameHint": "Розширення збережеться автоматично.",
+        "pathLabel": "Шлях",
+        "cancel": "Скасувати",
+        "saving": "Збереження...",
+        "saveBtn": "Зберегти зміни"
+      },
+      "deleteDialog": {
+        "title": "Видалити зображення",
+        "description": "Ви впевнені, що хочете видалити \"{name}\"? Файл буде видалено з диска і цю дію неможливо скасувати.",
+        "cancel": "Скасувати",
+        "deleting": "Видалення...",
+        "deleteBtn": "Видалити"
+      },
+      "multiUpload": {
+        "title": "Завантажити кілька зображень",
+        "description": "Виберіть кілька файлів для завантаження. Вони будуть збережені з оригінальними назвами.",
+        "selectedFiles": "Вибрано {count} файлів",
+        "pathLabel": "Шлях",
+        "pathHint": "(напр. products/gallery)",
+        "pathDescription": "Каталог для всіх вибраних файлів. Залиште порожнім для кореня.",
+        "uploading": "Завантаження...",
+        "uploadingProgress": "{current} / {total}",
+        "cancel": "Скасувати",
+        "uploadAll": "Завантажити все"
+      },
+      "copyUrl": "Копіювати URL",
+      "edit": "Редагувати",
+      "delete": "Видалити"
+    },
+    "orderStatus": {
+      "statusLabel": "Статус замовлення",
+      "deliveryId": "ID доставки",
+      "deliveryPlaceholder": "Введіть ID доставки...",
+      "updating": "Оновлення...",
+      "updateBtn": "Оновити статус",
+      "noPermission": "У вас немає прав для оновлення цього замовлення."
+    },
+    "warehouseModal": {
+      "addTitle": "Додати склад",
+      "editTitle": "Редагувати склад",
+      "addDesc": "Додати новий склад до системи.",
+      "editDesc": "Оновити дані складу.",
+      "displayedName": "Відображувана назва",
+      "displayedNamePlaceholder": "Відображувана назва складу",
+      "name": "Назва (внутрішня)",
+      "namePlaceholder": "Внутрішня назва складу",
+      "country": "Країна",
+      "visible": "Видимий",
+      "deliveryPoland": "Доставка до Польщі",
+      "deliveryUkraine": "Доставка до України",
+      "deliveryEurope": "Доставка до Європи",
+      "days": "Дні",
+      "daysPlaceholder": "напр. 3-5",
+      "cancel": "Скасувати",
+      "saving": "Збереження...",
+      "createBtn": "Створити склад",
+      "updateBtn": "Оновити склад"
+    },
+    "categoryModal": {
+      "addTitle": "Додати категорію",
+      "editTitle": "Редагувати категорію",
+      "addDesc": "Створити нову категорію товарів.",
+      "editDesc": "Оновити дані категорії.",
+      "image": "Зображення",
+      "defaultName": "Назва за замовчуванням",
+      "slug": "Слаг",
+      "categoryTranslations": "Переклади категорії",
+      "subcategories": "Підкатегорії",
+      "newSubcategoryPlaceholder": "Нова підкатегорія...",
+      "name": "Назва",
+      "visible": "Видима",
+      "translations": "Переклади",
+      "displayCategory": "Відображати категорію",
+      "displayCategoryDesc": "Показувати цю категорію в навігації",
+      "cancel": "Скасувати",
+      "saving": "Збереження...",
+      "createBtn": "Створити категорію",
+      "updateBtn": "Оновити категорію",
+      "networkError": "Помилка мережі. Спробуйте ще раз."
+    },
+    "bannerModal": {
+      "addTitle": "Додати новий банер",
+      "editTitle": "Редагувати банер",
+      "titleLabel": "Заголовок",
+      "titlePlaceholder": "Заголовок банера",
+      "subtitle": "Підзаголовок",
+      "subtitlePlaceholder": "Підзаголовок банера",
+      "link": "Посилання",
+      "linkPlaceholder": "https://",
+      "image": "Зображення",
+      "active": "Активний",
+      "cancel": "Скасувати",
+      "saving": "Збереження...",
+      "createBtn": "Створити банер",
+      "updateBtn": "Оновити банер"
+    },
+    "priceModal": {
+      "title": "Редагувати ціну",
+      "description": "Оновіть ціни та наявність на складі",
+      "warehouse": "Склад",
+      "warehousePlaceholder": "Оберіть склад",
+      "price": "Ціна",
+      "quantity": "Кількість",
+      "promoPrice": "Акційна ціна",
+      "badge": "Позначка",
+      "promoCode": "Промокод",
+      "promoCodePlaceholder": "Промокод",
+      "promoEndDate": "Дата закінчення акції",
+      "margin": "Маржа",
+      "initialPrice": "Початкова ціна",
+      "initialCurrency": "Початкова валюта",
+      "currencyPlaceholder": "Оберіть валюту",
+      "cancel": "Скасувати",
+      "saveBtn": "Зберегти зміни",
+      "badgeNone": "Без позначки",
+      "badgeNew": "Новинки",
+      "badgeBest": "Бестселер",
+      "badgeHot": "Гарячі пропозиції",
+      "badgeLimited": "Лімітована серія"
+    },
+    "detailModal": {
+      "title": "Редагувати деталі",
+      "description": "Оновіть деталі товару для вибраної мови",
+      "localeLabel": "Мова",
+      "localePlaceholder": "Оберіть мову",
+      "itemName": "Назва товару",
+      "itemNamePlaceholder": "Назва товару",
+      "seller": "Продавець",
+      "sellerPlaceholder": "Назва продавця",
+      "discount": "Знижка (%)",
+      "discountPlaceholder": "напр. 10",
+      "description": "Опис",
+      "descriptionPlaceholder": "Опис товару",
+      "specifications": "Специфікації",
+      "specificationsPlaceholder": "Специфікації товару",
+      "cancel": "Скасувати",
+      "saveBtn": "Зберегти зміни"
+    },
+    "translateModal": {
+      "title": "Перекласти товари",
+      "summary": "Переклад {current} з {total} товарів",
+      "done": "Готово",
+      "sourceLabel": "Мова джерела",
+      "targetLabel": "Цільові мови",
+      "loading": "Завантаження...",
+      "empty": "Немає товарів для перекладу",
+      "noTranslations": "Немає перекладів",
+      "localesLabel": "Доступні мови",
+      "noTranslationsAvailable": "Немає доступних перекладів",
+      "fields": {
+        "name": "Назва",
+        "description": "Опис",
+        "specifications": "Специфікації",
+        "metaDescription": "Мета опис",
+        "metaKeywords": "Мета ключові слова"
+      },
+      "translated": "Перекладено",
+      "close": "Закрити",
+      "cancel": "Скасувати",
+      "translating": "Переклад...",
+      "translateBtn": "Перекласти"
+    },
+    "exportModal": {
+      "title": "Експортувати товари",
+      "subtitle": "Налаштуйте параметри експорту",
+      "sectionLocales": "Мови",
+      "localesSubtitle": "Виберіть мови для експорту",
+      "localesNote": "Дані будуть експортовані для кожної вибраної мови",
+      "sectionFields": "Поля",
+      "fieldsSubtitle": "Виберіть поля для експорту",
+      "sectionFormat": "Формат",
+      "selectAll": "Вибрати всі",
+      "selectNone": "Зняти всі",
+      "groups": {
+        "basic": "Основні",
+        "pricing": "Ціни",
+        "meta": "Мета"
+      },
+      "footerStats": "Вибрано {fields} поле(ів) у {locales} мові/мовах",
+      "footerStatsPlural": "Вибрано {fields} полів у {locales} мовах",
+      "cancel": "Скасувати",
+      "exporting": "Експортування...",
+      "exportBtn": "Експортувати",
+      "selectFieldError": "Виберіть хоча б одне поле"
+    },
+    "imagePicker": {
+      "label": "Вибрати зображення",
+      "dialogTitle": "Вибір зображення",
+      "searchPlaceholder": "Пошук файлів...",
+      "empty": "Зображення не знайдено",
+      "paginationInfo": "Сторінка {page} з {total}",
+      "selectPrompt": "Виберіть зображення з бібліотеки",
+      "cancel": "Скасувати",
+      "select": "Вибрати"
+    }
+  },
+  "novaPostDelivery": {
+    "city": "Місто",
+    "startTypingCityName": "Почніть вводити назву міста…",
+    "searching": "Пошук",
+    "warehouseOrPostomat": "Відділення / Поштомат",
+    "searchByNumberOrAddress": "Пошук за номером або адресою…",
+    "loading": "Завантаження",
+    "nothingFound": "Нічого не знайдено",
+    "selectCityFirst": "Спочатку оберіть місто",
+    "selectWarehouse": "Оберіть відділення",
+    "deliveryMethod": "Спосіб доставки",
+    "novaPostOffice": "Відділення Нової пошти",
+    "novaPostCourier": "Кур'єр Нової пошти",
+    "warehousePickup": "Самовивіз зі складу",
+    "paymentMethod": "Спосіб оплати",
+    "street": "Вулиця",
+    "streetPlaceholder": "вул. Шевченка",
+    "building": "Будинок",
+    "buildingPlaceholder": "12А",
+    "apartmentOrOffice": "Квартира / Офіс",
+    "apartmentOrOfficePlaceholder": "42",
+    "deliveryOption": {
+      "warehouse": { "label": "Самовивіз", "description": "З нашого складу" },
+      "nova_dept": { "label": "Відділення", "description": "Нової Пошти" },
+      "nova_courier": { "label": "Кур'єр", "description": "Нова Пошта" }
+    },
+    "paymentOption": {
+      "online_card": { "label": "Картою онлайн", "description": "Visa / Mastercard" },
+      "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
+      "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
+      "installment": { "label": "Оплата частинами", "description": "ПриватБанк · Monobank" }
+    }
   }
 }

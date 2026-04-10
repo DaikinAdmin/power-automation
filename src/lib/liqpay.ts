@@ -191,7 +191,11 @@ export type LiqPayStatus =
   | 'wait_secure';
 
 /** The set of statuses that indicate the payment is definitively successful. */
-export const LIQPAY_SUCCESS_STATUSES: LiqPayStatus[] = ['success'];
+export const LIQPAY_SUCCESS_STATUSES: LiqPayStatus[] = [
+  'success',
+  // Installment-specific: bank accepted the application — treat as confirmed
+  'wait_accept',
+];
 
 /** The set of statuses that indicate a definitively failed payment. */
 export const LIQPAY_FAILURE_STATUSES: LiqPayStatus[] = [

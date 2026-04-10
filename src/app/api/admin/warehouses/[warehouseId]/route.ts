@@ -2,9 +2,73 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
+
+// get all prices for a warehouse
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ warehouseId: string }> }
+) {
+  try {
+    const { warehouseId } = await params;
+    
+    const session = await auth.api.getSession({
+      headers: request.headers
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const isAdmin = await isUserAdmin(session.user.id);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Check if warehouse exists
+    const [warehouse] = await db
+      .select()
+      .from(schema.warehouse)
+      .where(eq(schema.warehouse.id, warehouseId))
+      .limit(1);
+
+    if (!warehouse) {
+      return NextResponse.json({ error: 'Warehouse not found' }, { status: 404 });
+    }
+
+    const prices = await db
+      .select({
+        id: schema.itemPrice.id,
+        itemSlug: schema.itemPrice.itemSlug,
+        articleId: schema.item.articleId,
+        price: schema.itemPrice.price,
+        initialPrice: schema.itemPrice.initialPrice,
+        initialCurrency: schema.itemPrice.initialCurrency,
+        margin: schema.itemPrice.margin,
+        quantity: schema.itemPrice.quantity,
+        itemName: schema.itemDetails.itemName,
+        photo: schema.item.itemImageLink,
+      })
+      .from(schema.itemPrice)
+      .innerJoin(schema.item, eq(schema.itemPrice.itemSlug, schema.item.slug))
+      .leftJoin(
+        schema.itemDetails,
+        and(
+          eq(schema.itemDetails.itemSlug, schema.itemPrice.itemSlug),
+          eq(schema.itemDetails.locale, 'pl')
+        )
+      )
+      .where(eq(schema.itemPrice.warehouseId, warehouseId));
+
+    return NextResponse.json({ warehouse, prices });
+  } catch (error: any) {
+    console.error('Error fetching warehouse:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 
 export async function PUT(
   request: NextRequest,

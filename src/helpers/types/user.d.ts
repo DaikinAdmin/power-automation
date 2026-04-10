@@ -1,0 +1,21 @@
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  role?: string;
+  phoneNumber?: string;
+  countryCode?: string;
+  vatNumber?: string;
+  companyName?: string;
+  companyPosition?: string;
+  addressLine?: string;
+  userAgreement?: boolean;
+  userType?: string;
+  country?: string;
+  ownerId?: string | null;
+  twoFactorEnabled?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  emailVerified?: boolean;
+};

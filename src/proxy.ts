@@ -19,7 +19,7 @@ function createIntlMiddlewareForDomain(domainConfig: DomainConfig) {
     locales: routing.locales,
     defaultLocale: domainConfig.defaultLocale as typeof routing.defaultLocale,
     localePrefix: 'always',
-    localeDetection: true,
+    localeDetection: false,
   });
 }
 

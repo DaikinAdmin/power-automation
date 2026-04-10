@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "@/components/cart-context";
 import { CartItemType } from "@/helpers/types/item";
 import { useCatalogPricing } from "@/hooks/useCatalogPricing";
@@ -173,6 +174,10 @@ export function CategoryPageClient({
         return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
       })
       .sort((a, b) => {
+        const aInStock = a.prices.some((p: any) => p.quantity > 0);
+        const bInStock = b.prices.some((p: any) => p.quantity > 0);
+        if (aInStock !== bInStock) return aInStock ? -1 : 1;
+
         const aDetails = a.details;
         const bDetails = b.details;
         const aPrice = a.prices[0]?.promotionPrice || a.prices[0]?.price || 0;

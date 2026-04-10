@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ export default function BrandsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  const t = useTranslations('adminDashboard');
 
   // Fetch brands using custom hook
   const { brands, isLoading, refetch: refetchBrands } = useAdminBrands();
@@ -171,19 +173,19 @@ export default function BrandsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Brand Management</h1>
-          <p className="text-gray-600">Maintain the catalog of brands available across the marketplace.</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('brands.title')}</h1>
+          <p className="text-gray-600">{t('brands.description')}</p>
         </div>
         <Button onClick={handleCreateBrand} className="bg-blue-600 text-white hover:bg-blue-700">
-          Add New Brand
+          {t('brands.addNew')}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-sm font-medium">Total Brands</CardTitle>
-            <CardDescription>Registered across all locales</CardDescription>
+            <CardTitle className="text-sm font-medium">{t('brands.stats.total')}</CardTitle>
+            <CardDescription>{t('brands.stats.totalDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -192,8 +194,8 @@ export default function BrandsPage() {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-sm font-medium">Visible Brands</CardTitle>
-            <CardDescription>Currently displayed to customers</CardDescription>
+            <CardTitle className="text-sm font-medium">{t('brands.stats.visible')}</CardTitle>
+            <CardDescription>{t('brands.stats.visibleDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.visible}</div>
@@ -202,8 +204,8 @@ export default function BrandsPage() {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-sm font-medium">Hidden Brands</CardTitle>
-            <CardDescription>Available for later activation</CardDescription>
+            <CardTitle className="text-sm font-medium">{t('brands.stats.hidden')}</CardTitle>
+            <CardDescription>{t('brands.stats.hiddenDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.hidden}</div>
@@ -212,8 +214,8 @@ export default function BrandsPage() {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-sm font-medium">Linked Items</CardTitle>
-            <CardDescription>Total items associated with brands</CardDescription>
+            <CardTitle className="text-sm font-medium">{t('brands.stats.linkedItems')}</CardTitle>
+            <CardDescription>{t('brands.stats.linkedItemsDesc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.connectedItems}</div>
@@ -223,12 +225,12 @@ export default function BrandsPage() {
 
       <div className="rounded-lg border bg-white">
         <div className="border-b px-6 py-4">
-          <h2 className="text-lg font-semibold">Brands</h2>
+          <h2 className="text-lg font-semibold">{t('brands.table.header')}</h2>
         </div>
         <div className="divide-y">
           {currentItems.length === 0 ? (
             <div className="px-6 py-12 text-center text-sm text-gray-500">
-              No brands found. Create your first brand to get started.
+              {t('brands.table.empty')}
             </div>
           ) : (
             currentItems.map((brand) => (
@@ -251,15 +253,15 @@ export default function BrandsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-lg font-semibold">{brand.name}</h3>
                       <Badge variant={brand.isVisible ? 'default' : 'outline'}>
-                        {brand.isVisible ? 'Visible' : 'Hidden'}
+                        {brand.isVisible ? t('common.visible') : t('common.hidden')}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-500">Alias: {brand.alias}</p>
+                    <p className="text-sm text-gray-500">{t('brands.table.alias', { alias: brand.alias })}</p>
                     <p className="text-xs text-gray-400">
-                      Created {formatDate(brand.createdAt)} · Updated {formatDate(brand.updatedAt)}
+                      {t('brands.table.created')} {formatDate(brand.createdAt)} · {t('brands.table.updated')} {formatDate(brand.updatedAt)}
                     </p>
                     <p className="text-xs text-gray-400">
-                      Linked items: {brand._count?.items ?? 0}
+                      {t('brands.table.linked', { count: brand._count?.items ?? 0 })}
                     </p>
                   </div>
                 </div>
@@ -286,13 +288,13 @@ export default function BrandsPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t px-6 py-3 text-sm text-gray-600">
             <Button variant="ghost" size="sm" onClick={goToPreviousPage} disabled={currentPage === 1}>
-              Previous
+              {t('common.previous')}
             </Button>
             <span>
-              Page {currentPage} of {totalPages}
+              {t('common.pageOf', { current: currentPage, total: totalPages })}
             </span>
             <Button variant="ghost" size="sm" onClick={goToNextPage} disabled={currentPage === totalPages}>
-              Next
+              {t('common.next')}
             </Button>
           </div>
         )}

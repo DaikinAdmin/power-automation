@@ -1,20 +1,35 @@
 "use client";
 
-import { use, useState } from "react";
-import { Phone, ArrowLeft, Eye, EyeOff, Trash2 } from "lucide-react";
+import { use, useState, useEffect } from "react";
+import {
+  Phone,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Trash2,
+  X,
+  CheckCircle2,
+  Loader2,
+} from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { countryCodes } from "@/helpers/country-codes";
+import { parseAddress, type AddressFields } from "@/helpers/address";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "@/components/languge-switcher";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useDomainConfig } from "@/hooks/useDomain";
 import type { SupportedCurrency } from "@/helpers/currency";
 import type { DomainKey } from "@/lib/domain-config";
+import NovaPostDelivery, {
+  type NovaPostDeliveryState,
+  type NpCity,
+} from "@/components/nova-post-delivery";
+import type { DeliveryInfo } from "@/types/delivery";
 
 const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
   pl: "PLN",
@@ -69,6 +84,24 @@ export default function CheckoutPage({
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderError, setOrderError] = useState("");
+  const [novaPostState, setNovaPostState] =
+    useState<NovaPostDeliveryState | null>(null);
+  const [lastDeliveryInitial, setLastDeliveryInitial] =
+    useState<Partial<NovaPostDeliveryState> | null>(null);
+  const [paymentDialog, setPaymentDialog] = useState<{
+    open: boolean;
+    type: "bank_transfer" | "cash_on_delivery" | null;
+    orderId: string | null;
+  }>({ open: false, type: null, orderId: null });
+  const [isRedirectingToPayment, setIsRedirectingToPayment] = useState(false);
+
+  const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
+    name: "",
+    phone: "",
+    countryCode: "+48",
+    vatNumber: "",
+    address: { country: "", city: "", street: "", postalCode: "" },
+  });
 
   const { cartItems, updateCartQuantity, removeFromCart, getTotalCartItems } =
     useCart();
@@ -89,11 +122,81 @@ export default function CheckoutPage({
   const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
   const session = authClient.useSession();
 
+  // Populate delivery form from session when user logs in
+  useEffect(() => {
+    if (!session.data?.user) return;
+    const user = session.data.user as typeof session.data.user & {
+      phoneNumber?: string;
+      countryCode?: string;
+      vatNumber?: string;
+      addressLine?: string;
+    };
+    if (!user) return;
+    setDeliveryInfo({
+      name: user.name ?? "",
+      phone: user.phoneNumber ?? "",
+      countryCode: user.countryCode ?? "+48",
+      vatNumber: user.vatNumber ?? "",
+      address: parseAddress(user.addressLine),
+    });
+  }, [session.data?.user?.id]);
+
+  // Fetch last delivery to prefill Nova Post form (UA locale only)
+  useEffect(() => {
+    if (!session.data?.user || locale !== "ua") return;
+
+    const fetchLastDelivery = async () => {
+      try {
+        const response = await fetch("/api/delivery/last");
+        const data = await response.json();
+
+        const lastDelivery = data?.delivery;
+        if (!lastDelivery) return;
+
+        const methodMap: Record<string, string> = {
+          PICKUP: "warehouse",
+          NOVA_POSHTA: "nova_dept",
+          COURIER: "nova_courier",
+        };
+
+        const method = methodMap[lastDelivery.type] ?? "";
+        if (!method) return;
+
+        const city: NpCity | null =
+          lastDelivery.city && lastDelivery.cityRef
+            ? {
+                ref: lastDelivery.cityRef,
+                name: lastDelivery.city,
+                settlementType: "",
+              }
+            : null;
+
+        setLastDeliveryInitial({
+          method: method as NovaPostDeliveryState["method"],
+          city,
+          warehouseRef: lastDelivery.warehouseRef ?? "",
+          warehouseDesc: lastDelivery.warehouseDesc ?? "",
+          street: lastDelivery.street ?? "",
+          building: lastDelivery.building ?? "",
+          flat: lastDelivery.flat ?? "",
+        });
+      } catch {
+        /* non-critical */
+      }
+    };
+
+    fetchLastDelivery();
+  }, [session.data?.user?.id, locale]);
+
   // Format a price in domain currency; if domain currency equals item currency, returns empty string
-  const formatPaymentPrice = (item: typeof cartItems[number], qty = 1) => {
+  const formatPaymentPrice = (item: (typeof cartItems)[number], qty = 1) => {
     const itemCurrency = getItemCurrency(item);
     const basePrice = resolveBaseUnitPrice(item) * qty;
-    const inDomainCurrency = convertToCurrency(basePrice, itemCurrency, domainCurrency as SupportedCurrency);
+    const inDomainCurrency = convertToCurrency(
+      basePrice,
+      itemCurrency,
+      domainCurrency as SupportedCurrency,
+    );
     return formatAs(inDomainCurrency, domainCurrency as SupportedCurrency);
   };
 
@@ -101,7 +204,14 @@ export default function CheckoutPage({
     const total = cartItems.reduce((sum, item) => {
       const itemCurrency = getItemCurrency(item);
       const baseTotal = resolveBaseUnitPrice(item) * item.quantity;
-      return sum + convertToCurrency(baseTotal, itemCurrency, domainCurrency as SupportedCurrency);
+      return (
+        sum +
+        convertToCurrency(
+          baseTotal,
+          itemCurrency,
+          domainCurrency as SupportedCurrency,
+        )
+      );
     }, 0);
     return formatAs(total, domainCurrency as SupportedCurrency);
   };
@@ -199,10 +309,31 @@ export default function CheckoutPage({
         customerInfo: session.data.user.email
           ? {
               email: session.data.user.email,
-              name: session.data.user.name,
+              name: deliveryInfo.name || session.data.user.name,
+              phone: deliveryInfo.phone,
+              countryCode: deliveryInfo.countryCode,
+              vatNumber: deliveryInfo.vatNumber,
+              country: deliveryInfo.address.country,
+              city: deliveryInfo.address.city,
+              street: deliveryInfo.address.street,
+              postalCode: deliveryInfo.address.postalCode,
             }
           : checkoutForm,
-        deliveryId: null, // You can add delivery selection later
+        deliveryId: null,
+        novaPost:
+          locale === "ua" && novaPostState
+            ? {
+                method: novaPostState.method,
+                payment: novaPostState.payment,
+                city: novaPostState.city?.name ?? null,
+                cityRef: novaPostState.city?.ref ?? null,
+                warehouseRef: novaPostState.warehouseRef || null,
+                warehouseDesc: novaPostState.warehouseDesc || null,
+                street: novaPostState.street || null,
+                building: novaPostState.building || null,
+                flat: novaPostState.flat || null,
+              }
+            : null,
         locale: locale, // Add locale for error messages
       };
 
@@ -221,11 +352,86 @@ export default function CheckoutPage({
       }
 
       setOrderSuccess(true);
+
+      // Sync updated delivery info back to the user profile (fire-and-forget)
+      if (session.data?.user) {
+        fetch("/api/user/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: deliveryInfo.name || undefined,
+            phoneNumber: deliveryInfo.phone || undefined,
+            countryCode: deliveryInfo.countryCode || undefined,
+            vatNumber: deliveryInfo.vatNumber || undefined,
+            address: deliveryInfo.address,
+          }),
+        }).catch(() => {
+          /* non-critical, ignore */
+        });
+      }
+
       // Clear cart after successful order
       cartItems.forEach((item) => removeFromCart(item.id));
 
-      // Redirect to payment page instead of showing success message
-      router.push(`/${locale}/payment?orderId=${result.order.id}`);
+      // UA locale: handle payment directly based on selected method
+      if (locale === "ua" && novaPostState?.payment) {
+        const paymentMethod = novaPostState.payment;
+
+        if (
+          paymentMethod === "online_card" ||
+          paymentMethod === "installment"
+        ) {
+          // Initiate LiqPay payment and redirect to gateway
+          setIsRedirectingToPayment(true);
+          try {
+            const isInstallment = paymentMethod === "installment";
+            const payRes = await fetch(
+              isInstallment
+                ? "/api/payments/liqpay-installments/initiate"
+                : "/api/payments/liqpay/initiate",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(
+                  isInstallment
+                    ? {
+                        orderId: result.order.id,
+                        installmentType: "moment_part",
+                        months: 0,
+                      }
+                    : { orderId: result.order.id },
+                ),
+              },
+            );
+            const payData = await payRes.json();
+            if (!payRes.ok)
+              throw new Error(payData.error || "Payment initiation failed");
+            if (payData.paymentUrl) {
+              window.location.href = payData.paymentUrl;
+              return;
+            }
+            throw new Error("Payment URL not received");
+          } catch (payErr: any) {
+            setIsRedirectingToPayment(false);
+            setOrderError(payErr.message || "Failed to initiate payment");
+            return;
+          }
+        } else if (
+          paymentMethod === "bank_transfer" ||
+          paymentMethod === "cash_on_delivery"
+        ) {
+          // Show informational dialog
+          setPaymentDialog({
+            open: true,
+            type: paymentMethod,
+            orderId: result.order.id,
+          });
+          return;
+        }
+      }
+
+      // PL locale or fallback: redirect to payment page
+      router.push(`/payment?orderId=${result.order.id}`);
     } catch (error: any) {
       setOrderError(error.message || "Failed to create order");
       console.error("Order submission error:", error);
@@ -255,12 +461,16 @@ export default function CheckoutPage({
   };
 
   const isConfirmOrderDisabled = () => {
-    return (
+    if (
       !acceptTerms ||
       cartItems.length === 0 ||
       !session.data?.user ||
       isSubmittingOrder
-    );
+    )
+      return true;
+    if (locale === "ua" && (!novaPostState || !novaPostState.isValid))
+      return true;
+    return false;
   };
 
   return (
@@ -563,7 +773,7 @@ export default function CheckoutPage({
                     {/* Forgot Password Link */}
                     <div className="text-right">
                       <Link
-                        href={`/${locale}/forgot-password`}
+                        href="/forgot-password"
                         className="text-sm text-blue-600 hover:text-blue-800"
                       >
                         {t("form.forgotPassword")}
@@ -573,11 +783,167 @@ export default function CheckoutPage({
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold mb-4">{t("welcome")}</h3>
-                <p className="text-gray-600">
-                  {t("loggedInAs")} {session.data.user.email}
+              <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+                <h3 className="text-lg font-semibold">{t("welcome")}</h3>
+                <p className="text-sm text-gray-500">
+                  {t("loggedInAs")}{" "}
+                  <span className="font-medium">{session.data.user.email}</span>
                 </p>
+
+                {/* Delivery details — pre-filled from profile, editable */}
+                <div className="pt-2 space-y-4">
+                  <h4 className="font-medium text-gray-800">
+                    {t("deliveryDetails")}
+                  </h4>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("form.name")}
+                    </label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.name}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({ ...p, name: e.target.value }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <select
+                      value={deliveryInfo.countryCode}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({
+                          ...p,
+                          countryCode: e.target.value,
+                        }))
+                      }
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      {countryCodes.map((item) => (
+                        <option key={item.code} value={item.code}>
+                          {item.code} ({item.country})
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      value={deliveryInfo.phone}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({
+                          ...p,
+                          phone: e.target.value,
+                        }))
+                      }
+                      placeholder={t("form.phonePlaceholder")}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("form.vatNumber")}
+                    </label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.vatNumber}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({
+                          ...p,
+                          vatNumber: e.target.value,
+                        }))
+                      }
+                      placeholder="PL1234567890"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t("form.country")}
+                      </label>
+                      <input
+                        type="text"
+                        value={deliveryInfo.address.country}
+                        onChange={(e) =>
+                          setDeliveryInfo((p) => ({
+                            ...p,
+                            address: { ...p.address, country: e.target.value },
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {t("form.postalCode")}
+                      </label>
+                      <input
+                        type="text"
+                        value={deliveryInfo.address.postalCode}
+                        onChange={(e) =>
+                          setDeliveryInfo((p) => ({
+                            ...p,
+                            address: {
+                              ...p.address,
+                              postalCode: e.target.value,
+                            },
+                          }))
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("form.city")}
+                    </label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.address.city}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({
+                          ...p,
+                          address: { ...p.address, city: e.target.value },
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t("form.street")}
+                    </label>
+                    <input
+                      type="text"
+                      value={deliveryInfo.address.street}
+                      onChange={(e) =>
+                        setDeliveryInfo((p) => ({
+                          ...p,
+                          address: { ...p.address, street: e.target.value },
+                        }))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Nova Post delivery selector — UA domain only */}
+                {domainConfig.key === "ua" && (
+                  <div className="pt-2">
+                    <h4 className="font-medium text-gray-800 mb-3">
+                      {t("deliveryDetails")}
+                    </h4>
+                    <NovaPostDelivery
+                      onChange={setNovaPostState}
+                      initialState={lastDeliveryInitial}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -736,13 +1102,18 @@ export default function CheckoutPage({
                     <span>{t("orderSummary.total")}:</span>
                     <div className="text-right">
                       <span className="text-red-600">
-                        {cartItems.length > 0 ? formatPaymentTotal() : formatAs(0, domainCurrency as SupportedCurrency)}
+                        {cartItems.length > 0
+                          ? formatPaymentTotal()
+                          : formatAs(0, domainCurrency as SupportedCurrency)}
                       </span>
-                      {cartItems.length > 0 && cartItems.some((item) => getItemCurrency(item) !== domainCurrency) && (
-                        <div className="text-gray-500 font-normal text-sm">
-                          ({formatCartTotal()})
-                        </div>
-                      )}
+                      {cartItems.length > 0 &&
+                        cartItems.some(
+                          (item) => getItemCurrency(item) !== domainCurrency,
+                        ) && (
+                          <div className="text-gray-500 font-normal text-sm">
+                            ({formatCartTotal()})
+                          </div>
+                        )}
                     </div>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
@@ -757,6 +1128,64 @@ export default function CheckoutPage({
           </div>
         </div>
       </main>
+
+      {/* Redirecting to payment overlay */}
+      {isRedirectingToPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-4 text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              {t("messages.redirectingToPayment")}
+            </h3>
+          </div>
+        </div>
+      )}
+
+      {/* Payment info dialog (bank_transfer / cash_on_delivery) */}
+      {paymentDialog.open && paymentDialog.type && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-md w-full mx-4 relative">
+            <button
+              onClick={() => {
+                setPaymentDialog({ open: false, type: null, orderId: null });
+                router.push("/dashboard");
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="text-center mb-6">
+              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">
+                {t("messages.orderSuccess")}
+              </h3>
+              {paymentDialog.orderId && (
+                <p className="text-sm text-gray-500">
+                  {t("messages.orderCreated")} #
+                  {paymentDialog.orderId.substring(0, 8)}
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 mb-6 text-sm text-blue-800">
+              {paymentDialog.type === "cash_on_delivery"
+                ? t("dialog.cashOnDeliveryInfo")
+                : t("dialog.bankTransferInfo")}
+            </div>
+
+            <button
+              onClick={() => {
+                setPaymentDialog({ open: false, type: null, orderId: null });
+                router.push("/dashboard");
+              }}
+              className="w-full bg-red-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-600 transition-colors"
+            >
+              {t("dialog.goToDashboard")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

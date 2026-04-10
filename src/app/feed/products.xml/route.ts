@@ -62,6 +62,19 @@ export async function GET(request: NextRequest) {
     const vatInclusive = domainConfig.key === 'ua';
     const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
 
+    // Exchange-rate cache: converts a price stored in `sourceCurrency` → feed target currency.
+    // Formula mirrors useCurrency.convertFromCurrency: price / eurToSource * eurToTarget
+    const rateBySource = new Map<string, number>();
+    rateBySource.set('EUR', eurToTarget);
+    rateBySource.set(feedCfg.exchangeTarget, 1);
+    const getItemRate = async (src: string): Promise<number> => {
+      if (rateBySource.has(src)) return rateBySource.get(src)!;
+      const eurToSrc = await getExchangeRate('EUR', src);
+      const rate = eurToTarget / eurToSrc;
+      rateBySource.set(src, rate);
+      return rate;
+    };
+
     // 1. Fetch all displayed items
     const items = await db
       .select({
@@ -114,6 +127,7 @@ export async function GET(request: NextRequest) {
           promotionPrice: schema.itemPrice.promotionPrice,
           promoEndDate: schema.itemPrice.promoEndDate,
           margin: schema.itemPrice.margin,
+          initialCurrency: schema.itemPrice.initialCurrency,
         })
         .from(schema.itemPrice)
         .where(eq(schema.itemPrice.itemSlug, item.slug));
@@ -130,10 +144,13 @@ export async function GET(request: NextRequest) {
       const inStock = inStockPrices.length > 0;
       const availability = inStock ? "in stock" : "out of stock";
 
-      // Apply margin, VAT (UA only), and convert EUR → target currency
+      // price in DB already includes margin (= initialPrice × (1 + margin/100)).
+      // promotionPrice in DB does NOT include margin — margin is applied when needed.
+      // This mirrors the pattern used in /api/public/items/[locale] and useCatalogPricing.
       const marginRate = 1 + (bestPrice.margin ?? 20) / 100;
-      const eurPrice = bestPrice.price * marginRate;
-      const targetPrice = Math.round(eurPrice * eurToTarget * vatMultiplier);
+      const srcCurrency = (bestPrice.initialCurrency as string | null) ?? 'EUR';
+      const itemRate = await getItemRate(srcCurrency);
+      const targetPrice = Math.round(bestPrice.price * itemRate * vatMultiplier);
 
       // Images — always absolute, pointing to powerautomation.pl
       const images = item.itemImageLink ?? [];
@@ -152,15 +169,17 @@ export async function GET(request: NextRequest) {
       // Price formatting
       const priceFormatted = `${targetPrice} ${feedCfg.currency}`;
 
-      // Sale price — only if active promo
+      // Sale price — only if active promo.
+      // promotionPrice is stored without margin; apply marginRate before comparing with price.
       let salePriceXml = "";
       if (bestPrice.promotionPrice && bestPrice.promotionPrice > 0) {
         const promoEnd = bestPrice.promoEndDate
           ? new Date(bestPrice.promoEndDate)
           : null;
         const isPromoActive = !promoEnd || promoEnd > new Date();
-        if (isPromoActive && bestPrice.promotionPrice < bestPrice.price) {
-          const targetPromoPrice = Math.round(bestPrice.promotionPrice * marginRate * eurToTarget * vatMultiplier);
+        const promoWithMargin = bestPrice.promotionPrice * marginRate;
+        if (isPromoActive && promoWithMargin < bestPrice.price) {
+          const targetPromoPrice = Math.round(promoWithMargin * itemRate * vatMultiplier);
           salePriceXml = `      <g:sale_price>${targetPromoPrice} ${feedCfg.currency}</g:sale_price>`;
         }
       }

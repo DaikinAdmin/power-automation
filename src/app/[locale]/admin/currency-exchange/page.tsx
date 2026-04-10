@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ interface ExchangeRate {
 export default function CurrencyExchangePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [rates, setRates] = useState<ExchangeRate[]>([]);
+  const t = useTranslations('adminDashboard');
 
   const [editRates, setEditRates] = useState<Record<string, string>>({});
   const [updatingKey, setUpdatingKey] = useState<string | null>(null);
@@ -46,9 +48,9 @@ export default function CurrencyExchangePage() {
         data.forEach((r) => { map[`${r.from}_${r.to}`] = String(r.rate); });
         setEditRates(map);
       }
-      else toast.error('Failed to fetch exchange rates');
+      else toast.error(t('currencies.errors.fetchFailed'));
     } catch {
-      toast.error('An unexpected error occurred');
+      toast.error(t('currencies.errors.unexpected'));
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +60,7 @@ export default function CurrencyExchangePage() {
     const key = `${from}_${to}`;
     const rate = parseFloat(editRates[key] ?? '');
     if (isNaN(rate) || rate <= 0) {
-      toast.error('Rate must be a positive number');
+      toast.error(t('currencies.errors.positiveNumber'));
       return;
     }
     setUpdatingKey(key);
@@ -76,7 +78,7 @@ export default function CurrencyExchangePage() {
         toast.error(err.message || 'Failed to update rate');
       }
     } catch {
-      toast.error('An unexpected error occurred');
+      toast.error(t('currencies.errors.unexpected'));
     } finally {
       setUpdatingKey(null);
     }
@@ -93,9 +95,9 @@ export default function CurrencyExchangePage() {
       return;
     }
 
-    const rate = parseFloat(newRate);
-    if (isNaN(rate) || rate <= 0) {
-      toast.error('Rate must be a positive number');
+    const rate2 = parseFloat(newRate);
+    if (isNaN(rate2) || rate2 <= 0) {
+      toast.error(t('currencies.errors.positiveNumber'));
       return;
     }
 
@@ -104,7 +106,7 @@ export default function CurrencyExchangePage() {
       const res = await fetch('/api/admin/currency-exchange', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: newFrom, to: newTo, rate }),
+        body: JSON.stringify({ from: newFrom, to: newTo, rate: rate2 }),
       });
       if (res.ok) {
         toast.success(`Rate ${newFrom} → ${newTo} added`);
@@ -117,7 +119,7 @@ export default function CurrencyExchangePage() {
         toast.error(err.message || 'Failed to add rate');
       }
     } catch {
-      toast.error('An unexpected error occurred');
+      toast.error(t('currencies.errors.unexpected'));
     } finally {
       setIsSaving(false);
     }
@@ -140,7 +142,7 @@ export default function CurrencyExchangePage() {
         toast.error(err.message || 'Failed to delete rate');
       }
     } catch {
-      toast.error('An unexpected error occurred');
+      toast.error(t('currencies.errors.unexpected'));
     } finally {
       setDeletingKey(null);
     }
@@ -151,39 +153,39 @@ export default function CurrencyExchangePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Currency Exchange Rates</h1>
-        <p className="text-gray-600">Manage exchange rates between currencies</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('currencies.title')}</h1>
+        <p className="text-gray-600">{t('currencies.description')}</p>
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>Exchange Rates</CardTitle>
+          <CardTitle>{t('currencies.tableTitle')}</CardTitle>
           <Button variant="outline" size="sm" onClick={fetchRates} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
+            {t('common.refresh')}
           </Button>
         </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-gray-50 text-left">
-                <th className="px-6 py-3 font-medium text-gray-500">Currency From</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Currency To</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Rate</th>
-                <th className="px-6 py-3 font-medium text-gray-500 w-36">Action</th>
+                <th className="px-6 py-3 font-medium text-gray-500">{t('currencies.from')}</th>
+                <th className="px-6 py-3 font-medium text-gray-500">{t('currencies.to')}</th>
+                <th className="px-6 py-3 font-medium text-gray-500">{t('currencies.rate')}</th>
+                <th className="px-6 py-3 font-medium text-gray-500 w-36">{t('currencies.action')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {isLoading ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
-                    Loading...
+                    {t('currencies.loading')}
                   </td>
                 </tr>
               ) : rates.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-gray-400">
-                    No exchange rates defined yet
+                    {t('currencies.noRates')}
                   </td>
                 </tr>
               ) : (
@@ -214,7 +216,7 @@ export default function CurrencyExchangePage() {
                             disabled={updatingKey === key || deletingKey === key}
                           >
                             <Save className="h-4 w-4 mr-1" />
-                            Update
+                            {t('currencies.update')}
                           </Button>
                           <Button
                             variant="destructive"
@@ -223,7 +225,7 @@ export default function CurrencyExchangePage() {
                             disabled={deletingKey === key || updatingKey === key}
                           >
                             <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
+                            {t('currencies.delete')}
                           </Button>
                         </div>
                       </td>
@@ -243,7 +245,7 @@ export default function CurrencyExchangePage() {
                     }}
                   >
                     <SelectTrigger className="w-28 bg-white">
-                      <SelectValue placeholder="From" />
+                      <SelectValue placeholder={t('currencies.selectFrom')} />
                     </SelectTrigger>
                     <SelectContent>
                       {CURRENCIES.map((c) => (
@@ -259,7 +261,7 @@ export default function CurrencyExchangePage() {
                     disabled={!newFrom}
                   >
                     <SelectTrigger className="w-28 bg-white">
-                      <SelectValue placeholder="To" />
+                      <SelectValue placeholder={t('currencies.selectTo')} />
                     </SelectTrigger>
                     <SelectContent>
                       {toOptions.map((c) => (
@@ -286,7 +288,7 @@ export default function CurrencyExchangePage() {
                     disabled={!newFrom || !newTo || !newRate || isSaving}
                   >
                     <Plus className="h-4 w-4 mr-1" />
-                    Add Rate
+                    {t('currencies.addRate')}
                   </Button>
                 </td>
               </tr>

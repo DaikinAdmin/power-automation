@@ -7,6 +7,7 @@ import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import { getTranslations } from 'next-intl/server';
+import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest) {
           })
           .from(schema.payment)
           .where(eq(schema.payment.orderId, order.id))
+          .orderBy(desc(schema.payment.createdAt))
           .limit(1);
 
         if (itemIds.length === 0) {
@@ -330,6 +332,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     originalTotalPrice,
     customerInfo,
     deliveryId,
+    novaPost,
   } = body;
 
   if (!cartItems || cartItems.length === 0) {
@@ -513,6 +516,38 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     );
   }
 
+  // Create delivery record if novaPost data is provided
+  let resolvedDeliveryId: string | null = deliveryId || null;
+  if (novaPost?.method) {
+    const deliveryTypeMap: Record<string, 'PICKUP' | 'NOVA_POSHTA' | 'COURIER' | 'USER_ADDRESS'> = {
+      warehouse: 'PICKUP',
+      nova_dept: 'NOVA_POSHTA',
+      nova_courier: 'COURIER',
+    };
+    const mappedType = deliveryTypeMap[novaPost.method] ?? 'USER_ADDRESS';
+    const now2 = new Date().toISOString();
+    const [newDelivery] = await db
+      .insert(schema.delivery)
+      .values({
+        id: crypto.randomUUID(),
+        userId,
+        type: mappedType,
+        city: novaPost.city ?? null,
+        cityRef: novaPost.cityRef ?? null,
+        warehouseRef: novaPost.warehouseRef ?? null,
+        warehouseDesc: novaPost.warehouseDesc ?? null,
+        street: novaPost.street ?? null,
+        building: novaPost.building ?? null,
+        flat: novaPost.flat ?? null,
+        paymentMethod: novaPost.payment ?? null,
+        status: 'PENDING',
+        createdAt: now2,
+        updatedAt: now2,
+      })
+      .returning();
+    resolvedDeliveryId = newDelivery.id;
+  }
+
   // Drizzle implementation - Create the order
   const now = new Date().toISOString();
   const [order] = await db
@@ -524,11 +559,19 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       totalPrice,
       lineItems: orderLineItems,
       status: 'NEW',
-      deliveryId: deliveryId || null,
+      deliveryId: resolvedDeliveryId,
       createdAt: now,
       updatedAt: now,
     })
     .returning();
+
+  // Back-fill orderId on the delivery record
+  if (resolvedDeliveryId && !deliveryId) {
+    await db
+      .update(schema.delivery)
+      .set({ orderId: order.id, updatedAt: now })
+      .where(eq(schema.delivery.id, resolvedDeliveryId));
+  }
 
   // Update stock quantities
   for (const cartItem of cartItems) {
@@ -599,6 +642,40 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     }
   }
   */
+
+  // Send order notification emails (non-blocking)
+  try {
+    const [orderUser] = await db
+      .select()
+      .from(schema.user)
+      .where(eq(schema.user.id, userId))
+      .limit(1);
+
+    if (orderUser) {
+      const emailData: OrderEmailData = {
+        orderId: order.id,
+        orderShortId: order.id.substring(0, 8),
+        customerName: orderUser.name,
+        customerEmail: orderUser.email,
+        customerPhone: orderUser.phoneNumber || undefined,
+        companyName: orderUser.companyName || undefined,
+        totalPrice: order.totalPrice,
+        originalTotalPrice: order.originalTotalPrice,
+        lineItems: orderLineItems.map((li: any) => ({
+          name: li.name || li.articleId,
+          articleId: li.articleId,
+          quantity: li.quantity,
+          unitPrice: li.unitPrice,
+          lineTotal: li.lineTotal,
+          warehouseName: li.warehouseName,
+        })),
+        comment: null,
+      };
+      sendNewOrderEmails(emailData);
+    }
+  } catch (emailErr) {
+    logger.error('Failed to send order notification emails', { orderId: order.id, error: String(emailErr) });
+  }
 
   return NextResponse.json({
     success: true,

@@ -171,52 +171,29 @@ export async function GET(
       items,
     };
 
-    /* Prisma implementation (commented out)
-    const order = await db.order.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        status: true,
-        totalPrice: true,
-        originalTotalPrice: true,
-        lineItems: true,
-        createdAt: true,
-        comment: true,
-        user: {
-          select: {
-            name: true,
-            phoneNumber: true,
-            countryCode: true,
-            email: true,
-          },
-        },
-        items: {
-          select: {
-            id: true,
-            itemDetails: {
-              select: {
-                itemName: true,
-              },
-              take: 1,
-            },
-            itemPrice: {
-              include: {
-                warehouse: true,
-              },
-              take: 1,
-            }
-          },
-        },
-      },
-    });
-
-    if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    // Fetch linked delivery record if present
+    let deliveryRecord = null;
+    if (orderData.deliveryId) {
+      const [dr] = await db
+        .select()
+        .from(schema.delivery)
+        .where(eq(schema.delivery.id, orderData.deliveryId))
+        .limit(1);
+      deliveryRecord = dr ?? null;
     }
-    */
+    // Also check delivery by orderId (in case linkage only goes one way)
+    if (!deliveryRecord) {
+      const [dr] = await db
+        .select()
+        .from(schema.delivery)
+        .where(eq(schema.delivery.orderId, id))
+        .limit(1);
+      deliveryRecord = dr ?? null;
+    }
 
     return NextResponse.json({
       order: mapOrder(order),
+      delivery: deliveryRecord,
       viewerRole: authResult.role,
     });
   } catch (error) {

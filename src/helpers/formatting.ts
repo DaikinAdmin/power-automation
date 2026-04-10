@@ -30,6 +30,19 @@ export const getOrderStatusStyle = (status: OrderStatus | string): string => {
   return mapping[status] || 'text-gray-500';
 };
 
+export const getPaymentStatusBadgeStyle = (status: string): string => {
+  const mapping: Record<string, string> = {
+    COMPLETED: 'bg-green-100 text-green-800',
+    PENDING: 'bg-yellow-100 text-yellow-800',
+    INITIATED: 'bg-yellow-100 text-yellow-800',
+    FAILED: 'bg-red-100 text-red-800',
+    CANCELLED: 'bg-red-100 text-red-800',
+    REFUNDED: 'bg-purple-100 text-purple-800',
+    PROCESSING: 'bg-blue-100 text-blue-800',
+  };
+  return mapping[status] || 'bg-gray-100 text-gray-800';
+};
+
 export const getOrderStatusBadgeStyle = (status: OrderStatus | string): string => {
   const mapping: Record<string, string> = {
     NEW: 'bg-blue-100 text-blue-800',

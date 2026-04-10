@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CategoryModal } from '@/components/admin/category-modal';
@@ -16,6 +17,7 @@ export default function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const t = useTranslations('adminDashboard');
 
   // Fetch categories using custom hook
   const { categories, isLoading: loading, refetch: refetchCategories } = useAdminCategories();
@@ -90,8 +92,8 @@ export default function CategoriesPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Categories Management</h1>
-            <p className="text-gray-600">Loading categories...</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
+            <p className="text-gray-600">{t('categories.loading')}</p>
           </div>
         </div>
       </div>
@@ -110,13 +112,13 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Categories Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('categories.title')}</h1>
           <p className="text-gray-600">
-            Manage product categories and subcategories.
+            {t('categories.description')}
           </p>
         </div>
         <Button onClick={handleAddCategory} className="bg-blue-600 hover:bg-blue-700">
-          Add New Category
+          {t('categories.addNew')}
         </Button>
       </div>
 
@@ -124,7 +126,7 @@ export default function CategoriesPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('categories.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categoryStats.total}</div>
@@ -133,7 +135,7 @@ export default function CategoriesPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Visible</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('categories.stats.visible')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categoryStats.visible}</div>
@@ -142,7 +144,7 @@ export default function CategoriesPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hidden</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('categories.stats.hidden')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categoryStats.hidden}</div>
@@ -151,7 +153,7 @@ export default function CategoriesPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">With Subcategories</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('categories.stats.withSubs')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{categoryStats.withSubcategories}</div>
@@ -162,9 +164,9 @@ export default function CategoriesPage() {
       {/* Categories Table */}
       <Card className='h-[500px]'>
         <CardHeader>
-          <CardTitle>All Categories</CardTitle>
+          <CardTitle>{t('categories.table.header')}</CardTitle>
           <CardDescription>
-            A list of all product categories in your store.
+            {t('categories.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -172,11 +174,11 @@ export default function CategoriesPage() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Slug</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Subcategories</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Visibility</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('categories.table.name')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('categories.table.slug')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('categories.table.subcategories')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('categories.table.visibility')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('categories.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className='h-full'>
@@ -198,11 +200,11 @@ export default function CategoriesPage() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-gray-400 text-sm">No subcategories</span>
+                          <span className="text-gray-400 text-sm">{t('categories.table.noSubs')}</span>
                         )}
                         {category.subCategories.length > 3 && (
                           <span className="text-xs text-gray-500">
-                            +{category.subCategories.length - 3} more
+                            {t('categories.table.moreSubs', { count: category.subCategories.length - 3 })}
                           </span>
                         )}
                       </div>
@@ -218,7 +220,7 @@ export default function CategoriesPage() {
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800'
                           }`}>
-                          {category.isVisible ? 'Visible' : 'Hidden'}
+                          {category.isVisible ? t('common.visible') : t('common.hidden')}
                         </span>
                       </div>
                     </td>
@@ -234,14 +236,14 @@ export default function CategoriesPage() {
                 {currentCategories.length === 0 && categories.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
-                      No categories found. Add your first category to get started.
+                      {t('categories.table.empty')}
                     </td>
                   </tr>
                 )}
                 {currentCategories.length === 0 && categories.length > 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
-                      No categories on this page.
+                      {t('categories.table.emptyPage')}
                     </td>
                   </tr>
                 )}
@@ -253,9 +255,7 @@ export default function CategoriesPage() {
           {categories.length > itemsPerPage && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
               <div className="text-sm text-gray-700">
-                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
-                <span className="font-medium">{Math.min(endIndex, categories.length)}</span> of{' '}
-                <span className="font-medium">{categories.length}</span> results
+                {t('categories.table.showing', { from: startIndex + 1, to: Math.min(endIndex, categories.length), total: categories.length })}
               </div>
 
               <div className="flex items-center space-x-2">
@@ -266,7 +266,7 @@ export default function CategoriesPage() {
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
-                  Previous
+                  {t('common.previous')}
                 </Button>
 
                 <div className="flex items-center space-x-1">
@@ -292,7 +292,7 @@ export default function CategoriesPage() {
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
                 >
-                  Next
+                  {t('common.next')}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>

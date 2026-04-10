@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
@@ -18,6 +19,7 @@ type MessageWithRelations = {
 };
 
 export default async function MessagesPage() {
+  const t = await getTranslations('adminDashboard');
   // Fetch messages with user and order data
   const messagesData = await db
     .select({
@@ -70,9 +72,9 @@ export default async function MessagesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Messages Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('messages.title')}</h1>
         <p className="text-gray-600">
-          Monitor and respond to customer messages and inquiries.
+          {t('messages.description')}
         </p>
       </div>
 
@@ -80,7 +82,7 @@ export default async function MessagesPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('messages.stats.total')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{messageStats.total}</div>
@@ -89,21 +91,21 @@ export default async function MessagesPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('messages.stats.today')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{messageStats.today}</div>
-            <p className="text-xs text-gray-600">New messages today</p>
+            <p className="text-xs text-gray-600">{t('messages.stats.todayDesc')}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('messages.stats.thisWeek')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{messageStats.thisWeek}</div>
-            <p className="text-xs text-gray-600">Messages this week</p>
+            <p className="text-xs text-gray-600">{t('messages.stats.thisWeekDesc')}</p>
           </CardContent>
         </Card>
       </div>
@@ -111,9 +113,9 @@ export default async function MessagesPage() {
       {/* Messages Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Messages</CardTitle>
+          <CardTitle>{t('messages.table.header')}</CardTitle>
           <CardDescription>
-            Latest customer messages and inquiries.
+            {t('messages.table.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -121,11 +123,11 @@ export default async function MessagesPage() {
             <table className="w-full table-auto">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Customer</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Order ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Message</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Date</th>
-                  <th className="text-left py-3 px-4 font-semibold text-sm">Actions</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('messages.table.customer')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('messages.table.orderId')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('messages.table.message')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('messages.table.date')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('messages.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,13 +154,13 @@ export default async function MessagesPage() {
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         <button className="text-blue-600 hover:text-blue-900 text-sm">
-                          View
+                          {t('messages.table.view')}
                         </button>
                         <button className="text-green-600 hover:text-green-900 text-sm">
-                          Reply
+                          {t('messages.table.reply')}
                         </button>
                         <button className="text-red-600 hover:text-red-900 text-sm">
-                          Delete
+                          {t('messages.table.delete')}
                         </button>
                       </div>
                     </td>
@@ -167,7 +169,7 @@ export default async function MessagesPage() {
                 {messages.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-gray-500">
-                      No messages found.
+                      {t('messages.table.empty')}
                     </td>
                   </tr>
                 )}
@@ -180,24 +182,24 @@ export default async function MessagesPage() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t('messages.quickActions.title')}</CardTitle>
           <CardDescription>
-            Common message management tasks.
+            {t('messages.quickActions.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             <button className="flex items-center justify-center p-3 border rounded-lg hover:bg-gray-50">
-              <span className="text-sm font-medium">Send Broadcast</span>
+              <span className="text-sm font-medium">{t('messages.quickActions.broadcast')}</span>
             </button>
             <button className="flex items-center justify-center p-3 border rounded-lg hover:bg-gray-50">
-              <span className="text-sm font-medium">Message Templates</span>
+              <span className="text-sm font-medium">{t('messages.quickActions.templates')}</span>
             </button>
             <button className="flex items-center justify-center p-3 border rounded-lg hover:bg-gray-50">
-              <span className="text-sm font-medium">Auto-Responses</span>
+              <span className="text-sm font-medium">{t('messages.quickActions.autoResponses')}</span>
             </button>
             <button className="flex items-center justify-center p-3 border rounded-lg hover:bg-gray-50">
-              <span className="text-sm font-medium">Export Messages</span>
+              <span className="text-sm font-medium">{t('messages.quickActions.export')}</span>
             </button>
           </div>
         </CardContent>
