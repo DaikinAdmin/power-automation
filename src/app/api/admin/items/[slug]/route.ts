@@ -174,7 +174,7 @@ function generateItemSlug(brandSlug: string | null | undefined, articleId: strin
     return base
         .toLowerCase()
         .replace(/[^a-z0-9_]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+        .replace(/^-+/g, '');
 }
 
 export async function PUT(

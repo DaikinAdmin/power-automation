@@ -117,7 +117,7 @@ function createSlug(brand: string, articleId: string): string {
     .trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+/g, '');
   
   return `${brand}_${processedArticleId}`;
 }

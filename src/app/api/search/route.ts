@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, or, like, and } from 'drizzle-orm';
+import { eq, or, like, ilike, and } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
     
     logger.info('Searching items', { query });
-    const searchTerm = `%${query.trim().toLowerCase()}%`;
+    const searchTerm = `%${query.trim()}%`;
     
     // Search items by articleId (case-insensitive)
     const itemsByArticleId = await db
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .from(schema.item)
       .where(
         and(
-          like(schema.item.articleId, searchTerm),
+          ilike(schema.item.articleId, searchTerm),
           eq(schema.item.isDisplayed, true)
         )
       );
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       .innerJoin(schema.itemDetails, eq(schema.itemDetails.itemSlug, schema.item.articleId))
       .where(
         and(
-          like(schema.itemDetails.itemName, searchTerm),
+          ilike(schema.itemDetails.itemName, searchTerm),
           eq(schema.item.isDisplayed, true)
         )
       );

@@ -228,9 +228,17 @@ export default function ItemsPage() {
       const result = await response.json();
       if (response.ok) {
         toast.success('Slugs Regenerated', {
-          description: `Updated ${result.updated} of ${result.total} items.${result.errors.length > 0 ? ` ${result.errors.length} errors.` : ''}`,
+          description: `Updated ${result.updated} of ${result.total} items.`,
           duration: 6000,
         });
+        if (result.errors.length > 0) {
+          result.errors.forEach((err: string) => {
+            toast.error('Slug Error', {
+              description: err,
+              duration: 10000,
+            });
+          });
+        }
         await refetchItems();
       } else {
         toast.error('Failed to regenerate slugs', { description: result.error });

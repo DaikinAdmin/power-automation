@@ -31,7 +31,7 @@ function generateSlug(brandAlias: string | null, articleId: string): string {
   return base
     .toLowerCase()
     .replace(/[^a-z0-9_]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+/g, '');
 }
 
 export async function POST(request: NextRequest) {
