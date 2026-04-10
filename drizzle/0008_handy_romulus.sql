@@ -1,4 +1,4 @@
-ALTER TABLE "item_price" ADD COLUMN "initialPrice" double precision;--> statement-breakpoint
-ALTER TABLE "item_price" ADD COLUMN "initialCurrency" "Currency";--> statement-breakpoint
-ALTER TABLE "item_price_history" ADD COLUMN "initialPrice" double precision;--> statement-breakpoint
-ALTER TABLE "item_price_history" ADD COLUMN "initialCurrency" "Currency";
+ALTER TABLE "item_price" ADD COLUMN IF NOT EXISTS "initialPrice" double precision;--> statement-breakpoint
+ALTER TABLE "item_price" ADD COLUMN IF NOT EXISTS "initialCurrency" "Currency";--> statement-breakpoint
+ALTER TABLE "item_price_history" ADD COLUMN IF NOT EXISTS "initialPrice" double precision;--> statement-breakpoint
+ALTER TABLE "item_price_history" ADD COLUMN IF NOT EXISTS "initialCurrency" "Currency";
