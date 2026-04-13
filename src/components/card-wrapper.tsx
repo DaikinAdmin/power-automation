@@ -13,6 +13,7 @@ import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Link } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 interface CardWrapperType {
   children: React.ReactNode;
@@ -40,7 +41,7 @@ const CardWrapper = ({
   const locale = useLocale();
   
   return (
-    <Card className={`w-[400px] relative ${className} border-2 shadow-md`}>
+    <Card className={cn("w-[400px] relative border-2 shadow-md", className)}>
       {showCloseButton && (
         <Link href={closeButtonLink} className="absolute top-4 right-4 z-10" locale={locale}>
           <Button

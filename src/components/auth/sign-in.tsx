@@ -30,7 +30,13 @@ import { Button } from "../ui/button";
 import { requestOTP } from "@/helpers/auth/request-otp";
 import TraditionalSignInSchema from "@/helpers/zod/login-schema";
 
-const SignIn = () => {
+interface SignInProps {
+    onLoginSuccess?: () => void;
+    hideFooter?: boolean;
+    className?: string;
+}
+
+const SignIn = ({ onLoginSuccess, hideFooter = false, className }: SignInProps) => {
     const locale = useLocale();
     const t = useTranslations('auth.signIn');
     const router = useRouter();
@@ -85,7 +91,11 @@ const SignIn = () => {
                             }
                         } else {
                             setSuccess(t('success.loggedIn'));
-                            router.replace(`/`);
+                            if (onLoginSuccess) {
+                                onLoginSuccess();
+                            } else {
+                                router.replace(`/`);
+                            }
                         }
                     },
                     onError: (ctx) => {
@@ -108,11 +118,12 @@ const SignIn = () => {
         <CardWrapper
             cardTitle={t('title')}
             cardDescription={t('subtitle')}
-            cardFooterDescription={t('noAccount')}
-            cardFooterLink={`/signup`}
-            cardFooterLinkTitle={t('signUpLink')}
-            showCloseButton={true}
+            cardFooterDescription={hideFooter ? undefined : t('noAccount')}
+            cardFooterLink={hideFooter ? undefined : `/signup`}
+            cardFooterLinkTitle={hideFooter ? undefined : t('signUpLink')}
+            showCloseButton={!hideFooter}
             closeButtonLink="/"
+            className={className}
         >
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>

@@ -25,7 +25,13 @@ import {
   verification as verificationTable,
   twoFactor as twoFactorTable 
 } from "@/db/schema";
+import { getServerDomainConfig } from "@/lib/server-domain";
 import { eq } from "drizzle-orm";
+
+async function resolveUrl(url: string): Promise<string> {
+  const { baseUrl } = await getServerDomainConfig();
+  return url.replace(/^https?:\/\/[^/]+/, baseUrl);
+}
 
 export const auth = betterAuth({
   user: {
@@ -136,13 +142,13 @@ export const auth = betterAuth({
     maxPasswordLength: 20,
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: 3600 * 24,
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url, token }) => {
+      const resolvedUrl = await resolveUrl(url);
       await email.sendMail({
         from: process.env.MAIL_USER,
-        // TODO once we will go to prod, change to: user.email,
         to: user.email,
         subject: "Reset your password",
-        html: `Click the link to reset your password: ${url}`,
+        html: `Click the link to reset your password: ${resolvedUrl}`,
       });
     },
   },
@@ -150,11 +156,12 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
+      const resolvedUrl = await resolveUrl(url);
       await email.sendMail({
         from: process.env.MAIL_USER,
         to: user.email,
         subject: "Email Verification",
-        html: `Click the link to verify your email: ${url}`,
+        html: `Click the link to verify your email: ${resolvedUrl}`,
       });
     },
   },

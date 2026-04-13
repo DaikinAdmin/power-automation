@@ -35,8 +35,12 @@
       "countryPlaceholder": "Wybierz kraj",
       "vatNumberLabel": "NIP / VAT UE",
       "vatNumberPlaceholder": "np. PL1234567890",
-      "addressLineLabel": "Adres",
-      "addressLinePlaceholder": "Ulica, Miasto, Kod pocztowy",
+      "cityLabel": "Miasto",
+      "cityPlaceholder": "np. Warszawa",
+      "streetLabel": "Ulica i numer",
+      "streetPlaceholder": "np. ul. Marszałkowska 1",
+      "postalCodeLabel": "Kod pocztowy",
+      "postalCodePlaceholder": "np. 00-001",
       "positionLabel": "Twoje stanowisko",
       "positionOwner": "Właściciel",
       "positionEmployee": "Pracownik",
@@ -1695,7 +1699,7 @@
       "online_card": { "label": "Kartą online", "description": "Visa / Mastercard" },
       "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
       "cash_on_delivery": { "label": "Za pobraniem", "description": "Płatność przy odbiorze" },
-      "installment": { "label": "Płatność ratalna", "description": "PrivatBank · Monobank" }
+      "installment": { "label": "Płatność ratalna", "description": "PrivatBank" }
     }
   }
 }

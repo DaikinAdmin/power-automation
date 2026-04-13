@@ -10,16 +10,22 @@ import { z } from 'zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import { SignupSchema, CompanySignupSchema, PrivateSignupSchema } from '@/helpers/zod/signup-schema'
+import { SignupFormSchema, CompanySignupFormSchema, PrivateSignupFormSchema } from '@/helpers/zod/signup-schema'
 import { signUp } from '@/lib/auth-client'
 import { Eye, EyeOff, Building2, User } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { europeanCountries } from '@/helpers/country-codes'
 import { useLocale, useTranslations } from 'next-intl'
+import { formatAddress } from '@/helpers/address'
 
 type UserType = 'company' | 'private' | null;
 
-const SignUp = () => {
+interface SignUpProps {
+    hideFooter?: boolean;
+    className?: string;
+}
+
+const SignUp = ({ hideFooter = false, className }: SignUpProps) => {
     const locale = useLocale();
     const t = useTranslations('auth.signUp');
     const [showPassword, setShowPassword] = React.useState(false);
@@ -27,8 +33,8 @@ const SignUp = () => {
     const { error, success, loading, setLoading, setError, setSuccess, resetState } = useAuthState();
     const [acceptTerms, setAcceptTerms] = React.useState(false);
 
-    const form = useForm<z.infer<typeof SignupSchema>>({
-        resolver: zodResolver(SignupSchema),
+    const form = useForm<z.infer<typeof SignupFormSchema>>({
+        resolver: zodResolver(SignupFormSchema),
         mode: "onBlur",
         defaultValues: {
             name: '',
@@ -36,7 +42,9 @@ const SignUp = () => {
             password: '',
             phoneNumber: '',
             country: '',
-            addressLine: '',
+            city: '',
+            street: '',
+            postalCode: '',
             userType: 'private',
             userAgreement: false,
         } as any
@@ -54,7 +62,9 @@ const SignUp = () => {
             password: '',
             phoneNumber: '',
             country: '',
-            addressLine: '',
+            city: '',
+            street: '',
+            postalCode: '',
             userType: type,
             userAgreement: false,
             ...(type === 'company' ? { companyName: '', vatNumber: '', companyPosition: 'owner' } : {}),
@@ -67,9 +77,16 @@ const SignUp = () => {
         form.setValue('userAgreement', e.target.checked);
     };
 
-    const onSubmit = async (values: z.infer<typeof SignupSchema>) => {
+    const onSubmit = async (values: z.infer<typeof SignupFormSchema>) => {
         const country = europeanCountries.find(c => c.countryCode === values.country);
         const countryCode = country?.phoneCode ?? '+48';
+
+        const addressLine = formatAddress({
+            country: values.country,
+            city: (values as any).city ?? '',
+            street: (values as any).street ?? '',
+            postalCode: (values as any).postalCode ?? '',
+        });
 
         const signUpPayload: any = {
             name: values.name,
@@ -78,7 +95,7 @@ const SignUp = () => {
             phoneNumber: values.phoneNumber,
             countryCode,
             country: values.country,
-            addressLine: values.addressLine,
+            addressLine,
             userType: values.userType,
             userAgreement: values.userAgreement,
             companyName: values.userType === 'company' ? (values as any).companyName : '',
@@ -115,9 +132,10 @@ const SignUp = () => {
             <CardWrapper
                 cardTitle={t('title')}
                 cardDescription={t('selectTypeTitle')}
-                cardFooterLink={`/signin`}
-                cardFooterDescription={t('haveAccount')}
-                cardFooterLinkTitle={t('signInLink')}
+                cardFooterLink={hideFooter ? undefined : `/signin`}
+                cardFooterDescription={hideFooter ? undefined : t('haveAccount')}
+                cardFooterLinkTitle={hideFooter ? undefined : t('signInLink')}
+                className={className}
             >
                 <div className="grid grid-cols-2 gap-4 mt-2">
                     <button
@@ -152,9 +170,10 @@ const SignUp = () => {
         <CardWrapper
             cardTitle={t('title')}
             cardDescription={userType === 'company' ? t('asCompany') : t('asPrivate')}
-            cardFooterLink={`/signin`}
-            cardFooterDescription={t('haveAccount')}
-            cardFooterLinkTitle={t('signInLink')}
+            cardFooterLink={hideFooter ? undefined : `/signin`}
+            cardFooterDescription={hideFooter ? undefined : t('haveAccount')}
+            cardFooterLinkTitle={hideFooter ? undefined : t('signInLink')}
+            className={className}
         >
             <Form {...form}>
                 <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
@@ -268,18 +287,58 @@ const SignUp = () => {
                         )}
                     </div>
 
-                    {/* Address Line */}
+                    {/* City */}
                     <FormField
                         control={form.control}
-                        name="addressLine"
+                        name={"city" as any}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t('addressLineLabel')}</FormLabel>
+                                <FormLabel>{t('cityLabel')}</FormLabel>
                                 <FormControl>
                                     <Input
                                         disabled={loading}
                                         type="text"
-                                        placeholder={t('addressLinePlaceholder')}
+                                        placeholder={t('cityPlaceholder')}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Street and number */}
+                    <FormField
+                        control={form.control}
+                        name={"street" as any}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('streetLabel')}</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        disabled={loading}
+                                        type="text"
+                                        placeholder={t('streetPlaceholder')}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Postal code */}
+                    <FormField
+                        control={form.control}
+                        name={"postalCode" as any}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('postalCodeLabel')}</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        disabled={loading}
+                                        type="text"
+                                        placeholder={t('postalCodePlaceholder')}
                                         {...field}
                                     />
                                 </FormControl>

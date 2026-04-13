@@ -35,8 +35,12 @@
       "countryPlaceholder": "Select country",
       "vatNumberLabel": "EU VAT Number",
       "vatNumberPlaceholder": "e.g. PL1234567890",
-      "addressLineLabel": "Address Line",
-      "addressLinePlaceholder": "Street, City, Postal Code",
+      "cityLabel": "City",
+      "cityPlaceholder": "e.g. Warsaw",
+      "streetLabel": "Street and number",
+      "streetPlaceholder": "e.g. Marszałkowska 1",
+      "postalCodeLabel": "Postal code",
+      "postalCodePlaceholder": "e.g. 00-001",
       "positionLabel": "Your Position",
       "positionOwner": "Owner",
       "positionEmployee": "Employee",
@@ -1693,7 +1697,7 @@
       "online_card": { "label": "Card online", "description": "Visa / Mastercard" },
       "bank_transfer": { "label": "Bank transfer", "description": "Invoice" },
       "cash_on_delivery": { "label": "Cash on delivery", "description": "Pay on receipt" },
-      "installment": { "label": "Installments", "description": "PrivatBank · Monobank" }
+      "installment": { "label": "Installments", "description": "PrivatBank" }
     }
   }
 }

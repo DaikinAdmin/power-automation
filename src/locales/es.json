@@ -35,8 +35,12 @@
       "countryPlaceholder": "Seleccionar país",
       "vatNumberLabel": "NIF / VAT UE",
       "vatNumberPlaceholder": "ej. ES12345678A",
-      "addressLineLabel": "Dirección",
-      "addressLinePlaceholder": "Calle, Ciudad, Código Postal",
+      "cityLabel": "Ciudad",
+      "cityPlaceholder": "p.ej. Madrid",
+      "streetLabel": "Calle y número",
+      "streetPlaceholder": "p.ej. Calle Gran Vía 1",
+      "postalCodeLabel": "Código postal",
+      "postalCodePlaceholder": "p.ej. 28013",
       "positionLabel": "Tu cargo",
       "positionOwner": "Propietario",
       "positionEmployee": "Empleado",
@@ -1658,7 +1662,7 @@
       "online_card": { "label": "Tarjeta online", "description": "Visa / Mastercard" },
       "bank_transfer": { "label": "Transferencia bancaria", "description": "Factura" },
       "cash_on_delivery": { "label": "Contra reembolso", "description": "Pago al recibir" },
-      "installment": { "label": "Pago a plazos", "description": "PrivatBank · Monobank" }
+      "installment": { "label": "Pago a plazos", "description": "PrivatBank" }
     }
   }
 }

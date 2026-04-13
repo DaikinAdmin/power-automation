@@ -35,8 +35,12 @@
       "countryPlaceholder": "Оберіть країну",
       "vatNumberLabel": "ПДВ номер (VAT)",
       "vatNumberPlaceholder": "напр. PL1234567890",
-      "addressLineLabel": "Адреса",
-      "addressLinePlaceholder": "Вулиця, Місто, Поштовий індекс",
+      "cityLabel": "Місто",
+      "cityPlaceholder": "наприклад, Київ",
+      "streetLabel": "Вулиця і номер",
+      "streetPlaceholder": "наприклад, вул. Хрещатик 1",
+      "postalCodeLabel": "Поштовий індекс",
+      "postalCodePlaceholder": "наприклад, 01001",
       "positionLabel": "Ваша посада",
       "positionOwner": "Власник",
       "positionEmployee": "Співробітник",
@@ -1695,7 +1699,7 @@
       "online_card": { "label": "Картою онлайн", "description": "Visa / Mastercard" },
       "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
       "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
-      "installment": { "label": "Оплата частинами", "description": "ПриватБанк · Monobank" }
+      "installment": { "label": "Оплата частинами", "description": "ПриватБанк" }
     }
   }
 }

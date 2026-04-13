@@ -18,6 +18,7 @@ const passwordRules = z
   .regex(/[0-9]/, "Hasło musi zawierać co najmniej 1 cyfrę")
   .regex(/[!@#$&*]/, "Hasło musi zawierać co najmniej 1 symbol specjalny");
 
+// Server-side base fields — addressLine is already assembled
 const baseFields = {
   name: z
     .string()
@@ -39,6 +40,29 @@ const baseFields = {
   userAgreement: z.boolean(),
 };
 
+// Client form base fields — split address fields for the UI
+const baseFormFields = {
+  name: baseFields.name,
+  email: baseFields.email,
+  password: baseFields.password,
+  country: baseFields.country,
+  phoneNumber: baseFields.phoneNumber,
+  city: z
+    .string()
+    .min(1, { message: "City is required" })
+    .max(100, { message: "City must be at most 100 characters" }),
+  street: z
+    .string()
+    .min(2, { message: "Street and number are required" })
+    .max(150, { message: "Street must be at most 150 characters" }),
+  postalCode: z
+    .string()
+    .min(3, { message: "Postal code is required" })
+    .max(20, { message: "Postal code must be at most 20 characters" }),
+  userAgreement: baseFields.userAgreement,
+};
+
+// ── Server schemas (used by better-auth validator plugin) ──────────────────
 export const PrivateSignupSchema = z.object({
   ...baseFields,
   userType: z.literal('private'),
@@ -61,4 +85,29 @@ export const CompanySignupSchema = z.object({
 export const SignupSchema = z.discriminatedUnion('userType', [
   PrivateSignupSchema,
   CompanySignupSchema,
+]);
+
+// ── Client form schemas (used by react-hook-form in the UI) ────────────────
+export const PrivateSignupFormSchema = z.object({
+  ...baseFormFields,
+  userType: z.literal('private'),
+});
+
+export const CompanySignupFormSchema = z.object({
+  ...baseFormFields,
+  userType: z.literal('company'),
+  companyName: z
+    .string()
+    .min(2, { message: "Company name must be at least 2 characters long" })
+    .max(100, { message: "Company name must be at most 100 characters long" }),
+  vatNumber: z
+    .string()
+    .min(5, { message: "VAT number must be at least 5 characters" })
+    .max(20, { message: "VAT number must be at most 20 characters" }),
+  companyPosition: z.enum(['owner', 'employee'], { message: "Please select your position" }),
+});
+
+export const SignupFormSchema = z.discriminatedUnion('userType', [
+  PrivateSignupFormSchema,
+  CompanySignupFormSchema,
 ]);

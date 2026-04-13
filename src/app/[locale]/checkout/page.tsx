@@ -4,8 +4,6 @@ import { use, useState, useEffect } from "react";
 import {
   Phone,
   ArrowLeft,
-  Eye,
-  EyeOff,
   Trash2,
   X,
   CheckCircle2,
@@ -15,8 +13,8 @@ import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { countryCodes } from "@/helpers/country-codes";
 import { parseAddress, type AddressFields } from "@/helpers/address";
+import { countryCodes } from "@/helpers/country-codes";
 import { useCartTotals } from "@/hooks/useCartTotals";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTranslations } from "next-intl";
@@ -30,27 +28,13 @@ import NovaPostDelivery, {
   type NpCity,
 } from "@/components/nova-post-delivery";
 import type { DeliveryInfo } from "@/types/delivery";
+import SignIn from "@/components/auth/sign-in";
+import SignUp from "@/components/auth/sign-up";
 
 const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
   pl: "PLN",
   ua: "UAH",
 };
-
-interface CheckoutForm {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  countryCode: string;
-  noCallConfirmation: boolean;
-  city: string;
-  country: string;
-  email: string;
-}
-
-interface LoginForm {
-  email: string;
-  password: string;
-}
 
 export default function CheckoutPage({
   params,
@@ -63,24 +47,7 @@ export default function CheckoutPage({
   const { contacts } = domainConfig;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"register" | "login">("register");
-  const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState("");
-  const [checkoutForm, setCheckoutForm] = useState<CheckoutForm>({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    countryCode: "+1",
-    noCallConfirmation: false,
-    city: "",
-    country: "",
-    email: "",
-  });
-  const [loginForm, setLoginForm] = useState<LoginForm>({
-    email: "",
-    password: "",
-  });
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [orderError, setOrderError] = useState("");
@@ -216,63 +183,6 @@ export default function CheckoutPage({
     return formatAs(total, domainCurrency as SupportedCurrency);
   };
 
-  const handleCheckoutFormChange = (
-    field: keyof CheckoutForm,
-    value: string | boolean,
-  ) => {
-    setCheckoutForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleLoginFormChange = (field: keyof LoginForm, value: string) => {
-    setLoginForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setLoginError("");
-
-    try {
-      await authClient.signIn.email({
-        email: loginForm.email,
-        password: loginForm.password,
-      });
-      // User will stay on the same page after successful login
-      // The session will be updated automatically
-    } catch (error: any) {
-      setLoginError(
-        error.message || "Login failed. Please check your credentials.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setLoginError("");
-
-    try {
-      await authClient.signUp.email({
-        email: checkoutForm.email,
-        password: "temp-password", // You might want to add a password field to registration
-        name: `${checkoutForm.firstName} ${checkoutForm.lastName}`,
-      });
-      // Handle successful registration
-    } catch (error: any) {
-      setLoginError(error.message || "Registration failed.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptTerms) {
@@ -306,19 +216,17 @@ export default function CheckoutPage({
         originalTotalPrice: baseTotalPrice,
         totalPrice: formatPaymentTotal(),
         domainCurrency,
-        customerInfo: session.data.user.email
-          ? {
-              email: session.data.user.email,
-              name: deliveryInfo.name || session.data.user.name,
-              phone: deliveryInfo.phone,
-              countryCode: deliveryInfo.countryCode,
-              vatNumber: deliveryInfo.vatNumber,
-              country: deliveryInfo.address.country,
-              city: deliveryInfo.address.city,
-              street: deliveryInfo.address.street,
-              postalCode: deliveryInfo.address.postalCode,
-            }
-          : checkoutForm,
+        customerInfo: {
+          email: session.data.user.email,
+          name: deliveryInfo.name || session.data.user.name,
+          phone: deliveryInfo.phone,
+          countryCode: deliveryInfo.countryCode,
+          vatNumber: deliveryInfo.vatNumber,
+          country: deliveryInfo.address.country,
+          city: deliveryInfo.address.city,
+          street: deliveryInfo.address.street,
+          postalCode: deliveryInfo.address.postalCode,
+        },
         deliveryId: null,
         novaPost:
           locale === "ua" && novaPostState
@@ -440,26 +348,6 @@ export default function CheckoutPage({
     }
   };
 
-  const isFormValid = () => {
-    if (session.data?.user) {
-      // User is logged in, form is always valid
-      return true;
-    }
-
-    if (activeTab === "register") {
-      return (
-        checkoutForm.firstName.trim() !== "" &&
-        checkoutForm.lastName.trim() !== "" &&
-        checkoutForm.phone.trim() !== "" &&
-        checkoutForm.city.trim() !== "" &&
-        checkoutForm.country.trim() !== "" &&
-        checkoutForm.email.trim() !== ""
-      );
-    } else {
-      return loginForm.email.trim() !== "" && loginForm.password.trim() !== "";
-    }
-  };
-
   const isConfirmOrderDisabled = () => {
     if (
       !acceptTerms ||
@@ -534,9 +422,9 @@ export default function CheckoutPage({
           {/* Left Side - User Forms */}
           <div>
             {!session.data?.user ? (
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div>
                 {/* Tab Navigation */}
-                <div className="flex border-b mb-6">
+                <div className="flex border-b mb-4 bg-white rounded-t-lg shadow-sm">
                   <button
                     onClick={() => setActiveTab("register")}
                     className={`px-6 py-3 font-semibold ${activeTab === "register" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-600 hover:text-blue-600"}`}
@@ -551,235 +439,14 @@ export default function CheckoutPage({
                   </button>
                 </div>
 
-                {/* Error Message */}
-                {loginError && (
-                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {loginError}
-                  </div>
-                )}
-
                 {activeTab === "register" ? (
-                  <form onSubmit={handleRegister} className="space-y-4">
-                    {/* Name Fields */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {t("form.firstName")}
-                        </label>
-                        <input
-                          type="text"
-                          value={checkoutForm.firstName}
-                          onChange={(e) =>
-                            handleCheckoutFormChange(
-                              "firstName",
-                              e.target.value,
-                            )
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {t("form.lastName")}
-                        </label>
-                        <input
-                          type="text"
-                          value={checkoutForm.lastName}
-                          onChange={(e) =>
-                            handleCheckoutFormChange("lastName", e.target.value)
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* Phone Number with Country Code */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t("form.phoneNumber")}
-                      </label>
-                      <div className="flex">
-                        <select
-                          value={checkoutForm.countryCode}
-                          onChange={(e) =>
-                            handleCheckoutFormChange(
-                              "countryCode",
-                              e.target.value,
-                            )
-                          }
-                          className="px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                        >
-                          {countryCodes.map((item) => (
-                            <option key={item.code} value={item.code}>
-                              {item.code} ({item.country})
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          type="tel"
-                          value={checkoutForm.phone}
-                          onChange={(e) =>
-                            handleCheckoutFormChange("phone", e.target.value)
-                          }
-                          className="flex-1 px-3 py-2 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder={t("form.phonePlaceholder")}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* No Call Confirmation */}
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="noCall"
-                        checked={checkoutForm.noCallConfirmation}
-                        onChange={(e) =>
-                          handleCheckoutFormChange(
-                            "noCallConfirmation",
-                            e.target.checked,
-                          )
-                        }
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <label
-                        htmlFor="noCall"
-                        className="ml-2 text-sm text-gray-700"
-                      >
-                        {t("form.noCallConfirmation")}
-                      </label>
-                    </div>
-
-                    {/* Location Fields */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {t("form.city")}
-                        </label>
-                        <input
-                          type="text"
-                          value={checkoutForm.city}
-                          onChange={(e) =>
-                            handleCheckoutFormChange("city", e.target.value)
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {t("form.country")}
-                        </label>
-                        <input
-                          type="text"
-                          value={checkoutForm.country}
-                          onChange={(e) =>
-                            handleCheckoutFormChange("country", e.target.value)
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t("form.email")}
-                      </label>
-                      <input
-                        type="email"
-                        value={checkoutForm.email}
-                        onChange={(e) =>
-                          handleCheckoutFormChange("email", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    {/* Registration Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isLoading
-                        ? t("buttons.creatingAccount")
-                        : t("buttons.createAccount")}
-                    </button>
-                  </form>
+                  <SignUp hideFooter className="w-full border-0 shadow-none rounded-t-none" />
                 ) : (
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t("form.email")}
-                      </label>
-                      <input
-                        type="email"
-                        value={loginForm.email}
-                        onChange={(e) =>
-                          handleLoginFormChange("email", e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-
-                    {/* Password */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {t("form.password")}
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={loginForm.password}
-                          onChange={(e) =>
-                            handleLoginFormChange("password", e.target.value)
-                          }
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                          disabled={isLoading}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                          disabled={isLoading}
-                        >
-                          {showPassword ? (
-                            <EyeOff size={20} className="text-gray-400" />
-                          ) : (
-                            <Eye size={20} className="text-gray-400" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Login Submit Button */}
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isLoading ? t("buttons.loggingIn") : t("buttons.login")}
-                    </button>
-
-                    {/* Forgot Password Link */}
-                    <div className="text-right">
-                      <Link
-                        href="/forgot-password"
-                        className="text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        {t("form.forgotPassword")}
-                      </Link>
-                    </div>
-                  </form>
+                  <SignIn
+                    hideFooter
+                    onLoginSuccess={() => { /* session auto-updates via useSession */ }}
+                    className="w-full border-0 shadow-none rounded-t-none"
+                  />
                 )}
               </div>
             ) : (
