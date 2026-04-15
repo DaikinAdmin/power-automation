@@ -7,7 +7,6 @@ import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation'
 import LanguageSwitcher from "@/components/languge-switcher";
-
 interface PaymentReturnPageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ orderId?: string; provider?: string }>;
@@ -18,6 +17,19 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
   const { orderId, provider } = use(searchParams);
   const t = useTranslations('paymentReturn');
   const router = useRouter();
+
+  const formatOrderAmount = (order: any): string => {
+    if (order?.payment?.amount) {
+      return new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: order.payment.currency ?? 'EUR',
+      }).format(order.payment.amount / 100);
+    }
+    return new Intl.NumberFormat('pl-PL', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(order?.originalTotalPrice ?? 0);
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [orderData, setOrderData] = useState<any>(null);
@@ -93,13 +105,6 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pl-PL', {
-      style: 'currency',
-      currency: 'PLN',
-    }).format(price);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -164,7 +169,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">{t('success.amount')}:</span>
                       <span className="font-bold text-lg text-green-600">
-                        {formatPrice(orderData.originalTotalPrice)}
+                        {formatOrderAmount(orderData)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -181,7 +186,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
                 <p className="text-gray-600">{t('success.emailSent')}</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/orders"
+                    href="/dashboard/orders"
                     className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
                   >
                     {t('success.viewOrders')}

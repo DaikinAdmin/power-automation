@@ -5,6 +5,7 @@ import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Package, MapPin, Calendar, CreditCard } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { id } = use(params);
+
+  const { formatAs, convertFromCurrency, currencyCode } = useCurrency();
+
+  // Order line item prices are stored pre-VAT — convertFromCurrency applies VAT + exchange rate
+  const formatOrderPrice = (price: number, fromCurrency: string) =>
+    formatAs(convertFromCurrency(price, fromCurrency as any), currencyCode);
 
   useEffect(() => {
     let isMounted = true;
@@ -133,20 +140,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     (!order.payment || order.payment.status !== 'COMPLETED');
 
   // Format currency with payment currency or default to EUR for originalTotalPrice
-  const formatPrice = (amount?: number) => {
-    if (!amount && amount !== 0) return 'N/A';
-    
-    // If we have payment data, use that currency and amount
-    if (order?.payment) {
-      return new Intl.NumberFormat('pl-PL', {
-        style: 'currency',
-        currency: order.payment.currency,
-      }).format(amount / 100);
-    }
-    
-    // Otherwise use EUR (originalTotalPrice is in EUR cents)
-    return formatCurrency(amount);
-  };
+
   
   const getOrderTotal = () => {
     if (order?.payment?.amount) {
@@ -303,14 +297,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span>{t('quantity', { quantity: item.quantity })}</span>
                         {item.unitPrice && (
-                          <span>{t('unit', { price: formatPrice(item.unitPrice) })}</span>
+                          <span>{t('unit', { price: formatOrderPrice(item.unitPrice, item.currency ?? 'EUR') })}</span>
                         )}
                         {(item.warehouseDisplayedName || item.warehouseName) && (
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             <span>
                               {item.warehouseDisplayedName || item.warehouseName}
-                              {item.warehouseCountry && ` (${item.warehouseCountry})`}
                             </span>
                           </div>
                         )}
@@ -318,7 +311,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
-                        {item.lineTotal ? formatPrice(item.lineTotal) : 'N/A'}
+                        {item.lineTotal ? formatOrderPrice(item.lineTotal, item.currency ?? 'EUR') : 'N/A'}
                       </p>
                     </div>
                   </div>

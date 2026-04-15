@@ -144,27 +144,6 @@ export default function DashboardOrdersPage() {
             {isLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold">{orderStats.completed}</div>}
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('stats.totalSpend')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-32" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {new Intl.NumberFormat('pl-PL', {
-                    style: 'currency',
-                    currency: 'PLN',
-                  }).format(orderStats.totalRevenue / 100)}
-                </div>
-                <p className="text-xs text-gray-500">{t('stats.completedOnly')}</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       <Card>
