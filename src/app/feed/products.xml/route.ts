@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
       const marginRate = 1 + (bestPrice.margin ?? 20) / 100;
       const srcCurrency = (bestPrice.initialCurrency as string | null) ?? 'EUR';
       const itemRate = await getItemRate(srcCurrency);
-      const targetPrice = Math.round(bestPrice.price * itemRate * vatMultiplier);
+      const targetPrice = (bestPrice.price * itemRate * vatMultiplier).toFixed(2);
 
       // Images — always absolute, pointing to powerautomation.pl
       const images = item.itemImageLink ?? [];
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
         const isPromoActive = !promoEnd || promoEnd > new Date();
         const promoWithMargin = bestPrice.promotionPrice * marginRate;
         if (isPromoActive && promoWithMargin < bestPrice.price) {
-          const targetPromoPrice = Math.round(promoWithMargin * itemRate * vatMultiplier);
+          const targetPromoPrice = (promoWithMargin * itemRate * vatMultiplier).toFixed(2);
           salePriceXml = `      <g:sale_price>${targetPromoPrice} ${feedCfg.currency}</g:sale_price>`;
         }
       }
