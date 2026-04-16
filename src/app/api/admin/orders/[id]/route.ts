@@ -302,6 +302,13 @@ export async function PATCH(
       items,
     };
 
+    // Fetch payment currency for GTM tracking
+    const [paymentRecord] = await db
+      .select({ currency: schema.payment.currency })
+      .from(schema.payment)
+      .where(eq(schema.payment.orderId, id))
+      .limit(1);
+
     /* Prisma implementation (commented out)
     const updateData: Record<string, unknown> = { status };
 
@@ -344,6 +351,7 @@ export async function PATCH(
 
     return NextResponse.json({
       order: mapOrder(updatedOrder),
+      currency: paymentRecord?.currency ?? null,
       viewerRole: authResult.role,
     });
   } catch (error) {

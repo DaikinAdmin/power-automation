@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import { CheckCircle2, XCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -35,8 +35,38 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'pending' | 'failed'>('pending');
   const [retryCount, setRetryCount] = useState(0);
+  const gtmFiredRef = useRef(false);
 
   const MAX_RETRIES = 10;
+
+  useEffect(() => {
+    if (paymentStatus === 'success' && orderData && !gtmFiredRef.current) {
+      gtmFiredRef.current = true;
+      const lineItems = Array.isArray(orderData.lineItems) ? orderData.lineItems : [];
+      const value = orderData.payment?.amount
+        ? orderData.payment.amount / 100
+        : (orderData.originalTotalPrice ?? 0);
+      const currency = orderData.payment?.currency ?? 'UAH';
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({ ecommerce: null });
+      w.dataLayer.push({
+        event: 'purchase',
+        ecommerce: {
+          transaction_id: orderData.id,
+          value,
+          currency,
+          shipping: 0,
+          items: lineItems.map((item: any) => ({
+            item_id: item.articleId,
+            item_name: item.name,
+            price: item.unitPrice ?? 0,
+            quantity: item.quantity ?? 1,
+          })),
+        },
+      });
+    }
+  }, [paymentStatus, orderData]);
 
   useEffect(() => {
     if (orderId) {
