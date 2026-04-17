@@ -205,7 +205,7 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium">
-                        {`${formatCurrency(order.originalTotalPrice)}${order.totalPrice ? ` (${order.totalPrice})` : ''}`}
+                        {order.totalPrice || formatCurrency(order.originalTotalPrice)}
                       </div>
                     </td>
                     <td className="py-3 px-4">

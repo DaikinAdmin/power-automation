@@ -139,9 +139,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const canProceedWithPayment = order && ['NEW', 'WAITING_FOR_PAYMENT'].includes(order.status) && 
     (!order.payment || order.payment.status !== 'COMPLETED');
 
-  // Format currency with payment currency or default to EUR for originalTotalPrice
-
-  
+  // Format currency with payment currency, then formatted totalPrice string, or default to EUR
   const getOrderTotal = () => {
     if (order?.payment?.amount) {
       // Show payment amount in the currency that was paid
@@ -150,7 +148,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         currency: order.payment.currency,
       }).format(order.payment.amount / 100);
     }
-    // Fallback to original price in EUR
+    // Use pre-formatted totalPrice string (contains correct currency) if available
+    if (order?.totalPrice) {
+      return order.totalPrice;
+    }
+    // Last resort fallback
     return formatCurrency(order?.originalTotalPrice || 0);
   };
 

@@ -106,7 +106,11 @@ export default function DashboardOrdersPage() {
         currency: order.payment.currency,
       }).format(order.payment.amount / 100);
     }
-    // Fallback to original price in EUR
+    // Use pre-formatted totalPrice string (contains correct currency) if available
+    if (order.totalPrice) {
+      return order.totalPrice;
+    }
+    // Last resort fallback
     return formatCurrency(order.originalTotalPrice);
   };
 
