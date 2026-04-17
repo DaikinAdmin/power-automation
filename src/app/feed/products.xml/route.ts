@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
       if (!mainImage) continue; // Skip items without images per spec
 
       // Build title: Brand + ArticleId + ItemName
-      const titleParts = [brandName, item.articleId, details.itemName].filter(
+      const titleParts = [brandName, details.itemName].filter(
         Boolean
       );
       const title = titleParts.join(" ");

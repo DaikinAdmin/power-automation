@@ -181,7 +181,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   <dt className="font-medium">Total</dt>
                   <dd>
                     {order
-                      ? `${formatCurrency(order.originalTotalPrice)}${order.totalPrice ? ` (${order.totalPrice})` : ''}`
+                      ? (order.totalPrice || formatCurrency(order.originalTotalPrice))
                       : '—'}
                   </dd>
                 </div>
@@ -271,10 +271,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                         </td>
                         <td className="px-4 py-2 text-right">{item.quantity}</td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.unitPrice === 'number' ? formatCurrency(item.unitPrice) : '—'}
+                          {typeof item.unitPrice === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: item.currency || 'EUR' }).format(item.unitPrice)
+                            : '—'}
                         </td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.lineTotal === 'number' ? formatCurrency(item.lineTotal) : '—'}
+                          {typeof item.lineTotal === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: item.currency || 'EUR' }).format(item.lineTotal)
+                            : '—'}
                         </td>
                       </tr>
                     ))}
