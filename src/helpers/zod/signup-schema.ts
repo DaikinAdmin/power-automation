@@ -3,20 +3,20 @@ import { z } from "zod";
 export const PasswordSchema = z.object({
   password: z
       .string()
-      .min(8, "Hasło musi zawierać conajmniej 8 symboli")
-      .regex(/[A-Z]/, "Hasło musi zawierać co najmniej 1 wielką literę")
-      .regex(/[a-z]/, "Hasło musi zawierać co najmniej 1 małą literę")
-      .regex(/[0-9]/, "Hasło musi zawierać co najmniej 1 cyfrę")
-      .regex(/[!@#$&*]/, "Hasło musi zawierać co najmniej 1 symbol specjalny"),
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least 1 number")
+      .regex(/[!@#$&.*]/, "Password must contain at least 1 special character"),
 });
 
 const passwordRules = z
   .string()
-  .min(8, "Hasło musi zawierać conajmniej 8 symboli")
-  .regex(/[A-Z]/, "Hasło musi zawierać co najmniej 1 wielką literę")
-  .regex(/[a-z]/, "Hasło musi zawierać co najmniej 1 małą literę")
-  .regex(/[0-9]/, "Hasło musi zawierać co najmniej 1 cyfrę")
-  .regex(/[!@#$&*]/, "Hasło musi zawierać co najmniej 1 symbol specjalny");
+  .min(8, "Password must be at least 8 characters long")
+  .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least 1 number")
+  .regex(/[!@#$&.*]/, "Password must contain at least 1 special character");
 
 // Server-side base fields — addressLine is already assembled
 const baseFields = {
@@ -65,6 +65,8 @@ const baseFormFields = {
 // ── Server schemas (used by better-auth validator plugin) ──────────────────
 export const PrivateSignupSchema = z.object({
   ...baseFields,
+  // address is optional for private users
+  addressLine: z.string().max(200),
   userType: z.literal('private'),
 });
 
@@ -89,9 +91,18 @@ export const SignupSchema = z.discriminatedUnion('userType', [
 
 // ── Client form schemas (used by react-hook-form in the UI) ────────────────
 export const PrivateSignupFormSchema = z.object({
-  ...baseFormFields,
+  name: baseFormFields.name,
+  email: baseFormFields.email,
+  password: baseFormFields.password,
+  country: baseFormFields.country,
+  phoneNumber: baseFormFields.phoneNumber,
+  // address is optional for private users
+  city: z.string().max(100).optional(),
+  street: z.string().max(150).optional(),
+  postalCode: z.string().max(20).optional(),
+  userAgreement: baseFormFields.userAgreement,
   userType: z.literal('private'),
-});
+}); 
 
 export const CompanySignupFormSchema = z.object({
   ...baseFormFields,

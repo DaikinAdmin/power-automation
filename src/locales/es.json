@@ -11,7 +11,9 @@
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "signInButton": "Iniciar Sesión",
       "noAccount": "¿No tienes una cuenta?",
-      "signUpLink": "Regístrate"
+      "signUpLink": "Regístrate",
+      "orContinueWith": "O continuar con",
+      "googleButton": "Continuar con Google"
     },
     "signUp": {
       "title": "Registrarse",
@@ -53,7 +55,10 @@
       "userAgreement": "Acuerdo de Usuario",
       "signUpButton": "Registrarse",
       "haveAccount": "¿Ya tienes una cuenta?",
-      "signInLink": "Iniciar Sesión"
+      "signInLink": "Iniciar Sesión",
+      "orContinueWith": "O continuar con",
+      "googleButton": "Continuar con Google",
+      "optional": "opcional"
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu Contraseña?",
@@ -385,7 +390,7 @@
       "backToHome": "Volver al inicio"
     },
     "articleId": "Artícul",
-    "from": "De {warehouse}",
+    "from": "De: Almacén №{warehouse}",
     "moreLocations": "+{count} ubicaciones más",
     "price": {
       "discount": "-{percent}%",
@@ -1663,6 +1668,8 @@
       "bank_transfer": { "label": "Transferencia bancaria", "description": "Factura" },
       "cash_on_delivery": { "label": "Contra reembolso", "description": "Pago al recibir" },
       "installment": { "label": "Pago a plazos", "description": "PrivatBank" }
-    }
+    },
+    "deliveryCostNote": "El importe del pago no incluye los gastos de envío. El envío se cobra según las tarifas del transportista.",
+    "courierAddressMissing": "Para la entrega por mensajero, rellene su dirección en la sección &#39;Detalles de entrega&#39; de arriba."
   }
 }

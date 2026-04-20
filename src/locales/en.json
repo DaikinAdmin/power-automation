@@ -11,7 +11,9 @@
       "forgotPassword": "Forgot password?",
       "signInButton": "Sign In",
       "noAccount": "Don't have an account?",
-      "signUpLink": "Sign Up"
+      "signUpLink": "Sign Up",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google"
     },
     "signUp": {
       "title": "Sign Up",
@@ -53,7 +55,10 @@
       "userAgreement": "User Agreement",
       "signUpButton": "Sign Up",
       "haveAccount": "Already have an account?",
-      "signInLink": "Sign In"
+      "signInLink": "Sign In",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google",
+      "optional": "optional"
     },
     "forgotPassword": {
       "title": "Forgot Password?",
@@ -416,7 +421,7 @@
       "backToHome": "Back to Home"
     },
     "articleId": "Article",
-    "from": "From {warehouse}",
+    "from": "From: Warehouse №{warehouse}",
     "moreLocations": "+{count} more locations",
     "price": {
       "discount": "-{percent}%",
@@ -515,9 +520,9 @@
       "errorMessage": "Failed to submit request. Please try again.",
       "deliveryDays": "Estimated delivery: {days} days"
     },
-    "productCatalogCard":{
-      "buy":"Buy",
-      "outOfStock":"Out of Stock",
+    "productCatalogCard": {
+      "buy": "Buy",
+      "outOfStock": "Out of Stock",
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison",
       "from": "from",
@@ -1694,10 +1699,18 @@
       "nova_courier": { "label": "Courier", "description": "Nova Poshta" }
     },
     "paymentOption": {
-      "online_card": { "label": "Card online", "description": "Visa / Mastercard" },
+      "online_card": {
+        "label": "Card online",
+        "description": "Visa / Mastercard"
+      },
       "bank_transfer": { "label": "Bank transfer", "description": "Invoice" },
-      "cash_on_delivery": { "label": "Cash on delivery", "description": "Pay on receipt" },
+      "cash_on_delivery": {
+        "label": "Cash on delivery",
+        "description": "Pay on receipt"
+      },
       "installment": { "label": "Installments", "description": "PrivatBank" }
-    }
+    },
+    "deliveryCostNote": "The payment amount does not include delivery costs. Delivery is charged according to the carrier&#39;s tariffs.",
+    "courierAddressMissing": "For courier delivery, please fill in your address in the &#39;Delivery Details&#39; section above."
   }
 }

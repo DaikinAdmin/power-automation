@@ -11,7 +11,9 @@
       "forgotPassword": "Zapomniałeś hasła?",
       "signInButton": "Zaloguj się",
       "noAccount": "Nie masz konta?",
-      "signUpLink": "Zarejestruj się"
+      "signUpLink": "Zarejestruj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google"
     },
     "signUp": {
       "title": "Zarejestruj się",
@@ -53,7 +55,10 @@
       "userAgreement": "Umowę użytkownika",
       "signUpButton": "Zarejestruj się",
       "haveAccount": "Masz już konto?",
-      "signInLink": "Zaloguj się"
+      "signInLink": "Zaloguj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google",
+      "optional": "opcjonalnie"
     },
     "forgotPassword": {
       "title": "Zapomniałeś hasła?",
@@ -422,7 +427,7 @@
       "backToHome": "Powrót do strony głównej"
     },
     "articleId": "Artykuł",
-    "from": "Z {warehouse}",
+    "from": "Z: Magazyn №{warehouse}",
     "moreLocations": "+{count} więcej lokalizacji",
     "price": {
       "discount": "-{percent}%",
@@ -1700,6 +1705,8 @@
       "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
       "cash_on_delivery": { "label": "Za pobraniem", "description": "Płatność przy odbiorze" },
       "installment": { "label": "Płatność ratalna", "description": "PrivatBank" }
-    }
+    },
+    "deliveryCostNote": "Kwota płatności nie zawiera kosztu dostawy. Opłata za dostawę realizowana jest zgodnie z taryfami przewoźnika.",
+    "courierAddressMissing": "Aby dostarczyć kurierem, wypełnij adres w sekcji ‘Szczegóły dostawy’ powyżej."
   }
 }

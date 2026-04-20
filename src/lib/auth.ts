@@ -135,6 +135,59 @@ export const auth = betterAuth({
       twoFactor: twoFactorTable,
     },
   }),
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        // Google OAuth надає locale (мову акаунта), але НЕ номер телефону.
+        // Використовуємо locale для кращого визначення країни та phone code.
+        const localeMap: Record<string, { country: string; countryCode: string }> = {
+          pl:    { country: 'PL', countryCode: '+48'  },
+          uk:    { country: 'UA', countryCode: '+380' },
+          de:    { country: 'DE', countryCode: '+49'  },
+          fr:    { country: 'FR', countryCode: '+33'  },
+          it:    { country: 'IT', countryCode: '+39'  },
+          es:    { country: 'ES', countryCode: '+34'  },
+          nl:    { country: 'NL', countryCode: '+31'  },
+          cs:    { country: 'CZ', countryCode: '+420' },
+          hu:    { country: 'HU', countryCode: '+36'  },
+          ro:    { country: 'RO', countryCode: '+40'  },
+          sk:    { country: 'SK', countryCode: '+421' },
+          bg:    { country: 'BG', countryCode: '+359' },
+          hr:    { country: 'HR', countryCode: '+385' },
+          sl:    { country: 'SI', countryCode: '+386' },
+          et:    { country: 'EE', countryCode: '+372' },
+          lv:    { country: 'LV', countryCode: '+371' },
+          lt:    { country: 'LT', countryCode: '+370' },
+          fi:    { country: 'FI', countryCode: '+358' },
+          sv:    { country: 'SE', countryCode: '+46'  },
+          da:    { country: 'DK', countryCode: '+45'  },
+          el:    { country: 'GR', countryCode: '+30'  },
+          pt:    { country: 'PT', countryCode: '+351' },
+          'en-GB': { country: 'GB', countryCode: '+44' },
+        };
+
+        const locale = (profile as any).locale ?? '';
+        const langKey = locale.split('-')[0]?.toLowerCase() ?? '';
+        const mapped = localeMap[locale] ?? localeMap[langKey];
+
+        // Fallback: беремо країну з домену через env (NEXT_PUBLIC_DOMAIN_KEY)
+        const domainKey = process.env.NEXT_PUBLIC_DOMAIN_KEY;
+        const domainDefault = domainKey === 'ua'
+          ? { country: 'UA', countryCode: '+380' }
+          : { country: 'PL', countryCode: '+48' };
+
+        return {
+          country:     mapped?.country     ?? domainDefault.country,
+          countryCode: mapped?.countryCode ?? domainDefault.countryCode,
+          userAgreement: true,
+          userType: 'private',
+          phoneNumber: '000-000-000',
+        };
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,

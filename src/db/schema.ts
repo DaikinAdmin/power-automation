@@ -611,6 +611,7 @@ export const order = pgTable(
     originalTotalPrice: doublePrecision().notNull(),
     lineItems: jsonb(),
     comment: text(),
+    notes: jsonb(),
   },
   (table) => [
     foreignKey({

@@ -73,6 +73,7 @@ const mapOrder = (order: any) => {
   user: order.user,
   lineItems: order.lineItems,
   comment: order.comment,
+  notes: order.notes ?? null,
 };
 };
 
@@ -98,6 +99,7 @@ export async function GET(
         lineItems: schema.order.lineItems,
         createdAt: schema.order.createdAt,
         comment: schema.order.comment,
+        notes: schema.order.notes,
         deliveryId: schema.order.deliveryId,
         updatedAt: schema.order.updatedAt,
         userName: schema.user.name,
@@ -160,6 +162,7 @@ export async function GET(
       lineItems: orderData.lineItems,
       createdAt: orderData.createdAt,
       comment: orderData.comment,
+      notes: orderData.notes,
       deliveryId: orderData.deliveryId,
       updatedAt: orderData.updatedAt,
       user: {
@@ -214,6 +217,29 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+
+    // Handle notes update action
+    if (body.action === 'updateNotes') {
+      const { notes } = body as { notes: unknown };
+      if (!Array.isArray(notes)) {
+        return NextResponse.json({ error: 'Invalid notes format' }, { status: 400 });
+      }
+      const sanitized = notes.map((n: any) => ({
+        id: typeof n.id === 'string' ? n.id.slice(0, 64) : '',
+        text: typeof n.text === 'string' ? n.text.slice(0, 2000) : '',
+        createdAt: typeof n.createdAt === 'string' ? n.createdAt : new Date().toISOString(),
+      })).filter((n) => n.id && n.text);
+      const [updated] = await db
+        .update(schema.order)
+        .set({ notes: sanitized, updatedAt: new Date().toISOString() })
+        .where(eq(schema.order.id, id))
+        .returning({ notes: schema.order.notes });
+      if (!updated) {
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      }
+      return NextResponse.json({ notes: updated.notes });
+    }
+
     const { status, deliveryId } = body as { status?: OrderStatus; deliveryId?: string | null };
 
     if (!status || !VALID_ORDER_STATUSES.includes(status)) {

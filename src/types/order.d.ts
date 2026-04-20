@@ -29,7 +29,14 @@ export type OrderDetail = {
     countryCode: string | null;
   } | null;
   lineItems: OrderLineItem[] | null;
+  notes?: OrderNote[] | null;
   payment?: Payment | null;
+};
+
+export type OrderNote = {
+  id: string;
+  text: string;
+  createdAt: string;
 };
 
 export type OrderListItem = {

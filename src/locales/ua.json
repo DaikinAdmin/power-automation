@@ -11,7 +11,9 @@
       "forgotPassword": "Забули пароль?",
       "signInButton": "Увійти",
       "noAccount": "Немає облікового запису?",
-      "signUpLink": "Зареєструватися"
+      "signUpLink": "Зареєструватися",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google"
     },
     "signUp": {
       "title": "Реєстрація",
@@ -53,7 +55,10 @@
       "userAgreement": "Угоду користувача",
       "signUpButton": "Зареєструватися",
       "haveAccount": "Вже є обліковий запис?",
-      "signInLink": "Увійти"
+      "signInLink": "Увійти",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google",
+      "optional": "необов'язково"
     },
     "forgotPassword": {
       "title": "Забули пароль?",
@@ -1700,6 +1705,8 @@
       "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
       "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
       "installment": { "label": "Оплата частинами", "description": "ПриватБанк" }
-    }
+    },
+    "deliveryCostNote": "Сума оплати не включає вартість доставки. Оплата за доставку здійснюється згідно тарифів перевізника.",
+    "courierAddressMissing": "Для доставки кур'єром вкажіть адресу у розділі 'Деталі доставки' вище."
   }
 }
