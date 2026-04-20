@@ -9,6 +9,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   admin as adminPlugin,
+  bearer,
   customSession,
   openAPI,
   twoFactor
@@ -228,6 +229,7 @@ export const auth = betterAuth({
     }
   },
   plugins: [
+    bearer(),
     roleSignupPlugin(),
     twoFactor({
       otpOptions: {
