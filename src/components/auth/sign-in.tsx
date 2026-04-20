@@ -30,30 +30,6 @@ import { Button } from "../ui/button";
 import { requestOTP } from "@/helpers/auth/request-otp";
 import TraditionalSignInSchema from "@/helpers/zod/login-schema";
 
-/**
- * When Google OAuth is initiated from a non-primary domain (.com.ua), the state
- * cookie would be set on .com.ua but the OAuth callback always lands on .pl
- * (set by BETTER_AUTH_URL). This causes a state_mismatch error.
- *
- * Fix: route the callbackURL through the SSO bridge on .pl so the session is
- * transferred back to the origin domain after OAuth completes.
- */
-function buildGoogleCallbackURL(callbackURL: string): string {
-    if (typeof window === "undefined") return callbackURL;
-
-    const primaryUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!primaryUrl) return callbackURL;
-
-    // Same domain — no bridge needed
-    if (window.location.hostname === new URL(primaryUrl).hostname) return callbackURL;
-
-    // Cross-domain: point callbackURL at the SSO bridge on the primary domain.
-    // After OAuth, the bridge redirects to sso-exchange on the origin domain
-    // which sets a proper session cookie there.
-    const absoluteDest = new URL(callbackURL, window.location.origin).toString();
-    return `${primaryUrl}/api/auth/sso-callback?dest=${encodeURIComponent(absoluteDest)}`;
-}
-
 interface SignInProps {
     onLoginSuccess?: () => void;
     hideFooter?: boolean;
@@ -93,10 +69,7 @@ const SignIn = ({ onLoginSuccess, hideFooter = false, className, callbackURL = "
         resetState();
         setLoading(true);
         try {
-            await authClient.signIn.social({
-                provider: "google",
-                callbackURL: buildGoogleCallbackURL(callbackURL),
-            });
+            await authClient.signIn.social({ provider: "google", callbackURL });
         } catch (err) {
             console.error(err);
             setError("Something went wrong. Please try again.");

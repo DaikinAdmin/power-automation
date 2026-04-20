@@ -9,7 +9,6 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   admin as adminPlugin,
-  bearer,
   customSession,
   openAPI,
   twoFactor
@@ -34,7 +33,8 @@ async function resolveUrl(url: string): Promise<string> {
   return url.replace(/^https?:\/\/[^/]+/, baseUrl);
 }
 
-export const auth = betterAuth({
+function createAuthInstance(baseURL: string, googleClientId: string, googleClientSecret: string) {
+  return betterAuth({
   user: {
     additionalFields: {
       role: {
@@ -100,6 +100,7 @@ export const auth = betterAuth({
     },
   },
   appName: "power-automation",
+  baseURL,
   trustedOrigins: [
     // Локальна розробка
     "http://localhost:3000",
@@ -138,8 +139,8 @@ export const auth = betterAuth({
   }),
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
       mapProfileToUser: (profile) => {
         // Google OAuth надає locale (мову акаунта), але НЕ номер телефону.
         // Використовуємо locale для кращого визначення країни та phone code.
@@ -229,7 +230,6 @@ export const auth = betterAuth({
     }
   },
   plugins: [
-    bearer(),
     roleSignupPlugin(),
     twoFactor({
       otpOptions: {
@@ -290,4 +290,27 @@ export const auth = betterAuth({
       }
     }),
   ],
-});
+  });
+}
+
+// PL instance: powerautomation.pl
+// Google OAuth client must have https://powerautomation.pl/api/auth/callback/google
+// registered as an Authorized redirect URI in Google Cloud Console.
+export const authPl = createAuthInstance(
+  'https://powerautomation.pl',
+  process.env.GOOGLE_CLIENT_ID_PL || process.env.GOOGLE_CLIENT_ID || '',
+  process.env.GOOGLE_CLIENT_SECRET_PL || process.env.GOOGLE_CLIENT_SECRET || '',
+);
+
+// UA instance: powerautomation.com.ua
+// Google OAuth client must have https://powerautomation.com.ua/api/auth/callback/google
+// registered as an Authorized redirect URI in Google Cloud Console.
+// Requires env vars: GOOGLE_CLIENT_ID_UA, GOOGLE_CLIENT_SECRET_UA
+export const authUa = createAuthInstance(
+  'https://powerautomation.com.ua',
+  process.env.GOOGLE_CLIENT_ID_UA || '',
+  process.env.GOOGLE_CLIENT_SECRET_UA || '',
+);
+
+// Default export for server-side session checks (both instances share the same DB + secret)
+export const auth = authPl;
