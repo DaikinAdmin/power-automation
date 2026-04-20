@@ -45,17 +45,6 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(imageUrl, { status: 301 });
   }
 
-  // --- Google OAuth state_mismatch fix ---
-  // BETTER_AUTH_URL points to .pl, so the OAuth callback always lands on .pl.
-  // The state cookie must be on the SAME domain as the callback.
-  // Solution: 307-redirect social-login initiation from non-primary domains to .pl
-  // so the state cookie is set on .pl and the callback also arrives on .pl.
-  if (pathname === '/api/auth/signin/social' && domainConfig.key !== 'pl') {
-    const plBaseUrl = DOMAIN_CONFIGS.pl.baseUrl;
-    const redirectUrl = `${plBaseUrl}${pathname}${request.nextUrl.search}`;
-    return NextResponse.redirect(redirectUrl, { status: 307 });
-  }
-
   // --- API routes: CORS ---
   if (pathname.startsWith('/api')) {
     if (request.method === 'OPTIONS') {

@@ -3,14 +3,19 @@ import { createAuthClient } from "better-auth/react";
 import { twoFactorClient, adminClient, customSessionClient } from "better-auth/client/plugins";
 import { ac, admin, user, employee, superadmin } from "@/lib/permissions"
 
-// Get base URL from environment or use current origin (for IP-based access)
+// Always point to the primary auth server (NEXT_PUBLIC_APP_URL = powerautomation.pl).
+// Using window.location.origin breaks Google OAuth on secondary domains because
+// better-auth stores the OAuth state cookie on the domain that received the
+// POST /sign-in/social request, but the Google callback always lands on the
+// primary domain (BETTER_AUTH_URL) — the cookie is missing there → state_mismatch.
 const getBaseURL = () => {
-    if (typeof window !== "undefined") {
-        // In browser, use window.location.origin to support IP-based access
-        return window.location.origin;
-    }
     // On server, use environment variable
-    return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    if (typeof window === "undefined") {
+        return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    }
+    // In browser: prefer the explicit primary-auth URL from env.
+    // Falls back to window.location.origin for local dev where NEXT_PUBLIC_APP_URL is not set.
+    return process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
 };
 
 export const authClient = createAuthClient({
