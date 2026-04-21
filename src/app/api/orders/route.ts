@@ -540,6 +540,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       lineItems: orderLineItems,
       status: 'NEW',
       deliveryId: resolvedDeliveryId,
+      notes: { locale },
       createdAt: now,
       updatedAt: now,
     })
@@ -641,6 +642,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
         companyName: orderUser.companyName || undefined,
         totalPrice: order.totalPrice,
         originalTotalPrice: order.originalTotalPrice,
+        locale,
         lineItems: orderLineItems.map((li: any) => ({
           name: li.name || li.articleId,
           articleId: li.articleId,

@@ -1712,5 +1712,64 @@
     },
     "deliveryCostNote": "The payment amount does not include delivery costs. Delivery is charged according to the carrier&#39;s tariffs.",
     "courierAddressMissing": "For courier delivery, please fill in your address in the &#39;Delivery Details&#39; section above."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "New Order #{orderShortId} from {customerName}",
+      "title": "New Order Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "total": "Total",
+      "comment": "Comment",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Order Confirmation #{orderShortId} — PowerAutomation",
+      "title": "Thank you for your order!",
+      "greeting": "Dear {customerName},",
+      "received": "We have received your order #{orderShortId}.",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "nextEmail": "You will receive another email once your payment is confirmed.",
+      "footer": "If you have questions, contact us at"
+    },
+    "paymentSuccessManager": {
+      "subject": "Payment Received for Order #{orderShortId}",
+      "title": "Payment Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "phone": "Phone",
+      "company": "Company",
+      "paymentAmount": "Payment Amount",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderTotal": "Order Total",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Payment Confirmed — Order #{orderShortId} — PowerAutomation",
+      "title": "Payment Confirmed!",
+      "greeting": "Dear {customerName},",
+      "confirmed": "Your payment for order #{orderShortId} has been successfully processed.",
+      "amountPaid": "Amount Paid",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "processing": "Your order is now being processed. We will notify you when it ships.",
+      "footer": "If you have questions, contact us at"
+    },
+    "table": {
+      "product": "Product",
+      "article": "Article",
+      "qty": "Qty",
+      "unitPrice": "Unit Price",
+      "total": "Total"
+    }
   }
 }

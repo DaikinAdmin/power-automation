@@ -2,21 +2,17 @@ import { z } from "zod";
 
 export const PasswordSchema = z.object({
   password: z
-      .string()
-      .min(8, "Password must be at least 8 characters long")
-      .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least 1 number")
-      .regex(/[!@#$&.*]/, "Password must contain at least 1 special character"),
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+    .regex(/[0-9]/, "Password must contain at least 1 number"),
 });
 
 const passwordRules = z
   .string()
   .min(8, "Password must be at least 8 characters long")
   .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-  .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
-  .regex(/[0-9]/, "Password must contain at least 1 number")
-  .regex(/[!@#$&.*]/, "Password must contain at least 1 special character");
+  .regex(/[0-9]/, "Password must contain at least 1 number");
 
 // Server-side base fields — addressLine is already assembled
 const baseFields = {
@@ -32,7 +28,10 @@ const baseFields = {
   country: z.string().length(2, { message: "Please select a country" }),
   phoneNumber: z
     .string()
-    .regex(RegExp(/^[1-9]\d{8}$/), { message: "Invalid phone number. Please enter a number in the format 999999999" }),
+    .regex(RegExp(/^[1-9]\d{8}$/), {
+      message:
+        "Invalid phone number. Please enter a number in the format 999999999",
+    }),
   addressLine: z
     .string()
     .min(5, { message: "Address must be at least 5 characters" })
@@ -67,12 +66,12 @@ export const PrivateSignupSchema = z.object({
   ...baseFields,
   // address is optional for private users
   addressLine: z.string().max(200),
-  userType: z.literal('private'),
+  userType: z.literal("private"),
 });
 
 export const CompanySignupSchema = z.object({
   ...baseFields,
-  userType: z.literal('company'),
+  userType: z.literal("company"),
   companyName: z
     .string()
     .min(2, { message: "Company name must be at least 2 characters long" })
@@ -81,10 +80,12 @@ export const CompanySignupSchema = z.object({
     .string()
     .min(5, { message: "VAT number must be at least 5 characters" })
     .max(20, { message: "VAT number must be at most 20 characters" }),
-  companyPosition: z.enum(['owner', 'employee'], { message: "Please select your position" }),
+  companyPosition: z.enum(["owner", "employee"], {
+    message: "Please select your position",
+  }),
 });
 
-export const SignupSchema = z.discriminatedUnion('userType', [
+export const SignupSchema = z.discriminatedUnion("userType", [
   PrivateSignupSchema,
   CompanySignupSchema,
 ]);
@@ -101,12 +102,12 @@ export const PrivateSignupFormSchema = z.object({
   street: z.string().max(150).optional(),
   postalCode: z.string().max(20).optional(),
   userAgreement: baseFormFields.userAgreement,
-  userType: z.literal('private'),
-}); 
+  userType: z.literal("private"),
+});
 
 export const CompanySignupFormSchema = z.object({
   ...baseFormFields,
-  userType: z.literal('company'),
+  userType: z.literal("company"),
   companyName: z
     .string()
     .min(2, { message: "Company name must be at least 2 characters long" })
@@ -115,10 +116,12 @@ export const CompanySignupFormSchema = z.object({
     .string()
     .min(5, { message: "VAT number must be at least 5 characters" })
     .max(20, { message: "VAT number must be at most 20 characters" }),
-  companyPosition: z.enum(['owner', 'employee'], { message: "Please select your position" }),
+  companyPosition: z.enum(["owner", "employee"], {
+    message: "Please select your position",
+  }),
 });
 
-export const SignupFormSchema = z.discriminatedUnion('userType', [
+export const SignupFormSchema = z.discriminatedUnion("userType", [
   PrivateSignupFormSchema,
   CompanySignupFormSchema,
 ]);
