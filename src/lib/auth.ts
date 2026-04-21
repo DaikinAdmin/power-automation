@@ -26,6 +26,7 @@ import {
   twoFactor as twoFactorTable 
 } from "@/db/schema";
 import { getServerDomainConfig } from "@/lib/server-domain";
+import { DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { eq } from "drizzle-orm";
 
 async function resolveUrl(url: string): Promise<string> {
@@ -106,10 +107,10 @@ function createAuthInstance(baseURL: string, googleClientId: string, googleClien
     "http://localhost:3000",
     "http://localhost:3001",
     // Продакшн домени
-    "https://powerautomation.pl",
-    "https://www.powerautomation.pl",
-    "https://powerautomation.com.ua",
-    "https://www.powerautomation.com.ua",
+    DOMAIN_CONFIGS.pl.baseUrl,
+    `https://www.${DOMAIN_CONFIGS.pl.host}`,
+    DOMAIN_CONFIGS.ua.baseUrl,
+    `https://www.${DOMAIN_CONFIGS.ua.host}`,
     // Тестові домени з .env (APP_UA_TEST_HOST / APP_PL_TEST_HOST)
     process.env.APP_UA_TEST_HOST ? `https://${process.env.APP_UA_TEST_HOST}` : "",
     process.env.APP_UA_TEST_HOST ? `https://www.${process.env.APP_UA_TEST_HOST}` : "",
@@ -297,9 +298,9 @@ function createAuthInstance(baseURL: string, googleClientId: string, googleClien
 // Google OAuth client must have https://powerautomation.pl/api/auth/callback/google
 // registered as an Authorized redirect URI in Google Cloud Console.
 export const authPl = createAuthInstance(
-  'https://powerautomation.pl',
-  process.env.GOOGLE_CLIENT_ID_PL || process.env.GOOGLE_CLIENT_ID || '',
-  process.env.GOOGLE_CLIENT_SECRET_PL || process.env.GOOGLE_CLIENT_SECRET || '',
+  DOMAIN_CONFIGS.pl.baseUrl,
+  process.env.GOOGLE_CLIENT_ID_PL || '',
+  process.env.GOOGLE_CLIENT_SECRET_PL || '',
 );
 
 // UA instance: powerautomation.com.ua
@@ -307,7 +308,7 @@ export const authPl = createAuthInstance(
 // registered as an Authorized redirect URI in Google Cloud Console.
 // Requires env vars: GOOGLE_CLIENT_ID_UA, GOOGLE_CLIENT_SECRET_UA
 export const authUa = createAuthInstance(
-  'https://powerautomation.com.ua',
+  DOMAIN_CONFIGS.ua.baseUrl,
   process.env.GOOGLE_CLIENT_ID_UA || '',
   process.env.GOOGLE_CLIENT_SECRET_UA || '',
 );
