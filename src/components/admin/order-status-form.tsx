@@ -75,24 +75,24 @@ export function OrderStatusForm({
           : (!isNaN(parsedAmount) ? parsedAmount : (order?.originalTotalPrice ?? 0));
         const currency = data.currency ?? parsedCurrency ?? 'EUR';
 
-        const w = window as any;
-        w.dataLayer = w.dataLayer || [];
-        w.dataLayer.push({ ecommerce: null });
-        w.dataLayer.push({
-          event: 'purchase',
-          ecommerce: {
-            transaction_id: order?.id ?? orderId,
-            value,
-            currency,
-            shipping: 0,
-            items: lineItems.map((item: any) => ({
-              item_id: item.articleId,
-              item_name: item.name,
-              price: item.unitPrice ?? 0,
-              quantity: item.quantity ?? 1,
-            })),
-          },
-        });
+        // const w = window as any;
+        // w.dataLayer = w.dataLayer || [];
+        // w.dataLayer.push({ ecommerce: null });
+        // w.dataLayer.push({
+        //   event: 'purchase',
+        //   ecommerce: {
+        //     transaction_id: order?.id ?? orderId,
+        //     value,
+        //     currency,
+        //     shipping: 0,
+        //     items: lineItems.map((item: any) => ({
+        //       item_id: item.articleId,
+        //       item_name: item.name,
+        //       price: item.unitPrice ?? 0,
+        //       quantity: item.quantity ?? 1,
+        //     })),
+        //   },
+        // });
       }
 
       toast.success('Order updated successfully');

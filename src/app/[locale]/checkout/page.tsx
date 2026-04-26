@@ -201,6 +201,31 @@ export default function CheckoutPage({
           if (!response.ok) throw new Error(result.error || "Failed to create order");
 
           setOrderSuccess(true);
+
+          // GTM purchase event
+          const gtmItems = cartItems.map((item) => ({
+              item_id: item.articleId,
+              item_name: item.displayName,
+              price: convertToCurrency(resolveBaseUnitPrice(item), getItemCurrency(item), domainCurrency as SupportedCurrency),
+              quantity: item.quantity,
+          }));
+          const gtmValue = cartItems.reduce((sum, item) => {
+              return sum + convertToCurrency(resolveBaseUnitPrice(item) * item.quantity, getItemCurrency(item), domainCurrency as SupportedCurrency);
+          }, 0);
+          const w = window as any;
+          w.dataLayer = w.dataLayer || [];
+          w.dataLayer.push({ ecommerce: null });
+          w.dataLayer.push({
+              event: "purchase",
+              ecommerce: {
+                  transaction_id: result.order.id,
+                  value: gtmValue,
+                  currency: domainCurrency,
+                  shipping: 0,
+                  items: gtmItems,
+              },
+          });
+
           if (session.data?.user) {
               fetch("/api/user/profile", {
                   method: "PATCH",
@@ -554,6 +579,34 @@ export default function CheckoutPage({
           </div>
         </div>
       </main>
+
+      {/* Payment confirmation dialog for bank_transfer / cash_on_delivery */}
+      {paymentDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 lg:p-8">
+            <div className="flex justify-center mb-4">
+              <CheckCircle2 className="w-16 h-16 text-green-500" />
+            </div>
+            <h2 className="text-xl font-bold text-center mb-3">
+              {t("messages.orderSuccess")}
+            </h2>
+            <p className="text-gray-600 text-sm text-center mb-6">
+              {paymentDialog.type === "bank_transfer"
+                ? t("dialog.bankTransferInfo")
+                : t("dialog.cashOnDeliveryInfo")}
+            </p>
+            <div className="text-center text-xs text-gray-400 mb-6">
+              {t("messages.orderCreated")} <span className="font-mono font-semibold text-gray-600">#{paymentDialog.orderId?.substring(0, 8)}</span>
+            </div>
+            <button
+              onClick={() => router.push("/dashboard/orders")}
+              className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors"
+            >
+              {t("dialog.goToDashboard")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
