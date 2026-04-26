@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const locale = searchParams.get('locale') || 'pl';
+    const vatPct = parseFloat(searchParams.get('vat') ?? '23');
+    const validatedVat = Number.isFinite(vatPct) && vatPct >= 0 && vatPct <= 100 ? vatPct : 23;
+    const vatMultiplier = 1 + validatedVat / 100;
 
     const validLocales = ['pl', 'en', 'es', 'ua'];
     if (!validLocales.includes(locale)) {
@@ -95,7 +98,10 @@ export async function GET(request: NextRequest) {
           const warehouse = warehouseById.get(price.warehouseId);
           return {
             warehouseSlug: price.warehouseId,
-            price: price.price,
+            priceWithoutVAT: price.price,
+            priceWithVAT: Math.round(price.price * vatMultiplier * 100) / 100,
+            initialPrice: price.initialPrice ?? 0,
+            initialPriceCurrency: price.initialCurrency ?? '',
             quantity: price.quantity,
             promotionPrice: price.promotionPrice,
             badge: price.badge || '',

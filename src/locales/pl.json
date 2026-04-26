@@ -11,7 +11,9 @@
       "forgotPassword": "Zapomniałeś hasła?",
       "signInButton": "Zaloguj się",
       "noAccount": "Nie masz konta?",
-      "signUpLink": "Zarejestruj się"
+      "signUpLink": "Zarejestruj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google"
     },
     "signUp": {
       "title": "Zarejestruj się",
@@ -35,8 +37,12 @@
       "countryPlaceholder": "Wybierz kraj",
       "vatNumberLabel": "NIP / VAT UE",
       "vatNumberPlaceholder": "np. PL1234567890",
-      "addressLineLabel": "Adres",
-      "addressLinePlaceholder": "Ulica, Miasto, Kod pocztowy",
+      "cityLabel": "Miasto",
+      "cityPlaceholder": "np. Warszawa",
+      "streetLabel": "Ulica i numer",
+      "streetPlaceholder": "np. ul. Marszałkowska 1",
+      "postalCodeLabel": "Kod pocztowy",
+      "postalCodePlaceholder": "np. 00-001",
       "positionLabel": "Twoje stanowisko",
       "positionOwner": "Właściciel",
       "positionEmployee": "Pracownik",
@@ -49,7 +55,10 @@
       "userAgreement": "Umowę użytkownika",
       "signUpButton": "Zarejestruj się",
       "haveAccount": "Masz już konto?",
-      "signInLink": "Zaloguj się"
+      "signInLink": "Zaloguj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google",
+      "optional": "opcjonalnie"
     },
     "forgotPassword": {
       "title": "Zapomniałeś hasła?",
@@ -418,7 +427,7 @@
       "backToHome": "Powrót do strony głównej"
     },
     "articleId": "Artykuł",
-    "from": "Z {warehouse}",
+    "from": "Z: Magazyn №{warehouse}",
     "moreLocations": "+{count} więcej lokalizacji",
     "price": {
       "discount": "-{percent}%",
@@ -1687,15 +1696,88 @@
     "apartmentOrOffice": "Mieszkanie / Biuro",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Odbiór własny", "description": "Z naszego magazynu" },
+      "warehouse": {
+        "label": "Odbiór własny",
+        "description": "Z naszego magazynu"
+      },
       "nova_dept": { "label": "Oddział", "description": "Nova Poshta" },
       "nova_courier": { "label": "Kurier", "description": "Nova Poshta" }
     },
     "paymentOption": {
-      "online_card": { "label": "Kartą online", "description": "Visa / Mastercard" },
+      "online_card": {
+        "label": "Kartą online",
+        "description": "Visa / Mastercard"
+      },
       "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
-      "cash_on_delivery": { "label": "Za pobraniem", "description": "Płatność przy odbiorze" },
-      "installment": { "label": "Płatność ratalna", "description": "PrivatBank · Monobank" }
+      "cash_on_delivery": {
+        "label": "Za pobraniem",
+        "description": "Płatność przy odbiorze"
+      },
+      "installment": {
+        "label": "Płatność ratalna",
+        "description": "PrivatBank"
+      }
+    },
+    "deliveryCostNote": "Kwota płatności nie zawiera kosztu dostawy. Opłata za dostawę realizowana jest zgodnie z taryfami przewoźnika.",
+    "courierAddressMissing": "Aby dostarczyć kurierem, wypełnij adres w sekcji ‘Szczegóły dostawy’ powyżej.",
+    "emails": {
+      "newOrderManager": {
+        "subject": "Nowe zamówienie #{orderShortId} od {customerName}",
+        "title": "Nowe zamówienie otrzymano",
+        "orderId": "Nr zamówienia",
+        "customer": "Klient",
+        "email": "Email",
+        "phone": "Telefon",
+        "company": "Firma",
+        "total": "Suma",
+        "comment": "Komentarz",
+        "orderItems": "Pozycje zamówienia",
+        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+      },
+      "newOrderCustomer": {
+        "subject": "Potwierdzenie zamówienia #{orderShortId} — PowerAutomation",
+        "title": "Dziękujemy za zamówienie!",
+        "greeting": "Drogi {customerName},",
+        "received": "Otrzymaliśmy Twoje zamówienie #{orderShortId}.",
+        "orderSummary": "Podsumowanie zamówienia",
+        "total": "Suma",
+        "nextEmail": "Otrzymasz kolejny email po potwierdzeniu płatności.",
+        "footer": "W razie pytań skontaktuj się z nami:"
+      },
+      "paymentSuccessManager": {
+        "subject": "Płatność za zamówienie #{orderShortId} otrzymana",
+        "title": "Płatność otrzymana",
+        "orderId": "Nr zamówienia",
+        "customer": "Klient",
+        "phone": "Telefon",
+        "company": "Firma",
+        "paymentAmount": "Kwota płatności",
+        "paymentMethod": "Metoda płatności",
+        "transactionId": "ID transakcji",
+        "orderTotal": "Suma zamówienia",
+        "orderItems": "Pozycje zamówienia",
+        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+      },
+      "paymentSuccessCustomer": {
+        "subject": "Płatność potwierdzona — zamówienie #{orderShortId} — PowerAutomation",
+        "title": "Płatność potwierdzona!",
+        "greeting": "Drogi {customerName},",
+        "confirmed": "Twoja płatność za zamówienie #{orderShortId} została pomyślnie przetworzona.",
+        "amountPaid": "Zapłacona kwota",
+        "paymentMethod": "Metoda płatności",
+        "transactionId": "ID transakcji",
+        "orderSummary": "Podsumowanie zamówienia",
+        "total": "Suma",
+        "processing": "Twoje zamówienie jest teraz realizowane. Powiadomimy Cię, gdy zostanie wysłane.",
+        "footer": "W razie pytań skontaktuj się z nami:"
+      },
+      "table": {
+        "product": "Produkt",
+        "article": "Artykuł",
+        "qty": "Ilość",
+        "unitPrice": "Cena jedn.",
+        "total": "Suma"
+      }
     }
   }
 }

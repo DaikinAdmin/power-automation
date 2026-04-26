@@ -30,6 +30,20 @@ const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
  *  5. Set the order status to WAITING_FOR_PAYMENT.
  *  6. Return the checkout URL so the frontend can do window.location.href.
  */
+
+/**
+ * Parses the numeric UAH amount from a formatted totalPrice string.
+ * Handles: "942,41 грн", "942.41 UAH".
+ * Returns null if parsing fails or string is not UAH.
+ */
+function parseUahFromTotalPrice(totalPrice: string | null | undefined): number | null {
+  if (!totalPrice) return null;
+  if (!/грн|UAH/i.test(totalPrice)) return null;
+  const cleaned = totalPrice.replace(/[^\d,.]/g, '').replace(',', '.');
+  const amount = parseFloat(cleaned);
+  return isFinite(amount) && amount > 0 ? amount : null;
+}
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
@@ -130,10 +144,12 @@ export async function POST(request: NextRequest) {
      */
     const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
 
-    // Convert the order amount from EUR (base currency) to UAH using the live
-    // exchange rate stored in the database.
-    // LiqPay expects the amount in actual currency units (not cents/kopiyky).
-    const amountInUah = await eurToUahAmount(order.originalTotalPrice);
+    // Use the UAH amount that was shown to the user at checkout (stored in order.totalPrice,
+    // e.g. "942,41 грн"). Falls back to EUR→UAH conversion if parsing fails.
+    const parsedUah = parseUahFromTotalPrice(order.totalPrice);
+    const amountInUah = parsedUah !== null
+      ? parsedUah
+      : await eurToUahAmount(order.originalTotalPrice);
 
     const params: LiqPayParams = {
       version: 3,

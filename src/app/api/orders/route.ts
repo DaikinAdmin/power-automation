@@ -462,13 +462,8 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       );
     }
 
-    const marginMultiplier = 1 + ((itemPrice.margin ?? 20) / 100);
-    const priceWithMargin = +(itemPrice.price * marginMultiplier).toFixed(2);
-    const promoPriceWithMargin = itemPrice.promotionPrice
-      ? +(itemPrice.promotionPrice * marginMultiplier).toFixed(2)
-      : null;
-
-    const baseUnitPrice = (promoPriceWithMargin ?? priceWithMargin) || 0;
+    // Store original DB price as-is into the order line item.
+    const baseUnitPrice = (itemPrice.promotionPrice ?? itemPrice.price) || 0;
     computedOriginalTotal += baseUnitPrice * cartItem.quantity;
 
     orderLineItems.push({
@@ -484,8 +479,8 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
       warehouseCountry: itemPrice.warehouse.countrySlug,
-      basePrice: priceWithMargin,
-      baseSpecialPrice: promoPriceWithMargin,
+      basePrice: itemPrice.price,
+      baseSpecialPrice: itemPrice.promotionPrice ?? null,
       unitPrice: baseUnitPrice,
       lineTotal: baseUnitPrice * cartItem.quantity,
       currency: cartItem.currency ?? null,
@@ -493,21 +488,6 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
   }
 
   const normalizedOriginalTotal = Number.parseFloat(computedOriginalTotal.toFixed(2));
-  const clientOriginalTotal =
-    typeof originalTotalPrice === 'number'
-      ? Number.parseFloat(originalTotalPrice.toFixed(2))
-      : null;
-
-  if (
-    clientOriginalTotal !== null &&
-    Number.isFinite(clientOriginalTotal) &&
-    Math.abs(clientOriginalTotal - normalizedOriginalTotal) > 1
-  ) {
-    console.warn('Mismatch between client supplied and computed original totals', {
-      clientOriginalTotal,
-      normalizedOriginalTotal,
-    });
-  }
 
   if (!Number.isFinite(normalizedOriginalTotal)) {
     return NextResponse.json(
@@ -560,6 +540,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       lineItems: orderLineItems,
       status: 'NEW',
       deliveryId: resolvedDeliveryId,
+      notes: { locale },
       createdAt: now,
       updatedAt: now,
     })
@@ -661,6 +642,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
         companyName: orderUser.companyName || undefined,
         totalPrice: order.totalPrice,
         originalTotalPrice: order.originalTotalPrice,
+        locale,
         lineItems: orderLineItems.map((li: any) => ({
           name: li.name || li.articleId,
           articleId: li.articleId,

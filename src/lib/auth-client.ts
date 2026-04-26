@@ -3,13 +3,13 @@ import { createAuthClient } from "better-auth/react";
 import { twoFactorClient, adminClient, customSessionClient } from "better-auth/client/plugins";
 import { ac, admin, user, employee, superadmin } from "@/lib/permissions"
 
-// Get base URL from environment or use current origin (for IP-based access)
+// Use the current origin so each domain talks to its own auth endpoint.
+// Each domain's auth instance (pl/ua) has its own Google OAuth client and
+// baseURL, so state cookies and callbacks stay on the same domain.
 const getBaseURL = () => {
     if (typeof window !== "undefined") {
-        // In browser, use window.location.origin to support IP-based access
         return window.location.origin;
     }
-    // On server, use environment variable
     return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 };
 

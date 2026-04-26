@@ -11,7 +11,9 @@
       "forgotPassword": "¿Olvidaste tu contraseña?",
       "signInButton": "Iniciar Sesión",
       "noAccount": "¿No tienes una cuenta?",
-      "signUpLink": "Regístrate"
+      "signUpLink": "Regístrate",
+      "orContinueWith": "O continuar con",
+      "googleButton": "Continuar con Google"
     },
     "signUp": {
       "title": "Registrarse",
@@ -35,8 +37,12 @@
       "countryPlaceholder": "Seleccionar país",
       "vatNumberLabel": "NIF / VAT UE",
       "vatNumberPlaceholder": "ej. ES12345678A",
-      "addressLineLabel": "Dirección",
-      "addressLinePlaceholder": "Calle, Ciudad, Código Postal",
+      "cityLabel": "Ciudad",
+      "cityPlaceholder": "p.ej. Madrid",
+      "streetLabel": "Calle y número",
+      "streetPlaceholder": "p.ej. Calle Gran Vía 1",
+      "postalCodeLabel": "Código postal",
+      "postalCodePlaceholder": "p.ej. 28013",
       "positionLabel": "Tu cargo",
       "positionOwner": "Propietario",
       "positionEmployee": "Empleado",
@@ -49,7 +55,10 @@
       "userAgreement": "Acuerdo de Usuario",
       "signUpButton": "Registrarse",
       "haveAccount": "¿Ya tienes una cuenta?",
-      "signInLink": "Iniciar Sesión"
+      "signInLink": "Iniciar Sesión",
+      "orContinueWith": "O continuar con",
+      "googleButton": "Continuar con Google",
+      "optional": "opcional"
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu Contraseña?",
@@ -381,7 +390,7 @@
       "backToHome": "Volver al inicio"
     },
     "articleId": "Artícul",
-    "from": "De {warehouse}",
+    "from": "De: Almacén №{warehouse}",
     "moreLocations": "+{count} ubicaciones más",
     "price": {
       "discount": "-{percent}%",
@@ -1658,7 +1667,68 @@
       "online_card": { "label": "Tarjeta online", "description": "Visa / Mastercard" },
       "bank_transfer": { "label": "Transferencia bancaria", "description": "Factura" },
       "cash_on_delivery": { "label": "Contra reembolso", "description": "Pago al recibir" },
-      "installment": { "label": "Pago a plazos", "description": "PrivatBank · Monobank" }
+      "installment": { "label": "Pago a plazos", "description": "PrivatBank" }
+    },
+    "deliveryCostNote": "El importe del pago no incluye los gastos de envío. El envío se cobra según las tarifas del transportista.",
+    "courierAddressMissing": "Para la entrega por mensajero, rellene su dirección en la sección &#39;Detalles de entrega&#39; de arriba."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "Nuevo pedido #{orderShortId} de {customerName}",
+      "title": "Nuevo pedido recibido",
+      "orderId": "N.º de pedido",
+      "customer": "Cliente",
+      "email": "Email",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "total": "Total",
+      "comment": "Comentario",
+      "orderItems": "Artículos del pedido",
+      "footer": "Este es un aviso automático de PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Confirmación de pedido #{orderShortId} — PowerAutomation",
+      "title": "¡Gracias por su pedido!",
+      "greeting": "Estimado {customerName},",
+      "received": "Hemos recibido su pedido #{orderShortId}.",
+      "orderSummary": "Resumen del pedido",
+      "total": "Total",
+      "nextEmail": "Recibirá otro correo cuando se confirme su pago.",
+      "footer": "Si tiene preguntas, contáctenos en"
+    },
+    "paymentSuccessManager": {
+      "subject": "Pago recibido para el pedido #{orderShortId}",
+      "title": "Pago recibido",
+      "orderId": "N.º de pedido",
+      "customer": "Cliente",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "paymentAmount": "Importe del pago",
+      "paymentMethod": "Método de pago",
+      "transactionId": "ID de transacción",
+      "orderTotal": "Total del pedido",
+      "orderItems": "Artículos del pedido",
+      "footer": "Este es un aviso automático de PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Pago confirmado — Pedido #{orderShortId} — PowerAutomation",
+      "title": "¡Pago confirmado!",
+      "greeting": "Estimado {customerName},",
+      "confirmed": "Su pago para el pedido #{orderShortId} se ha procesado correctamente.",
+      "amountPaid": "Importe pagado",
+      "paymentMethod": "Método de pago",
+      "transactionId": "ID de transacción",
+      "orderSummary": "Resumen del pedido",
+      "total": "Total",
+      "processing": "Su pedido está siendo procesado. Le notificaremos cuando sea enviado.",
+      "footer": "Si tiene preguntas, contáctenos en"
+    },
+    "table": {
+      "product": "Producto",
+      "article": "Artículo",
+      "qty": "Cant.",
+      "unitPrice": "Precio unit.",
+      "total": "Total"
     }
   }
 }

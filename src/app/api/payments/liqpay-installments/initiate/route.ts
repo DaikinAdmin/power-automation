@@ -13,6 +13,14 @@ import { eurToUahAmount } from '@/lib/server-currency';
 const LIQPAY_PUBLIC_KEY = process.env.LIQPAY_PUBLIC_KEY || '';
 const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
 
+function parseUahFromTotalPrice(totalPrice: string | null | undefined): number | null {
+  if (!totalPrice) return null;
+  if (!/грн|UAH/i.test(totalPrice)) return null;
+  const cleaned = totalPrice.replace(/[^\d,.]/g, '').replace(',', '.');
+  const amount = parseFloat(cleaned);
+  return isFinite(amount) && amount > 0 ? amount : null;
+}
+
 /**
  * POST /api/payments/liqpay-installments/initiate
  *
@@ -82,7 +90,10 @@ export async function POST(request: NextRequest) {
     const resultUrl = `${baseUrl}/payment/return?orderId=${orderId}&provider=liqpay`;
     const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
 
-    const amountInUah = await eurToUahAmount(order.originalTotalPrice);
+    const parsedUah = parseUahFromTotalPrice(order.totalPrice);
+    const amountInUah = parsedUah !== null
+      ? parsedUah
+      : await eurToUahAmount(order.originalTotalPrice);
 
     const params: LiqPayParams = {
       version: 3,
