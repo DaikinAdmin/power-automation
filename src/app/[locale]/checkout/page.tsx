@@ -24,6 +24,7 @@ import LanguageSwitcher from "@/components/languge-switcher";
 import { useRouter } from "@/i18n/navigation";
 import { useDomainConfig } from "@/hooks/useDomain";
 import type { SupportedCurrency } from "@/helpers/currency";
+import type { AuthUser } from "@/helpers/types/user";
 import type { DomainKey } from "@/lib/domain-config";
 import NovaPostDelivery, {
   type NovaPostDeliveryState,
@@ -87,6 +88,9 @@ export default function CheckoutPage({
   const { convertToCurrency, formatAs } = useCurrency();
   const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
   const session = authClient.useSession();
+  const sessionUser = session.data?.user as AuthUser | undefined;
+  const isCompanyUser = sessionUser?.userType === "company";
+  const vatPlaceholder = domainConfig.key === "ua" ? "ІПН або ЄДРПОУ" : "NIP lub VAT";
 
   // Effects & Handlers
   useEffect(() => {
@@ -470,6 +474,7 @@ export default function CheckoutPage({
                         </div>
                       </div>
 
+                      {isCompanyUser && (
                       <div className="md:col-span-2">
                         <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t("form.vatNumber")}</label>
                         <input
@@ -477,8 +482,10 @@ export default function CheckoutPage({
                           value={deliveryInfo.vatNumber}
                           onChange={(e) => setDeliveryInfo(p => ({ ...p, vatNumber: e.target.value }))}
                           className="w-full px-3 py-2.5 border border-gray-300 rounded-lg"
+                          placeholder={vatPlaceholder}
                         />
                       </div>
+                      )}
 
                       <div>
                          <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t("form.country")}</label>

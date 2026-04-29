@@ -2,8 +2,18 @@ import type { OrderLineItem } from '@/app/api/orders/shared';
 
 export type { OrderLineItem };
 
+export type Delivery = {
+  type: string;
+  city: string | null;
+  warehouseDesc: string | null;
+  street: string | null;
+  building: string | null;
+  flat: string | null;
+  trackingNumber: string | null;
+  status: string;
+};
+
 export type Payment = {
-  id: string;
   status: string;
   currency: string;
   amount: number;
@@ -15,9 +25,12 @@ export type Payment = {
 export type OrderDetail = {
   id: string;
   status: string;
-  originalTotalPrice: number;
-  totalPrice: string | null;
+  currency: string | null;
+  totalNet: number | null;
+  totalVat: number | null;
+  totalGross: number | null;
   deliveryId?: string | null;
+  delivery?: Delivery | null;
   comment?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -27,6 +40,10 @@ export type OrderDetail = {
     email: string | null;
     phoneNumber: string | null;
     countryCode: string | null;
+    vatNumber?: string | null;
+    companyName?: string | null;
+    userType?: string | null;
+    addressLine?: string | null;
   } | null;
   lineItems: OrderLineItem[] | null;
   notes?: OrderNote[] | null;
@@ -42,8 +59,10 @@ export type OrderNote = {
 export type OrderListItem = {
   id: string;
   status: string;
-  totalPrice: string | null;
-  originalTotalPrice: number;
+  currency: string | null;
+  totalNet: number | null;
+  totalVat: number | null;
+  totalGross: number | null;
   createdAt: string;
   lineItems: OrderLineItem[];
   payment?: Payment | null;

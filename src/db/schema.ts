@@ -605,10 +605,14 @@ export const order = pgTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
-    totalPrice: text().notNull(),
+    // Payment currency (e.g. UAH, PLN)
+    currency: text().notNull(),
+    // Order financial totals in payment currency
+    totalNet: doublePrecision().notNull().default(0),
+    totalVat: doublePrecision().notNull().default(0),
+    totalGross: doublePrecision().notNull().default(0),
     status: orderStatus().default("NEW").notNull(),
     deliveryId: text(),
-    originalTotalPrice: doublePrecision().notNull(),
     lineItems: jsonb(),
     comment: text(),
     notes: jsonb(),

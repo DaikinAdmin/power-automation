@@ -61,17 +61,16 @@ export interface OrderEmailData {
   customerEmail: string;
   customerPhone?: string;
   companyName?: string;
-  totalPrice: string;
-  originalTotalPrice: number;
-  currency?: string;
+  totalGross: number;
+  currency: string;
   /** BCP-47 / next-intl locale: 'pl' | 'en' | 'ua' | 'es' */
   locale?: string;
   lineItems: Array<{
     name: string;
     articleId: string;
     quantity: number;
-    unitPrice?: number | null;
-    lineTotal?: number | null;
+    unitPriceGross?: number | null;
+    lineTotalGrossConverted?: number | null;
     warehouseName?: string | null;
   }>;
   comment?: string | null;
@@ -95,6 +94,7 @@ function formatCurrency(amount: number, currency: string = 'EUR'): string {
 function buildItemsTableHtml(
   lineItems: OrderEmailData['lineItems'],
   labels: { product: string; article: string; qty: string; unitPrice: string; total: string },
+  currency: string,
 ): string {
   const rows = lineItems
     .map(
@@ -103,8 +103,8 @@ function buildItemsTableHtml(
         <td style="padding:8px;border:1px solid #ddd;">${item.name || item.articleId}</td>
         <td style="padding:8px;border:1px solid #ddd;text-align:center;">${item.articleId}</td>
         <td style="padding:8px;border:1px solid #ddd;text-align:center;">${item.quantity}</td>
-        <td style="padding:8px;border:1px solid #ddd;text-align:right;">${item.unitPrice != null ? formatCurrency(item.unitPrice) : '—'}</td>
-        <td style="padding:8px;border:1px solid #ddd;text-align:right;">${item.lineTotal != null ? formatCurrency(item.lineTotal) : '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd;text-align:right;">${item.unitPriceGross != null ? formatCurrency(item.unitPriceGross, currency) : '—'}</td>
+        <td style="padding:8px;border:1px solid #ddd;text-align:right;">${item.lineTotalGrossConverted != null ? formatCurrency(item.lineTotalGrossConverted, currency) : '—'}</td>
       </tr>`
     )
     .join('');
@@ -144,7 +144,7 @@ export async function sendNewOrderManagerEmail(data: OrderEmailData): Promise<vo
       <p><strong>${t(m, 'email')}:</strong> ${data.customerEmail}</p>
       ${data.customerPhone ? `<p><strong>${t(m, 'phone')}:</strong> ${data.customerPhone}</p>` : ''}
       ${data.companyName ? `<p><strong>${t(m, 'company')}:</strong> ${data.companyName}</p>` : ''}
-      <p><strong>${t(m, 'total')}:</strong> ${formatCurrency(data.originalTotalPrice)} (${data.totalPrice})</p>
+      <p><strong>${t(m, 'total')}:</strong> ${data.totalGross.toFixed(2)} ${data.currency}</p>
       ${data.comment ? `<p><strong>${t(m, 'comment')}:</strong> ${data.comment}</p>` : ''}
       
       <h3>${t(m, 'orderItems')}</h3>
@@ -154,7 +154,7 @@ export async function sendNewOrderManagerEmail(data: OrderEmailData): Promise<vo
         qty: t(mTable, 'qty'),
         unitPrice: t(mTable, 'unitPrice'),
         total: t(mTable, 'total'),
-      })}
+      }, data.currency)}
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
       <p style="color:#666;font-size:12px;">${t(m, 'footer')}</p>
@@ -193,9 +193,9 @@ export async function sendNewOrderCustomerEmail(data: OrderEmailData): Promise<v
         qty: t(mTable, 'qty'),
         unitPrice: t(mTable, 'unitPrice'),
         total: t(mTable, 'total'),
-      })}
+      }, data.currency)}
       
-      <p style="font-size:18px;"><strong>${t(m, 'total')}: ${formatCurrency(data.originalTotalPrice)}</strong> (${data.totalPrice})</p>
+      <p style="font-size:18px;"><strong>${t(m, 'total')}: ${data.totalGross.toFixed(2)} ${data.currency}</strong></p>
       
       <p>${t(m, 'nextEmail')}</p>
       
@@ -233,7 +233,7 @@ export async function sendPaymentSuccessManagerEmail(data: PaymentEmailData): Pr
       <p><strong>${t(m, 'paymentAmount')}:</strong> ${formatCurrency(data.paymentAmount, data.paymentCurrency)}</p>
       <p><strong>${t(m, 'paymentMethod')}:</strong> ${data.paymentMethod}</p>
       ${data.transactionId ? `<p><strong>${t(m, 'transactionId')}:</strong> ${data.transactionId}</p>` : ''}
-      <p><strong>${t(m, 'orderTotal')}:</strong> ${formatCurrency(data.originalTotalPrice)} (${data.totalPrice})</p>
+      <p><strong>${t(m, 'orderTotal')}:</strong> ${data.totalGross.toFixed(2)} ${data.currency}</p>
       
       <h3>${t(m, 'orderItems')}</h3>
       ${buildItemsTableHtml(data.lineItems, {
@@ -242,7 +242,7 @@ export async function sendPaymentSuccessManagerEmail(data: PaymentEmailData): Pr
         qty: t(mTable, 'qty'),
         unitPrice: t(mTable, 'unitPrice'),
         total: t(mTable, 'total'),
-      })}
+      }, data.currency)}
       
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
       <p style="color:#666;font-size:12px;">${t(m, 'footer')}</p>
@@ -287,9 +287,9 @@ export async function sendPaymentSuccessCustomerEmail(data: PaymentEmailData): P
         qty: t(mTable, 'qty'),
         unitPrice: t(mTable, 'unitPrice'),
         total: t(mTable, 'total'),
-      })}
+      }, data.currency)}
       
-      <p style="font-size:18px;"><strong>${t(m, 'total')}: ${formatCurrency(data.originalTotalPrice)}</strong></p>
+      <p style="font-size:18px;"><strong>${t(m, 'total')}: ${data.totalGross.toFixed(2)} ${data.currency}</strong></p>
       
       <p>${t(m, 'processing')}</p>
       

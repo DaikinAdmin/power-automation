@@ -1,0 +1,40 @@
+[
+  {
+    "id": "72422f54-de55-49ce-bc3b-ef72db043db0",
+    "orderId": "531a46a8-d3f2-4ba1-8e65-d47f74ddd18d",
+    "sessionId": "531a46a8-d3f2-4ba1-8e65-d47f74ddd18d_1777293607885",
+    "merchantId": "i96001329006",
+    "posId": null,
+    "transactionId": null,
+    "amount": 42849,
+    "currency": "UAH",
+    "status": "INITIATED",
+    "paymentMethod": null,
+    "p24Email": "daikin.admin@ammproject.com",
+    "p24OrderId": "531a46a8-d3f2-4ba1-8e65-d47f74ddd18d_1777293607885",
+    "description": "Order #531a46a8-d3f2-4ba1-8e65-d47f74ddd18d",
+    "returnUrl": "https://powerautomation.com.ua/payment/return?orderId=531a46a8-d3f2-4ba1-8e65-d47f74ddd18d&provider=liqpay",
+    "statusUrl": "https://powerautomation.com.ua/api/payments/liqpay/callback",
+    "metadata": {
+      "params": {
+        "action": "pay",
+        "amount": 428.49,
+        "version": 3,
+        "currency": "UAH",
+        "language": "uk",
+        "order_id": "531a46a8-d3f2-4ba1-8e65-d47f74ddd18d_1777293607885",
+        "paytypes": "card,privat24,gpay,apayqr",
+        "public_key": "i96001329006",
+        "result_url": "https://powerautomation.com.ua/payment/return?orderId=531a46a8-d3f2-4ba1-8e65-d47f74ddd18d&provider=liqpay",
+        "server_url": "https://powerautomation.com.ua/api/payments/liqpay/callback",
+        "description": "Order #531a46a8"
+      },
+      "provider": "liqpay",
+      "liqpayOrderId": "531a46a8-d3f2-4ba1-8e65-d47f74ddd18d_1777293607885"
+    },
+    "errorCode": null,
+    "errorMessage": null,
+    "createdAt": "2026-04-27T10:40:07.888Z",
+    "updatedAt": "2026-04-27T10:40:07.888Z"
+  }
+]

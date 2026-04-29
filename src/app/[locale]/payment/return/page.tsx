@@ -27,8 +27,8 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
     }
     return new Intl.NumberFormat('pl-PL', {
       style: 'currency',
-      currency: 'EUR',
-    }).format(order?.originalTotalPrice ?? 0);
+      currency: order?.currency ?? 'EUR',
+    }).format(order?.totalGross ?? 0);
   };
 
   const [isLoading, setIsLoading] = useState(true);

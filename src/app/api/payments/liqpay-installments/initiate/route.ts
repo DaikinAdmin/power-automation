@@ -8,18 +8,9 @@ import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } fr
 import crypto from 'crypto';
 import { buildCheckoutUrl } from '@/lib/liqpay';
 import type { LiqPayParams } from '@/lib/liqpay';
-import { eurToUahAmount } from '@/lib/server-currency';
 
 const LIQPAY_PUBLIC_KEY = process.env.LIQPAY_PUBLIC_KEY || '';
 const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
-
-function parseUahFromTotalPrice(totalPrice: string | null | undefined): number | null {
-  if (!totalPrice) return null;
-  if (!/грн|UAH/i.test(totalPrice)) return null;
-  const cleaned = totalPrice.replace(/[^\d,.]/g, '').replace(',', '.');
-  const amount = parseFloat(cleaned);
-  return isFinite(amount) && amount > 0 ? amount : null;
-}
 
 /**
  * POST /api/payments/liqpay-installments/initiate
@@ -90,16 +81,11 @@ export async function POST(request: NextRequest) {
     const resultUrl = `${baseUrl}/payment/return?orderId=${orderId}&provider=liqpay`;
     const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
 
-    const parsedUah = parseUahFromTotalPrice(order.totalPrice);
-    const amountInUah = parsedUah !== null
-      ? parsedUah
-      : await eurToUahAmount(order.originalTotalPrice);
-
     const params: LiqPayParams = {
       version: 3,
       public_key: LIQPAY_PUBLIC_KEY,
       action: 'pay',
-      amount: amountInUah,
+      amount: order.totalGross > 0 ? order.totalGross : 0,
       currency: 'UAH',
       description: `Order #${orderId.substring(0, 8)} (частинами)`,
       order_id: liqpayOrderId,
@@ -115,7 +101,7 @@ export async function POST(request: NextRequest) {
     logger.info('LiqPay installment checkout URL built', {
       sessionId,
       liqpayOrderId,
-      amountInUah,
+      amount: order.totalGross > 0 ? order.totalGross : 0,
     });
 
     const now = new Date().toISOString();
@@ -128,7 +114,7 @@ export async function POST(request: NextRequest) {
         sessionId,
         merchantId: LIQPAY_PUBLIC_KEY,
         posId: null,
-        amount: Math.round(amountInUah * 100),
+        amount: Math.round((order.totalGross > 0 ? order.totalGross : 0) * 100),
         currency: 'UAH',
         status: 'INITIATED',
         p24Email: user.email,

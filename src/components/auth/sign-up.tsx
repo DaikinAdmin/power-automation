@@ -438,7 +438,7 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                                             <Input
                                                 disabled={loading}
                                                 type="text"
-                                                placeholder={t('vatNumberPlaceholder')}
+                                                placeholder={domainKey === 'ua' ? t('vatNumberPlaceholderUa') : t('vatNumberPlaceholderPl')}
                                                 {...field}
                                             />
                                         </FormControl>

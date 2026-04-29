@@ -139,22 +139,6 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const canProceedWithPayment = order && ['NEW', 'WAITING_FOR_PAYMENT'].includes(order.status) && 
     (!order.payment || order.payment.status !== 'COMPLETED');
 
-  // Format currency with payment currency, then formatted totalPrice string, or default to EUR
-  const getOrderTotal = () => {
-    if (order?.payment?.amount) {
-      // Show payment amount in the currency that was paid
-      return new Intl.NumberFormat('pl-PL', {
-        style: 'currency',
-        currency: order.payment.currency,
-      }).format(order.payment.amount / 100);
-    }
-    // Use pre-formatted totalPrice string (contains correct currency) if available
-    if (order?.totalPrice) {
-      return order.totalPrice;
-    }
-    // Last resort fallback
-    return formatCurrency(order?.originalTotalPrice || 0);
-  };
 
   if (isLoading) {
     return (
@@ -298,8 +282,8 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-sm text-gray-600">{t('articleId')}: {item.articleId}</p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span>{t('quantity', { quantity: item.quantity })}</span>
-                        {item.unitPrice && (
-                          <span>{t('unit', { price: formatOrderPrice(item.unitPrice, item.currency ?? 'EUR') })}</span>
+                        {item.unitPriceGrossConverted != null && (
+                          <span>{t('unit', { price: new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'EUR' }).format(item.unitPriceGrossConverted) })}</span>
                         )}
                         {(item.warehouseDisplayedName || item.warehouseName) && (
                           <div className="flex items-center gap-1">
@@ -313,7 +297,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
-                        {item.lineTotal ? formatOrderPrice(item.lineTotal, item.currency ?? 'EUR') : 'N/A'}
+                        {item.lineTotalGrossConverted != null
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'EUR' }).format(item.lineTotalGrossConverted)
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -329,14 +315,22 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <CardTitle>{t('orderSummary')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-600">{t('subtotal')}</span>
-                <span>{getOrderTotal()}</span>
+                <span>
+                  {order.totalNet != null && order.currency
+                    ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalNet)
+                    : '—'}
+                </span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between font-medium text-lg">
                   <span>{t('total')}</span>
-                  <span>{getOrderTotal()}</span>
+                  <span>
+                    {order.totalGross != null && order.currency
+                      ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                      : '—'}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -401,8 +395,49 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <CardHeader>
                 <CardTitle>{t('deliveryInfo')}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">{t('deliveryId', { id: order.deliveryId })}</p>
+              <CardContent className="space-y-2 text-sm">
+                {order.delivery ? (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('deliveryType')}</span>
+                      <span>{t(`deliveryTypes.${order.delivery.type}`)}</span>
+                    </div>
+                    {order.delivery.city && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryCity')}</span>
+                        <span>{order.delivery.city}</span>
+                      </div>
+                    )}
+                    {order.delivery.warehouseDesc && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryWarehouse')}</span>
+                        <span>{order.delivery.warehouseDesc}</span>
+                      </div>
+                    )}
+                    {(order.delivery.street || order.delivery.building) && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryAddress')}</span>
+                        <span>
+                          {[order.delivery.street, order.delivery.building, order.delivery.flat]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </span>
+                      </div>
+                    )}
+                    {order.delivery.trackingNumber && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('trackingNumber')}</span>
+                        <span className="font-medium">{order.delivery.trackingNumber}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('deliveryStatus')}</span>
+                      <span>{order.delivery.status}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-gray-600">{t('deliveryId', { id: order.deliveryId })}</p>
+                )}
               </CardContent>
             </Card>
           )}

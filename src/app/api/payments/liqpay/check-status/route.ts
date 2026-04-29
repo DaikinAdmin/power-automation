@@ -11,6 +11,7 @@ import {
   sendPaymentSuccessEmails,
   type PaymentEmailData,
 } from '@/lib/order-emails';
+import { computeLineItemDerived } from '@/app/api/orders/shared';
 
 // ---------------------------------------------------------------------------
 // LiqPay configuration
@@ -171,17 +172,20 @@ export async function POST(request: NextRequest) {
               customerEmail: user.email,
               customerPhone: user.phoneNumber || undefined,
               companyName: user.companyName || undefined,
-              totalPrice: order.totalPrice,
-              originalTotalPrice: order.originalTotalPrice,
+              totalGross: order.totalGross ?? 0,
+              currency: order.currency ?? 'UAH',
               locale: typeof orderNotes?.locale === 'string' ? orderNotes.locale : undefined,
-              lineItems: lineItems.map((li: any) => ({
-                name: li.name || li.articleId,
-                articleId: li.articleId,
-                quantity: li.quantity,
-                unitPrice: li.unitPrice,
-                lineTotal: li.lineTotal,
-                warehouseName: li.warehouseName,
-              })),
+              lineItems: lineItems.map((li: any) => {
+                const derived = computeLineItemDerived(li);
+                return {
+                  name: li.name || li.articleId,
+                  articleId: li.articleId,
+                  quantity: li.quantity,
+                  unitPriceGross: derived.unitPriceGrossConverted,
+                  lineTotalGrossConverted: derived.lineTotalGrossConverted,
+                  warehouseName: li.warehouseName,
+                };
+              }),
               paymentMethod: liqpayData.paytype || 'LiqPay',
               paymentAmount: liqpayData.amount,
               paymentCurrency: liqpayData.currency || 'UAH',

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
 
 import { formatCurrency, formatDate } from '@/helpers/formatting';
@@ -34,6 +35,12 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [notes, setNotes] = useState<OrderNote[]>([]);
   const [newNoteText, setNewNoteText] = useState('');
   const [isSavingNote, setIsSavingNote] = useState(false);
+
+  // Delete state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     let isMounted = true;
@@ -164,6 +171,23 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || 'Failed to delete order');
+      }
+      toast.success('Замовлення видалено');
+      router.push('/admin/orders');
+    } catch (err: any) {
+      toast.error(err.message || 'Помилка видалення замовлення');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   if (status === 'not_found') {
     return (
       <div className="space-y-6">
@@ -190,13 +214,55 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
           <h1 className="text-3xl font-bold tracking-tight">Order Details</h1>
           <p className="text-gray-600">Review the order information and manage its status.</p>
         </div>
-        <Link
-          href="/admin/orders"
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100"
-        >
-          Back to Orders
-        </Link>
+        <div className="flex items-center gap-3">
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-100"
+            >
+              Видалити замовлення
+            </button>
+          )}
+          <Link
+            href="/admin/orders"
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+          >
+            Back to Orders
+          </Link>
+        </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-gray-900">Видалити замовлення?</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Ця дія незворотня. Замовлення{' '}
+              <span className="font-mono font-semibold">#{orderId.slice(0, 8)}</span> буде видалено назавжди.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Скасувати
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteOrder()}
+                disabled={isDeleting}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? 'Видалення...' : 'Так, видалити'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {status === 'error' && errorMessage && (
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -234,7 +300,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   <dt className="font-medium">Total</dt>
                   <dd>
                     {order
-                      ? (order.totalPrice || formatCurrency(order.originalTotalPrice))
+                      ? (order.totalGross != null && order.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                          : '—')
                       : '—'}
                   </dd>
                 </div>
@@ -276,6 +344,36 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       : '—'}
                   </dd>
                 </div>
+                {order?.user?.userType && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Account type</dt>
+                    <dd>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        order.user.userType === 'company' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {order.user.userType === 'company' ? 'Company' : 'Private'}
+                      </span>
+                    </dd>
+                  </div>
+                )}
+                {order?.user?.companyName && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Company</dt>
+                    <dd>{order.user.companyName}</dd>
+                  </div>
+                )}
+                {order?.user?.vatNumber && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">VAT / NIP</dt>
+                    <dd className="font-mono">{order.user.vatNumber}</dd>
+                  </div>
+                )}
+                {order?.user?.addressLine && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">Address</dt>
+                    <dd className="text-right max-w-[60%]">{order.user.addressLine}</dd>
+                  </div>
+                )}
               </dl>
             )}
           </section>
@@ -300,8 +398,8 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       <th className="px-4 py-2 text-left font-semibold text-gray-600">Item</th>
                       <th className="px-4 py-2 text-left font-semibold text-gray-600">Warehouse</th>
                       <th className="px-4 py-2 text-right font-semibold text-gray-600">Quantity</th>
-                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Unit Price</th>
-                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Line Total</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Price<br />(with VAT)</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Line Total<br />(with VAT)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
@@ -324,13 +422,13 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                         </td>
                         <td className="px-4 py-2 text-right">{item.quantity}</td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.unitPrice === 'number'
-                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: item.currency || 'EUR' }).format(item.unitPrice)
+                          {typeof item.unitPriceNet === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.unitPriceGrossConverted ?? item.unitPriceNet)
                             : '—'}
                         </td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.lineTotal === 'number'
-                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: item.currency || 'EUR' }).format(item.lineTotal)
+                          {typeof item.lineTotalGrossConverted === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.lineTotalGrossConverted)
                             : '—'}
                         </td>
                       </tr>
