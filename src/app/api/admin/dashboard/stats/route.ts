@@ -58,12 +58,12 @@ export async function GET(req: NextRequest) {
     
     // Calculate revenue
     const [currentMonthRevenueResult] = await db
-      .select({ sum: sql<number>`cast(sum(${schema.order.originalTotalPrice}) as double precision)` })
+      .select({ sum: sql<number>`cast(sum(${schema.order.totalGross}) as double precision)` })
       .from(schema.order)
       .where(gte(schema.order.createdAt, currentMonth));
     
     const [previousMonthRevenueResult] = await db
-      .select({ sum: sql<number>`cast(sum(${schema.order.originalTotalPrice}) as double precision)` })
+      .select({ sum: sql<number>`cast(sum(${schema.order.totalGross}) as double precision)` })
       .from(schema.order)
       .where(and(lt(schema.order.createdAt, currentMonth), gte(schema.order.createdAt, previousMonth)));
     

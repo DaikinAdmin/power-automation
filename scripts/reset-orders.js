@@ -11,7 +11,7 @@ const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const DB_URL = 'postgresql://postgres:admin@localhost:5433/pa-test';
+const DB_URL = process.env.DATABASE_URL || 'postgresql://postgres:admin@localhost:5433/pa-test';
 
 async function main() {
   const client = new Client({ connectionString: DB_URL });

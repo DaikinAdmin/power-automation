@@ -38,7 +38,6 @@ interface Order {
   customerName: string;
   totalGross: number | null;
   currency: string | null;
-  totalPriceFormatted: string;
   status: OrderStatus;
   createdAt: string;
 }
@@ -214,9 +213,9 @@ export default function AdminDashboard() {
                     <div className="space-y-1">
                       <p className="text-sm font-medium leading-none">Order #{order.id.slice(-5)}</p>
                       <p className="text-sm text-gray-600">
-                        {order.customerName} - {order.totalPriceFormatted || (order.totalGross != null && order.currency
+                        {order.customerName} - {order.totalGross != null && order.currency
                           ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
-                          : '—')}
+                          : '—'}
                       </p>
                     </div>
                     <div className="text-right">
