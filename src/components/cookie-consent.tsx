@@ -4,21 +4,19 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { useDomainKey } from "@/hooks/useDomain";
 
 const CONSENT_KEY = "cookie_consent";
 
-export default function CookieConsent() {
+export default function CookieConsent({ requireConsent }: { requireConsent: boolean }) {
   const t = useTranslations("cookieConsent");
   const locale = useLocale();
-  const domainKey = useDomainKey();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     // UA domain: auto-accept, no banner needed (not subject to ePrivacy like EU)
-    if (domainKey === 'ua') {
+    if (!requireConsent) {
       if (!localStorage.getItem(CONSENT_KEY)) {
         localStorage.setItem(CONSENT_KEY, 'accepted');
       }
@@ -28,7 +26,7 @@ export default function CookieConsent() {
     if (!stored) {
       setVisible(true);
     }
-  }, [domainKey]);
+  }, [requireConsent]);
 
   function handleAccept() {
     localStorage.setItem(CONSENT_KEY, "accepted");

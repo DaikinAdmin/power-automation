@@ -124,7 +124,7 @@ export default async function LocaleLayout({
             </CompareProvider>
           </CartProvider>
           <Toaster />
-          <CookieConsent />
+          <CookieConsent requireConsent={domainConfig.key !== 'ua'} />
         </NextIntlClientProvider>
       </body>
     </html>
