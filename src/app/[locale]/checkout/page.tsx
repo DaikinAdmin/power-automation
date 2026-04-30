@@ -73,16 +73,12 @@ export default function CheckoutPage({
     address: { country: "", city: "", street: "", postalCode: "" },
   });
 
-  const { cartItems, updateCartQuantity, removeFromCart, getTotalCartItems } = useCart();
+  const { cartItems,  removeFromCart } = useCart();
   const {
-    currencyCode,
     baseTotalPrice,
-    totalPrice,
     getItemCurrency,
     resolveBaseUnitPrice,
-    getItemTotal,
     formatCartItemPrice,
-    formatItemTotal,
     formatCartTotal,
   } = useCartTotals({ items: cartItems });
   const { convertToCurrency, formatAs } = useCurrency();
@@ -210,6 +206,8 @@ export default function CheckoutPage({
           const gtmItems = cartItems.map((item) => ({
               item_id: item.articleId,
               item_name: item.displayName,
+              item_category: item.categorySlug || '',
+              item_list_name: item.categorySlug || 'direct',
               price: convertToCurrency(resolveBaseUnitPrice(item), getItemCurrency(item), domainCurrency as SupportedCurrency),
               quantity: item.quantity,
           }));

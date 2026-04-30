@@ -629,7 +629,8 @@
     "brands": "Marki",
     "purchaseDelivery": "Zakup i dostawa",
     "refunding": "Zwroty",
-    "contacts": "Kontakt"
+    "contacts": "Kontakt",
+    "nobrands": "Brak dostępnych marek"
   },
   "header": {
     "nav": {

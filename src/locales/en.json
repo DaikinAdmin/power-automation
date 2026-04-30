@@ -645,7 +645,8 @@
     "brands": "Brands",
     "purchaseDelivery": "Purchase and Delivery",
     "refunding": "Refunding",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "nobrands": "No brands available"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved",

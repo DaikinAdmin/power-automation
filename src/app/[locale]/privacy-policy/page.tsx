@@ -1,17 +1,7 @@
 import PageLayout from "@/components/layout/page-layout";
 import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "privacyPolicy" });
-  return { title: t("title") };
-}
+export { generatePrivacyPolicyMetadata as generateMetadata } from "@/lib/seo-metadata";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

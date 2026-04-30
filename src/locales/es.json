@@ -614,7 +614,8 @@
     "brands": "Marcas",
     "purchaseDelivery": "Compra y entrega",
     "refunding": "Devoluciones",
-    "contacts": "Contactos"
+    "contacts": "Contactos",
+    "nobrands": "No hay marcas disponibles"
   },
   "footer": {
     "copyright": "© 2024 Todos los derechos reservados",

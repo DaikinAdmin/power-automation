@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -10,69 +10,19 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import BinotelScripts from "@/components/binotel-scripts";
 import Script from 'next/script';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { getServerDomainConfig } from '@/lib/server-domain';
 import { getVatBySlug } from '@/helpers/db/vat-queries';
 import CookieConsent from "@/components/cookie-consent";
 
+export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
+
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
-
-const SITE_META: Record<string, { title: string; description: string }> = {
-  ua: {
-    title: "Power Automation — промислова автоматизація в Україні",
-    description:
-      "Інтернет-магазин промислового обладнання. Siemens, Pilz, Atlas Copco та інші бренди. Наявність на складі, швидка доставка по Україні.",
-  },
-  pl: {
-    title: "Power Automation — automatyka przemysłowa",
-    description:
-      "Sklep internetowy z osprzętem przemysłowym. Siemens, Pilz, Atlas Copco i inne marki. Szybka dostawa.",
-  },
-  en: {
-    title: "Power Automation — Industrial Automation",
-    description:
-      "Online store for industrial equipment. Siemens, Pilz, Atlas Copco and more. Fast delivery.",
-  },
-  es: {
-    title: "Power Automation — Automatización Industrial",
-    description:
-      "Tienda online de equipos industriales. Siemens, Pilz, Atlas Copco y más. Entrega rápida.",
-  },
-};
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const domainConfig = await getServerDomainConfig();
-  const meta = SITE_META[locale] ?? SITE_META.ua;
-  const isIndexed = domainConfig.indexedLocales.includes(locale);
-  return {
-    title: {
-      default: meta.title,
-      template: "%s | Power Automation",
-    },
-    description: meta.description,
-    metadataBase: new URL(domainConfig.baseUrl),
-    alternates: {
-      canonical: `${domainConfig.baseUrl}/${locale}`,
-    },
-    openGraph: {
-      siteName: domainConfig.siteName,
-      locale: locale === "ua" ? "uk_UA" : locale,
-      type: "website",
-    },
-    robots: isIndexed ? "index, follow" : "noindex, nofollow",
-  };
-}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -126,6 +76,13 @@ export default async function LocaleLayout({
               window.dataLayer=window.dataLayer||[];
               function gtag(){dataLayer.push(arguments);}
               window.gtag=gtag;
+              ${domainConfig.key === 'ua' ? `
+              gtag('consent','default',{
+                analytics_storage:'granted',ad_storage:'granted',
+                ad_user_data:'granted',ad_personalization:'granted',
+                functionality_storage:'granted',security_storage:'granted'
+              });
+              ` : `
               try{
                 var c=localStorage.getItem('cookie_consent');
                 var s=c==='accepted'?'granted':'denied';
@@ -143,6 +100,7 @@ export default async function LocaleLayout({
                   wait_for_update:500
                 });
               }
+              `}
             `,
           }}
         />

@@ -629,7 +629,8 @@
     "brands": "Бренди",
     "purchaseDelivery": "Покупка та доставка",
     "refunding": "Повернення",
-    "contacts": "Контакти"
+    "contacts": "Контакти",
+    "nobrands": "Бренди відсутні"
   },
   "header": {
     "nav": {
