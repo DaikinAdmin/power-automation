@@ -83,6 +83,18 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'No displayed schneider-electric items found in DB' }, { status: 400 });
   }
 
+  let discount = 35;
+  let newItemMargin = 25;
+  let updateExistingMargin = false;
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (typeof body.discount === 'number') discount = body.discount;
+    if (typeof body.margin === 'number') newItemMargin = body.margin;
+    if (typeof body.updateExistingMargin === 'boolean') updateExistingMargin = body.updateExistingMargin;
+  } catch {
+    // use defaults
+  }
+
   const refs = rows.map((r) => r.articleId).join(',');
   const result = await fetchPartnerseCatalog(refs);
   // console.log('Partnerse catalog update result:', result);
@@ -135,13 +147,15 @@ export async function PUT(request: NextRequest) {
       .limit(1);
 
     if (existing) {
-      const effectiveMargin = existing.margin ?? 0;
+      const effectiveMargin = updateExistingMargin ? newItemMargin : (existing.margin ?? 0);
       const priceExVat = price / 1.2;
-      const calculatedPrice = Math.round(priceExVat * (1 + effectiveMargin / 100) * 100) / 100;
+      const priceAfterDiscount = Math.round(priceExVat * (1 - discount / 100) * 100) / 100;
+      const calculatedPrice = Math.round(priceAfterDiscount * (1 + effectiveMargin / 100) * 100) / 100;
       const quantityChanged = existing.quantity !== catalogItem.total_warehouse;
-      const priceChanged = existing.initialPrice !== price;
+      const priceChanged = existing.initialPrice !== priceAfterDiscount;
+      const marginChanged = updateExistingMargin && existing.margin !== newItemMargin;
 
-      if (priceChanged) {
+      if (priceChanged || marginChanged) {
         await db.insert(schema.itemPriceHistory).values({
           itemId: item.id,
           warehouseId: existing.warehouseId,
@@ -161,9 +175,10 @@ export async function PUT(request: NextRequest) {
           .update(schema.itemPrice)
           .set({
             price: calculatedPrice,
-            initialPrice: price,
+            initialPrice: priceAfterDiscount,
             initialCurrency: catalogItem.currency as Currency,
             quantity: catalogItem.total_warehouse,
+            ...(updateExistingMargin ? { margin: newItemMargin } : {}),
             updatedAt: now,
           })
           .where(eq(schema.itemPrice.id, existing.id));
@@ -175,17 +190,17 @@ export async function PUT(request: NextRequest) {
       }
       updated++;
     } else {
-      const defaultMargin = 0;
       const priceExVat = price / 1.2;
-      const calculatedPrice = Math.round(priceExVat * (1 + defaultMargin / 100) * 100) / 100;
+      const priceAfterDiscount = Math.round(priceExVat * (1 - discount / 100) * 100) / 100;
+      const calculatedPrice = Math.round(priceAfterDiscount * (1 + newItemMargin / 100) * 100) / 100;
       await db.insert(schema.itemPrice).values({
         itemSlug: item.slug,
         warehouseId: WAREHOUSE_ID,
         price: calculatedPrice,
         quantity: catalogItem.total_warehouse,
-        initialPrice: price,
+        initialPrice: priceAfterDiscount,
         initialCurrency: catalogItem.currency as Currency,
-        margin: defaultMargin,
+        margin: newItemMargin,
         updatedAt: now,
       });
       created++;

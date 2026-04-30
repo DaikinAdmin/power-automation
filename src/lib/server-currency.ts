@@ -50,26 +50,3 @@ export async function getExchangeRate(from: string, to: string): Promise<number>
 
   return record.rate;
 }
-
-/**
- * Converts a EUR price to the target currency using the DB rate.
- * Uses the same rounding logic as the frontend useCurrency hook.
- */
-export async function convertFromEur(eurAmount: number, toCurrency: string): Promise<number> {
-  const rate = await getExchangeRate(BASE_CURRENCY, toCurrency);
-  return convertPriceValue(eurAmount, rate);
-}
-
-/**
- * Converts EUR → PLN. Used by Przelewy24 (which charges in PLN / grosze).
- */
-export async function eurToPlnAmount(eurAmount: number): Promise<number> {
-  return convertFromEur(eurAmount, 'PLN');
-}
-
-/**
- * Converts EUR → UAH. Used by LiqPay (which charges in UAH).
- */
-export async function eurToUahAmount(eurAmount: number): Promise<number> {
-  return convertFromEur(eurAmount, 'UAH');
-}

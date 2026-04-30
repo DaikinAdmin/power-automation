@@ -119,6 +119,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     
     // Open cart modal when adding items
     setIsCartModalOpen(true);
+
+    // GTM add_to_cart event
+    if (typeof window !== 'undefined') {
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({ ecommerce: null });
+      w.dataLayer.push({
+        event: 'add_to_cart',
+        ecommerce: {
+          currency: (itemToAdd as any).initialCurrency || 'EUR',
+          value: (itemToAdd as any).basePrice ?? (itemToAdd as any).price ?? 0,
+          items: [{
+            item_id: itemToAdd.articleId,
+            item_name: (itemToAdd as any).displayName || itemToAdd.articleId,
+            item_category: itemToAdd.categorySlug || '',
+            price: (itemToAdd as any).basePrice ?? (itemToAdd as any).price ?? 0,
+            quantity: 1,
+          }],
+        },
+      });
+    }
   };
 
   const updateCartQuantity = (id: string, change: number) => {

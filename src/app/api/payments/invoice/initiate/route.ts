@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
     const now = new Date().toISOString();
     await db.insert(schema.payment).values({
       orderId: order.id,
-      amount: order.originalTotalPrice ?? 0,
-      currency: 'EUR',
+      amount: Math.round((order.totalGross ?? 0) * 100),
+      currency: order.currency ?? 'EUR',
       status: 'PENDING',
       paymentMethod: 'invoice',
       description: `Invoice request for order ${order.id.substring(0, 8)}`,

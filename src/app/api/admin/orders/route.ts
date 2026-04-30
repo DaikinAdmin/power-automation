@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { eq, desc, inArray } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler } from '@/lib/error-handler';
@@ -50,11 +50,12 @@ export async function GET(request: NextRequest) {
       .select({
         id: schema.order.id,
         status: schema.order.status,
-        totalPrice: schema.order.totalPrice,
-        originalTotalPrice: schema.order.originalTotalPrice,
+        currency: schema.order.currency,
+        totalNet: schema.order.totalNet,
+        totalVat: schema.order.totalVat,
+        totalGross: schema.order.totalGross,
         lineItems: schema.order.lineItems,
         createdAt: schema.order.createdAt,
-        itemIds: schema.order.lineItems,
         userName: schema.user.name,
         userEmail: schema.user.email,
       })
@@ -63,60 +64,35 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(schema.order.createdAt)) as unknown as Array<{
         id: string;
         status: string;
-        totalPrice: number;
-        originalTotalPrice: number;
-        lineItems: any;
+        currency: string | null;
+        totalNet: number | null;
+        totalVat: number | null;
+        totalGross: number | null;
+        lineItems: Array<{ itemId: string; articleId: string; name: string; quantity: number }> | null;
         createdAt: Date;
-        itemIds: string[];
         userName: string | null;
         userEmail: string | null;
       }>;
 
-    // Fetch item details for all orders
-    const allItemIds = ordersWithUser.flatMap(order => order.itemIds || []) as string[];
-    const uniqueItemIds = [...new Set(allItemIds)];
-    
-    let itemsMap = new Map();
-    if (uniqueItemIds.length > 0) {
-      const items = await db
-        .select({
-          id: schema.item.id,
-          articleId: schema.item.articleId,
-        })
-        .from(schema.item)
-        .where(inArray(schema.item.id, uniqueItemIds));
-
-      // Fetch item details for these items
-      const itemDetailsPromises = items.map(async (item) => {
-        const [detail] = await db
-          .select({ itemName: schema.itemDetails.itemName })
-          .from(schema.itemDetails)
-          .where(eq(schema.itemDetails.itemSlug, item.articleId))
-          .limit(1);
-        
-        return {
-          id: item.id,
-          itemDetails: detail ? [detail] : [],
-        };
-      });
-
-      const itemsWithDetails = await Promise.all(itemDetailsPromises);
-      itemsMap = new Map(itemsWithDetails.map(item => [item.id, item]));
-    }
-
-    // Format orders
+    // Format orders — derive items list directly from lineItems JSON (no extra DB lookup needed)
     const orders = ordersWithUser.map(order => ({
       id: order.id,
       status: order.status,
-      totalPrice: order.totalPrice,
-      originalTotalPrice: order.originalTotalPrice,
-      lineItems: order.lineItems,
+      currency: order.currency ?? null,
+      totalNet: order.totalNet ?? null,
+      totalVat: order.totalVat ?? null,
+      totalGross: order.totalGross ?? null,
       createdAt: order.createdAt,
       user: {
         name: order.userName,
         email: order.userEmail,
       },
-      items: (order.itemIds || []).map(itemId => itemsMap.get(itemId)).filter(Boolean),
+      items: Array.isArray(order.lineItems)
+        ? order.lineItems.map(li => ({
+            id: li.itemId,
+            itemDetails: [{ itemName: li.name ?? li.articleId }],
+          }))
+        : [],
     }));
 
     /* Prisma implementation (commented out)

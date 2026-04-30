@@ -11,7 +11,9 @@
       "forgotPassword": "Забули пароль?",
       "signInButton": "Увійти",
       "noAccount": "Немає облікового запису?",
-      "signUpLink": "Зареєструватися"
+      "signUpLink": "Зареєструватися",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google"
     },
     "signUp": {
       "title": "Реєстрація",
@@ -35,8 +37,14 @@
       "countryPlaceholder": "Оберіть країну",
       "vatNumberLabel": "ПДВ номер (VAT)",
       "vatNumberPlaceholder": "напр. PL1234567890",
-      "addressLineLabel": "Адреса",
-      "addressLinePlaceholder": "Вулиця, Місто, Поштовий індекс",
+      "vatNumberPlaceholderUa": "ІПН або ЄДРПОУ",
+      "vatNumberPlaceholderPl": "NIP або VAT",
+      "cityLabel": "Місто",
+      "cityPlaceholder": "наприклад, Київ",
+      "streetLabel": "Вулиця і номер",
+      "streetPlaceholder": "наприклад, вул. Хрещатик 1",
+      "postalCodeLabel": "Поштовий індекс",
+      "postalCodePlaceholder": "наприклад, 01001",
       "positionLabel": "Ваша посада",
       "positionOwner": "Власник",
       "positionEmployee": "Співробітник",
@@ -49,7 +57,10 @@
       "userAgreement": "Угоду користувача",
       "signUpButton": "Зареєструватися",
       "haveAccount": "Вже є обліковий запис?",
-      "signInLink": "Увійти"
+      "signInLink": "Увійти",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google",
+      "optional": "необов'язково"
     },
     "forgotPassword": {
       "title": "Забули пароль?",
@@ -348,6 +359,18 @@
         "lastUpdated": "Останнє оновлення",
         "deliveryInfo": "Інформація про доставку",
         "deliveryId": "ID доставки: {id}",
+        "deliveryType": "Тип доставки:",
+        "deliveryCity": "Місто:",
+        "deliveryWarehouse": "Відділення:",
+        "deliveryAddress": "Адреса:",
+        "trackingNumber": "ТТН / трек-номер:",
+        "deliveryStatus": "Статус доставки:",
+        "deliveryTypes": {
+          "PICKUP": "Самовивіз",
+          "USER_ADDRESS": "Доставка на адресу",
+          "NOVA_POSHTA": "Нова Пошта",
+          "COURIER": "Кур'єр"
+        },
         "paymentInfo": "Інформація про оплату",
         "paymentStatus": "Статус оплати:",
         "paidWith": "Оплачено через:",
@@ -364,6 +387,9 @@
       "countryCode": "Код країни",
       "phone": "Телефон",
       "vatNumber": "Номер ПДВ (VAT)",
+      "vatNumberPlaceholderUa": "ІПН або ЄДРПОУ",
+      "vatNumberPlaceholderPl": "NIP або VAT",
+      "companySection": "Інформація про компанію",
       "companyName": "Назва компанії",
       "companyPosition": "Посада",
       "addressTitle": "Адреса доставки",
@@ -603,7 +629,8 @@
     "brands": "Бренди",
     "purchaseDelivery": "Покупка та доставка",
     "refunding": "Повернення",
-    "contacts": "Контакти"
+    "contacts": "Контакти",
+    "nobrands": "Бренди відсутні"
   },
   "header": {
     "nav": {
@@ -985,6 +1012,12 @@
         "email": "Email",
         "company": "Компанія",
         "noCompany": "Без компанії",
+        "userType": "Тип користувача",
+        "userTypePrivate": "Приватна особа",
+        "userTypeCompany": "Компанія",
+        "phone": "Телефон",
+        "vatNumber": "ІПН / ЄДРПОУ / VAT",
+        "address": "Адреса",
         "created": "Створено",
         "editableFields": "Редаговані поля",
         "role": "Роль",
@@ -1692,10 +1725,83 @@
       "nova_courier": { "label": "Кур'єр", "description": "Нова Пошта" }
     },
     "paymentOption": {
-      "online_card": { "label": "Картою онлайн", "description": "Visa / Mastercard" },
-      "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
-      "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
-      "installment": { "label": "Оплата частинами", "description": "ПриватБанк · Monobank" }
+      "online_card": {
+        "label": "Картою онлайн",
+        "description": "Visa / Mastercard"
+      },
+      "bank_transfer": {
+        "label": "Банківський переказ",
+        "description": "Рахунок-фактура"
+      },
+      "cash_on_delivery": {
+        "label": "Накладений платіж",
+        "description": "Оплата при отриманні"
+      },
+      "installment": {
+        "label": "Оплата частинами",
+        "description": "ПриватБанк"
+      }
+    },
+    "deliveryCostNote": "Сума оплати не включає вартість доставки. Оплата за доставку здійснюється згідно тарифів перевізника.",
+    "courierAddressMissing": "Для доставки кур'єром вкажіть адресу у розділі 'Деталі доставки' вище."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "Нове замовлення #{orderShortId} від {customerName}",
+      "title": "Нове замовлення отримано",
+      "orderId": "№ замовлення",
+      "customer": "Клієнт",
+      "email": "Email",
+      "phone": "Телефон",
+      "company": "Компанія",
+      "total": "Сума",
+      "comment": "Коментар",
+      "orderItems": "Товари замовлення",
+      "footer": "Це автоматичне повідомлення від PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Підтвердження замовлення #{orderShortId} — PowerAutomation",
+      "title": "Дякуємо за ваше замовлення!",
+      "greeting": "Шановний {customerName},",
+      "received": "Ми отримали ваше замовлення #{orderShortId}.",
+      "orderSummary": "Деталі замовлення",
+      "total": "Сума",
+      "nextEmail": "Ви отримаєте ще один email після підтвердження оплати.",
+      "footer": "Якщо у вас є питання, зв'яжіться з нами:"
+    },
+    "paymentSuccessManager": {
+      "subject": "Оплата за замовлення #{orderShortId} отримана",
+      "title": "Оплату отримано",
+      "orderId": "№ замовлення",
+      "customer": "Клієнт",
+      "phone": "Телефон",
+      "company": "Компанія",
+      "paymentAmount": "Сума оплати",
+      "paymentMethod": "Спосіб оплати",
+      "transactionId": "ID транзакції",
+      "orderTotal": "Загальна сума замовлення",
+      "orderItems": "Товари замовлення",
+      "footer": "Це автоматичне повідомлення від PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Оплату підтверджено — замовлення #{orderShortId} — PowerAutomation",
+      "title": "Оплату підтверджено!",
+      "greeting": "Шановний {customerName},",
+      "confirmed": "Ваш платіж за замовлення #{orderShortId} успішно оброблено.",
+      "amountPaid": "Сплачена сума",
+      "paymentMethod": "Спосіб оплати",
+      "transactionId": "ID транзакції",
+      "orderSummary": "Деталі замовлення",
+      "total": "Сума",
+      "processing": "Ваше замовлення обробляється. Ми повідомимо вас, коли воно буде відправлено.",
+      "footer": "Якщо у вас є питання, зв'яжіться з нами:"
+    },
+    "table": {
+      "product": "Товар",
+      "article": "Артикул",
+      "qty": "Кіл-ть",
+      "unitPrice": "Ціна за шт.",
+      "total": "Сума"
     }
   }
 }

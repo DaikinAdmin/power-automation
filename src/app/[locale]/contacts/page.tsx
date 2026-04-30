@@ -2,8 +2,6 @@ import { notFound } from "next/navigation";
 import PageLayout from "@/components/layout/page-layout";
 import EditorJSRenderer from "@/components/EditorJSRenderer";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
-import ContactMap from "@/components/ContactMap";
-import "leaflet/dist/leaflet.css";
 import { getServerDomainConfig } from "@/lib/server-domain";
 import { processEditorJSContent } from "@/lib/content-placeholders";
 
@@ -122,24 +120,4 @@ export async function generateStaticParams() {
   return params;
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const page = await getPageContent(locale);
-
-  if (!page) {
-    return {
-      title: "Page Not Found",
-    };
-  }
-
-  return {
-    title: page.title,
-    description:
-      page.content.blocks[0]?.data?.text?.substring(0, 160) || page.title,
-  };
-}
+export { generateContactsMetadata as generateMetadata } from "@/lib/seo-metadata";

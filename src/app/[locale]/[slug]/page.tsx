@@ -101,24 +101,4 @@ export async function generateStaticParams() {
   return params;
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
-  const { locale, slug } = await params;
-  const page = await getPageContent(locale, slug);
-
-  if (!page) {
-    return {
-      title: "Page Not Found",
-    };
-  }
-
-  return {
-    title: page.title,
-    description:
-      page.content.blocks[0]?.data?.text?.substring(0, 160) || page.title,
-  };
-}
+export { generateDynamicPageMetadata as generateMetadata } from "@/lib/seo-metadata";

@@ -25,9 +25,17 @@ import {
   verification as verificationTable,
   twoFactor as twoFactorTable 
 } from "@/db/schema";
+import { getServerDomainConfig } from "@/lib/server-domain";
+import { DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { eq } from "drizzle-orm";
 
-export const auth = betterAuth({
+async function resolveUrl(url: string): Promise<string> {
+  const { baseUrl } = await getServerDomainConfig();
+  return url.replace(/^https?:\/\/[^/]+/, baseUrl);
+}
+
+function createAuthInstance(baseURL: string, googleClientId: string, googleClientSecret: string) {
+  return betterAuth({
   user: {
     additionalFields: {
       role: {
@@ -93,15 +101,16 @@ export const auth = betterAuth({
     },
   },
   appName: "power-automation",
+  baseURL,
   trustedOrigins: [
     // Локальна розробка
     "http://localhost:3000",
     "http://localhost:3001",
     // Продакшн домени
-    "https://powerautomation.pl",
-    "https://www.powerautomation.pl",
-    "https://powerautomation.com.ua",
-    "https://www.powerautomation.com.ua",
+    DOMAIN_CONFIGS.pl.baseUrl,
+    `https://www.${DOMAIN_CONFIGS.pl.host}`,
+    DOMAIN_CONFIGS.ua.baseUrl,
+    `https://www.${DOMAIN_CONFIGS.ua.host}`,
     // Тестові домени з .env (APP_UA_TEST_HOST / APP_PL_TEST_HOST)
     process.env.APP_UA_TEST_HOST ? `https://${process.env.APP_UA_TEST_HOST}` : "",
     process.env.APP_UA_TEST_HOST ? `https://www.${process.env.APP_UA_TEST_HOST}` : "",
@@ -129,6 +138,59 @@ export const auth = betterAuth({
       twoFactor: twoFactorTable,
     },
   }),
+  socialProviders: {
+    google: {
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+      mapProfileToUser: (profile) => {
+        // Google OAuth надає locale (мову акаунта), але НЕ номер телефону.
+        // Використовуємо locale для кращого визначення країни та phone code.
+        const localeMap: Record<string, { country: string; countryCode: string }> = {
+          pl:    { country: 'PL', countryCode: '+48'  },
+          uk:    { country: 'UA', countryCode: '+380' },
+          de:    { country: 'DE', countryCode: '+49'  },
+          fr:    { country: 'FR', countryCode: '+33'  },
+          it:    { country: 'IT', countryCode: '+39'  },
+          es:    { country: 'ES', countryCode: '+34'  },
+          nl:    { country: 'NL', countryCode: '+31'  },
+          cs:    { country: 'CZ', countryCode: '+420' },
+          hu:    { country: 'HU', countryCode: '+36'  },
+          ro:    { country: 'RO', countryCode: '+40'  },
+          sk:    { country: 'SK', countryCode: '+421' },
+          bg:    { country: 'BG', countryCode: '+359' },
+          hr:    { country: 'HR', countryCode: '+385' },
+          sl:    { country: 'SI', countryCode: '+386' },
+          et:    { country: 'EE', countryCode: '+372' },
+          lv:    { country: 'LV', countryCode: '+371' },
+          lt:    { country: 'LT', countryCode: '+370' },
+          fi:    { country: 'FI', countryCode: '+358' },
+          sv:    { country: 'SE', countryCode: '+46'  },
+          da:    { country: 'DK', countryCode: '+45'  },
+          el:    { country: 'GR', countryCode: '+30'  },
+          pt:    { country: 'PT', countryCode: '+351' },
+          'en-GB': { country: 'GB', countryCode: '+44' },
+        };
+
+        const locale = (profile as any).locale ?? '';
+        const langKey = locale.split('-')[0]?.toLowerCase() ?? '';
+        const mapped = localeMap[locale] ?? localeMap[langKey];
+
+        // Fallback: беремо країну з домену через env (NEXT_PUBLIC_DOMAIN_KEY)
+        const domainKey = process.env.NEXT_PUBLIC_DOMAIN_KEY;
+        const domainDefault = domainKey === 'ua'
+          ? { country: 'UA', countryCode: '+380' }
+          : { country: 'PL', countryCode: '+48' };
+
+        return {
+          country:     mapped?.country     ?? domainDefault.country,
+          countryCode: mapped?.countryCode ?? domainDefault.countryCode,
+          userAgreement: true,
+          userType: 'private',
+          phoneNumber: '000-000-000',
+        };
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -136,13 +198,13 @@ export const auth = betterAuth({
     maxPasswordLength: 20,
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: 3600 * 24,
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url, token }) => {
+      const resolvedUrl = await resolveUrl(url);
       await email.sendMail({
         from: process.env.MAIL_USER,
-        // TODO once we will go to prod, change to: user.email,
         to: user.email,
         subject: "Reset your password",
-        html: `Click the link to reset your password: ${url}`,
+        html: `Click the link to reset your password: ${resolvedUrl}`,
       });
     },
   },
@@ -150,11 +212,12 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
+      const resolvedUrl = await resolveUrl(url);
       await email.sendMail({
         from: process.env.MAIL_USER,
         to: user.email,
         subject: "Email Verification",
-        html: `Click the link to verify your email: ${url}`,
+        html: `Click the link to verify your email: ${resolvedUrl}`,
       });
     },
   },
@@ -228,4 +291,27 @@ export const auth = betterAuth({
       }
     }),
   ],
-});
+  });
+}
+
+// PL instance: powerautomation.pl
+// Google OAuth client must have https://powerautomation.pl/api/auth/callback/google
+// registered as an Authorized redirect URI in Google Cloud Console.
+export const authPl = createAuthInstance(
+  DOMAIN_CONFIGS.pl.baseUrl,
+  process.env.GOOGLE_CLIENT_ID_PL || '',
+  process.env.GOOGLE_CLIENT_SECRET_PL || '',
+);
+
+// UA instance: powerautomation.com.ua
+// Google OAuth client must have https://powerautomation.com.ua/api/auth/callback/google
+// registered as an Authorized redirect URI in Google Cloud Console.
+// Requires env vars: GOOGLE_CLIENT_ID_UA, GOOGLE_CLIENT_SECRET_UA
+export const authUa = createAuthInstance(
+  DOMAIN_CONFIGS.ua.baseUrl,
+  process.env.GOOGLE_CLIENT_ID_UA || '',
+  process.env.GOOGLE_CLIENT_SECRET_UA || '',
+);
+
+// Default export for server-side session checks (both instances share the same DB + secret)
+export const auth = authPl;

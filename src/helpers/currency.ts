@@ -1,5 +1,11 @@
 export type SupportedCurrency = 'EUR' | 'PLN' | 'UAH' | 'USD';
 
+export interface ExchangeRate {
+  from: string;
+  to: string;
+  rate: number;
+}
+
 const localeCurrencyMap: Record<SupportedCurrency, string> = {
   EUR: 'en-US',
   PLN: 'pl-PL',

@@ -8,7 +8,6 @@ import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } fr
 import crypto from 'crypto';
 import { buildCheckoutUrl } from '@/lib/liqpay';
 import type { LiqPayParams } from '@/lib/liqpay';
-import { eurToUahAmount } from '@/lib/server-currency';
 
 // ---------------------------------------------------------------------------
 // LiqPay configuration (set these in your .env / .env.local)
@@ -30,6 +29,13 @@ const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
  *  5. Set the order status to WAITING_FOR_PAYMENT.
  *  6. Return the checkout URL so the frontend can do window.location.href.
  */
+
+/**
+ * Parses the numeric UAH amount from a formatted totalPrice string.
+ * Handles: "942,41 грн", "942.41 UAH".
+ * Returns null if parsing fails or string is not UAH.
+ */
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
@@ -130,16 +136,13 @@ export async function POST(request: NextRequest) {
      */
     const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
 
-    // Convert the order amount from EUR (base currency) to UAH using the live
-    // exchange rate stored in the database.
-    // LiqPay expects the amount in actual currency units (not cents/kopiyky).
-    const amountInUah = await eurToUahAmount(order.originalTotalPrice);
+    // Use totalGross directly (already in UAH — stored in domain currency at checkout).
 
     const params: LiqPayParams = {
       version: 3,
       public_key: LIQPAY_PUBLIC_KEY,
       action: 'pay',
-      amount: amountInUah,
+      amount: order.totalGross > 0 ? order.totalGross : 0,
       currency: 'UAH',
       description: `Order #${orderId.substring(0, 8)}`,
       order_id: liqpayOrderId,
@@ -155,8 +158,7 @@ export async function POST(request: NextRequest) {
     logger.info('LiqPay checkout URL built', {
       sessionId,
       liqpayOrderId,
-      amountEur: order.originalTotalPrice,
-      amountInUah,
+      amount: order.totalGross > 0 ? order.totalGross : 0,
       currency: 'UAH',
     });
 
@@ -173,7 +175,7 @@ export async function POST(request: NextRequest) {
         sessionId,           // used to find this record on callback
         merchantId: LIQPAY_PUBLIC_KEY,
         posId: null,         // P24-specific field, not used by LiqPay
-        amount: Math.round(amountInUah * 100), // store in minor units (kopiyky) for consistency with P24
+        amount: Math.round((order.totalGross > 0 ? order.totalGross : 0) * 100), // store in minor units (kopiyky) for consistency with P24
         currency: 'UAH',
         status: 'INITIATED',
         p24Email: user.email,

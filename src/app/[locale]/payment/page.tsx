@@ -274,7 +274,9 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
                     <span>{t('orderSummary.total')}:</span>
                     <div className="text-right">
                       <span className="text-red-600">
-                        {orderData.totalPrice}
+                        {orderData.totalGross != null && orderData.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: orderData.currency }).format(orderData.totalGross)
+                          : '—'}
                       </span>
                       {(() => {
                         const cartFormatted = getCartTotalFormatted(orderData);

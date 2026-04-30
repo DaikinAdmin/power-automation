@@ -11,7 +11,9 @@
       "forgotPassword": "Forgot password?",
       "signInButton": "Sign In",
       "noAccount": "Don't have an account?",
-      "signUpLink": "Sign Up"
+      "signUpLink": "Sign Up",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google"
     },
     "signUp": {
       "title": "Sign Up",
@@ -35,8 +37,14 @@
       "countryPlaceholder": "Select country",
       "vatNumberLabel": "EU VAT Number",
       "vatNumberPlaceholder": "e.g. PL1234567890",
-      "addressLineLabel": "Address Line",
-      "addressLinePlaceholder": "Street, City, Postal Code",
+      "vatNumberPlaceholderUa": "TIN or EDRPOU",
+      "vatNumberPlaceholderPl": "NIP or VAT",
+      "cityLabel": "City",
+      "cityPlaceholder": "e.g. Warsaw",
+      "streetLabel": "Street and number",
+      "streetPlaceholder": "e.g. Marszałkowska 1",
+      "postalCodeLabel": "Postal code",
+      "postalCodePlaceholder": "e.g. 00-001",
       "positionLabel": "Your Position",
       "positionOwner": "Owner",
       "positionEmployee": "Employee",
@@ -49,7 +57,10 @@
       "userAgreement": "User Agreement",
       "signUpButton": "Sign Up",
       "haveAccount": "Already have an account?",
-      "signInLink": "Sign In"
+      "signInLink": "Sign In",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google",
+      "optional": "optional"
     },
     "forgotPassword": {
       "title": "Forgot Password?",
@@ -373,6 +384,18 @@
         "lastUpdated": "Last Updated",
         "deliveryInfo": "Delivery Information",
         "deliveryId": "Delivery ID: {id}",
+        "deliveryType": "Delivery type:",
+        "deliveryCity": "City:",
+        "deliveryWarehouse": "Branch:",
+        "deliveryAddress": "Address:",
+        "trackingNumber": "Tracking number:",
+        "deliveryStatus": "Delivery status:",
+        "deliveryTypes": {
+          "PICKUP": "Pickup",
+          "USER_ADDRESS": "Home delivery",
+          "NOVA_POSHTA": "Nova Poshta",
+          "COURIER": "Courier"
+        },
         "paymentInfo": "Payment Information",
         "paymentStatus": "Payment Status:",
         "paidWith": "Paid with:",
@@ -389,6 +412,9 @@
       "countryCode": "Country code",
       "phone": "Phone",
       "vatNumber": "VAT number",
+      "vatNumberPlaceholderUa": "TIN or EDRPOU",
+      "vatNumberPlaceholderPl": "NIP or VAT",
+      "companySection": "Company Information",
       "companyName": "Company name",
       "companyPosition": "Position",
       "addressTitle": "Delivery address",
@@ -412,7 +438,7 @@
       "backToHome": "Back to Home"
     },
     "articleId": "Article",
-    "from": "From {warehouse}",
+    "from": "From: Warehouse №{warehouse}",
     "moreLocations": "+{count} more locations",
     "price": {
       "discount": "-{percent}%",
@@ -511,9 +537,9 @@
       "errorMessage": "Failed to submit request. Please try again.",
       "deliveryDays": "Estimated delivery: {days} days"
     },
-    "productCatalogCard":{
-      "buy":"Buy",
-      "outOfStock":"Out of Stock",
+    "productCatalogCard": {
+      "buy": "Buy",
+      "outOfStock": "Out of Stock",
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison",
       "from": "from",
@@ -619,7 +645,8 @@
     "brands": "Brands",
     "purchaseDelivery": "Purchase and Delivery",
     "refunding": "Refunding",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "nobrands": "No brands available"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved",
@@ -979,6 +1006,12 @@
         "email": "Email",
         "company": "Company",
         "noCompany": "No company",
+        "userType": "Account type",
+        "userTypePrivate": "Private",
+        "userTypeCompany": "Company",
+        "phone": "Phone",
+        "vatNumber": "VAT / NIP",
+        "address": "Address",
         "created": "Created",
         "editableFields": "Editable Fields",
         "role": "Role",
@@ -1690,10 +1723,77 @@
       "nova_courier": { "label": "Courier", "description": "Nova Poshta" }
     },
     "paymentOption": {
-      "online_card": { "label": "Card online", "description": "Visa / Mastercard" },
+      "online_card": {
+        "label": "Card online",
+        "description": "Visa / Mastercard"
+      },
       "bank_transfer": { "label": "Bank transfer", "description": "Invoice" },
-      "cash_on_delivery": { "label": "Cash on delivery", "description": "Pay on receipt" },
-      "installment": { "label": "Installments", "description": "PrivatBank · Monobank" }
+      "cash_on_delivery": {
+        "label": "Cash on delivery",
+        "description": "Pay on receipt"
+      },
+      "installment": { "label": "Installments", "description": "PrivatBank" }
+    },
+    "deliveryCostNote": "The payment amount does not include delivery costs. Delivery is charged according to the carrier&#39;s tariffs.",
+    "courierAddressMissing": "For courier delivery, please fill in your address in the &#39;Delivery Details&#39; section above."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "New Order #{orderShortId} from {customerName}",
+      "title": "New Order Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "total": "Total",
+      "comment": "Comment",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Order Confirmation #{orderShortId} — PowerAutomation",
+      "title": "Thank you for your order!",
+      "greeting": "Dear {customerName},",
+      "received": "We have received your order #{orderShortId}.",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "nextEmail": "You will receive another email once your payment is confirmed.",
+      "footer": "If you have questions, contact us at"
+    },
+    "paymentSuccessManager": {
+      "subject": "Payment Received for Order #{orderShortId}",
+      "title": "Payment Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "phone": "Phone",
+      "company": "Company",
+      "paymentAmount": "Payment Amount",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderTotal": "Order Total",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Payment Confirmed — Order #{orderShortId} — PowerAutomation",
+      "title": "Payment Confirmed!",
+      "greeting": "Dear {customerName},",
+      "confirmed": "Your payment for order #{orderShortId} has been successfully processed.",
+      "amountPaid": "Amount Paid",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "processing": "Your order is now being processed. We will notify you when it ships.",
+      "footer": "If you have questions, contact us at"
+    },
+    "table": {
+      "product": "Product",
+      "article": "Article",
+      "qty": "Qty",
+      "unitPrice": "Unit Price",
+      "total": "Total"
     }
   }
 }

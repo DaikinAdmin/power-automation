@@ -11,8 +11,8 @@ import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/
 type OrderListItem = {
   id: string;
   status: string;
-  totalPrice: string | null;
-  originalTotalPrice: number;
+  currency: string | null;
+  totalGross: number | null;
   createdAt: string;
   user: {
     name: string | null;
@@ -79,7 +79,7 @@ export default function OrdersPage() {
     completed: orders.filter(order => order.status === 'COMPLETED').length,
     totalRevenue: orders
       .filter(order => order.status === 'COMPLETED')
-      .reduce((sum, order) => sum + order.originalTotalPrice, 0),
+      .reduce((sum, order) => sum + (order.totalGross ?? 0), 0),
   };
 
   return (
@@ -205,7 +205,9 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium">
-                        {`${formatCurrency(order.originalTotalPrice)}${order.totalPrice ? ` (${order.totalPrice})` : ''}`}
+                        {order.totalGross != null && order.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                          : '—'}
                       </div>
                     </td>
                     <td className="py-3 px-4">

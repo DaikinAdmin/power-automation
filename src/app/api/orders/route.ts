@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { mapOrderForUser } from './shared';
+import { mapOrderForUser, computeLineItemDerived } from './shared';
 import { eq, desc, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
@@ -32,14 +32,6 @@ export async function GET(request: NextRequest) {
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
         // Parse lineItems to get itemIds
-        const lineItems = typeof order.lineItems === 'string' 
-          ? JSON.parse(order.lineItems) 
-          : order.lineItems;
-        
-        const itemIds = Array.isArray(lineItems) 
-          ? lineItems.map((item: any) => item.itemId).filter(Boolean)
-          : [];
-
         // Fetch payment data for the order
         const [paymentData] = await db
           .select({
@@ -54,47 +46,7 @@ export async function GET(request: NextRequest) {
           .orderBy(desc(schema.payment.createdAt))
           .limit(1);
 
-        if (itemIds.length === 0) {
-          return { ...order, items: [], payment: paymentData || null };
-        }
-
-        // Fetch items with details and prices
-        const items = await db
-          .select()
-          .from(schema.item)
-          .where(inArray(schema.item.id, itemIds));
-
-        const itemsWithRelations = await Promise.all(
-          items.map(async (item) => {
-            const [itemDetails, itemPrice] = await Promise.all([
-              db.select({ itemName: schema.itemDetails.itemName })
-                .from(schema.itemDetails)
-                .where(eq(schema.itemDetails.itemSlug, item.articleId))
-                .limit(1)
-                .then(r => r[0]),
-              db.select({
-                id: schema.itemPrice.id,
-                price: schema.itemPrice.price,
-                quantity: schema.itemPrice.quantity,
-                promotionPrice: schema.itemPrice.promotionPrice,
-                warehouse: schema.warehouse,
-              })
-                .from(schema.itemPrice)
-                .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-                .where(eq(schema.itemPrice.itemSlug, item.articleId))
-                .limit(1)
-                .then(r => r[0]),
-            ]);
-
-            return {
-              ...item,
-              itemDetails: itemDetails ? [itemDetails] : [],
-              itemPrice: itemPrice ? [itemPrice] : [],
-            };
-          })
-        );
-
-        return { ...order, items: itemsWithRelations, payment: paymentData || null };
+        return { ...order, payment: paymentData || null };
       })
     );
 
@@ -210,6 +162,7 @@ async function priceRequestHandler(body: any, userId: string) {
       price: schema.itemPrice.price,
       promotionPrice: schema.itemPrice.promotionPrice,
       margin: schema.itemPrice.margin,
+      initialCurrency: schema.itemPrice.initialCurrency,
       warehouse: schema.warehouse,
     })
     .from(schema.itemPrice)
@@ -221,7 +174,6 @@ async function priceRequestHandler(body: any, userId: string) {
     return NextResponse.json({ error: 'Item not available in selected warehouse' }, { status: 404 });
   }
 
-  const singleMarginMultiplier = 1 + ((itemPrice.margin ?? 20) / 100);
   const orderLineItems = [{
       itemId: itemId,
       articleId: item.articleId,
@@ -231,10 +183,12 @@ async function priceRequestHandler(body: any, userId: string) {
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
       warehouseCountry: itemPrice.warehouse.countrySlug,
-      basePrice: +(itemPrice.price * singleMarginMultiplier).toFixed(2),
-      baseSpecialPrice: itemPrice.promotionPrice ? +(itemPrice.promotionPrice * singleMarginMultiplier).toFixed(2) : null,
-      unitPrice: 0,
-      lineTotal: 0,
+      originalCurrency: itemPrice.initialCurrency ?? null,
+      vatRate: 0,
+      exchangeRate: 1,
+      basePriceNet: itemPrice.price,
+      specialPriceNet: itemPrice.promotionPrice ?? null,
+      unitPriceNet: 0,
     }];
 
   // Create order for price request
@@ -244,8 +198,10 @@ async function priceRequestHandler(body: any, userId: string) {
     .values({
       id: crypto.randomUUID(),
       userId: userId,
-      originalTotalPrice: price || 0,
-      totalPrice: (price || 0).toString(),
+      currency: 'EUR',
+      totalNet: price || 0,
+      totalVat: 0,
+      totalGross: price || 0,
       status: status,
       comment: comment || null,
       lineItems: orderLineItems,
@@ -328,23 +284,15 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
   
   const {
     cartItems,
-    totalPrice,
-    originalTotalPrice,
     customerInfo,
     deliveryId,
     novaPost,
+    domainCurrency: orderCurrency = 'EUR',
   } = body;
 
   if (!cartItems || cartItems.length === 0) {
     return NextResponse.json(
       { error: 'Cart is empty' },
-      { status: 400 }
-    );
-  }
-
-  if (typeof totalPrice !== 'string' || !totalPrice.trim()) {
-    return NextResponse.json(
-      { error: 'A formatted totalPrice string is required' },
       { status: 400 }
     );
   }
@@ -382,6 +330,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
           quantity: schema.itemPrice.quantity,
           promotionPrice: schema.itemPrice.promotionPrice,
           margin: schema.itemPrice.margin,
+          initialCurrency: schema.itemPrice.initialCurrency,
           warehouse: schema.warehouse,
         })
           .from(schema.itemPrice)
@@ -419,8 +368,33 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
   });
   */
 
-  let computedOriginalTotal = 0;
-  const orderLineItems: Array<Record<string, any>> = [];
+  // Resolve exchange rates (originalCurrency -> orderCurrency)
+  const exchangeRateRows = await db
+    .select({ from: schema.currencyExchange.from, rate: schema.currencyExchange.rate })
+    .from(schema.currencyExchange)
+    .where(eq(schema.currencyExchange.to, orderCurrency as 'EUR' | 'UAH' | 'PLN' | 'USD'));
+  const exchangeRateMap = new Map<string, number>(exchangeRateRows.map(r => [r.from, r.rate]));
+  exchangeRateMap.set(orderCurrency, 1); // same currency → rate 1
+
+  // Resolve VAT rates per warehouse country
+  const uniqueCountrySlugs = [
+    ...new Set(
+      (dbItemsWithRelations as any[]).flatMap(dbItem =>
+        dbItem.itemPrice.map((p: any) => p.warehouse?.countrySlug).filter(Boolean)
+      ) as string[]
+    ),
+  ];
+  const vatRows = uniqueCountrySlugs.length > 0
+    ? await db
+        .select({ slug: schema.warehouseCountries.slug, vatPercentage: schema.warehouseCountries.vatPercentage })
+        .from(schema.warehouseCountries)
+        .where(inArray(schema.warehouseCountries.slug, uniqueCountrySlugs))
+    : [];
+  const vatMap = new Map<string, number>(vatRows.map(r => [r.slug!, (r.vatPercentage ?? 0) / 100]));
+
+  let totalNetAcc = 0;
+  let totalVatAcc = 0;
+  const orderLineItems: any[] = [];
 
   // Validate stock availability
   for (const cartItem of cartItems) {
@@ -462,14 +436,21 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       );
     }
 
-    const marginMultiplier = 1 + ((itemPrice.margin ?? 20) / 100);
-    const priceWithMargin = +(itemPrice.price * marginMultiplier).toFixed(2);
-    const promoPriceWithMargin = itemPrice.promotionPrice
-      ? +(itemPrice.promotionPrice * marginMultiplier).toFixed(2)
-      : null;
+    // Compute financial fields for the line item
+    const originalCurrency = cartItem.currency || (itemPrice as any).initialCurrency || null;
+    const exchangeRate = originalCurrency && originalCurrency !== orderCurrency
+      ? (exchangeRateMap.get(originalCurrency) ?? 1)
+      : 1;
+    const vatRate = vatMap.get(itemPrice.warehouse.countrySlug ?? '') ?? 0;
+    const basePriceNet = itemPrice.price;
+    const specialPriceNet = itemPrice.promotionPrice ?? null;
+    const unitPriceNet = specialPriceNet ?? basePriceNet;
+    const lineTotalNet = +(unitPriceNet * cartItem.quantity).toFixed(6);
+    const lineTotalNetConverted = +(lineTotalNet * exchangeRate).toFixed(2);
+    const lineVatConverted = +(lineTotalNetConverted * vatRate).toFixed(2);
 
-    const baseUnitPrice = (promoPriceWithMargin ?? priceWithMargin) || 0;
-    computedOriginalTotal += baseUnitPrice * cartItem.quantity;
+    totalNetAcc += lineTotalNetConverted;
+    totalVatAcc += lineVatConverted;
 
     orderLineItems.push({
       itemId: dbItem.id,
@@ -484,37 +465,19 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
       warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
       warehouseDisplayedName: itemPrice.warehouse.displayedName,
       warehouseCountry: itemPrice.warehouse.countrySlug,
-      basePrice: priceWithMargin,
-      baseSpecialPrice: promoPriceWithMargin,
-      unitPrice: baseUnitPrice,
-      lineTotal: baseUnitPrice * cartItem.quantity,
-      currency: cartItem.currency ?? null,
+      originalCurrency,
+      vatRate,
+      exchangeRate,
+      basePriceNet,
+      specialPriceNet,
+      unitPriceNet,
     });
   }
 
-  const normalizedOriginalTotal = Number.parseFloat(computedOriginalTotal.toFixed(2));
-  const clientOriginalTotal =
-    typeof originalTotalPrice === 'number'
-      ? Number.parseFloat(originalTotalPrice.toFixed(2))
-      : null;
-
-  if (
-    clientOriginalTotal !== null &&
-    Number.isFinite(clientOriginalTotal) &&
-    Math.abs(clientOriginalTotal - normalizedOriginalTotal) > 1
-  ) {
-    console.warn('Mismatch between client supplied and computed original totals', {
-      clientOriginalTotal,
-      normalizedOriginalTotal,
-    });
-  }
-
-  if (!Number.isFinite(normalizedOriginalTotal)) {
-    return NextResponse.json(
-      { error: 'Failed to calculate the original order total' },
-      { status: 400 }
-    );
-  }
+  // Compute order-level financial totals
+  const totalNet = +totalNetAcc.toFixed(2);
+  const totalVat = +totalVatAcc.toFixed(2);
+  const totalGross = +(totalNet + totalVat).toFixed(2);
 
   // Create delivery record if novaPost data is provided
   let resolvedDeliveryId: string | null = deliveryId || null;
@@ -555,11 +518,14 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     .values({
       id: crypto.randomUUID(),
       userId: userId,
-      originalTotalPrice: normalizedOriginalTotal,
-      totalPrice,
+      currency: orderCurrency,
+      totalNet,
+      totalVat,
+      totalGross,
       lineItems: orderLineItems,
       status: 'NEW',
       deliveryId: resolvedDeliveryId,
+      notes: { locale },
       createdAt: now,
       updatedAt: now,
     })
@@ -659,16 +625,20 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
         customerEmail: orderUser.email,
         customerPhone: orderUser.phoneNumber || undefined,
         companyName: orderUser.companyName || undefined,
-        totalPrice: order.totalPrice,
-        originalTotalPrice: order.originalTotalPrice,
-        lineItems: orderLineItems.map((li: any) => ({
-          name: li.name || li.articleId,
-          articleId: li.articleId,
-          quantity: li.quantity,
-          unitPrice: li.unitPrice,
-          lineTotal: li.lineTotal,
-          warehouseName: li.warehouseName,
-        })),
+        totalGross: order.totalGross,
+        currency: order.currency,
+        locale,
+        lineItems: orderLineItems.map((li: any) => {
+          const derived = computeLineItemDerived(li);
+          return {
+            name: li.name || li.articleId,
+            articleId: li.articleId,
+            quantity: li.quantity,
+            unitPriceGross: derived.unitPriceGrossConverted,
+            lineTotalGrossConverted: derived.lineTotalGrossConverted,
+            warehouseName: li.warehouseName,
+          };
+        }),
         comment: null,
       };
       sendNewOrderEmails(emailData);
@@ -682,9 +652,13 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
     order: {
       id: order.id,
       status: order.status,
-      totalPrice: order.totalPrice,
-      originalTotalPrice: order.originalTotalPrice,
-      lineItems: order.lineItems,
+      currency: order.currency,
+      totalNet: order.totalNet,
+      totalVat: order.totalVat,
+      totalGross: order.totalGross,
+      lineItems: Array.isArray(order.lineItems)
+        ? (order.lineItems as any[]).map(computeLineItemDerived)
+        : order.lineItems,
       createdAt: order.createdAt
     }
   });
