@@ -10,11 +10,10 @@ export const formatDate = (
 ): string => {
   const parsedDate = typeof date === 'string' ? new Date(date) : date;
   const defaultOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    dateStyle: 'short',
+    timeStyle: 'short',
   };
-  return parsedDate.toLocaleString('en-US', options ?? defaultOptions);
+  return parsedDate.toLocaleString('uk-UA', options ?? defaultOptions);
 };
 
 export const getOrderStatusStyle = (status: OrderStatus | string): string => {

@@ -348,24 +348,6 @@
         "refundSuccess": "Zwrot został pomyślnie przetworzony",
         "refundError": "Nie udało się przetworzyć zwrotu"
       },
-      "orderStatuses": {
-        "NEW": "Nowe",
-        "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
-        "PROCESSING": "W realizacji",
-        "DELIVERY": "Dostawa",
-        "COMPLETED": "Zrealizowane",
-        "CANCELLED": "Anulowane",
-        "REFUND": "Zwrot"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Opłacone",
-        "PENDING": "Oczekuje",
-        "INITIATED": "Zainicjowano",
-        "FAILED": "Błąd",
-        "CANCELLED": "Anulowane",
-        "REFUNDED": "Zwrócone",
-        "PROCESSING": "Przetwarzanie"
-      },
       "detail": {
         "backToOrders": "Powrót do zamówień",
         "orderNumber": "Zamówienie #{id}",
@@ -396,12 +378,6 @@
         "deliveryAddress": "Adres:",
         "trackingNumber": "Numer śledzenia:",
         "deliveryStatus": "Status dostawy:",
-        "deliveryTypes": {
-          "PICKUP": "Odbiór osobisty",
-          "USER_ADDRESS": "Dostawa na adres",
-          "NOVA_POSHTA": "Nova Poshta",
-          "COURIER": "Kurier"
-        },
         "paymentInfo": "Informacje o płatności",
         "paymentStatus": "Status płatności:",
         "paidWith": "Zapłacono przez:",
@@ -418,7 +394,7 @@
       "countryCode": "Kod kraju",
       "phone": "Telefon",
       "vatNumber": "Numer NIP/VAT",
-      "vatNumberPlaceholderUa": "РНОКПП lub ЄДРПОУ",
+      "vatNumberPlaceholderUa": "Ukraiński numer identyfikacyjny (RNOCPP lub EDRPOU)",
       "vatNumberPlaceholderPl": "NIP lub VAT",
       "companySection": "Informacje o firmie",
       "companyName": "Nazwa firmy",
@@ -944,6 +920,106 @@
         "itemsCount": "{count} produktów",
         "more": "+{count} więcej",
         "empty": "Nie znaleziono zamówień."
+      },
+      "detail": {
+        "title": "Szczegóły zamówienia",
+        "description": "Przejrzyj informacje o zamówieniu i zarządzaj jego statusem.",
+        "backToOrders": "Powrót do zamówień",
+        "deleteOrder": "Usuń zamówienie",
+        "notFound": "Nie znaleziono żądanego zamówienia.",
+        "deleteDialog": {
+          "title": "Usunąć zamówienie?",
+          "prefix": "Ta akcja jest nieodwracalna. Zamówienie",
+          "suffix": "zostanie trwale usunięte.",
+          "cancel": "Anuluj",
+          "confirm": "Tak, usuń",
+          "deleting": "Usuwanie..."
+        },
+        "summary": {
+          "title": "Podsumowanie zamówienia",
+          "orderId": "ID zamówienia",
+          "placedOn": "Data złożenia",
+          "status": "Status",
+          "total": "Suma",
+          "deliveryId": "ID dostawy",
+          "comment": "Komentarz",
+          "notProvided": "Nie podano",
+          "noComment": "Brak komentarza"
+        },
+        "customer": {
+          "title": "Klient",
+          "name": "Imię i nazwisko",
+          "email": "Email",
+          "phone": "Telefon",
+          "accountType": "Typ konta",
+          "company": "Firma",
+          "vatNip": "VAT / NIP",
+          "address": "Adres",
+          "typeCompany": "Firma",
+          "typePrivate": "Prywatny"
+        },
+        "items": {
+          "title": "Produkty",
+          "columnItem": "Produkt",
+          "columnWarehouse": "Magazyn",
+          "columnQuantity": "Ilość",
+          "columnPrice": "Cena (z VAT)",
+          "columnLineTotal": "Suma linii (z VAT)",
+          "empty": "Brak produktów w tym zamówieniu.",
+          "article": "Artykuł: {id}"
+        },
+        "notes": {
+          "title": "Historia notatek",
+          "empty": "Brak notatek",
+          "newNoteLabel": "Nowa notatka",
+          "newNotePlaceholder": "Np.: Produkt 1 — oczekiwanie na odpowiedź od dostawcy",
+          "addNote": "Dodaj notatkę",
+          "saving": "Zapisywanie...",
+          "deleteTitle": "Usuń notatkę",
+          "added": "Notatka dodana",
+          "errorSave": "Błąd zapisywania notatki",
+          "errorDelete": "Błąd usuwania notatki"
+        },
+        "delivery": {
+          "title": "Dostawa",
+          "noData": "Brak danych dostawy.",
+          "type": "Typ",
+          "city": "Miasto",
+          "warehouse": "Magazyn",
+          "address": "Adres",
+          "paymentMethod": "Metoda płatności",
+          "status": "Status",
+          "trackingNumber": "Numer śledzenia"
+        },
+        "updateStatus": {
+          "title": "Zmień status",
+          "description": "Zmień status zamówienia. Podaj identyfikator dostawy przy ustawieniu statusu DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Zarządzanie dostawą",
+          "description": "Zaktualizuj status i numer listu przewozowego.",
+          "statusLabel": "Status dostawy",
+          "trackingLabel": "List przewozowy / TTN",
+          "trackingPlaceholder": "Numer listu przewozowego",
+          "save": "Zapisz",
+          "saving": "Zapisywanie...",
+          "saved": "Dostawa zaktualizowana",
+          "errorSave": "Błąd aktualizacji dostawy"
+        },
+        "toasts": {
+          "orderDeleted": "Zamówienie usunięte",
+          "errorDeleteOrder": "Błąd usuwania zamówienia"
+        },
+        "payment": {
+          "title": "Płatność",
+          "noData": "Brak danych płatności.",
+          "system": "System płatności",
+          "method": "Typ płatności",
+          "status": "Status płatności",
+          "transactionId": "ID transakcji",
+          "amount": "Kwota płatności",
+          "date": "Data płatności"
+        }
       }
     },
     "payments": {
@@ -967,14 +1043,7 @@
         "actions": "Akcje",
         "empty": "Nie znaleziono płatności.",
         "searchPlaceholder": "Szukaj po e-mailu lub ID zamówienia...",
-        "allStatuses": "Wszystkie statusy",
-        "pending": "Oczekująca",
-        "initiated": "Zainicjowana",
-        "processing": "W realizacji",
-        "completed": "Zakończona",
-        "failed": "Nieudana",
-        "cancelled": "Anulowana",
-        "refunded": "Zwrócona"
+        "allStatuses": "Wszystkie statusy"
       },
       "refund": "Zwrot",
       "refunding": "Przetwarzanie zwrotu...",
@@ -1101,6 +1170,51 @@
       }
     },
     "banners": {
+      "title": "Zarządzanie banerami",
+      "description": "Zarządzaj banerami wyświetlanymi na stronie głównej.",
+      "addNew": "Dodaj baner",
+      "filters": {
+        "title": "Filtruj banery",
+        "position": "Pozycja",
+        "device": "Urządzenie",
+        "locale": "Język",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "stats": {
+        "total": "Łącznie banerów",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne",
+        "hidden": "Ukryte"
+      },
+      "list": {
+        "dragToReorder": "Przeciągnij, aby zmienić kolejność",
+        "listTitle": "Banery — {pos} — {dev} — {loc}",
+        "empty": "Brak banerów",
+        "createFirst": "Utwórz swój pierwszy baner",
+        "untitled": "Baner bez tytułu",
+        "order": "Kolejność: {order}"
+      },
+      "modal": {
+        "addTitle": "Dodaj nowy baner",
+        "editTitle": "Edytuj baner",
+        "titleLabel": "Tytuł (opcjonalnie)",
+        "titlePlaceholder": "Wpisz tytuł banera",
+        "imageUrl": "URL obrazu *",
+        "imageUrlPlaceholder": "https://example.com/baner.jpg",
+        "linkUrl": "URL linku (opcjonalnie)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Pozycja",
+        "device": "Urządzenie",
+        "locale": "Język",
+        "active": "Aktywny",
+        "activeDesc": "Wyświetl ten baner odwiedzającym",
+        "saving": "Zapisywanie...",
+        "cancel": "Anuluj",
+        "createBtn": "Utwórz baner",
+        "updateBtn": "Zaktualizuj baner"
+      },
       "delete": {
         "title": "Czy jesteś pewny?",
         "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
@@ -1243,20 +1357,6 @@
         "date": "Data",
         "empty": "Nie znaleziono dostaw",
         "edit": "Edytuj"
-      },
-      "type": {
-        "PICKUP": "Odbiór osobisty",
-        "USER_ADDRESS": "Adres",
-        "NOVA_POSHTA": "Nova Poshta",
-        "COURIER": "Kurier"
-      },
-      "status": {
-        "PENDING": "Oczekuje",
-        "PROCESSING": "W realizacji",
-        "IN_TRANSIT": "W transporcie",
-        "DELIVERED": "Dostarczone",
-        "RETURNED": "Zwrócone",
-        "CANCELLED": "Anulowane"
       },
       "modal": {
         "title": "Edytuj dostawę",
@@ -1415,54 +1515,6 @@
       "confirmDelete": "Czy na pewno chcesz usunąć tę stronę?",
       "deleteError": "Nie udało się usunąć strony",
       "publishError": "Nie udało się zaktualizować statusu strony"
-    },
-    "banners": {
-      "title": "Zarządzanie banerami",
-      "description": "Zarządzaj banerami wyświetlanymi na stronie głównej.",
-      "addNew": "Dodaj baner",
-      "filters": {
-        "all": "Wszystkie",
-        "active": "Aktywne",
-        "inactive": "Nieaktywne"
-      },
-      "stats": {
-        "total": "Łącznie banerów",
-        "active": "Aktywne",
-        "inactive": "Nieaktywne"
-      },
-      "list": {
-        "dragToReorder": "Przeciągnij, aby zmienić kolejność",
-        "listTitle": "Banery — {pos} — {dev} — {loc}",
-        "empty": "Brak banerów",
-        "createFirst": "Utwórz swój pierwszy baner",
-        "untitled": "Baner bez tytułu",
-        "order": "Kolejność: {order}"
-      },
-      "modal": {
-        "addTitle": "Dodaj nowy baner",
-        "editTitle": "Edytuj baner",
-        "titleLabel": "Tytuł (opcjonalnie)",
-        "titlePlaceholder": "Wpisz tytuł banera",
-        "imageUrl": "URL obrazu *",
-        "imageUrlPlaceholder": "https://example.com/baner.jpg",
-        "linkUrl": "URL linku (opcjonalnie)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Pozycja",
-        "device": "Urządzenie",
-        "locale": "Język",
-        "active": "Aktywny",
-        "activeDesc": "Wyświetl ten baner odwiedzającym",
-        "saving": "Zapisywanie...",
-        "cancel": "Anuluj",
-        "createBtn": "Utwórz baner",
-        "updateBtn": "Zaktualizuj baner"
-      },
-      "delete": {
-        "title": "Czy jesteś pewny?",
-        "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
-        "cannotUndo": "Tej akcji nie można cofnąć.",
-        "deleteBtn": "Usuń baner"
-      }
     },
     "uploads": {
       "title": "Zarządzanie zdjęciami",
@@ -1624,7 +1676,7 @@
     },
     "detailModal": {
       "title": "Edytuj szczegóły",
-      "description": "Zaktualizuj szczegóły produktu dla wybranego języka",
+      "description": "Opis",
       "localeLabel": "Język",
       "localePlaceholder": "Wybierz język",
       "itemName": "Nazwa produktu",
@@ -1633,7 +1685,6 @@
       "sellerPlaceholder": "Nazwa sprzedawcy",
       "discount": "Rabat (%)",
       "discountPlaceholder": "np. 10",
-      "description": "Opis",
       "descriptionPlaceholder": "Opis produktu",
       "specifications": "Specyfikacje",
       "specificationsPlaceholder": "Specyfikacje produktu",
@@ -1724,15 +1775,24 @@
         "label": "Odbiór własny",
         "description": "Z naszego magazynu"
       },
-      "nova_dept": { "label": "Oddział", "description": "Nova Poshta" },
-      "nova_courier": { "label": "Kurier", "description": "Nova Poshta" }
+      "nova_dept": {
+        "label": "Oddział",
+        "description": "Nova Poshta"
+      },
+      "nova_courier": {
+        "label": "Kurier",
+        "description": "Nova Poshta"
+      }
     },
     "paymentOption": {
       "online_card": {
         "label": "Kartą online",
         "description": "Visa / Mastercard"
       },
-      "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
+      "bank_transfer": {
+        "label": "Przelew bankowy",
+        "description": "Faktura"
+      },
       "cash_on_delivery": {
         "label": "Za pobraniem",
         "description": "Płatność przy odbiorze"
@@ -1802,6 +1862,40 @@
         "unitPrice": "Cena jedn.",
         "total": "Suma"
       }
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "Nowe",
+      "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
+      "PROCESSING": "W trakcie realizacji",
+      "DELIVERY": "Dostawa",
+      "COMPLETED": "Zrealizowane",
+      "CANCELLED": "Anulowane",
+      "REFUND": "Zwrot"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Opłacono",
+      "PENDING": "Oczekuje",
+      "INITIATED": "Zainicjowano",
+      "FAILED": "Błąd",
+      "CANCELLED": "Anulowano",
+      "REFUNDED": "Zwrócono",
+      "PROCESSING": "Przetwarzanie"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Oczekuje",
+      "PROCESSING": "Przetwarzanie",
+      "IN_TRANSIT": "W drodze",
+      "DELIVERED": "Dostarczono",
+      "RETURNED": "Zwrócono",
+      "CANCELLED": "Anulowano"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Odbiór osobisty",
+      "COURIER": "Kurier",
+      "USER_ADDRESS": "Adres użytkownika",
+      "NOVA_POSHTA": "Nova Poshta"
     }
   }
 }

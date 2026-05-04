@@ -37,7 +37,7 @@
       "countryPlaceholder": "Seleccionar país",
       "vatNumberLabel": "NIF / VAT UE",
       "vatNumberPlaceholder": "ej. ES12345678A",
-      "vatNumberPlaceholderUa": "TIN o ЄДРПОУ",
+      "vatNumberPlaceholderUa": "Número de identificación fiscal ucraniano (RNOCPP o EDRPOU)",
       "vatNumberPlaceholderPl": "NIP o VAT",
       "cityLabel": "Ciudad",
       "cityPlaceholder": "p.ej. Madrid",
@@ -302,7 +302,7 @@
         "actions": "Acciones",
         "view": "Ver",
         "refund": "Reembolso",
-        "itemsCount_one": "{count} artículo",
+        "itemsCount": "{count} artículo",
         "itemsCount_other": "{count} artículos",
         "moreItems": "+{count} más",
         "noOrders": "Aún no has realizado ningún pedido.",
@@ -310,24 +310,6 @@
         "refundConfirm": "¿Estás seguro de que quieres reembolsar este pedido? Esta acción no se puede deshacer.",
         "refundSuccess": "Reembolso procesado exitosamente",
         "refundError": "Error al procesar el reembolso"
-      },
-      "orderStatuses": {
-        "NEW": "Nuevo",
-        "WAITING_FOR_PAYMENT": "Esperando pago",
-        "PROCESSING": "En proceso",
-        "DELIVERY": "Entrega",
-        "COMPLETED": "Completado",
-        "CANCELLED": "Cancelado",
-        "REFUND": "Reembolso"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Pagado",
-        "PENDING": "Pendiente",
-        "INITIATED": "Iniciado",
-        "FAILED": "Fallido",
-        "CANCELLED": "Cancelado",
-        "REFUNDED": "Reembolsado",
-        "PROCESSING": "Procesando"
       },
       "detail": {
         "backToOrders": "Volver a pedidos",
@@ -359,12 +341,6 @@
         "deliveryAddress": "Dirección:",
         "trackingNumber": "Número de seguimiento:",
         "deliveryStatus": "Estado de entrega:",
-        "deliveryTypes": {
-          "PICKUP": "Recogida en tienda",
-          "USER_ADDRESS": "Entrega a domicilio",
-          "NOVA_POSHTA": "Nova Poshta",
-          "COURIER": "Mensajero"
-        },
         "paymentInfo": "Información del pago",
         "paymentStatus": "Estado del pago:",
         "paidWith": "Pagado con:",
@@ -907,6 +883,106 @@
         "itemsCount": "{count} productos",
         "more": "+{count} más",
         "empty": "No se encontraron pedidos."
+      },
+      "detail": {
+        "title": "Detalles del Pedido",
+        "description": "Revise la información del pedido y gestione su estado.",
+        "backToOrders": "Volver a Pedidos",
+        "deleteOrder": "Eliminar Pedido",
+        "notFound": "El pedido solicitado no fue encontrado.",
+        "deleteDialog": {
+          "title": "¿Eliminar pedido?",
+          "prefix": "Esta acción es irreversible. El pedido",
+          "suffix": "será eliminado permanentemente.",
+          "cancel": "Cancelar",
+          "confirm": "Sí, eliminar",
+          "deleting": "Eliminando..."
+        },
+        "summary": {
+          "title": "Resumen del Pedido",
+          "orderId": "ID del Pedido",
+          "placedOn": "Fecha del Pedido",
+          "status": "Estado",
+          "total": "Total",
+          "deliveryId": "ID de Entrega",
+          "comment": "Comentario",
+          "notProvided": "No proporcionado",
+          "noComment": "Sin comentario"
+        },
+        "customer": {
+          "title": "Cliente",
+          "name": "Nombre",
+          "email": "Email",
+          "phone": "Teléfono",
+          "accountType": "Tipo de cuenta",
+          "company": "Empresa",
+          "vatNip": "VAT / NIP",
+          "address": "Dirección",
+          "typeCompany": "Empresa",
+          "typePrivate": "Particular"
+        },
+        "items": {
+          "title": "Productos",
+          "columnItem": "Producto",
+          "columnWarehouse": "Almacén",
+          "columnQuantity": "Cantidad",
+          "columnPrice": "Precio (con IVA)",
+          "columnLineTotal": "Total de Línea (con IVA)",
+          "empty": "No hay productos en este pedido.",
+          "article": "Artículo: {id}"
+        },
+        "notes": {
+          "title": "Historial de Notas",
+          "empty": "Sin notas",
+          "newNoteLabel": "Nueva Nota",
+          "newNotePlaceholder": "Ej.: Producto 1 — esperando respuesta del proveedor",
+          "addNote": "Añadir Nota",
+          "saving": "Guardando...",
+          "deleteTitle": "Eliminar nota",
+          "added": "Nota añadida",
+          "errorSave": "Error al guardar nota",
+          "errorDelete": "Error al eliminar nota"
+        },
+        "delivery": {
+          "title": "Entrega",
+          "noData": "No hay datos de entrega disponibles.",
+          "type": "Tipo",
+          "city": "Ciudad",
+          "warehouse": "Almacén",
+          "address": "Dirección",
+          "paymentMethod": "Método de Pago",
+          "status": "Estado",
+          "trackingNumber": "Número de Seguimiento"
+        },
+        "updateStatus": {
+          "title": "Actualizar Estado",
+          "description": "Cambie el estado del pedido. Proporcione un identificador de entrega al establecer el estado DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Gestión de Entrega",
+          "description": "Actualice el estado y el número de seguimiento.",
+          "statusLabel": "Estado de Entrega",
+          "trackingLabel": "TTN / Albarán",
+          "trackingPlaceholder": "Número de albarán",
+          "save": "Guardar",
+          "saving": "Guardando...",
+          "saved": "Entrega actualizada",
+          "errorSave": "Error al actualizar la entrega"
+        },
+        "toasts": {
+          "orderDeleted": "Pedido eliminado",
+          "errorDeleteOrder": "Error al eliminar el pedido"
+        },
+        "payment": {
+          "title": "Pago",
+          "noData": "No hay datos de pago disponibles.",
+          "system": "Sistema de pago",
+          "method": "Tipo de pago",
+          "status": "Estado del pago",
+          "transactionId": "ID de transacción",
+          "amount": "Importe del pago",
+          "date": "Fecha del pago"
+        }
       }
     },
     "payments": {
@@ -930,14 +1006,7 @@
         "actions": "Acciones",
         "empty": "No se encontraron pagos.",
         "searchPlaceholder": "Buscar por email o ID de pedido...",
-        "allStatuses": "Todos los Estados",
-        "pending": "Pendiente",
-        "initiated": "Iniciado",
-        "processing": "En Proceso",
-        "completed": "Completado",
-        "failed": "Fallido",
-        "cancelled": "Cancelado",
-        "refunded": "Reembolsado"
+        "allStatuses": "Todos los Estados"
       },
       "refund": "Reembolso",
       "refunding": "Procesando reembolso...",
@@ -1064,6 +1133,51 @@
       }
     },
     "banners": {
+      "title": "Gestión de banners",
+      "description": "Gestiona los banners que se muestran en la página principal.",
+      "addNew": "Añadir banner",
+      "filters": {
+        "all": "Todos",
+        "active": "Activos",
+        "inactive": "Inactivos",
+        "title": "Filtrar por estado",
+        "position": "Ubicación",
+        "device": "Dispositivo",
+        "locale": "Idioma"
+      },
+      "stats": {
+        "total": "Total de banners",
+        "active": "Activos",
+        "inactive": "Inactivos",
+        "hidden": "Ocultos"
+      },
+      "list": {
+        "dragToReorder": "Arrastra para reordenar",
+        "listTitle": "Banners — {pos} — {dev} — {loc}",
+        "empty": "No hay banners",
+        "createFirst": "Crea tu primer banner",
+        "untitled": "Banner sin título",
+        "order": "Orden: {order}"
+      },
+      "modal": {
+        "addTitle": "Añadir nuevo banner",
+        "editTitle": "Editar banner",
+        "titleLabel": "Título (opcional)",
+        "titlePlaceholder": "Escribe el título del banner",
+        "imageUrl": "URL de imagen *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "URL del enlace (opcional)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Posición",
+        "device": "Dispositivo",
+        "locale": "Idioma",
+        "active": "Activo",
+        "activeDesc": "Mostrar este banner a los visitantes",
+        "saving": "Guardando...",
+        "cancel": "Cancelar",
+        "createBtn": "Crear banner",
+        "updateBtn": "Actualizar banner"
+      },
       "delete": {
         "title": "¿Estás seguro?",
         "description": "Esto eliminará permanentemente el banner \"{title}\" de la posición {position}.",
@@ -1206,20 +1320,6 @@
         "date": "Fecha",
         "empty": "No se encontraron entregas",
         "edit": "Editar"
-      },
-      "type": {
-        "PICKUP": "Recogida",
-        "USER_ADDRESS": "Dirección",
-        "NOVA_POSHTA": "Nova Poshta",
-        "COURIER": "Mensajero"
-      },
-      "status": {
-        "PENDING": "Pendiente",
-        "PROCESSING": "Procesando",
-        "IN_TRANSIT": "En tránsito",
-        "DELIVERED": "Entregado",
-        "RETURNED": "Devuelto",
-        "CANCELLED": "Cancelado"
       },
       "modal": {
         "title": "Editar entrega",
@@ -1378,54 +1478,6 @@
       "confirmDelete": "¿Estás seguro de que quieres eliminar esta página?",
       "deleteError": "No se pudo eliminar la página",
       "publishError": "No se pudo actualizar el estado de la página"
-    },
-    "banners": {
-      "title": "Gestión de banners",
-      "description": "Gestiona los banners que se muestran en la página principal.",
-      "addNew": "Añadir banner",
-      "filters": {
-        "all": "Todos",
-        "active": "Activos",
-        "inactive": "Inactivos"
-      },
-      "stats": {
-        "total": "Total de banners",
-        "active": "Activos",
-        "inactive": "Inactivos"
-      },
-      "list": {
-        "dragToReorder": "Arrastra para reordenar",
-        "listTitle": "Banners — {pos} — {dev} — {loc}",
-        "empty": "No hay banners",
-        "createFirst": "Crea tu primer banner",
-        "untitled": "Banner sin título",
-        "order": "Orden: {order}"
-      },
-      "modal": {
-        "addTitle": "Añadir nuevo banner",
-        "editTitle": "Editar banner",
-        "titleLabel": "Título (opcional)",
-        "titlePlaceholder": "Escribe el título del banner",
-        "imageUrl": "URL de imagen *",
-        "imageUrlPlaceholder": "https://example.com/banner.jpg",
-        "linkUrl": "URL del enlace (opcional)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Posición",
-        "device": "Dispositivo",
-        "locale": "Idioma",
-        "active": "Activo",
-        "activeDesc": "Mostrar este banner a los visitantes",
-        "saving": "Guardando...",
-        "cancel": "Cancelar",
-        "createBtn": "Crear banner",
-        "updateBtn": "Actualizar banner"
-      },
-      "delete": {
-        "title": "¿Estás seguro?",
-        "description": "Esto eliminará permanentemente el banner \"{title}\" de la posición {position}.",
-        "cannotUndo": "Esta acción no se puede deshacer.",
-        "deleteBtn": "Eliminar Banner"
-      }
     },
     "uploads": {
       "title": "Imágenes subidas",
@@ -1587,7 +1639,7 @@
     },
     "detailModal": {
       "title": "Editar detalles",
-      "description": "Actualiza los detalles del producto para el idioma seleccionado",
+      "description": "Descripción",
       "localeLabel": "Idioma",
       "localePlaceholder": "Selecciona idioma",
       "itemName": "Nombre del producto",
@@ -1596,7 +1648,6 @@
       "sellerPlaceholder": "Nombre del vendedor",
       "discount": "Descuento (%)",
       "discountPlaceholder": "ej. 10",
-      "description": "Descripción",
       "descriptionPlaceholder": "Descripción del producto",
       "specifications": "Especificaciones",
       "specificationsPlaceholder": "Especificaciones del producto",
@@ -1683,15 +1734,36 @@
     "apartmentOrOffice": "Apartamento / Oficina",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Recogida propia", "description": "Desde nuestro almacén" },
-      "nova_dept": { "label": "Sucursal", "description": "Nova Poshta" },
-      "nova_courier": { "label": "Mensajero", "description": "Nova Poshta" }
+      "warehouse": {
+        "label": "Recogida propia",
+        "description": "Desde nuestro almacén"
+      },
+      "nova_dept": {
+        "label": "Sucursal",
+        "description": "Nova Poshta"
+      },
+      "nova_courier": {
+        "label": "Mensajero",
+        "description": "Nova Poshta"
+      }
     },
     "paymentOption": {
-      "online_card": { "label": "Tarjeta online", "description": "Visa / Mastercard" },
-      "bank_transfer": { "label": "Transferencia bancaria", "description": "Factura" },
-      "cash_on_delivery": { "label": "Contra reembolso", "description": "Pago al recibir" },
-      "installment": { "label": "Pago a plazos", "description": "PrivatBank" }
+      "online_card": {
+        "label": "Tarjeta online",
+        "description": "Visa / Mastercard"
+      },
+      "bank_transfer": {
+        "label": "Transferencia bancaria",
+        "description": "Factura"
+      },
+      "cash_on_delivery": {
+        "label": "Contra reembolso",
+        "description": "Pago al recibir"
+      },
+      "installment": {
+        "label": "Pago a plazos",
+        "description": "PrivatBank"
+      }
     },
     "deliveryCostNote": "El importe del pago no incluye los gastos de envío. El envío se cobra según las tarifas del transportista.",
     "courierAddressMissing": "Para la entrega por mensajero, rellene su dirección en la sección &#39;Detalles de entrega&#39; de arriba."
@@ -1753,6 +1825,40 @@
       "qty": "Cant.",
       "unitPrice": "Precio unit.",
       "total": "Total"
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "Nuevo",
+      "WAITING_FOR_PAYMENT": "Esperando pago",
+      "PROCESSING": "En proceso",
+      "DELIVERY": "En entrega",
+      "COMPLETED": "Completado",
+      "CANCELLED": "Cancelado",
+      "REFUND": "Reembolso"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Pagado",
+      "PENDING": "Pendiente",
+      "INITIATED": "Iniciado",
+      "FAILED": "Error",
+      "CANCELLED": "Cancelado",
+      "REFUNDED": "Reembolsado",
+      "PROCESSING": "En proceso"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Pendiente",
+      "PROCESSING": "En proceso",
+      "IN_TRANSIT": "En tránsito",
+      "DELIVERED": "Entregado",
+      "RETURNED": "Devuelto",
+      "CANCELLED": "Cancelado"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Recogida",
+      "COURIER": "Mensajero",
+      "USER_ADDRESS": "Dirección del usuario",
+      "NOVA_POSHTA": "Nova Poshta"
     }
   }
 }

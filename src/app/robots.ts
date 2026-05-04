@@ -3,18 +3,18 @@ import { headers } from "next/headers";
 import { getDomainConfigByHost, type DomainConfig } from "@/lib/domain-config";
 
 /**
- * Динамічний robots.txt залежно від домену.
+ * Dynamic robots.txt based on the domain.
  *
- * powerautomation.com.ua — індексує тільки /ua/
- * powerautomation.pl     — індексує тільки /pl/
- * Англійську (/en/) та іспанську (/es/) не індексуємо ніде.
+ * powerautomation.com.ua — indexes only /ua/
+ * powerautomation.pl     — indexes only /pl/
+ * English (/en/) and Spanish (/es/) are not indexed anywhere.
  */
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const headersList = await headers();
   const host = headersList.get("x-forwarded-host") || headersList.get("host");
   const domainConfig = getDomainConfigByHost(host);
 
-  // Всі локалі, які НЕ індексуються на цьому домені
+  // All locales that are NOT indexed on this domain
   const allLocales = ["ua", "pl", "en", "es"];
   const disallowedLocales = allLocales.filter(
     (locale) => !domainConfig.indexedLocales.includes(locale),
@@ -34,13 +34,13 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         allow: domainConfig.indexedLocales.map((l) => `/${l}/`),
         disallow: disallowPaths,
       },
-      // Googlebot — дозволяємо все
+      // Googlebot — allow everything
       {
         userAgent: "Googlebot",
         allow: "/",
       },
 
-      // Googlebot-Image — дозволяємо все
+      // Googlebot-Image — allow everything
       {
         userAgent: "Googlebot-Image",
         allow: "/",

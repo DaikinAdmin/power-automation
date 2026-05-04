@@ -317,24 +317,6 @@
         "refundSuccess": "Повернення успішно оброблено",
         "refundError": "Не вдалося обробити повернення"
       },
-      "orderStatuses": {
-        "NEW": "Нове",
-        "WAITING_FOR_PAYMENT": "Очікує оплати",
-        "PROCESSING": "В обробці",
-        "DELIVERY": "Доставка",
-        "COMPLETED": "Виконано",
-        "CANCELLED": "Скасовано",
-        "REFUND": "Повернення"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Оплачено",
-        "PENDING": "Очікується",
-        "INITIATED": "Ініційовано",
-        "FAILED": "Помилка",
-        "CANCELLED": "Скасовано",
-        "REFUNDED": "Повернено",
-        "PROCESSING": "Обробляється"
-      },
       "detail": {
         "backToOrders": "Назад до замовлень",
         "orderNumber": "Замовлення #{id}",
@@ -365,12 +347,6 @@
         "deliveryAddress": "Адреса:",
         "trackingNumber": "ТТН / трек-номер:",
         "deliveryStatus": "Статус доставки:",
-        "deliveryTypes": {
-          "PICKUP": "Самовивіз",
-          "USER_ADDRESS": "Доставка на адресу",
-          "NOVA_POSHTA": "Нова Пошта",
-          "COURIER": "Кур'єр"
-        },
         "paymentInfo": "Інформація про оплату",
         "paymentStatus": "Статус оплати:",
         "paidWith": "Оплачено через:",
@@ -944,6 +920,106 @@
         "itemsCount": "{count} товарів",
         "more": "+{count} ще",
         "empty": "Замовлень не знайдено."
+      },
+      "detail": {
+        "title": "Деталі замовлення",
+        "description": "Перегляньте інформацію про замовлення та керуйте його статусом.",
+        "backToOrders": "Назад до замовлень",
+        "deleteOrder": "Видалити замовлення",
+        "notFound": "Запитане замовлення не знайдено.",
+        "deleteDialog": {
+          "title": "Видалити замовлення?",
+          "prefix": "Ця дія незворотня. Замовлення",
+          "suffix": "буде видалено назавжди.",
+          "cancel": "Скасувати",
+          "confirm": "Так, видалити",
+          "deleting": "Видалення..."
+        },
+        "summary": {
+          "title": "Огляд замовлення",
+          "orderId": "ID замовлення",
+          "placedOn": "Дата замовлення",
+          "status": "Статус",
+          "total": "Сума",
+          "deliveryId": "ID доставки",
+          "comment": "Коментар",
+          "notProvided": "Не вказано",
+          "noComment": "Немає коментаря"
+        },
+        "customer": {
+          "title": "Клієнт",
+          "name": "Ім’я",
+          "email": "Email",
+          "phone": "Телефон",
+          "accountType": "Тип акаунту",
+          "company": "Компанія",
+          "vatNip": "ПДВ / НІП",
+          "address": "Адреса",
+          "typeCompany": "Компанія",
+          "typePrivate": "Фізична особа"
+        },
+        "items": {
+          "title": "Товари",
+          "columnItem": "Товар",
+          "columnWarehouse": "Склад",
+          "columnQuantity": "Кількість",
+          "columnPrice": "Ціна (з ПДВ)",
+          "columnLineTotal": "Сума рядка (з ПДВ)",
+          "empty": "Товари у цьому замовленні відсутні.",
+          "article": "Артикул: {id}"
+        },
+        "notes": {
+          "title": "Історія приміток",
+          "empty": "Немає приміток",
+          "newNoteLabel": "Нова примітка",
+          "newNotePlaceholder": "Напр.: Товар 1 — очікування відповіді від постачальника",
+          "addNote": "Додати примітку",
+          "saving": "Збереження...",
+          "deleteTitle": "Видалити примітку",
+          "added": "Примітку додано",
+          "errorSave": "Помилка збереження примітки",
+          "errorDelete": "Помилка видалення примітки"
+        },
+        "delivery": {
+          "title": "Доставка",
+          "noData": "Немає даних про доставку.",
+          "type": "Тип",
+          "city": "Місто",
+          "warehouse": "Склад",
+          "address": "Адреса",
+          "paymentMethod": "Метод оплати",
+          "status": "Статус",
+          "trackingNumber": "Номер відстеження"
+        },
+        "updateStatus": {
+          "title": "Оновити статус",
+          "description": "Змініть статус замовлення. Вкажіть ідентифікатор доставки при встановленні статусу DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Керування доставкою",
+          "description": "Оновіть статус і номер ТТН.",
+          "statusLabel": "Статус доставки",
+          "trackingLabel": "ТТН / Накладна",
+          "trackingPlaceholder": "Номер накладної",
+          "save": "Зберегти",
+          "saving": "Збереження...",
+          "saved": "Доставку оновлено",
+          "errorSave": "Помилка оновлення доставки"
+        },
+        "toasts": {
+          "orderDeleted": "Замовлення видалено",
+          "errorDeleteOrder": "Помилка видалення замовлення"
+        },
+        "payment": {
+          "title": "Платіж",
+          "noData": "Немає даних про платіж.",
+          "system": "Платіжна система",
+          "method": "Тип платежу",
+          "status": "Статус оплати",
+          "transactionId": "ID транзакції",
+          "amount": "Сума платежу",
+          "date": "Дата платежу"
+        }
       }
     },
     "payments": {
@@ -967,14 +1043,7 @@
         "actions": "Дії",
         "empty": "Платежів не знайдено.",
         "searchPlaceholder": "Пошук за email або ID замовлення...",
-        "allStatuses": "Всі статуси",
-        "pending": "Очікується",
-        "initiated": "Ініційовано",
-        "processing": "В обробці",
-        "completed": "Завершено",
-        "failed": "Невдало",
-        "cancelled": "Скасовано",
-        "refunded": "Повернуто"
+        "allStatuses": "Всі статуси"
       },
       "refund": "Повернення",
       "refunding": "Обробка повернення...",
@@ -1101,10 +1170,55 @@
       }
     },
     "banners": {
+      "title": "Управління банерами",
+      "description": "Керуйте банерами, що відображаються на головній сторінці.",
+      "addNew": "Додати банер",
+      "filters": {
+        "title": "Фільтри",
+        "position": "Локація",
+        "device": "Пристрій",
+        "locale": "Мова",
+        "all": "Всі",
+        "active": "Активні",
+        "inactive": "Неактивні"
+      },
+      "stats": {
+        "total": "Всього банерів",
+        "active": "Активні",
+        "inactive": "Неактивні",
+        "hidden": "Приховані"
+      },
+      "list": {
+        "dragToReorder": "Перетягніть для зміни порядку",
+        "listTitle": "Банери — {pos} — {dev} — {loc}",
+        "empty": "Немає банерів",
+        "createFirst": "Створіть свій перший банер",
+        "untitled": "Банер без назви",
+        "order": "Порядок: {order}"
+      },
+      "modal": {
+        "addTitle": "Додати новий банер",
+        "editTitle": "Редагувати банер",
+        "titleLabel": "Заголовок (необов'язково)",
+        "titlePlaceholder": "Введіть заголовок банера",
+        "imageUrl": "URL зображення *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "URL посилання (необов'язково)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Позиція",
+        "device": "Пристрій",
+        "locale": "Мова",
+        "active": "Активний",
+        "activeDesc": "Показувати цей банер відвідувачам",
+        "saving": "Збереження...",
+        "cancel": "Скасувати",
+        "createBtn": "Створити банер",
+        "updateBtn": "Оновити банер"
+      },
       "delete": {
         "title": "Ви впевнені?",
         "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
-        "cannotUndo": "Цю дію не можна скасувати.",
+        "cannotUndo": "Цю дію неможливо скасувати.",
         "deleteBtn": "Видалити банер"
       }
     },
@@ -1224,9 +1338,9 @@
       "title": "Доставки",
       "description": "Управління доставками замовлень",
       "stats": {
-        "total": "Всього",
+        "total": "Всього доставок",
         "inTransit": "В дорозі",
-        "pending": "Очікують",
+        "pending": "Очікується",
         "delivered": "Доставлено"
       },
       "filters": {
@@ -1243,20 +1357,6 @@
         "date": "Дата",
         "empty": "Доставок не знайдено",
         "edit": "Редагувати"
-      },
-      "type": {
-        "PICKUP": "Самовивіз",
-        "USER_ADDRESS": "Адреса",
-        "NOVA_POSHTA": "Нова Пошта",
-        "COURIER": "Кур'єр"
-      },
-      "status": {
-        "PENDING": "Очікує",
-        "PROCESSING": "Обробляється",
-        "IN_TRANSIT": "В дорозі",
-        "DELIVERED": "Доставлено",
-        "RETURNED": "Повернено",
-        "CANCELLED": "Скасовано"
       },
       "modal": {
         "title": "Редагувати доставку",
@@ -1415,54 +1515,6 @@
       "confirmDelete": "Ви впевнені, що хочете видалити цю сторінку?",
       "deleteError": "Не вдалося видалити сторінку",
       "publishError": "Не вдалося оновити статус сторінки"
-    },
-    "banners": {
-      "title": "Управління банерами",
-      "description": "Керуйте банерами, що відображаються на головній сторінці.",
-      "addNew": "Додати банер",
-      "filters": {
-        "all": "Всі",
-        "active": "Активні",
-        "inactive": "Неактивні"
-      },
-      "stats": {
-        "total": "Всього банерів",
-        "active": "Активні",
-        "inactive": "Неактивні"
-      },
-      "list": {
-        "dragToReorder": "Перетягніть для зміни порядку",
-        "listTitle": "Банери — {pos} — {dev} — {loc}",
-        "empty": "Немає банерів",
-        "createFirst": "Створіть свій перший банер",
-        "untitled": "Банер без назви",
-        "order": "Порядок: {order}"
-      },
-      "modal": {
-        "addTitle": "Додати новий банер",
-        "editTitle": "Редагувати банер",
-        "titleLabel": "Заголовок (необов'язково)",
-        "titlePlaceholder": "Введіть заголовок банера",
-        "imageUrl": "URL зображення *",
-        "imageUrlPlaceholder": "https://example.com/banner.jpg",
-        "linkUrl": "URL посилання (необов'язково)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Позиція",
-        "device": "Пристрій",
-        "locale": "Мова",
-        "active": "Активний",
-        "activeDesc": "Показувати цей банер відвідувачам",
-        "saving": "Збереження...",
-        "cancel": "Скасувати",
-        "createBtn": "Створити банер",
-        "updateBtn": "Оновити банер"
-      },
-      "delete": {
-        "title": "Ви впевнені?",
-        "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
-        "cannotUndo": "Цю дію неможливо скасувати.",
-        "deleteBtn": "Видалити банер"
-      }
     },
     "uploads": {
       "title": "Завантажені зображення",
@@ -1624,7 +1676,7 @@
     },
     "detailModal": {
       "title": "Редагувати деталі",
-      "description": "Оновіть деталі товару для вибраної мови",
+      "description": "Опис",
       "localeLabel": "Мова",
       "localePlaceholder": "Оберіть мову",
       "itemName": "Назва товару",
@@ -1633,7 +1685,6 @@
       "sellerPlaceholder": "Назва продавця",
       "discount": "Знижка (%)",
       "discountPlaceholder": "напр. 10",
-      "description": "Опис",
       "descriptionPlaceholder": "Опис товару",
       "specifications": "Специфікації",
       "specificationsPlaceholder": "Специфікації товару",
@@ -1720,9 +1771,18 @@
     "apartmentOrOffice": "Квартира / Офіс",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Самовивіз", "description": "З нашого складу" },
-      "nova_dept": { "label": "Відділення", "description": "Нової Пошти" },
-      "nova_courier": { "label": "Кур'єр", "description": "Нова Пошта" }
+      "warehouse": {
+        "label": "Самовивіз",
+        "description": "З нашого складу"
+      },
+      "nova_dept": {
+        "label": "Відділення",
+        "description": "Нової Пошти"
+      },
+      "nova_courier": {
+        "label": "Кур'єр",
+        "description": "Нова Пошта"
+      }
     },
     "paymentOption": {
       "online_card": {
@@ -1802,6 +1862,40 @@
       "qty": "Кіл-ть",
       "unitPrice": "Ціна за шт.",
       "total": "Сума"
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "Нове",
+      "WAITING_FOR_PAYMENT": "Очікує оплати",
+      "PROCESSING": "В обробці",
+      "DELIVERY": "Доставка",
+      "COMPLETED": "Виконано",
+      "CANCELLED": "Скасовано",
+      "REFUND": "Повернення"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Оплачено",
+      "PENDING": "Очікується",
+      "INITIATED": "Ініційовано",
+      "FAILED": "Помилка",
+      "CANCELLED": "Скасовано",
+      "REFUNDED": "Повернено",
+      "PROCESSING": "Обробляється"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Очікує",
+      "PROCESSING": "Обробляється",
+      "IN_TRANSIT": "В дорозі",
+      "DELIVERED": "Доставлено",
+      "RETURNED": "Повернено",
+      "CANCELLED": "Скасовано"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Відділення",
+      "COURIER": "Кур'єр",
+      "USER_ADDRESS": "Адреса",
+      "NOVA_POSHTA": "Нова Пошта"
     }
   }
 }

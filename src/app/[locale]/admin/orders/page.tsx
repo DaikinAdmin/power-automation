@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-
+import { useOrderTranslations } from '@/helpers/use-translations';
+import type { OrderStatus } from '@/db/schema';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
 
 type OrderListItem = {
   id: string;
-  status: string;
+  status: OrderStatus;
   currency: string | null;
   totalGross: number | null;
   createdAt: string;
@@ -36,6 +37,8 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('adminDashboard');
+  const tr = useOrderTranslations();
+
 
   useEffect(() => {
     let isMounted = true;
@@ -187,7 +190,7 @@ export default function OrdersPage() {
                 {!isLoading && orders.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      <div className="font-mono text-sm">#{order.id.slice(-8)}</div>
+                      <div className="font-mono text-sm">#{order.id.slice(0, 8)}</div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium">{order.user?.name ?? '—'}</div>
@@ -212,7 +215,7 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusBadgeStyle(order.status)}`}>
-                        {order.status}
+                        {tr.statusLabel(order.status)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-600 text-sm">

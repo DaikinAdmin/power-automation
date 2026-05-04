@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
+import { useOrderTranslations } from '@/helpers/use-translations';
 
 interface OrderStatusFormProps {
   orderId: string;
@@ -21,6 +22,7 @@ export function OrderStatusForm({
   canUpdate,
 }: OrderStatusFormProps) {
   const t = useTranslations('adminDashboard');
+  const tr = useOrderTranslations();
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [deliveryId, setDeliveryId] = useState(initialDeliveryId ?? '');
@@ -120,7 +122,7 @@ export function OrderStatusForm({
         >
           {statusOptions.map((option) => (
             <option key={option} value={option}>
-              {option.replace(/_/g, ' ')}
+              {tr.statusLabel(option as any)}
             </option>
           ))}
         </select>

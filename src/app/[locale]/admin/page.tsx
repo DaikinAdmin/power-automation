@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
-
 import { OrderStatus } from '@/db/schema';
+import { useOrderTranslations } from '@/helpers/use-translations';
 import { Link } from '@/i18n/navigation';
 import { 
   ShoppingCart, 
@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const t = useTranslations('adminDashboard.dashboard');
+  const tr = useOrderTranslations();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -220,7 +221,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="text-right">
                       <span className={`text-xs font-medium ${getOrderStatusStyle(order.status)}`}>
-                        {order.status.replace('_', ' ')}
+                        {tr.statusLabel(order.status)}
                       </span>
                       <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
                     </div>

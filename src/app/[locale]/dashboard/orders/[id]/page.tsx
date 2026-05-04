@@ -4,17 +4,19 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Package, MapPin, Calendar, CreditCard } from 'lucide-react';
+import { useOrderTranslations, useDeliveryTranslations } from '@/helpers/use-translations';
+import { ArrowLeft, Package, MapPin, CreditCard } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency, formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
+import { formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
 import type { OrderDetail } from '@/types/order';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('dashboard.orders.detail');
+  const tr = useOrderTranslations();
+  const trDelivery = useDeliveryTranslations();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -22,12 +24,6 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { id } = use(params);
-
-  const { formatAs, convertFromCurrency, currencyCode } = useCurrency();
-
-  // Order line item prices are stored pre-VAT — convertFromCurrency applies VAT + exchange rate
-  const formatOrderPrice = (price: number, fromCurrency: string) =>
-    formatAs(convertFromCurrency(price, fromCurrency as any), currencyCode);
 
   useEffect(() => {
     let isMounted = true;
@@ -230,13 +226,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('orderNumber', { id: order.id.slice(-8) })}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('orderNumber', { id: order.id.slice(0, 8) })}</h1>
             <p className="text-sm text-gray-600">{t('placedOn', { date: formatDate(order.createdAt) })}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusBadgeStyle(order.status)}`}>
-            {order.status.replace(/_/g, ' ')}
+            {tr.statusLabel(order.status)}
           </span>
           {canProceedWithPayment && (
             <Button onClick={handlePayOrder} className="bg-green-600 hover:bg-green-700">
@@ -345,12 +341,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('paymentStatus')}</span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                    order.payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                    order.payment.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    order.payment.status === 'REFUNDED' ? 'bg-purple-100 text-purple-800' :
-                    'bg-red-100 text-red-800'
+                    getPaymentStatusBadgeStyle(order.payment.status)
                   }`}>
-                    {order.payment.status}
+                    {tr.paymentStatusLabel(order.payment.status)}
                   </span>
                 </div>
                 {order.payment.paymentMethod && (
@@ -363,7 +356,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </Card>
           )}
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -388,7 +381,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           {order.deliveryId && (
             <Card>
@@ -400,7 +393,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                   <>
                     <div className="flex justify-between">
                       <span className="text-gray-600">{t('deliveryType')}</span>
-                      <span>{t(`deliveryTypes.${order.delivery.type}`)}</span>
+                      <span>{trDelivery.typeLabel(order.delivery.type)}</span>
                     </div>
                     {order.delivery.city && (
                       <div className="flex justify-between">
@@ -432,7 +425,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     )}
                     <div className="flex justify-between">
                       <span className="text-gray-600">{t('deliveryStatus')}</span>
-                      <span>{order.delivery.status}</span>
+                      <span>{trDelivery.statusLabel(order.delivery.status)}</span>
                     </div>
                   </>
                 ) : (

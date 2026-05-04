@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-
+import { useOrderTranslations } from "@/helpers/use-translations";
 import {
   Card,
   CardContent,
@@ -21,6 +21,7 @@ import type { OrderListItem } from "@/types/order";
 
 export default function DashboardOrdersPage() {
   const t = useTranslations("dashboard.orders");
+  const tr = useOrderTranslations();
   const [orders, setOrders] = useState<OrderListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -243,7 +244,7 @@ export default function DashboardOrdersPage() {
                       <tr key={order.id} className="border-b hover:bg-gray-50">
                         <td className="py-3 px-4">
                           <div className="font-mono text-sm">
-                            #{order.id.slice(-8)}
+                            #{order.id.slice(0, 8)}
                           </div>
                         </td>
                         <td className="py-3 px-4">
@@ -272,9 +273,7 @@ export default function DashboardOrdersPage() {
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusBadgeStyle(order.status)}`}
                           >
-                            {t(`orderStatuses.${order.status}`, {
-                              default: order.status.replace(/_/g, " "),
-                            })}
+                            {tr.statusLabel(order.status)}
                           </span>
                         </td>
                         <td className="py-3 px-4">
@@ -282,9 +281,7 @@ export default function DashboardOrdersPage() {
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusBadgeStyle(order.payment.status)}`}
                             >
-                              {t(`paymentStatuses.${order.payment.status}`, {
-                                default: order.payment.status,
-                              })}
+                              {tr.paymentStatusLabel(order.payment.status)}
                             </span>
                           ) : (
                             <span className="text-xs text-gray-400">N/A</span>

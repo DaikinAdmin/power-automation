@@ -2,19 +2,21 @@
 
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { useDeliveryTranslations } from '@/helpers/use-translations';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/helpers/formatting';
-import { DeliveryItem } from '@/types/delivery';
+import { DeliveryRecord } from '@/types/delivery';
 import { STATUS_COLORS } from '@/constants/delivery';
 
 interface Props {
-  deliveries: DeliveryItem[];
+  deliveries: DeliveryRecord[];
   isLoading: boolean;
-  onEdit: (delivery: DeliveryItem) => void;
+  onEdit: (delivery: DeliveryRecord) => void;
 }
 
 export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
   const t = useTranslations('adminDashboard.delivery');
+  const tr = useDeliveryTranslations();
   return (
     <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -55,7 +57,7 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
                     <div className="font-medium text-gray-900">{d.user?.name ?? '—'}</div>
                     <div className="text-xs text-gray-500">{d.user?.email ?? ''}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{t(`type.${d.type}` as Parameters<typeof t>[0], { default: d.type })}</td>
+                  <td className="px-4 py-3 text-gray-700">{tr.typeLabel(d.type)}</td>
                   <td className="px-4 py-3 text-gray-700">
                     {d.city && <div>{d.city}</div>}
                     {d.warehouseDesc && <div className="text-xs text-gray-500">{d.warehouseDesc}</div>}
@@ -71,7 +73,7 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[d.status] ?? 'bg-gray-100 text-gray-800'}`}>
-                      {t(`status.${d.status}` as Parameters<typeof t>[0], { default: d.status })}
+                      {tr.statusLabel(d.status)}
                     </span>
                   </td>
                   <td className="px-4 py-3">

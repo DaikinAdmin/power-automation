@@ -1,5 +1,7 @@
 // types/delivery.ts
 import type { AddressFields } from '@/helpers/address';
+import type { DeliveryStatus } from '@/db/schema';
+import type { DeliveryType } from '@/db/schema';
 
 export type DeliveryInfo = {
   name: string;
@@ -13,7 +15,7 @@ export type DeliveryRecord = {
   id: string;
   userId: string;
   orderId: string | null;
-  type: string;
+  type: DeliveryType;
   city: string | null;
   cityRef: string | null;
   warehouseRef: string | null;
@@ -23,7 +25,7 @@ export type DeliveryRecord = {
   flat: string | null;
   trackingNumber: string | null;
   paymentMethod: string | null;
-  status: string;
+  status: DeliveryStatus;
   createdAt: string;
   updatedAt: string;
   user?: {
