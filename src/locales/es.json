@@ -757,6 +757,97 @@
         "date": "Fecha"
       }
     },
+    "analytics": {
+      "title": "Informes y analítica",
+      "description": "Informes financieros y análisis de inventario",
+      "tabs": {
+        "financial": "Informe financiero",
+        "inventory": "Informe de inventario"
+      },
+      "filters": {
+        "dateFrom": "Desde",
+        "dateTo": "Hasta",
+        "apply": "Aplicar",
+        "reset": "Restablecer"
+      },
+      "export": {
+        "label": "Exportar",
+        "pdf": "Exportar PDF",
+        "excel": "Exportar Excel"
+      },
+      "financial": {
+        "summary": "Resumen",
+        "totalOrders": "Total de pedidos",
+        "totalNet": "Total neto",
+        "totalVat": "Total IVA",
+        "totalGross": "Total bruto",
+        "avgOrder": "Valor medio del pedido",
+        "byStatus": "Por estado del pedido",
+        "monthly": "Tendencia mensual",
+        "month": "Mes",
+        "orders": "Pedidos",
+        "net": "Neto",
+        "vat": "IVA",
+        "gross": "Bruto",
+        "status": "Estado",
+        "count": "Cantidad"
+      },
+      "inventory": {
+        "warehouseFilter": "Almacén",
+        "allWarehouses": "Todos los almacenes",
+        "currencyFilter": "Moneda de visualización",
+        "summary": "Resumen de stock",
+        "totalItems": "Total de posiciones",
+        "totalValue": "Valor total del stock",
+        "zeroStock": "Posiciones sin stock",
+        "table": {
+          "article": "Artículo",
+          "name": "Nombre del producto",
+          "warehouse": "Almacén",
+          "quantity": "Cantidad",
+          "price": "Precio",
+          "totalValue": "Valor total",
+          "badge": "Estado"
+        },
+        "columns": {
+          "articleId": "Artículo",
+          "namesPl": "Nombre (PL)",
+          "namesUa": "Nombre (UA)",
+          "namesEn": "Nombre (EN)",
+          "namesEs": "Nombre (ES)",
+          "warehouseId": "ID almacén",
+          "warehouseName": "Nombre almacén",
+          "warehouseDisplayedName": "Nombre mostrado",
+          "quantity": "Cantidad",
+          "badge": "Estado",
+          "initialPrice": "Precio inicial",
+          "initialCurrency": "Divisa",
+          "margin": "Margen (%)",
+          "priceWithMarginNoVat": "Precio de venta (sin IVA)",
+          "vatUa": "IVA UA (20%)",
+          "vatPl": "IVA PL (23%)",
+          "priceWithMarginWithVatUa": "Precio de venta (IVA UA)",
+          "priceWithMarginWithVatPl": "Precio de venta (IVA PL)",
+          "initialPriceDisplay": "Precio inicial (moneda sel.)",
+          "totalValue": "Valor total"
+        },
+        "columnConfig": {
+          "title": "Configurar columnas",
+          "description": "Selecciona los campos para mostrar y exportar",
+          "resetDefaults": "Restablecer por defecto",
+          "apply": "Aplicar",
+          "groups": {
+            "identifiers": "Identificadores",
+            "names": "Nombres de productos",
+            "warehouse": "Almacén",
+            "stock": "Stock",
+            "pricing": "Precios"
+          }
+        }
+      },
+      "loading": "Cargando datos del informe...",
+      "noData": "No hay datos para el período seleccionado"
+    },
     "common": {
       "actions": "Acciones",
       "edit": "Editar",

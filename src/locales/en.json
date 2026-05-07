@@ -788,6 +788,97 @@
         "date": "Date"
       }
     },
+    "analytics": {
+      "title": "Reports & Analytics",
+      "description": "Financial reports and inventory stock analysis",
+      "tabs": {
+        "financial": "Financial Report",
+        "inventory": "Inventory Report"
+      },
+      "filters": {
+        "dateFrom": "From",
+        "dateTo": "To",
+        "apply": "Apply",
+        "reset": "Reset"
+      },
+      "export": {
+        "label": "Export",
+        "pdf": "Export PDF",
+        "excel": "Export Excel"
+      },
+      "financial": {
+        "summary": "Summary",
+        "totalOrders": "Total Orders",
+        "totalNet": "Total Net",
+        "totalVat": "Total VAT",
+        "totalGross": "Total Gross",
+        "avgOrder": "Avg. Order Value",
+        "byStatus": "By Order Status",
+        "monthly": "Monthly Trend",
+        "month": "Month",
+        "orders": "Orders",
+        "net": "Net",
+        "vat": "VAT",
+        "gross": "Gross",
+        "status": "Status",
+        "count": "Count"
+      },
+      "inventory": {
+        "warehouseFilter": "Warehouse",
+        "allWarehouses": "All Warehouses",
+        "currencyFilter": "Display Currency",
+        "summary": "Stock Summary",
+        "totalItems": "Total Items",
+        "totalValue": "Total Stock Value",
+        "zeroStock": "Items Out of Stock",
+        "table": {
+          "article": "Article",
+          "name": "Product Name",
+          "warehouse": "Warehouse",
+          "quantity": "Qty",
+          "price": "Price",
+          "totalValue": "Total Value",
+          "badge": "Status"
+        },
+        "columns": {
+          "articleId": "Article",
+          "namesPl": "Name (PL)",
+          "namesUa": "Name (UA)",
+          "namesEn": "Name (EN)",
+          "namesEs": "Name (ES)",
+          "warehouseId": "Warehouse ID",
+          "warehouseName": "Warehouse Name",
+          "warehouseDisplayedName": "Displayed Name",
+          "quantity": "Qty",
+          "badge": "Status",
+          "initialPrice": "Initial Price",
+          "initialCurrency": "Currency",
+          "margin": "Margin (%)",
+          "priceWithMarginNoVat": "Selling Price (excl. VAT)",
+          "vatUa": "VAT UA (20%)",
+          "vatPl": "VAT PL (23%)",
+          "priceWithMarginWithVatUa": "Selling Price (incl. VAT UA)",
+          "priceWithMarginWithVatPl": "Selling Price (incl. VAT PL)",
+          "initialPriceDisplay": "Initial Price (sel. currency)",
+          "totalValue": "Total Value"
+        },
+        "columnConfig": {
+          "title": "Configure Columns",
+          "description": "Select fields to display and export",
+          "resetDefaults": "Reset to defaults",
+          "apply": "Apply",
+          "groups": {
+            "identifiers": "Identifiers",
+            "names": "Product Names",
+            "warehouse": "Warehouse",
+            "stock": "Stock",
+            "pricing": "Pricing"
+          }
+        }
+      },
+      "loading": "Loading report data...",
+      "noData": "No data for the selected period"
+    },
     "common": {
       "actions": "Actions",
       "edit": "Edit",

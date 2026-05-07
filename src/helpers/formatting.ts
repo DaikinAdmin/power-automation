@@ -50,6 +50,8 @@ export const getOrderStatusBadgeStyle = (status: OrderStatus | string): string =
     COMPLETED: 'bg-green-100 text-green-800',
     CANCELLED: 'bg-red-100 text-red-800',
     REFUND: 'bg-purple-100 text-purple-800',
+    DELIVERY: 'bg-cyan-100 text-cyan-800',
+    ASK_FOR_PRICE: 'bg-gray-100 text-gray-800',
   };
 
   return mapping[status] || 'bg-gray-100 text-gray-800';

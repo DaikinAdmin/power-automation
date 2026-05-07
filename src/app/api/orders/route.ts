@@ -8,6 +8,7 @@ import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import { getTranslations } from 'next-intl/server';
 import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
+import { getDomainKeyByHost } from '@/lib/domain-config';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
     if (body.isPriceRequest) {
       return priceRequestHandler(body, userId!);
     } else {
-      return orderHandler(body, userId!, locale);
+      return orderHandler(body, userId!, locale, request.headers.get('host'));
     }
   } catch (error) {
     return apiErrorHandler(error, request, {
@@ -279,7 +280,7 @@ async function priceRequestHandler(body: any, userId: string) {
   });
 }
 
-async function orderHandler(body: any, userId: string, locale: string = 'en') {
+async function orderHandler(body: any, userId: string, locale: string = 'en', host: string | null = null) {
   const t = await getTranslations({ locale, namespace: 'errors' });
   
   const {
@@ -369,28 +370,46 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
   */
 
   // Resolve exchange rates (originalCurrency -> orderCurrency)
-  const exchangeRateRows = await db
-    .select({ from: schema.currencyExchange.from, rate: schema.currencyExchange.rate })
-    .from(schema.currencyExchange)
-    .where(eq(schema.currencyExchange.to, orderCurrency as 'EUR' | 'UAH' | 'PLN' | 'USD'));
-  const exchangeRateMap = new Map<string, number>(exchangeRateRows.map(r => [r.from, r.rate]));
-  exchangeRateMap.set(orderCurrency, 1); // same currency → rate 1
+  // Fetch all pairs to support cross-rate conversion via EUR when a direct pair is missing.
 
-  // Resolve VAT rates per warehouse country
-  const uniqueCountrySlugs = [
-    ...new Set(
-      (dbItemsWithRelations as any[]).flatMap(dbItem =>
-        dbItem.itemPrice.map((p: any) => p.warehouse?.countrySlug).filter(Boolean)
-      ) as string[]
-    ),
-  ];
-  const vatRows = uniqueCountrySlugs.length > 0
-    ? await db
-        .select({ slug: schema.warehouseCountries.slug, vatPercentage: schema.warehouseCountries.vatPercentage })
-        .from(schema.warehouseCountries)
-        .where(inArray(schema.warehouseCountries.slug, uniqueCountrySlugs))
-    : [];
-  const vatMap = new Map<string, number>(vatRows.map(r => [r.slug!, (r.vatPercentage ?? 0) / 100]));
+  const domainKey = getDomainKeyByHost(host);
+  const allRateRows = await db
+    .select({ from: schema.currencyExchange.from, to: schema.currencyExchange.to, rate: schema.currencyExchange.rate })
+    .from(schema.currencyExchange);
+
+  // Build nested map: rateTable[from][to] = rate
+  const rateTable = new Map<string, Map<string, number>>();
+  for (const r of allRateRows) {
+    if (!rateTable.has(r.from)) rateTable.set(r.from, new Map());
+    rateTable.get(r.from)!.set(r.to, r.rate);
+  }
+
+  // Resolve a conversion rate from `src` to `dst` using the same algorithm as the frontend
+  // useCurrency.tsx: always convert via EUR as base (price / EUR→src * EUR→dst).
+  // This ensures route totals match cart display totals exactly.
+  const resolveRate = (src: string, dst: string): number => {
+    if (src === dst) return 1;
+    const BASE = 'EUR';
+    const srcToBase = src === BASE ? 1 : (rateTable.get(BASE)?.get(src) ?? null);
+    const baseToDs = dst === BASE ? 1 : (rateTable.get(BASE)?.get(dst) ?? null);
+    if (srcToBase != null && baseToDs != null && srcToBase !== 0) {
+      return (1 / srcToBase) * baseToDs;
+    }
+    // Fallback: direct pair or inverse
+    const direct = rateTable.get(src)?.get(dst);
+    if (direct != null) return direct;
+    const dstToSrc = rateTable.get(dst)?.get(src);
+    if (dstToSrc != null && dstToSrc !== 0) return 1 / dstToSrc;
+    return 1;
+  };
+
+  // Resolve VAT rate for this domain's country — applied to all line items
+  const [domainVatRow] = await db
+    .select({ vatPercentage: schema.warehouseCountries.vatPercentage })
+    .from(schema.warehouseCountries)
+    .where(eq(schema.warehouseCountries.slug, domainKey))
+    .limit(1);
+  const domainVatRate = (domainVatRow?.vatPercentage ?? 0) / 100;
 
   let totalNetAcc = 0;
   let totalVatAcc = 0;
@@ -438,10 +457,8 @@ async function orderHandler(body: any, userId: string, locale: string = 'en') {
 
     // Compute financial fields for the line item
     const originalCurrency = cartItem.currency || (itemPrice as any).initialCurrency || null;
-    const exchangeRate = originalCurrency && originalCurrency !== orderCurrency
-      ? (exchangeRateMap.get(originalCurrency) ?? 1)
-      : 1;
-    const vatRate = vatMap.get(itemPrice.warehouse.countrySlug ?? '') ?? 0;
+    const exchangeRate = originalCurrency ? resolveRate(originalCurrency, orderCurrency) : 1;
+    const vatRate = domainVatRate;
     const basePriceNet = itemPrice.price;
     const specialPriceNet = itemPrice.promotionPrice ?? null;
     const unitPriceNet = specialPriceNet ?? basePriceNet;

@@ -794,6 +794,97 @@
         "date": "Дата"
       }
     },
+    "analytics": {
+      "title": "Звіти та аналітика",
+      "description": "Фінансові звіти та аналіз залишків на складах",
+      "tabs": {
+        "financial": "Фінансовий звіт",
+        "inventory": "Звіт по залишках"
+      },
+      "filters": {
+        "dateFrom": "Від",
+        "dateTo": "До",
+        "apply": "Застосувати",
+        "reset": "Скинути"
+      },
+      "export": {
+        "label": "Експорт",
+        "pdf": "Експорт PDF",
+        "excel": "Експорт Excel"
+      },
+      "financial": {
+        "summary": "Зведення",
+        "totalOrders": "Всього замовлень",
+        "totalNet": "Всього без ПДВ",
+        "totalVat": "Всього ПДВ",
+        "totalGross": "Всього з ПДВ",
+        "avgOrder": "Сер. сума замовлення",
+        "byStatus": "За статусом замовлень",
+        "monthly": "Помісячна динаміка",
+        "month": "Місяць",
+        "orders": "Замовлень",
+        "net": "Без ПДВ",
+        "vat": "ПДВ",
+        "gross": "З ПДВ",
+        "status": "Статус",
+        "count": "Кількість"
+      },
+      "inventory": {
+        "warehouseFilter": "Склад",
+        "allWarehouses": "Всі склади",
+        "currencyFilter": "Валюта відображення",
+        "summary": "Зведення по залишках",
+        "totalItems": "Всього позицій",
+        "totalValue": "Загальна вартість залишків",
+        "zeroStock": "Позиції з нульовим залишком",
+        "table": {
+          "article": "Артикул",
+          "name": "Назва товару",
+          "warehouse": "Склад",
+          "quantity": "Кількість",
+          "price": "Ціна",
+          "totalValue": "Загальна вартість",
+          "badge": "Статус"
+        },
+        "columns": {
+          "articleId": "Артикул",
+          "namesPl": "Назва (PL)",
+          "namesUa": "Назва (UA)",
+          "namesEn": "Назва (EN)",
+          "namesEs": "Назва (ES)",
+          "warehouseId": "ID складу",
+          "warehouseName": "Назва складу",
+          "warehouseDisplayedName": "Відображувана назва",
+          "quantity": "Кількість",
+          "badge": "Статус",
+          "initialPrice": "Початкова ціна",
+          "initialCurrency": "Валюта",
+          "margin": "Маржа (%)",
+          "priceWithMarginNoVat": "Ціна продажу (без ПДВ)",
+          "vatUa": "ПДВ Укр (20%)",
+          "vatPl": "ПДВ Пол (23%)",
+          "priceWithMarginWithVatUa": "Ціна продажу (ПДВ Укр)",
+          "priceWithMarginWithVatPl": "Ціна продажу (ПДВ Пол)",
+          "initialPriceDisplay": "Початкова ціна (обр. валюта)",
+          "totalValue": "Загальна вартість"
+        },
+        "columnConfig": {
+          "title": "Налаштування стовпців",
+          "description": "Оберіть поля для відображення та експорту",
+          "resetDefaults": "Скинути до замовчувань",
+          "apply": "Застосувати",
+          "groups": {
+            "identifiers": "Ідентифікатори",
+            "names": "Назви товару",
+            "warehouse": "Склад",
+            "stock": "Залишки",
+            "pricing": "Ціноутворення"
+          }
+        }
+      },
+      "loading": "Завантаження даних звіту...",
+      "noData": "Немає даних за обраний період"
+    },
     "common": {
       "actions": "Дії",
       "edit": "Редагувати",

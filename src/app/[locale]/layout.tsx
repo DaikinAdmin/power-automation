@@ -10,10 +10,10 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import Script from 'next/script';
-import { GoogleTagManager } from '@next/third-parties/google';
-import { getServerDomainConfig } from '@/lib/server-domain';
-import { getVatBySlug } from '@/helpers/db/vat-queries';
+import Script from "next/script";
+import { GoogleTagManager } from "@next/third-parties/google";
+import { getServerDomainConfig } from "@/lib/server-domain";
+import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
 
 export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
@@ -57,11 +57,15 @@ export default async function LocaleLayout({
   // Domain-specific GTM ID and currency
   const domainConfig = await getServerDomainConfig();
   const gtmId = domainConfig.gtmId;
-  const domainCurrencyMap: Record<string, SupportedCurrency> = { pl: 'PLN', ua: 'UAH' };
-  const initialCurrency: SupportedCurrency = domainCurrencyMap[domainConfig.key] ?? 'EUR';
+  const domainCurrencyMap: Record<string, SupportedCurrency> = {
+    pl: "PLN",
+    ua: "UAH",
+  };
+  const initialCurrency: SupportedCurrency =
+    domainCurrencyMap[domainConfig.key] ?? "EUR";
 
   // VAT configuration per domain — Ukraine uses 20% (slug='ua'), all others use 23% (slug='pl')
-  const vatSlug = domainConfig.key === 'ua' ? 'ua' : 'pl';
+  const vatSlug = domainConfig.key === "ua" ? "ua" : "pl";
   const vatPercentage = await getVatBySlug(vatSlug);
   const vatInclusive = true;
 
@@ -76,13 +80,16 @@ export default async function LocaleLayout({
               window.dataLayer=window.dataLayer||[];
               function gtag(){dataLayer.push(arguments);}
               window.gtag=gtag;
-              ${domainConfig.key === 'ua' ? `
+              ${
+                domainConfig.key === "ua"
+                  ? `
               gtag('consent','default',{
                 analytics_storage:'granted',ad_storage:'granted',
                 ad_user_data:'granted',ad_personalization:'granted',
                 functionality_storage:'granted',security_storage:'granted'
               });
-              ` : `
+              `
+                  : `
               try{
                 var c=localStorage.getItem('cookie_consent');
                 var s=c==='accepted'?'granted':'denied';
@@ -100,7 +107,8 @@ export default async function LocaleLayout({
                   wait_for_update:500
                 });
               }
-              `}
+              `
+              }
             `,
           }}
         />
@@ -114,17 +122,23 @@ export default async function LocaleLayout({
             src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
             height="0"
             width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
+            style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
-              <CurrencyProvider initialCurrency={initialCurrency} vatPercentage={vatPercentage} vatInclusive={vatInclusive}>{children}</CurrencyProvider>
+              <CurrencyProvider
+                initialCurrency={initialCurrency}
+                vatPercentage={vatPercentage}
+                vatInclusive={vatInclusive}
+              >
+                {children}
+              </CurrencyProvider>
             </CompareProvider>
           </CartProvider>
           <Toaster />
-          <CookieConsent requireConsent={domainConfig.key !== 'ua'} />
+          <CookieConsent requireConsent={domainConfig.key !== "ua"} />
         </NextIntlClientProvider>
       </body>
     </html>

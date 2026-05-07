@@ -794,6 +794,97 @@
         "date": "Data"
       }
     },
+    "analytics": {
+      "title": "Raporty i analityka",
+      "description": "Raporty finansowe i analiza stanów magazynowych",
+      "tabs": {
+        "financial": "Raport finansowy",
+        "inventory": "Raport stanów magazynowych"
+      },
+      "filters": {
+        "dateFrom": "Od",
+        "dateTo": "Do",
+        "apply": "Zastosuj",
+        "reset": "Resetuj"
+      },
+      "export": {
+        "label": "Eksport",
+        "pdf": "Eksportuj PDF",
+        "excel": "Eksportuj Excel"
+      },
+      "financial": {
+        "summary": "Podsumowanie",
+        "totalOrders": "Łączna liczba zamówień",
+        "totalNet": "Łącznie netto",
+        "totalVat": "Łącznie VAT",
+        "totalGross": "Łącznie brutto",
+        "avgOrder": "Śr. wartość zamówienia",
+        "byStatus": "Według statusu zamówień",
+        "monthly": "Trend miesięczny",
+        "month": "Miesiąc",
+        "orders": "Zamówień",
+        "net": "Netto",
+        "vat": "VAT",
+        "gross": "Brutto",
+        "status": "Status",
+        "count": "Liczba"
+      },
+      "inventory": {
+        "warehouseFilter": "Magazyn",
+        "allWarehouses": "Wszystkie magazyny",
+        "currencyFilter": "Waluta wyświetlania",
+        "summary": "Podsumowanie stanów",
+        "totalItems": "Łączna liczba pozycji",
+        "totalValue": "Łączna wartość stanów",
+        "zeroStock": "Pozycje z zerowym stanem",
+        "table": {
+          "article": "Artykuł",
+          "name": "Nazwa produktu",
+          "warehouse": "Magazyn",
+          "quantity": "Ilość",
+          "price": "Cena",
+          "totalValue": "Wartość łączna",
+          "badge": "Status"
+        },
+        "columns": {
+          "articleId": "Artykuł",
+          "namesPl": "Nazwa (PL)",
+          "namesUa": "Nazwa (UA)",
+          "namesEn": "Nazwa (EN)",
+          "namesEs": "Nazwa (ES)",
+          "warehouseId": "ID magazynu",
+          "warehouseName": "Nazwa magazynu",
+          "warehouseDisplayedName": "Wyświetlana nazwa",
+          "quantity": "Ilość",
+          "badge": "Status",
+          "initialPrice": "Cena początkowa",
+          "initialCurrency": "Waluta",
+          "margin": "Marża (%)",
+          "priceWithMarginNoVat": "Cena sprzedaży (bez VAT)",
+          "vatUa": "VAT UA (20%)",
+          "vatPl": "VAT PL (23%)",
+          "priceWithMarginWithVatUa": "Cena sprzedaży (VAT UA)",
+          "priceWithMarginWithVatPl": "Cena sprzedaży (VAT PL)",
+          "initialPriceDisplay": "Cena początkowa (wyb. waluta)",
+          "totalValue": "Wartość łączna"
+        },
+        "columnConfig": {
+          "title": "Konfiguracja kolumn",
+          "description": "Wybierz pola do wyświetlenia i eksportu",
+          "resetDefaults": "Przywróć domyślne",
+          "apply": "Zastosuj",
+          "groups": {
+            "identifiers": "Identyfikatory",
+            "names": "Nazwy produktów",
+            "warehouse": "Magazyn",
+            "stock": "Stany",
+            "pricing": "Cennik"
+          }
+        }
+      },
+      "loading": "Ładowanie danych raportu...",
+      "noData": "Brak danych dla wybranego okresu"
+    },
     "common": {
       "actions": "Akcje",
       "edit": "Edytuj",
