@@ -640,7 +640,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
         orderShortId: order.id.substring(0, 8),
         customerName: orderUser.name,
         customerEmail: orderUser.email,
-        customerPhone: orderUser.phoneNumber || undefined,
+        customerPhone: orderUser.countryCode + orderUser.phoneNumber || undefined,
         companyName: orderUser.companyName || undefined,
         totalGross: order.totalGross,
         currency: order.currency,

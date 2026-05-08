@@ -12,6 +12,7 @@
 
 import { email } from '@/helpers/email/resend';
 import logger from '@/lib/logger';
+import { sendNewOrderTelegramNotification } from '@/lib/telegram';
 
 type SupportedLocale = 'pl' | 'en' | 'ua' | 'es';
 const SUPPORTED_LOCALES: SupportedLocale[] = ['pl', 'en', 'ua', 'es'];
@@ -65,6 +66,9 @@ export interface OrderEmailData {
   currency: string;
   /** BCP-47 / next-intl locale: 'pl' | 'en' | 'ua' | 'es' */
   locale?: string;
+  deliveryType?: string;
+  deliveryMethod?: string;
+  deliveryAddress?: string;
   lineItems: Array<{
     name: string;
     articleId: string;
@@ -309,11 +313,12 @@ export async function sendPaymentSuccessCustomerEmail(data: PaymentEmailData): P
 // Convenience wrappers
 // ---------------------------------------------------------------------------
 
-/** Send new order notification to both manager and customer */
+/** Send new order notification to both manager and customer, and Telegram */
 export async function sendNewOrderEmails(data: OrderEmailData): Promise<void> {
   await Promise.allSettled([
     sendNewOrderManagerEmail(data),
     sendNewOrderCustomerEmail(data),
+    sendNewOrderTelegramNotification(data),
   ]);
 }
 
