@@ -2,6 +2,7 @@ import type { Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
+import { headers } from "next/headers";
 import { CartProvider } from "@/components/cart-context";
 import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
@@ -58,6 +59,10 @@ export default async function LocaleLayout({
   // Domain-specific GTM ID and currency
   const domainConfig = await getServerDomainConfig();
   const gtmId = domainConfig.gtmId;
+
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') ?? '';
+  const isAdmin = pathname.includes('/admin');
   const domainCurrencyMap: Record<string, SupportedCurrency> = {
     pl: "PLN",
     ua: "UAH",
@@ -73,7 +78,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className="overflow-x-hidden">
       <head>
-        <Script
+        {!isAdmin && <Script
           id="consent-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
@@ -112,20 +117,22 @@ export default async function LocaleLayout({
               }
             `,
           }}
-        />
+        />}
       </head>
-      <GoogleTagManager gtmId={gtmId} />
+      {!isAdmin && <GoogleTagManager gtmId={gtmId} />}
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
+        {!isAdmin && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
