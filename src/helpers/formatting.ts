@@ -1,7 +1,7 @@
 type OrderStatus = 'NEW' | 'WAITING_FOR_PAYMENT' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUND' | 'DELIVERY' | 'ASK_FOR_PRICE';
 
-export const formatCurrency = (amount: number): string => {
-  return `${amount.toFixed(2)} €`;
+export const formatCurrency = (amount: number, currency: string): string => {
+  return `${amount.toFixed(2)} ${currency}`;
 };
 
 export const formatDate = (

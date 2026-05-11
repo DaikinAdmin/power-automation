@@ -1,19 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
-import { auth } from '@/lib/auth';
-import { eq, gte, lte, and, sql } from 'drizzle-orm';
-import * as schema from '@/db/schema';
-import { apiErrorHandler } from '@/lib/error-handler';
-import type { FinancialReportData } from '@/types/analytics';
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { auth } from "@/lib/auth";
+import { eq, gte, lte, and, sql } from "drizzle-orm";
+import * as schema from "@/db/schema";
+import { apiErrorHandler } from "@/lib/error-handler";
+import type { FinancialReportData } from "@/types/analytics";
+import { getDomainKeyByHost } from "@/lib/domain-config";
 
-const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
+const AUTHORIZED_ROLES = new Set(["admin", "employee"]);
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const host = request.headers.get("host") || "";
+    const domainKey = getDomainKeyByHost(host);
+    const currency =
+      domainKey === "ua" ? "UAH" : domainKey === "pl" ? "PLN" : "";
 
     const [user] = await db
       .select({ role: schema.user.role })
@@ -22,22 +28,24 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user?.role || !AUTHORIZED_ROLES.has(user.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const now = new Date();
     const defaultFrom = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-    const dateFrom = searchParams.get('from') ?? defaultFrom.toISOString().slice(0, 10);
-    const dateTo = searchParams.get('to') ?? now.toISOString().slice(0, 10);
+    const dateFrom =
+      searchParams.get("from") ?? defaultFrom.toISOString().slice(0, 10);
+    const dateTo = searchParams.get("to") ?? now.toISOString().slice(0, 10);
 
     const fromTs = `${dateFrom}T00:00:00.000Z`;
     const toTs = `${dateTo}T23:59:59.999Z`;
 
     const filters = and(
+      eq(schema.order.currency, currency),
       gte(schema.order.createdAt, fromTs),
-      lte(schema.order.createdAt, toTs)
+      lte(schema.order.createdAt, toTs),
     );
 
     // Summary
@@ -52,7 +60,9 @@ export async function GET(request: NextRequest) {
       .where(filters);
 
     const avgOrderValue =
-      summaryRow.totalOrders > 0 ? summaryRow.totalGross / summaryRow.totalOrders : 0;
+      summaryRow.totalOrders > 0
+        ? summaryRow.totalGross / summaryRow.totalOrders
+        : 0;
 
     // By status
     const byStatus = await db
@@ -81,11 +91,11 @@ export async function GET(request: NextRequest) {
       .where(filters)
       .groupBy(
         sql`extract(year from ${schema.order.createdAt}::timestamp)`,
-        sql`extract(month from ${schema.order.createdAt}::timestamp)`
+        sql`extract(month from ${schema.order.createdAt}::timestamp)`,
       )
       .orderBy(
         sql`extract(year from ${schema.order.createdAt}::timestamp)`,
-        sql`extract(month from ${schema.order.createdAt}::timestamp)`
+        sql`extract(month from ${schema.order.createdAt}::timestamp)`,
       );
 
     const data: FinancialReportData = {
@@ -117,6 +127,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    return apiErrorHandler(error, 'GET /api/admin/analytics/financial');
+    return apiErrorHandler(error, "GET /api/admin/analytics/financial");
   }
 }

@@ -9,4 +9,4 @@ pool.on('error', (err) => {
   console.error('Unexpected database error:', err);
 });
 
-export const db = drizzle(pool, { logger: true });
+export const db = drizzle(pool, { logger: false });

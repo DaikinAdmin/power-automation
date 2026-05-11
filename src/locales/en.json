@@ -94,6 +94,7 @@
     "searchResults": "Search Results",
     "productsFound": "products found for",
     "productsAvailable": "products available",
+    "selectedBrandTitle": "Best deals for brand {brand}",
     "sortBy": "Sort by:",
     "popularity": "Popularity",
     "priceLow": "Price: Low",

@@ -94,6 +94,7 @@
     "searchResults": "Результати пошуку",
     "productsFound": "продуктів знайдено для",
     "productsAvailable": "доступних продуктів",
+    "selectedBrandTitle": "Найкращі пропозиції для бренду {brand}",
     "sortBy": "Сортувати за:",
     "popularity": "Популярність",
     "priceLow": "Ціна: Низька",

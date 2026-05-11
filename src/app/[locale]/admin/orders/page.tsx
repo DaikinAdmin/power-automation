@@ -8,6 +8,7 @@ import type { OrderStatus } from '@/db/schema';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 type OrderListItem = {
   id: string;
@@ -38,7 +39,7 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('adminDashboard');
   const tr = useOrderTranslations();
-
+  const domainConfig = useDomainConfig();
 
   useEffect(() => {
     let isMounted = true;
@@ -132,7 +133,7 @@ export default function OrdersPage() {
               <Skeleton className="h-8 w-32" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{formatCurrency(orderStats.totalRevenue)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(orderStats.totalRevenue, domainConfig.currency)}</div>
                 <p className="text-xs text-gray-600">
                   {t('orders.stats.fromCompleted', { count: orderStats.completed })}
                 </p>

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency, formatDate, getOrderStatusStyle } from '@/helpers/formatting';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 interface DashboardStats {
   totalUsers: number;
@@ -48,6 +49,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const t = useTranslations('adminDashboard.dashboard');
   const tr = useOrderTranslations();
+  const domainConfig = useDomainConfig();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -160,7 +162,7 @@ export default function AdminDashboard() {
               <Skeleton className="h-8 w-24" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{formatCurrency(stats?.revenue || 0)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats?.revenue || 0, domainConfig.currency)}</div>
                 <p className="text-xs text-gray-600">
                   {stats && stats.revenueGrowth > 0 ? '+' : ''}{stats?.revenueGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>

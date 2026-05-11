@@ -15,6 +15,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import { getServerDomainConfig } from "@/lib/server-domain";
 import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
+import { CatalogDataProvider } from "@/components/catalog-data-context";
 
 export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
 
@@ -133,7 +134,9 @@ export default async function LocaleLayout({
                 vatPercentage={vatPercentage}
                 vatInclusive={vatInclusive}
               >
-                {children}
+                <CatalogDataProvider locale={locale}>
+                  {children}
+                </CatalogDataProvider>
               </CurrencyProvider>
             </CompareProvider>
           </CartProvider>

@@ -94,6 +94,7 @@
     "searchResults": "Resultados de Búsqueda",
     "productsFound": "productos encontrados para",
     "productsAvailable": "productos disponibles",
+    "selectedBrandTitle": "Mejores ofertas para la marca {brand}",
     "sortBy": "Ordenar por:",
     "popularity": "Popularidad",
     "priceLow": "Precio: Bajo",

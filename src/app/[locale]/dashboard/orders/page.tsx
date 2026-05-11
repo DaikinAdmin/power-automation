@@ -14,6 +14,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   formatDate,
+  formatCurrency,
   getOrderStatusBadgeStyle,
   getPaymentStatusBadgeStyle,
 } from "@/helpers/formatting";
