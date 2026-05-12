@@ -327,6 +327,9 @@ export function UploadsClient() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const getCacheBustedUrl = (url: string, updatedAt: string) =>
+    `${url}?v=${new Date(updatedAt).getTime()}`;
+
   const openEdit = (image: UploadedImage) => {
     setEditImage(image);
     setEditFileName(image.fileName.replace(/\.[^.]+$/, ""));
@@ -432,7 +435,7 @@ export function UploadsClient() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={image.url}
+                  src={getCacheBustedUrl(image.url, image.updatedAt)}
                   alt={image.fileName}
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -641,7 +644,7 @@ export function UploadsClient() {
               <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={editImage.url}
+                  src={getCacheBustedUrl(editImage.url, editImage.updatedAt)}
                   alt={editImage.fileName}
                   className="w-full h-full object-contain"
                 />
@@ -733,7 +736,7 @@ export function UploadsClient() {
               <div className="w-full max-h-[60vh] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={previewImage.url}
+                  src={getCacheBustedUrl(previewImage.url, previewImage.updatedAt)}
                   alt={previewImage.fileName}
                   className="max-w-full max-h-[60vh] object-contain"
                 />
