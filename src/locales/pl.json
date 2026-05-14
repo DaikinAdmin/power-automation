@@ -1956,6 +1956,53 @@
       }
     }
   },
+  "deliveryPoland": {
+    "deliveryMethod": "Sposób dostawy",
+    "paymentMethod": "Sposób płatności",
+    "openMap": "Otwórz mapę paczkomatów",
+    "selected": "Wybrany",
+    "change": "Zmień",
+    "city": "Miasto",
+    "cityPlaceholder": "np. Wrocław",
+    "street": "Ulica",
+    "streetPlaceholder": "np. Tyniecka",
+    "building": "Nr domu",
+    "buildingPlaceholder": "np. 2",
+    "flat": "Nr mieszkania",
+    "flatPlaceholder": "np. 5",
+    "postalCode": "Kod pocztowy",
+    "deliveryCostNote": "Koszt dostawy zostanie naliczony zgodnie z cennikiem przewoźnika.",
+    "option": {
+      "parcelLocker": {
+        "label": "Paczkomat 24/7",
+        "description": "InPost — dostawa do paczkomatu"
+      },
+      "courier": {
+        "label": "Kurier InPost",
+        "description": "Dostawa pod wskazany adres"
+      },
+      "pickup": {
+        "label": "Samowywóz z magazynu",
+        "description": "Odbiór osobisty pod adresem magazynu",
+        "note": "Skontaktuj się z nami, aby uzgodnić termin odbioru."
+      },
+      "dpdParcel": {
+        "label": "Punkt DPD Pickup",
+        "description": "Odbiór w wybranym punkcie DPD",
+        "hint": "Wybierz punkt DPD na mapie powyżej."
+      }
+    },
+    "payment": {
+      "przelewy24": {
+        "label": "Przelewy24",
+        "description": "Szybka płatność online"
+      },
+      "bankTransfer": {
+        "label": "Przelew bankowy",
+        "description": "Faktura — płatność w ciągu 7 dni"
+      }
+    }
+  },
   "translations": {
     "orderStatuses": {
       "NEW": "Nowe",

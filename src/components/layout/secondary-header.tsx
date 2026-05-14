@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronDown,
   Settings as SettingsIcon,
@@ -19,16 +19,21 @@ import SignOut from "@/components/auth/sign-out";
 import { useCategories } from "@/hooks/useCategories";
 import { useLocale, useTranslations } from "next-intl";
 import HeaderSearch from "../searchInput";
-import { motion, AnimatePresence } from "framer-motion";
-import { fadeInOut } from "@/lib/animations";
 import { Button } from "../ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 export default function SecondaryHeader() {
   const [sessionData, setSessionData] = useState<any>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const t = useTranslations("header");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const { getTotalCartItems, setIsCartModalOpen } = useCart();
   const { compareItems, setIsCompareModalOpen } = useCompare();
@@ -54,76 +59,33 @@ export default function SecondaryHeader() {
   // Оптимізація: активна категорія
   const activeCategory = categories.find((cat) => cat.slug === hoveredCategory);
   const hasSubcategories = (activeCategory?.subcategories?.length ?? 0) > 0;
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return (
     <div className="bg-[#404040]">
       <div className="max-w-[90rem] mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Category Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-              onMouseEnter={() => setIsCategoriesOpen(true)}
-              className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 hover:bg-red-700 transition-colors h-max"
-            >
-              <BiSolidCategory size={25} />
-              <span className="hidden sm:inline font-bold">
-                {t("categories")}
-              </span>
-              <ChevronDown
-                size={16}
-                className={`transition-transform ${
-                  isCategoriesOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <AnimatePresence mode="wait">
-              {isCategoriesOpen && (
-                <>
-                  {/* Overlay with fade */}
-                  <motion.div
-                    {...fadeInOut}
-                    className="fixed inset-0 z-10"
-                    onClick={() => {
-                      setIsCategoriesOpen(false);
-                      setHoveredCategory(null);
-                    }}
-                  />
-
-                  {/* Dropdown with smooth appear/disappear */}
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.1 }}
-                    className="absolute top-full left-0 bg-white rounded-lg shadow-lg border z-20"
-                    onMouseEnter={() => {
-                      if (closeTimer.current) {
-                        clearTimeout(closeTimer.current);
-                        closeTimer.current = null;
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (closeTimer.current) {
-                        clearTimeout(closeTimer.current);
-                      }
-                      closeTimer.current = setTimeout(() => {
-                        setIsCategoriesOpen(false);
-                        setHoveredCategory(null);
-                      }, 500);
-                    }}
+          <NavigationMenu className="z-20" onMouseLeave={() => setHoveredCategory(null)}>
+            <NavigationMenuList className="m-0 p-0">
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="!bg-red-600 !text-white !rounded-none !h-auto !px-4 !py-2 hover:!bg-red-700 data-[state=open]:!bg-red-700 data-[state=open]:!text-white [&>svg:last-child]:text-white gap-2">
+                  <BiSolidCategory size={25} />
+                  <span className="hidden sm:inline font-bold">
+                    {t("categories")}
+                  </span>
+                </NavigationMenuTrigger>
+                <NavigationMenuContent >
+                  <div
+                    className="flex py-2"
                     style={{ width: hasSubcategories ? "520px" : "240px" }}
                   >
-                    <div className="flex py-2">
-                      {/* Category column */}
-                      <div className="flex-1 border-r">
-                        {categories.map((category) => {
-                          const isHovered = hoveredCategory === category.slug;
-                          return (
+                    {/* Category column */}
+                    <div className="flex-1 border-r">
+                      {categories.map((category) => {
+                        const isHovered = hoveredCategory === category.slug;
+                        return (
+                          <NavigationMenuLink asChild key={category.slug}>
                             <Link
-                              key={category.slug}
                               href={`/category/${category.slug}`}
                               className={`block px-4 py-2 cursor-pointer transition-colors ${
                                 isHovered
@@ -133,41 +95,40 @@ export default function SecondaryHeader() {
                               onMouseEnter={() =>
                                 setHoveredCategory(category.slug)
                               }
-                              onClick={() => setIsCategoriesOpen(false)}
                             >
                               <span className="text-dropdown-item">
                                 {category.name}
                               </span>
                             </Link>
-                          );
-                        })}
-                      </div>
+                          </NavigationMenuLink>
+                        );
+                      })}
+                    </div>
 
-                      {/* Subcategory column */}
-                      {hasSubcategories && (
-                        <div className="flex-1 px-4 py-2">
-                          {activeCategory!.subcategories!.map(
-                            (subcategory, index) => (
+                    {/* Subcategory column */}
+                    {hasSubcategories && (
+                      <div className="flex-1 px-4 py-2">
+                        {activeCategory!.subcategories!.map(
+                          (subcategory, index) => (
+                            <NavigationMenuLink asChild key={`${subcategory.name}-${index}`}>
                               <Link
                                 href={`/category/${
                                   activeCategory!.slug
                                 }?subcategory=${subcategory.slug}`}
-                                key={`${subcategory.name}-${index}`}
                                 className="block py-2 text-dropdown-sub-item text-gray-700 hover:text-blue-600 cursor-pointer transition-colors"
-                                onClick={() => setIsCategoriesOpen(false)}
                               >
                                 {subcategory.name}
                               </Link>
-                            ),
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
+                            </NavigationMenuLink>
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
           {/* Search Bar */}
           <div className="flex-1">
             <HeaderSearch />

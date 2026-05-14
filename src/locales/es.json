@@ -1919,6 +1919,48 @@
       "total": "Total"
     }
   },
+  "deliveryPoland": {
+    "deliveryMethod": "Método de entrega",
+    "paymentMethod": "Método de pago",
+    "openMap": "Abrir mapa de taquillas",
+    "selected": "Seleccionado",
+    "change": "Cambiar",
+    "city": "Ciudad",
+    "cityPlaceholder": "ej. Wrocław",
+    "street": "Calle",
+    "streetPlaceholder": "ej. Tyniecka",
+    "building": "Núm. edificio",
+    "buildingPlaceholder": "ej. 2",
+    "flat": "Núm. piso",
+    "flatPlaceholder": "ej. 5",
+    "postalCode": "Código postal",
+    "deliveryCostNote": "El coste de envío se calcula según las tarifas del transportista.",
+    "option": {
+      "parcelLocker": {
+        "label": "Taquilla 24/7",
+        "description": "InPost — entrega en taquilla"
+      },
+      "courier": {
+        "label": "Mensajero InPost",
+        "description": "Entrega en dirección indicada"
+      },
+      "pickup": {
+        "label": "Recogida en almacén",
+        "description": "Recogida personal en nuestro almacén",
+        "note": "Por favor, contáctanos para acordar el horario de recogida."
+      }
+    },
+    "payment": {
+      "przelewy24": {
+        "label": "Przelewy24",
+        "description": "Pago online rápido"
+      },
+      "bankTransfer": {
+        "label": "Transferencia bancaria",
+        "description": "Factura — pago en 7 días"
+      }
+    }
+  },
   "translations": {
     "orderStatuses": {
       "NEW": "Nuevo",

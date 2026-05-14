@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Zap, Download } from "lucide-react";
-import ExportModal from "@/components/admin/export-modal";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import BulkActionsDialog from "@/components/admin/bulk-upload/BulkActionsDialog";
@@ -45,7 +44,6 @@ export default function BulkUploadPage() {
   const [margin, setMargin] = useState<number>(20);
   const [marginEnabled, setMarginEnabled] = useState<boolean>(false);
   const [uploadMode, setUploadMode] = useState<UploadMode>("prices");
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
   const [schneiderResult, setSchneiderResult] = useState<{ updated: number; created: number } | null>(null);
   const [schneiderLoading, setSchneiderLoading] = useState(false);
@@ -519,25 +517,12 @@ export default function BulkUploadPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-2 shrink-0"
-          >
-            <Download className="w-4 h-4" />
-            {t('bulkUpload.exportItems')}
-          </Button>
           <Button variant="outline" onClick={() => { setBulkActionsOpen(true); setSchneiderResult(null); }}>
             <Zap className="mr-2 h-4 w-4" />
             {t('bulkUpload.bulkActions')}
           </Button>
         </div>
       </div>
-
-      <ExportModal
-        isOpen={isExportModalOpen}
-        onClose={() => setIsExportModalOpen(false)}
-      />
 
       <BulkActionsDialog
         open={bulkActionsOpen}

@@ -1950,6 +1950,53 @@
       "total": "Total"
     }
   },
+  "deliveryPoland": {
+    "deliveryMethod": "Delivery method",
+    "paymentMethod": "Payment method",
+    "openMap": "Open parcel locker map",
+    "selected": "Selected",
+    "change": "Change",
+    "city": "City",
+    "cityPlaceholder": "e.g. Wrocław",
+    "street": "Street",
+    "streetPlaceholder": "e.g. Tyniecka",
+    "building": "Building no.",
+    "buildingPlaceholder": "e.g. 2",
+    "flat": "Flat no.",
+    "flatPlaceholder": "e.g. 5",
+    "postalCode": "Postal code",
+    "deliveryCostNote": "Delivery cost is calculated according to the carrier\u2019s rates.",
+    "option": {
+      "parcelLocker": {
+        "label": "Parcel Locker 24/7",
+        "description": "InPost — delivery to parcel locker"
+      },
+      "courier": {
+        "label": "InPost Courier",
+        "description": "Delivery to your address"
+      },
+      "pickup": {
+        "label": "Warehouse pickup",
+        "description": "Personal collection at our warehouse",
+        "note": "Please contact us to arrange a collection time."
+      },
+      "dpdParcel": {
+        "label": "DPD Pickup point",
+        "description": "Collection at a selected DPD point",
+        "hint": "Select a DPD point on the map above."
+      }
+    },
+    "payment": {
+      "przelewy24": {
+        "label": "Przelewy24",
+        "description": "Fast online payment"
+      },
+      "bankTransfer": {
+        "label": "Bank transfer",
+        "description": "Invoice — pay within 7 days"
+      }
+    }
+  },
   "translations": {
     "orderStatuses": {
       "NEW": "New",

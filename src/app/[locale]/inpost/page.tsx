@@ -5,6 +5,11 @@ import Script from 'next/script';
 
 const INPOST_POINT_EVENT = 'inpost-point-selected';
 
+const IS_SANDBOX = process.env.NEXT_PUBLIC_INPOST_ENV === 'sandbox';
+const GEOWIDGET_BASE_URL = IS_SANDBOX
+  ? 'https://sandbox-easy-geowidget-sdk.easypack24.net'
+  : 'https://geowidget.inpost.pl';
+
 interface Point {
   name: string;
   address_details: {
@@ -25,7 +30,7 @@ export default function DeliverySelectionPage() {
   const [showMapModal, setShowMapModal] = useState(false);
   
   // Реф для доступу до DOM-елемента віджета
-  const widgetRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // "Complete integration" — widget dispatches a custom event on document
   useEffect(() => {
@@ -39,37 +44,39 @@ export default function DeliverySelectionPage() {
     return () => document.removeEventListener(INPOST_POINT_EVENT, handlePointSelected);
   }, []);
 
-  // 3. Використання API віджета (центрування на Вроцлаві)
-  // onpoint and token must be set via setAttribute — the widget defines them as getter-only properties
+  // Create the widget element imperatively so ALL attributes are set BEFORE
+  // appendChild() triggers connectedCallback. Setting them after via setAttribute
+  // is too late when the custom element is already registered.
   useEffect(() => {
-    const widgetElement = widgetRef.current;
+    if (!containerRef.current || !showMapModal) return;
+    const container = containerRef.current;
 
-    if (widgetElement && showMapModal) {
-      widgetElement.setAttribute('onpoint', INPOST_POINT_EVENT);
-      widgetElement.setAttribute('language', 'uk');
-      widgetElement.setAttribute('config', 'parcelCollect');
-      if (process.env.NEXT_PUBLIC_INPOST_WIDGET_TOKEN) {
-        widgetElement.setAttribute('token', process.env.NEXT_PUBLIC_INPOST_WIDGET_TOKEN);
-      }
+    const widget = document.createElement('inpost-geowidget');
+    widget.setAttribute('token', process.env.NEXT_PUBLIC_INPOST_WIDGET_TOKEN ?? '');
+    widget.setAttribute('language', 'uk');
+    widget.setAttribute('config', 'parcelCollect');
+    widget.setAttribute('onpoint', INPOST_POINT_EVENT);
+    widget.style.cssText = 'display:block;width:100%;height:100%';
 
-      const handleWidgetInit = (event: any) => {
-        const api = event.detail.api;
-        api.changePosition({ longitude: 17.0385, latitude: 51.1078 }, 12);
-      };
+    const handleWidgetInit = (event: any) => {
+      const api = event.detail.api;
+      api.changePosition({ longitude: 17.0385, latitude: 51.1078 }, 12);
+    };
+    widget.addEventListener('inpost.geowidget.init', handleWidgetInit);
 
-      widgetElement.addEventListener('inpost.geowidget.init', handleWidgetInit);
+    container.appendChild(widget);
 
-      return () => {
-        widgetElement.removeEventListener('inpost.geowidget.init', handleWidgetInit);
-      };
-    }
+    return () => {
+      widget.removeEventListener('inpost.geowidget.init', handleWidgetInit);
+      if (container.contains(widget)) container.removeChild(widget);
+    };
   }, [showMapModal]);
 
   return (
     <>
-      <link rel="stylesheet" href="https://geowidget.inpost.pl/inpost-geowidget.css" />
-      {/* defer згідно з докою */}
-      <Script src="https://geowidget.inpost.pl/inpost-geowidget.js" strategy="lazyOnload" />
+      <link rel="stylesheet" href={`${GEOWIDGET_BASE_URL}/inpost-geowidget.css`} />
+      {/* afterInteractive = defer equivalent in Next.js, per InPost docs */}
+      <Script src={`${GEOWIDGET_BASE_URL}/inpost-geowidget.js`} strategy="afterInteractive" />
 
       <div className="max-w-2xl mx-auto p-6 bg-white shadow-xl border border-gray-100 rounded-2xl mt-10">
         <h1 className="text-2xl font-bold mb-8 text-gray-800">Доставка</h1>
@@ -129,10 +136,8 @@ export default function DeliverySelectionPage() {
             </div>
             
             <div className="flex-1 w-full bg-gray-100">
-              {/* Оновлені параметри згідно з документацією */}
-              <inpost-geowidget
-                ref={widgetRef}
-              ></inpost-geowidget>
+              {/* widget is created imperatively in useEffect with attributes pre-set */}
+              <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
             </div>
           </div>
         </div>

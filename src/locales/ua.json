@@ -1956,6 +1956,53 @@
       "total": "Сума"
     }
   },
+  "deliveryPoland": {
+    "deliveryMethod": "Спосіб доставки",
+    "paymentMethod": "Спосіб оплати",
+    "openMap": "Відкрити карту поштоматів",
+    "selected": "Обрано",
+    "change": "Змінити",
+    "city": "Місто",
+    "cityPlaceholder": "напр. Wrocław",
+    "street": "Вулиця",
+    "streetPlaceholder": "напр. Tyniecka",
+    "building": "Номер будинку",
+    "buildingPlaceholder": "напр. 2",
+    "flat": "Номер квартири",
+    "flatPlaceholder": "напр. 5",
+    "postalCode": "Поштовий індекс",
+    "deliveryCostNote": "Вартість доставки розраховується за тарифами перевізника.",
+    "option": {
+      "parcelLocker": {
+        "label": "Поштомат 24/7",
+        "description": "InPost — доставка до поштомату"
+      },
+      "courier": {
+        "label": "Кур'єр InPost",
+        "description": "Доставка на вказану адресу"
+      },
+      "pickup": {
+        "label": "Самовивіз з складу",
+        "description": "Особиста подача за адресою складу",
+        "note": "Будь ласка, зв’яжіться з нами, щоб узгодити час видачі."
+      },
+      "dpdParcel": {
+        "label": "Пункт DPD Pickup",
+        "description": "Отримання у вибраному пункті DPD",
+        "hint": "Оберіть пункт DPD на карті вище."
+      }
+    },
+    "payment": {
+      "przelewy24": {
+        "label": "Przelewy24",
+        "description": "Швидка онлайн оплата"
+      },
+      "bankTransfer": {
+        "label": "Банківський переказ",
+        "description": "Рахунок — оплата протягом 7 днів"
+      }
+    }
+  },
   "translations": {
     "orderStatuses": {
       "NEW": "Нове",

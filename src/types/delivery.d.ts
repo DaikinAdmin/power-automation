@@ -1,7 +1,7 @@
 // types/delivery.ts
 import type { AddressFields } from '@/helpers/address';
 import type { DeliveryStatus } from '@/db/schema';
-import type { DeliveryType } from '@/db/schema';
+import type { DeliveryType } from '@/helpers/delivery';
 
 export type DeliveryInfo = {
   name: string;

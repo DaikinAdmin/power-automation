@@ -55,12 +55,8 @@ export const paymentStatus = pgEnum("PaymentStatus", [
   "CANCELLED",
   "REFUNDED",
 ]);
-export const deliveryType = pgEnum("DeliveryType", [
-  "PICKUP",
-  "USER_ADDRESS",
-  "NOVA_POSHTA",
-  "COURIER",
-]);
+// DeliveryType is managed as a TypeScript union in @/helpers/delivery to allow
+// adding new values without DB migrations. The column is stored as plain text.
 export const deliveryStatus = pgEnum("DeliveryStatus", [
   "PENDING",
   "PROCESSING",
@@ -637,7 +633,7 @@ export const delivery = pgTable(
       .default(sql`gen_random_uuid()`),
     userId: text().notNull(),
     orderId: text(),
-    type: deliveryType().notNull(),
+    type: text().notNull(),
     // City (for Nova Poshta dept/courier)
     city: text(),
     cityRef: text("city_ref"),

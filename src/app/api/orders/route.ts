@@ -288,6 +288,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
     customerInfo,
     deliveryId,
     novaPost,
+    deliveryPoland,
     domainCurrency: orderCurrency = 'EUR',
   } = body;
 
@@ -499,13 +500,13 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
   // Create delivery record if novaPost data is provided
   let resolvedDeliveryId: string | null = deliveryId || null;
   if (novaPost?.method) {
-    const deliveryTypeMap: Record<string, 'PICKUP' | 'NOVA_POSHTA' | 'COURIER' | 'USER_ADDRESS'> = {
-      warehouse: 'PICKUP',
-      nova_dept: 'NOVA_POSHTA',
-      nova_courier: 'COURIER',
+    const deliveryTypeMap: Record<string, 'PICKUP_UA' | 'WAREHOUSE_NOVA_POSHTA' | 'COURIER_NOVA_POSHTA'> = {
+      warehouse: 'PICKUP_UA',
+      nova_dept: 'WAREHOUSE_NOVA_POSHTA',
+      nova_courier: 'COURIER_NOVA_POSHTA',
     };
-    const mappedType = deliveryTypeMap[novaPost.method] ?? 'USER_ADDRESS';
-    const now2 = new Date().toISOString();
+    const mappedType = deliveryTypeMap[novaPost.method] ?? 'PICKUP_UA';
+    const now = new Date().toISOString();
     const [newDelivery] = await db
       .insert(schema.delivery)
       .values({
@@ -521,11 +522,41 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
         flat: novaPost.flat ?? null,
         paymentMethod: novaPost.payment ?? null,
         status: 'PENDING',
-        createdAt: now2,
-        updatedAt: now2,
+        createdAt: now,
+        updatedAt: now,
       })
       .returning();
     resolvedDeliveryId = newDelivery.id;
+  }
+
+  if (deliveryPoland?.method) {
+    const plTypeMap: Record<string, 'PARCEL_LOCKER_INPOST' | 'COURIER_INPOST' | 'PICKUP_PL' | 'PARCEL_LOCKER_DPD'> = {
+      parcel_locker_inpost: 'PARCEL_LOCKER_INPOST',
+      courier_inpost: 'COURIER_INPOST',
+      pickup: 'PICKUP_PL',
+      dpd_parcel: 'PARCEL_LOCKER_DPD',
+    };
+    const mappedPlType = plTypeMap[deliveryPoland.method] ?? 'PARCEL_LOCKER_INPOST';
+    const now = new Date().toISOString();
+    const [newPlDelivery] = await db
+      .insert(schema.delivery)
+      .values({
+        id: crypto.randomUUID(),
+        userId,
+        type: mappedPlType,
+        city: deliveryPoland.city ?? deliveryPoland.pointCity ?? null,
+        warehouseRef: deliveryPoland.dpdPointId ?? deliveryPoland.pointName ?? null,
+        warehouseDesc: deliveryPoland.dpdPointId ?? deliveryPoland.pointName ?? null,
+        street: deliveryPoland.street ?? deliveryPoland.pointStreet ?? null,
+        building: deliveryPoland.building ?? deliveryPoland.pointBuilding ?? null,
+        flat: deliveryPoland.flat ?? null,
+        paymentMethod: deliveryPoland.payment ?? null,
+        status: 'PENDING',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+    resolvedDeliveryId = newPlDelivery.id;
   }
 
   // Drizzle implementation - Create the order

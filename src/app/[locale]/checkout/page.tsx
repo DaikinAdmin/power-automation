@@ -30,6 +30,9 @@ import NovaPostDelivery, {
   type NovaPostDeliveryState,
   type NpCity,
 } from "@/components/nova-post-delivery";
+import DeliveryPoland, {
+  type PolandDeliveryState,
+} from "@/components/delivery-poland";
 import type { DeliveryInfo } from "@/types/delivery";
 import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
@@ -58,6 +61,7 @@ export default function CheckoutPage({
   const [orderError, setOrderError] = useState("");
   const [novaPostState, setNovaPostState] = useState<NovaPostDeliveryState | null>(null);
   const [lastDeliveryInitial, setLastDeliveryInitial] = useState<Partial<NovaPostDeliveryState> | null>(null);
+  const [deliveryPolandState, setDeliveryPolandState] = useState<PolandDeliveryState | null>(null);
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean;
     type: "bank_transfer" | "cash_on_delivery" | null;
@@ -189,6 +193,20 @@ export default function CheckoutPage({
                   building: novaPostState.building || null,
                   flat: novaPostState.flat || null,
               } : null,
+              deliveryPoland: domainConfig.key === "pl" && deliveryPolandState ? {
+                  method: deliveryPolandState.method,
+                  payment: deliveryPolandState.payment,
+                  pointName: deliveryPolandState.selectedPoint?.name ?? null,
+                  pointCity: deliveryPolandState.selectedPoint?.address_details.city ?? null,
+                  pointStreet: deliveryPolandState.selectedPoint?.address_details.street ?? null,
+                  pointBuilding: deliveryPolandState.selectedPoint?.address_details.building_number ?? null,
+                  dpdPointId: deliveryPolandState.dpdPointId ?? null,
+                  street: deliveryPolandState.street || null,
+                  building: deliveryPolandState.building || null,
+                  flat: deliveryPolandState.flat || null,
+                  city: deliveryPolandState.city || null,
+                  postalCode: deliveryPolandState.postalCode || null,
+              } : null,
               locale: locale,
           };
 
@@ -262,6 +280,25 @@ export default function CheckoutPage({
                   return;
               }
           }
+
+          if (domainConfig.key === "pl" && deliveryPolandState?.payment) {
+              const plPayment = deliveryPolandState.payment;
+              if (plPayment === "przelewy24") {
+                  setIsRedirectingToPayment(true);
+                  const payRes = await fetch("/api/payments/przelewy24/initiate", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ orderId: result.order.id }),
+                  });
+                  const payData = await payRes.json();
+                  if (!payRes.ok) throw new Error(payData.error || "Payment initiation failed");
+                  if (payData.paymentUrl) { window.location.href = payData.paymentUrl; return; }
+                  throw new Error("Payment URL not received");
+              } else if (plPayment === "bank_transfer") {
+                  setPaymentDialog({ open: true, type: "bank_transfer", orderId: result.order.id });
+                  return;
+              }
+          }
           router.push(`/payment?orderId=${result.order.id}`);
       } catch (error: any) {
           setOrderError(error.message || "Failed to create order");
@@ -276,6 +313,10 @@ export default function CheckoutPage({
     if (locale === "ua" && novaPostState?.method === "nova_courier") {
       const { city, street } = deliveryInfo.address;
       if (!city?.trim() || !street?.trim()) return true;
+    }
+    if (domainConfig.key === "pl") {
+      if (!deliveryPolandState?.method) return true;
+      if (!deliveryPolandState.isValid) return true;
     }
     return false;
   };
@@ -540,6 +581,13 @@ export default function CheckoutPage({
                         {tNova("courierAddressMissing")}
                       </div>
                     )}
+                  </div>
+                )}
+
+                {domainConfig.key === "pl" && (
+                  <div className="pt-4 border-t">
+                    <h4 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Dostawa</h4>
+                    <DeliveryPoland onChange={setDeliveryPolandState} />
                   </div>
                 )}
               </div>

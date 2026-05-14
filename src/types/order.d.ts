@@ -1,13 +1,14 @@
 import type { OrderLineItem } from '@/app/api/orders/shared';
 import type { OrderStatus } from '@/db/schema';
-import type { DeliveryStatus, deliveryType } from '@/db/schema';
+import type { DeliveryStatus } from '@/db/schema';
+import type { DeliveryType } from '@/helpers/delivery';
 import type { PaymentStatus } from '@/db/schema';
 
 export type { OrderLineItem };
 
 
 export type Delivery = {
-  type: deliveryType;
+  type: DeliveryType;
   city: string | null;
   warehouseDesc: string | null;
   street: string | null;
