@@ -38,7 +38,7 @@ export type OrderDetail = {
   totalVat: number | null;
   totalGross: number | null;
   deliveryId?: string | null;
-  delivery?: DeliveryType | null;
+  delivery?: Delivery | null;
   comment?: string | null;
   createdAt: string;
   updatedAt: string;
