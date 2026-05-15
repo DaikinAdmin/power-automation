@@ -79,12 +79,14 @@ export default function ProductPageClient({
         const data: ProductDetailsResponse = await response.json();
         setProduct(data);
 
-        const recommended = data.recommendedWarehouse?.warehouse
-          ? data.warehouses.find(
-              (w) => w.warehouseId === data.recommendedWarehouse?.warehouse.id
-            )
-          : data.warehouses[0];
-        setSelectedWarehouseId(recommended?.warehouseId ?? null);
+        const inStock = data.warehouses.filter((w) => w.inStock);
+        const candidates = inStock.length > 0 ? inStock : data.warehouses;
+        const cheapest = candidates.reduce((best, w) => {
+          const bestPrice = parsePriceValue(best.price) ?? Infinity;
+          const wPrice = parsePriceValue(w.price) ?? Infinity;
+          return wPrice < bestPrice ? w : best;
+        }, candidates[0]);
+        setSelectedWarehouseId(cheapest?.warehouseId ?? null);
       } catch (error) {
         console.error("Error fetching product:", error);
         setProduct(null);
@@ -144,11 +146,13 @@ export default function ProductPageClient({
 
   useEffect(() => {
     if (!product) return;
-    const defaultWarehouse = product.recommendedWarehouse?.warehouse
-      ? product.warehouses.find(
-          (w) => w.warehouseId === product.recommendedWarehouse?.warehouse.id
-        )
-      : product.warehouses[0];
+    const inStock = product.warehouses.filter((w) => w.inStock);
+    const candidates = inStock.length > 0 ? inStock : product.warehouses;
+    const defaultWarehouse = candidates.reduce((best, w) => {
+      const bestPrice = parsePriceValue(best.price) ?? Infinity;
+      const wPrice = parsePriceValue(w.price) ?? Infinity;
+      return wPrice < bestPrice ? w : best;
+    }, candidates[0]);
     setSelectedWarehouseId(
       (prev) => prev ?? defaultWarehouse?.warehouseId ?? null
     );
@@ -302,6 +306,10 @@ export default function ProductPageClient({
           displayName: productName,
           availableWarehouses: availableWarehousesForCart,
           linkedItems: [],
+          grossWeight: null,
+          heightPacking: null,
+          widthPacking: null,
+          lengthPacking: null,
         };
 
         addToCart(cartItem);
