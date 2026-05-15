@@ -25,6 +25,8 @@ interface ConfigurationPanelProps {
   onWarehouseChange: (id: string) => void;
   currency: Currency;
   onCurrencyChange: (currency: Currency) => void;
+  currencyEnabled: boolean;
+  onCurrencyEnabledChange: (enabled: boolean) => void;
   margin: number;
   onMarginChange: (margin: number) => void;
   marginEnabled: boolean;
@@ -38,6 +40,8 @@ export default function ConfigurationPanel({
   onWarehouseChange,
   currency,
   onCurrencyChange,
+  currencyEnabled,
+  onCurrencyEnabledChange,
   margin,
   onMarginChange,
   marginEnabled,
@@ -76,15 +80,19 @@ export default function ConfigurationPanel({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={currencyEnabled ? "" : "opacity-50"}>
         <CardHeader>
-          <CardTitle>Price Currency</CardTitle>
-          <CardDescription>Select currency for prices</CardDescription>
+          <div className="flex items-center justify-between">
+            <CardTitle>Price Currency</CardTitle>
+            <Switch checked={currencyEnabled} onCheckedChange={onCurrencyEnabledChange} />
+          </div>
+          <CardDescription>Default currency applied when not mapped per row</CardDescription>
         </CardHeader>
         <CardContent>
           <Select
             value={currency}
             onValueChange={(value) => onCurrencyChange(value as Currency)}
+            disabled={!currencyEnabled}
           >
             <SelectTrigger className="w-full">
               <SelectValue />

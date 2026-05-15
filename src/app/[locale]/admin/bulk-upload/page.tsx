@@ -41,6 +41,7 @@ export default function BulkUploadPage() {
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("");
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(false);
   const [currency, setCurrency] = useState<Currency>("EUR");
+  const [currencyEnabled, setCurrencyEnabled] = useState<boolean>(false);
   const [margin, setMargin] = useState<number>(20);
   const [marginEnabled, setMarginEnabled] = useState<boolean>(false);
   const [uploadMode, setUploadMode] = useState<UploadMode>("prices");
@@ -261,8 +262,13 @@ export default function BulkUploadPage() {
               : null;
           const item: any = {
             articleId: row[columnMapping.articleId!],
-            currency: rowInitialCurrency || currency,
           };
+
+          if (rowInitialCurrency) {
+            item.currency = rowInitialCurrency;
+          } else if (currencyEnabled) {
+            item.currency = currency;
+          }
 
           if (columnMapping.price !== null) {
             const parsed = parseFloat(row[columnMapping.price]);
@@ -555,6 +561,8 @@ export default function BulkUploadPage() {
             onWarehouseChange={setSelectedWarehouse}
             currency={currency}
             onCurrencyChange={setCurrency}
+            currencyEnabled={currencyEnabled}
+            onCurrencyEnabledChange={setCurrencyEnabled}
             margin={margin}
             onMarginChange={setMargin}
             marginEnabled={marginEnabled}
@@ -594,11 +602,7 @@ export default function BulkUploadPage() {
                   !selectedFile ||
                   uploadState.status === "uploading" ||
                   !parsedData ||
-                  columnMapping.articleId === null ||
-                  (uploadMode === "prices" &&
-                    (columnMapping.price === null ||
-                      columnMapping.quantity === null ||
-                      !selectedWarehouse))
+                  columnMapping.articleId === null
                 }
                 size="lg"
                 className="bg-blue-600 text-white hover:bg-blue-700"
