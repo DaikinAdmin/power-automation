@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
       .select({
         itemSlug: schema.item.slug,
         articleId: schema.item.articleId,
+        brandSlug: schema.item.brandSlug,
         warehouseId: schema.itemPrice.warehouseId,
         quantity: schema.itemPrice.quantity,
         price: schema.itemPrice.price,
@@ -122,6 +123,16 @@ export async function GET(request: NextRequest) {
     for (const d of allDetails) {
       namesBySlug[d.itemSlug] ??= {};
       namesBySlug[d.itemSlug][d.locale] = d.itemName;
+    }
+
+    // ── Brand names ──────────────────────────────────────────────────────────
+    const allBrands = await db
+      .select({ alias: schema.brand.alias, name: schema.brand.name })
+      .from(schema.brand);
+
+    const brandNameByAlias: Record<string, string> = {};
+    for (const b of allBrands) {
+      brandNameByAlias[b.alias] = b.name;
     }
 
     // ── Build rows ───────────────────────────────────────────────────────────
@@ -158,6 +169,8 @@ export async function GET(request: NextRequest) {
         namesUa: names["ua"] ?? "",
         namesEs: names["es"] ?? "",
         namesEn: names["en"] ?? "",
+        brand: r.brandSlug ? (brandNameByAlias[r.brandSlug] ?? null) : null,
+        brandSlug: r.brandSlug ?? null,
         warehouseId: r.warehouseId,
         warehouseName: wh?.name ?? "",
         warehouseDisplayedName: wh?.displayedName ?? r.warehouseId,

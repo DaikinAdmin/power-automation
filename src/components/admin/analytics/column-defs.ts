@@ -13,6 +13,9 @@ export const INVENTORY_COLUMNS: InventoryColumnDef[] = [
   { key: "namesUa", group: "names", defaultVisible: false, numeric: false },
   { key: "namesEn", group: "names", defaultVisible: false, numeric: false },
   { key: "namesEs", group: "names", defaultVisible: false, numeric: false },
+  { key: "brand", group: "names", defaultVisible: false, numeric: false },
+  { key: "brandSlug", group: "names", defaultVisible: false, numeric: false },
+
   // Warehouse
   {
     key: "warehouseDisplayedName",

@@ -816,6 +816,8 @@
           "namesUa": "Nombre (UA)",
           "namesEn": "Nombre (EN)",
           "namesEs": "Nombre (ES)",
+          "brand": "Marca",
+          "brandSlug": "Alias de la Marca",
           "warehouseId": "ID almacén",
           "warehouseName": "Nombre almacén",
           "warehouseDisplayedName": "Nombre mostrado",

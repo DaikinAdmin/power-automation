@@ -182,7 +182,8 @@
     "orderSummary": {
       "title": "Підсумок замовлення",
       "quantity": "Кількість",
-      "total": "Сума"
+      "total": "Сума",
+      "delivery": "Доставка"
     },
     "cart": {
       "empty": "Ваш кошик порожній",
@@ -335,6 +336,7 @@
         "unit": "Одиниця: {price}",
         "orderSummary": "Підсумок замовлення",
         "subtotal": "Проміжний підсумок:",
+        "delivery": "Доставка:",
         "totalFormatted": "Сума (відформатована):",
         "total": "Сума:",
         "orderTimeline": "Хронологія замовлення",
@@ -853,6 +855,8 @@
           "namesUa": "Назва (UA)",
           "namesEn": "Назва (EN)",
           "namesEs": "Назва (ES)",
+          "brand": "Бренд",
+          "brandSlug": "Brand Slug",
           "warehouseId": "ID складу",
           "warehouseName": "Назва складу",
           "warehouseDisplayedName": "Відображувана назва",
@@ -1033,6 +1037,7 @@
           "placedOn": "Дата замовлення",
           "status": "Статус",
           "total": "Сума",
+          "deliveryCost": "Вартість доставки",
           "deliveryId": "ID доставки",
           "comment": "Коментар",
           "notProvided": "Не вказано",
@@ -1081,7 +1086,8 @@
           "address": "Адреса",
           "paymentMethod": "Метод оплати",
           "status": "Статус",
-          "trackingNumber": "Номер відстеження"
+          "trackingNumber": "Номер відстеження",
+          "deliveryPrice": "Вартість доставки"
         },
         "updateStatus": {
           "title": "Оновити статус",
@@ -1444,6 +1450,7 @@
         "type": "Тип",
         "addressWarehouse": "Адреса / Відділення",
         "tracking": "ТТН",
+        "deliveryPrice": "Вартість доставки",
         "status": "Статус",
         "order": "Ордер",
         "date": "Дата",
@@ -2031,10 +2038,13 @@
       "CANCELLED": "Скасовано"
     },
     "deliveryTypes": {
-      "PICKUP": "Відділення",
-      "COURIER": "Кур'єр",
-      "USER_ADDRESS": "Адреса",
-      "NOVA_POSHTA": "Нова Пошта"
+      "PICKUP_UA": "Самовивіз з України",
+      "PICKUP_PL": "Самовивіз з Польщі",
+      "WAREHOUSE_NOVA_POSHTA": "Відділення Нової Пошти",
+      "COURIER_NOVA_POSHTA": "Кур'єр Нова Пошта",
+      "PARCEL_LOCKER_INPOST": "Поштомат InPost",
+      "COURIER_INPOST": "Кур'єр InPost",
+      "PARCEL_LOCKER_DPD": "Поштомат DPD"
     }
   }
 }

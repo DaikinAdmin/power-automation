@@ -182,7 +182,8 @@
     "orderSummary": {
       "title": "Podsumowanie zamówienia",
       "quantity": "Ilość",
-      "total": "Suma"
+      "total": "Suma",
+      "delivery": "Dostawa"
     },
     "cart": {
       "empty": "Twój koszyk jest pusty",
@@ -366,6 +367,7 @@
         "unit": "Jednostka: {price}",
         "orderSummary": "Podsumowanie zamówienia",
         "subtotal": "Suma częściowa:",
+        "delivery": "Dostawa:",
         "totalFormatted": "Suma (sformatowana):",
         "total": "Suma:",
         "orderTimeline": "Oś czasu zamówienia",
@@ -377,6 +379,7 @@
         "deliveryCity": "Miasto:",
         "deliveryWarehouse": "Oddział:",
         "deliveryAddress": "Adres:",
+        "deliveryPrice": "Koszt dostawy",
         "trackingNumber": "Numer śledzenia:",
         "deliveryStatus": "Status dostawy:",
         "paymentInfo": "Informacje o płatności",
@@ -853,6 +856,8 @@
           "namesUa": "Nazwa (UA)",
           "namesEn": "Nazwa (EN)",
           "namesEs": "Nazwa (ES)",
+          "brand": "Marka",
+          "brandSlug": "Alias marki",
           "warehouseId": "ID magazynu",
           "warehouseName": "Nazwa magazynu",
           "warehouseDisplayedName": "Wyświetlana nazwa",
@@ -1033,6 +1038,7 @@
           "placedOn": "Data złożenia",
           "status": "Status",
           "total": "Suma",
+          "deliveryCost": "Koszt dostawy",
           "deliveryId": "ID dostawy",
           "comment": "Komentarz",
           "notProvided": "Nie podano",
@@ -1444,6 +1450,7 @@
         "type": "Typ",
         "addressWarehouse": "Adres / Oddział",
         "tracking": "Nr listu",
+        "deliveryPrice": "Koszt dostawy",
         "status": "Status",
         "order": "Zamówienie",
         "date": "Data",

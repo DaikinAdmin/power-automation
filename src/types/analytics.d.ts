@@ -45,6 +45,8 @@ export type InventoryColumnKey =
   | 'namesUa'
   | 'namesEs'
   | 'namesEn'
+  | 'brand'
+  | 'brandSlug'
   | 'warehouseId'
   | 'warehouseName'
   | 'warehouseDisplayedName'
@@ -79,6 +81,9 @@ export interface InventoryRow {
   namesUa: string;
   namesEs: string;
   namesEn: string;
+  // Brand
+  brand: string | null;
+  brandSlug: string | null;
   // Warehouse
   warehouseId: string;
   warehouseName: string;

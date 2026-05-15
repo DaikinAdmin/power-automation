@@ -182,7 +182,8 @@
     "orderSummary": {
       "title": "Order Summary",
       "quantity": "Quantity",
-      "total": "Total"
+      "total": "Total",
+      "delivery": "Delivery"
     },
     "cart": {
       "empty": "Your cart is empty",
@@ -360,6 +361,7 @@
         "unit": "Unit: {price}",
         "orderSummary": "Order Summary",
         "subtotal": "Subtotal:",
+        "delivery": "Delivery:",
         "totalFormatted": "Total (formatted):",
         "total": "Total:",
         "orderTimeline": "Order Timeline",
@@ -847,6 +849,8 @@
           "namesUa": "Name (UA)",
           "namesEn": "Name (EN)",
           "namesEs": "Name (ES)",
+          "brand": "Brand",
+          "brandSlug": "Brand Slug",
           "warehouseId": "Warehouse ID",
           "warehouseName": "Warehouse Name",
           "warehouseDisplayedName": "Displayed Name",
@@ -1027,6 +1031,7 @@
           "placedOn": "Placed On",
           "status": "Status",
           "total": "Total",
+          "deliveryCost": "Delivery Cost",
           "deliveryId": "Delivery ID",
           "comment": "Comment",
           "notProvided": "Not provided",
@@ -1075,7 +1080,8 @@
           "address": "Address",
           "paymentMethod": "Payment Method",
           "status": "Status",
-          "trackingNumber": "Tracking Number"
+          "trackingNumber": "Tracking Number",
+          "deliveryPrice": "Delivery Cost"
         },
         "updateStatus": {
           "title": "Update Status",
@@ -1435,6 +1441,7 @@
         "type": "Type",
         "addressWarehouse": "Address / Warehouse",
         "tracking": "Tracking",
+        "deliveryPrice": "Delivery Cost",
         "status": "Status",
         "order": "Order",
         "date": "Date",
