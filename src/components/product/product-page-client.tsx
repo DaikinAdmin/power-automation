@@ -306,6 +306,10 @@ export default function ProductPageClient({
           displayName: productName,
           availableWarehouses: availableWarehousesForCart,
           linkedItems: [],
+          grossWeight: null,
+          heightPacking: null,
+          widthPacking: null,
+          lengthPacking: null,
         };
 
         addToCart(cartItem);

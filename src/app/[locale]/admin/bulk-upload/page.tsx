@@ -402,6 +402,34 @@ export default function BulkUploadPage() {
           ) {
             item.categorySlug = String(row[columnMapping.categorySlug]).trim();
           }
+          if (
+            columnMapping.grossWeight !== null &&
+            row[columnMapping.grossWeight] !== undefined
+          ) {
+            const parsed = parseFloat(row[columnMapping.grossWeight]);
+            if (!isNaN(parsed)) item.grossWeight = parsed;
+          }
+          if (
+            columnMapping.heightPacking !== null &&
+            row[columnMapping.heightPacking] !== undefined
+          ) {
+            const parsed = parseFloat(row[columnMapping.heightPacking]);
+            if (!isNaN(parsed)) item.heightPacking = parsed;
+          }
+          if (
+            columnMapping.widthPacking !== null &&
+            row[columnMapping.widthPacking] !== undefined
+          ) {
+            const parsed = parseFloat(row[columnMapping.widthPacking]);
+            if (!isNaN(parsed)) item.widthPacking = parsed;
+          }
+          if (
+            columnMapping.lengthPacking !== null &&
+            row[columnMapping.lengthPacking] !== undefined
+          ) {
+            const parsed = parseFloat(row[columnMapping.lengthPacking]);
+            if (!isNaN(parsed)) item.lengthPacking = parsed;
+          }
 
           return item;
         })

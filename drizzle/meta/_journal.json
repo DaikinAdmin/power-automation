@@ -120,6 +120,13 @@
       "when": 1778748569864,
       "tag": "0016_small_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1778843478259,
+      "tag": "0017_lazy_mariko_yashida",
+      "breakpoints": true
     }
   ]
 }

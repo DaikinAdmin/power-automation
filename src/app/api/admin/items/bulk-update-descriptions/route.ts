@@ -20,6 +20,10 @@ interface DescriptionItem {
   imageUrl?: string;
   alias?: string;
   isDisplayed?: boolean;
+  grossWeight?: number;
+  heightPacking?: number;
+  widthPacking?: number;
+  lengthPacking?: number;
   translations?: Record<
     string,
     {
@@ -145,6 +149,14 @@ export async function POST(request: NextRequest) {
           itemUpdate.isDisplayed = item.isDisplayed;
         if (item.categorySlug !== undefined)
           itemUpdate.categorySlug = item.categorySlug;
+        if (item.grossWeight !== undefined)
+          itemUpdate.grossWeight = item.grossWeight;
+        if (item.heightPacking !== undefined)
+          itemUpdate.heightPacking = item.heightPacking;
+        if (item.widthPacking !== undefined)
+          itemUpdate.widthPacking = item.widthPacking;
+        if (item.lengthPacking !== undefined)
+          itemUpdate.lengthPacking = item.lengthPacking;
 
         if (item.brand !== undefined) {
           const brandResult = await db

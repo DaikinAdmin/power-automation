@@ -15,6 +15,7 @@ export type Delivery = {
   building: string | null;
   flat: string | null;
   trackingNumber: string | null;
+  deliveryPrice: number | null;
   status: DeliveryStatus;
 };
 

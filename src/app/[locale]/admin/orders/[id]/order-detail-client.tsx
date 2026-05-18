@@ -317,6 +317,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       : '—'}
                   </dd>
                 </div>
+                {delivery?.deliveryPrice != null && delivery.deliveryPrice > 0 && (
+                  <div className="flex justify-between text-orange-600">
+                    <dt className="font-medium">{t('summary.deliveryCost')}</dt>
+                    <dd>
+                      {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency ?? 'PLN' }).format(delivery.deliveryPrice)}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <dt className="font-medium">{t('summary.deliveryId')}</dt>
                   <dd>{order?.deliveryId ? order.deliveryId : t('summary.notProvided')}</dd>
@@ -630,6 +638,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   <div className="flex justify-between">
                     <dt className="font-medium">{t('delivery.trackingNumber')}</dt>
                     <dd className="font-mono">{delivery.trackingNumber}</dd>
+                  </div>
+                )}
+                {delivery.deliveryPrice > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('delivery.deliveryPrice')}</dt>
+                    <dd className="font-medium text-orange-600">
+                      {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency ?? 'PLN' }).format(delivery.deliveryPrice)}
+                    </dd>
                   </div>
                 )}
               </dl>

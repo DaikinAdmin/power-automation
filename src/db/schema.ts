@@ -300,6 +300,10 @@ export const item = pgTable(
     // categorySlug can reference either subcategories.slug (if item has subcategory) or category.slug (if not)
     categorySlug: text().notNull(),
     itemImageLink: text().array(),
+    grossWeight: doublePrecision(),
+    heightPacking: doublePrecision(),
+    widthPacking: doublePrecision(),
+    lengthPacking: doublePrecision(),
     linkedItems: text().array(),
   },
   (table) => [
@@ -648,6 +652,8 @@ export const delivery = pgTable(
     trackingNumber: text("tracking_number"),
     // Payment method tied to this delivery
     paymentMethod: text("payment_method"),
+    // Delivery price charged to customer (e.g. 10 PLN for parcel locker, 20 PLN for courier)
+    deliveryPrice: doublePrecision("delivery_price").default(0).notNull(),
     status: deliveryStatus().default("PENDING").notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)

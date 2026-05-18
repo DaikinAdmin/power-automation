@@ -25,6 +25,7 @@ export type DeliveryRecord = {
   flat: string | null;
   trackingNumber: string | null;
   paymentMethod: string | null;
+  deliveryPrice: number;
   status: DeliveryStatus;
   createdAt: string;
   updatedAt: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef } from "react";
 import {
   Phone,
   ArrowLeft,
@@ -33,6 +33,7 @@ import NovaPostDelivery, {
 import DeliveryPoland, {
   type PolandDeliveryState,
 } from "@/components/delivery-poland";
+import type { CartItemDims } from "@/helpers/parcel-locker-fit";
 import type { DeliveryInfo } from "@/types/delivery";
 import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
@@ -68,6 +69,8 @@ export default function CheckoutPage({
     orderId: string | null;
   }>({ open: false, type: null, orderId: null });
   const [isRedirectingToPayment, setIsRedirectingToPayment] = useState(false);
+  const [itemDimensions, setItemDimensions] = useState<CartItemDims[]>([]);
+  const fetchedSlugsRef = useRef<string>('');
 
   const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
     name: "",
@@ -134,6 +137,34 @@ export default function CheckoutPage({
     fetchLastDelivery();
   }, [session.data?.user?.id, locale]);
 
+  // Fetch packing dimensions for parcel-locker eligibility (PL domain only)
+  useEffect(() => {
+    if (domainConfig.key !== "pl" || cartItems.length === 0) return;
+    const ids = cartItems.map((i) => i.articleId).join(",");
+    if (ids === fetchedSlugsRef.current) return;
+    fetchedSlugsRef.current = ids;
+    fetch(`/api/items/dimensions?articleIds=${encodeURIComponent(ids)}`)
+      .then((r) => r.json())
+      .then((rows: Array<{ articleId: string; grossWeight: number | null; heightPacking: number | null; widthPacking: number | null; lengthPacking: number | null }>) => {
+        const dimMap = new Map(rows.map((r) => [r.articleId, r]));
+        // DB stores dimensions in mm and weight in grams → convert to cm and kg
+        setItemDimensions(
+          cartItems.map((ci) => {
+            const d = dimMap.get(ci.articleId);
+            return {
+              articleId: ci.articleId,
+              grossWeight: d?.grossWeight != null ? d.grossWeight / 1000 : null,
+              heightPacking: d?.heightPacking != null ? d.heightPacking / 10 : null,
+              widthPacking: d?.widthPacking != null ? d.widthPacking / 10 : null,
+              lengthPacking: d?.lengthPacking != null ? d.lengthPacking / 10 : null,
+              quantity: ci.quantity,
+            };
+          })
+        );
+      })
+      .catch(() => {});
+  }, [cartItems, domainConfig.key]);
+
   const formatPaymentPrice = (item: any, qty = 1) => {
     const itemCurrency = getItemCurrency(item);
     const basePrice = resolveBaseUnitPrice(item) * qty;
@@ -149,6 +180,14 @@ export default function CheckoutPage({
     }, 0);
     return formatAs(total, domainCurrency as SupportedCurrency);
   };
+
+  const orderTotalNumeric = cartItems.reduce((sum, item) => {
+    const itemCurrency = getItemCurrency(item);
+    const baseTotal = resolveBaseUnitPrice(item) * item.quantity;
+    return sum + convertToCurrency(baseTotal, itemCurrency, domainCurrency as SupportedCurrency);
+  }, 0);
+
+  const deliveryPrice = domainConfig.key === 'pl' ? (deliveryPolandState?.deliveryPrice ?? 0) : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -206,6 +245,7 @@ export default function CheckoutPage({
                   flat: deliveryPolandState.flat || null,
                   city: deliveryPolandState.city || null,
                   postalCode: deliveryPolandState.postalCode || null,
+                  deliveryPrice: deliveryPolandState.deliveryPrice ?? 0,
               } : null,
               locale: locale,
           };
@@ -428,11 +468,17 @@ export default function CheckoutPage({
                   </div>
 
                   <div className="border-t pt-4">
+                    {deliveryPrice > 0 && (
+                      <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
+                        <span>{t('orderSummary.delivery')}:</span>
+                        <span className="font-medium">+{formatAs(deliveryPrice, domainCurrency as SupportedCurrency)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center text-lg lg:text-xl font-bold">
                       <span>{t("orderSummary.total")}:</span>
                       <div className="text-right">
-                        <span className="text-red-600">{formatPaymentTotal()}</span>
-                        {cartItems.some(i => getItemCurrency(i) !== domainCurrency) && (
+                        <span className="text-red-600">{formatAs(orderTotalNumeric + deliveryPrice, domainCurrency as SupportedCurrency)}</span>
+                        {cartItems.some(i => getItemCurrency(i) !== domainCurrency) && deliveryPrice === 0 && (
                            <div className="text-gray-500 font-normal text-xs lg:text-sm">
                              ({formatCartTotal()})
                            </div>
@@ -495,7 +541,7 @@ export default function CheckoutPage({
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t("form.phone")}</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t("form.phoneNumber")}</label>
                         <div className="flex gap-2">
                             <select
                                 value={deliveryInfo.countryCode}
@@ -587,7 +633,11 @@ export default function CheckoutPage({
                 {domainConfig.key === "pl" && (
                   <div className="pt-4 border-t">
                     <h4 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Dostawa</h4>
-                    <DeliveryPoland onChange={setDeliveryPolandState} />
+                    <DeliveryPoland
+                      onChange={setDeliveryPolandState}
+                      cartItems={itemDimensions}
+                      orderTotal={orderTotalNumeric}
+                    />
                   </div>
                 )}
               </div>

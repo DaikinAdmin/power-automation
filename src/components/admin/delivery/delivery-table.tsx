@@ -27,6 +27,7 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.type')}</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.addressWarehouse')}</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.tracking')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.deliveryPrice')}</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.status')}</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.order')}</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-600">{t('table.date')}</th>
@@ -37,7 +38,7 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
             {isLoading ? (
               [...Array(5)].map((_, i) => (
                 <tr key={i}>
-                  {[...Array(8)].map((__, j) => (
+                  {[...Array(9)].map((__, j) => (
                     <td key={j} className="px-4 py-3">
                       <Skeleton className="h-4 w-full" />
                     </td>
@@ -46,7 +47,7 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
               ))
             ) : deliveries.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-10 text-center text-gray-500">
                   {t('table.empty')}
                 </td>
               </tr>
@@ -70,6 +71,9 @@ export function DeliveryTable({ deliveries, isLoading, onEdit }: Props) {
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-700">
                     {d.trackingNumber ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {d.deliveryPrice > 0 ? `${d.deliveryPrice} zł` : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[d.status] ?? 'bg-gray-100 text-gray-800'}`}>

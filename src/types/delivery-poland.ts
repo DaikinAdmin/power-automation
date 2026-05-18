@@ -23,6 +23,7 @@ export interface PolandDeliveryState {
   city: string;
   postalCode: string;
   isValid: boolean;
+  deliveryPrice: number;
 }
 
 export interface CardOption<T extends string> {

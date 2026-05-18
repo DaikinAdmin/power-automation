@@ -1,11 +1,13 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Cuboid, Truck, CreditCard, Landmark, Warehouse, Package } from 'lucide-react';
+import { Cuboid, Truck, CreditCard, Landmark, Warehouse, Package, AlertTriangle } from 'lucide-react';
 import { useDomainConfig } from '@/hooks/useDomain';
 import InPostDetails, { type InPostDetailsState } from '@/components/inpost-delivery';
 import DpdDetails, { type DpdDetailsState } from '@/components/dpd-delivery';
+import { checkAllLockers, type CartItemDims } from '@/helpers/parcel-locker-fit';
+import type { DeliveryPricing } from '@/lib/delivery-pricing';
 import type {
   PolandDeliveryMethod,
   PolandPaymentMethod,
@@ -76,16 +78,41 @@ function CardSelector<T extends string>({
 
 export default function DeliveryPoland({
   onChange,
+  cartItems,
+  orderTotal,
 }: {
   onChange?: (state: PolandDeliveryState) => void;
+  cartItems?: CartItemDims[];
+  orderTotal?: number;
 }) {
   const t = useTranslations('deliveryPoland');
   const domainConfig = useDomainConfig();
+
+  const [pricing, setPricing] = useState<DeliveryPricing | null>(null);
+
+  useEffect(() => {
+    fetch('/api/delivery-pricing')
+      .then((r) => r.json())
+      .then((data) => setPricing(data.pricing ?? null))
+      .catch(() => {/* non-critical, falls back to free */});
+  }, []);
 
   const [method, setMethod] = useState<PolandDeliveryMethod>('');
   const [payment, setPayment] = useState<PolandPaymentMethod>('');
   const [inpostDetails, setInpostDetails] = useState<InPostDetailsState | null>(null);
   const [dpdDetails, setDpdDetails] = useState<DpdDetailsState | null>(null);
+
+  const lockerFit = useMemo(() => {
+    if (!cartItems || cartItems.length === 0) return null;
+    return checkAllLockers(cartItems);
+  }, [cartItems]);
+
+  const getMethodPrice = (m: PolandDeliveryMethod): number => {
+    if (!pricing || !orderTotal || orderTotal >= pricing.freeShippingThreshold) return 0;
+    if (m === 'parcel_locker_inpost' || m === 'dpd_parcel') return pricing.parcelLockerPrice;
+    if (m === 'courier_inpost') return pricing.courierPrice;
+    return 0;
+  };
 
   const buildState = (
     m: PolandDeliveryMethod,
@@ -108,43 +135,54 @@ export default function DeliveryPoland({
       city: details?.city ?? '',
       postalCode: details?.postalCode ?? '',
       isValid: deliveryFilled && !!pmt,
+      deliveryPrice: getMethodPrice(m),
     };
   };
 
-  const deliveryOptions: CardOption<PolandDeliveryMethod>[] = [
+  const getPriceLabel = (m: PolandDeliveryMethod): string => {
+    const price = getMethodPrice(m);
+    if (price === 0) return pricing && orderTotal != null && orderTotal < pricing.freeShippingThreshold ? 'Bezpłatna' : '';
+    return `+${price} ${pricing?.currency ?? 'zł'}`;
+  };
+
+  const allDeliveryOptions: CardOption<PolandDeliveryMethod>[] = [
     {
       value: 'parcel_locker_inpost',
       label: t('option.parcelLocker.label'),
-      description: t('option.parcelLocker.description'),
-      icon: (
-        <Cuboid/>
-      ),
+      description: [t('option.parcelLocker.description'), getPriceLabel('parcel_locker_inpost')].filter(Boolean).join(' · '),
+      icon: <Cuboid />,
     },
     {
       value: 'courier_inpost',
       label: t('option.courier.label'),
-      description: t('option.courier.description'),
-      icon: (
-        <Truck/>
-      ),
+      description: [t('option.courier.description'), getPriceLabel('courier_inpost')].filter(Boolean).join(' · '),
+      icon: <Truck />,
     },
     {
       value: 'pickup',
       label: t('option.pickup.label'),
       description: t('option.pickup.description'),
-      icon: (
-        <Warehouse/>
-      ),
+      icon: <Warehouse />,
     },
     {
       value: 'dpd_parcel',
       label: t('option.dpdParcel.label'),
-      description: t('option.dpdParcel.description'),
-      icon: (
-        <Package/>
-      ),
+      description: [t('option.dpdParcel.description'), getPriceLabel('dpd_parcel')].filter(Boolean).join(' · '),
+      icon: <Package />,
     },
   ];
+
+  // Filter parcel-locker options if dimensions show items won't fit
+  const deliveryOptions = allDeliveryOptions.filter((opt) => {
+    if (!lockerFit) return true;
+    if (opt.value === 'parcel_locker_inpost') return lockerFit.inpost.fits;
+    if (opt.value === 'dpd_parcel') return lockerFit.dpd.fits;
+    return true;
+  });
+
+  const hiddenLockers: string[] = [];
+  if (lockerFit && !lockerFit.inpost.fits) hiddenLockers.push('InPost Paczkomat');
+  if (lockerFit && !lockerFit.dpd.fits) hiddenLockers.push('DPD Pickup');
 
   const paymentOptions: CardOption<PolandPaymentMethod>[] = [
     {
@@ -171,6 +209,14 @@ export default function DeliveryPoland({
     (isInpostMethod && (inpostDetails?.isFilled ?? false)) ||
     (method === 'dpd_parcel' && (dpdDetails?.isFilled ?? false));
 
+  // Re-emit state when orderTotal changes so deliveryPrice stays in sync
+  React.useEffect(() => {
+    if (method) {
+      onChange?.(buildState(method, payment, inpostDetails, dpdDetails));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderTotal]);
+
   const handleMethodChange = (val: PolandDeliveryMethod) => {
     setMethod(val);
     setInpostDetails(null);
@@ -196,6 +242,16 @@ export default function DeliveryPoland({
 
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-200">
+
+      {/* Parcel locker unavailability notice */}
+      {hiddenLockers.length > 0 && (
+        <div className="flex items-start gap-2 mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+          <AlertTriangle size={15} className="flex-shrink-0 mt-0.5 text-amber-500" />
+          <span>
+            {hiddenLockers.join(', ')} {hiddenLockers.length === 1 ? 'jest niedostępny' : 'są niedostępne'} dla tego zamówienia – gabaryty lub waga przekraczają dopuszczalne limity.
+          </span>
+        </div>
+      )}
 
       {/* Step 1 - Delivery method */}
       <div className="flex items-center gap-2 mb-3">
@@ -267,12 +323,6 @@ export default function DeliveryPoland({
             value={payment}
             onChange={handlePaymentChange}
           />
-          <p className="mt-2 text-xs text-gray-500 leading-relaxed">
-            <svg className="inline-block mr-1 mb-0.5 flex-shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
-            </svg>
-            {t('deliveryCostNote')}
-          </p>
         </>
       )}
     </div>

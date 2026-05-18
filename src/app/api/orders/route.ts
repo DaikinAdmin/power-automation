@@ -9,6 +9,7 @@ import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } fr
 import { getTranslations } from 'next-intl/server';
 import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 import { getDomainKeyByHost } from '@/lib/domain-config';
+import { getDeliveryPricingByDomainKey, computeDeliveryCharge } from '@/lib/delivery-pricing';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -495,7 +496,10 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
   // Compute order-level financial totals
   const totalNet = +totalNetAcc.toFixed(2);
   const totalVat = +totalVatAcc.toFixed(2);
-  const totalGross = +(totalNet + totalVat).toFixed(2);
+  // Delivery charge is computed server-side (client value is ignored)
+  const deliveryPricing = getDeliveryPricingByDomainKey(domainKey);
+  const plDeliveryCharge = computeDeliveryCharge(deliveryPricing, deliveryPoland?.method, totalNet + totalVat);
+  const totalGross = +(totalNet + totalVat + plDeliveryCharge).toFixed(2);
 
   // Create delivery record if novaPost data is provided
   let resolvedDeliveryId: string | null = deliveryId || null;
@@ -537,6 +541,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
       dpd_parcel: 'PARCEL_LOCKER_DPD',
     };
     const mappedPlType = plTypeMap[deliveryPoland.method] ?? 'PARCEL_LOCKER_INPOST';
+    const plDeliveryPrice = plDeliveryCharge; // server-computed, not from client
     const now = new Date().toISOString();
     const [newPlDelivery] = await db
       .insert(schema.delivery)
@@ -551,6 +556,7 @@ async function orderHandler(body: any, userId: string, locale: string = 'en', ho
         building: deliveryPoland.building ?? deliveryPoland.pointBuilding ?? null,
         flat: deliveryPoland.flat ?? null,
         paymentMethod: deliveryPoland.payment ?? null,
+        deliveryPrice: plDeliveryPrice,
         status: 'PENDING',
         createdAt: now,
         updatedAt: now,

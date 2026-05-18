@@ -48,7 +48,11 @@ export type ItemField =
   | "alias"
   | "isDisplayed"
   | "brand"
-  | "categorySlug";
+  | "categorySlug"
+  | "grossWeight"
+  | "heightPacking"
+  | "widthPacking"
+  | "lengthPacking";
 export type FieldType = MandatoryField | OptionalField | TranslationField | ItemField;
 
 export interface ColumnMapping {
@@ -88,6 +92,10 @@ export interface ColumnMapping {
   alias: number | null;
   isDisplayed: number | null;
   categorySlug: number | null;
+  grossWeight: number | null;
+  heightPacking: number | null;
+  widthPacking: number | null;
+  lengthPacking: number | null;
 }
 
 export interface Warehouse {
@@ -136,6 +144,10 @@ export const EMPTY_COLUMN_MAPPING: ColumnMapping = {
   alias: null,
   isDisplayed: null,
   categorySlug: null,
+  grossWeight: null,
+  heightPacking: null,
+  widthPacking: null,
+  lengthPacking: null,
 };
 
 export const mandatoryFields: { key: MandatoryField; label: string }[] = [
@@ -184,4 +196,8 @@ export const itemFields: { key: ItemField; label: string }[] = [
   { key: "seller", label: "Seller" },
   { key: "alias", label: "Alias" },
   { key: "isDisplayed", label: "Is Displayed" },
+  { key: "grossWeight", label: "Gross Weight (gr)" },
+  { key: "heightPacking", label: "Height (mm)" },
+  { key: "widthPacking", label: "Width (mm)" },
+  { key: "lengthPacking", label: "Length (mm)" },
 ];

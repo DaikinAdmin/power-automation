@@ -319,6 +319,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     : '—'}
                 </span>
               </div>
+              {order.delivery?.deliveryPrice != null && order.delivery.deliveryPrice > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">{t('delivery')}</span>
+                  <span>
+                    {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'PLN' }).format(order.delivery.deliveryPrice)}
+                  </span>
+                </div>
+              )}
               <div className="border-t pt-4">
                 <div className="flex justify-between font-medium text-lg">
                   <span>{t('total')}</span>

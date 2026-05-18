@@ -79,6 +79,7 @@ export async function GET(
       building: string | null;
       flat: string | null;
       trackingNumber: string | null;
+      deliveryPrice: number | null;
       status: string;
     } | null = null;
     if (order.deliveryId) {
@@ -91,6 +92,7 @@ export async function GET(
           building: schema.delivery.building,
           flat: schema.delivery.flat,
           trackingNumber: schema.delivery.trackingNumber,
+          deliveryPrice: schema.delivery.deliveryPrice,
           status: schema.delivery.status,
         })
         .from(schema.delivery)
