@@ -509,9 +509,9 @@ export default function CheckoutPage({
                     {t("login")}
                   </button>
                 </div>
-                <div className="p-4 lg:p-6">
+                <div className="lg:p-6">
                     {activeTab === "register" ? (
-                    <SignUp hideFooter className="w-full border-0 shadow-none p-0" callbackURL={`/${locale}/checkout`} />
+                    <SignUp optional={false} hideFooter className="w-full border-0 shadow-none p-0" callbackURL={`/${locale}/checkout`} />
                     ) : (
                     <SignIn hideFooter onLoginSuccess={() => {}} className="w-full border-0 shadow-none p-0" callbackURL={`/${locale}/checkout`} />
                     )}

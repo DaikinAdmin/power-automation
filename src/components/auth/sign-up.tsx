@@ -25,9 +25,10 @@ interface SignUpProps {
     hideFooter?: boolean;
     className?: string;
     callbackURL?: string;
+    optional?: boolean;
 }
 
-const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProps) => {
+const SignUp = ({ hideFooter = false, className, callbackURL = "/", optional = true }: SignUpProps) => {
     const locale = useLocale();
     const t = useTranslations('auth.signUp');
     const [showPassword, setShowPassword] = React.useState(false);
@@ -106,7 +107,18 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
             companyName: values.userType === 'company' ? (values as any).companyName : '',
             vatNumber: values.userType === 'company' ? (values as any).vatNumber : '',
             companyPosition: values.userType === 'company' ? (values as any).companyPosition : '',
-            callbackURL: '/signin',
+            callbackURL: (() => {
+                try {
+                    const saved = localStorage.getItem('cart');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            return '/checkout';
+                        }
+                    }
+                } catch {}
+                return '/';
+            })(),
         };
 
         try {
@@ -119,7 +131,7 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                     setLoading(true);
                 },
                 onSuccess: () => {
-                    setSuccess("Verification link has been sent to your mail");
+                    setSuccess(t('messages.verifyEmail'));
                 },
                 onError: (ctx: any) => {
                     setError(ctx.error.message);
@@ -333,7 +345,7 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                     </div>
 
                     {/* City */}
-                    <FormField
+                    {optional && <FormField
                         control={form.control}
                         name={"city" as any}
                         render={({ field }) => (
@@ -355,10 +367,10 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                                 <FormMessage />
                             </FormItem>
                         )}
-                    />
+                    />}
 
                     {/* Street and number */}
-                    <FormField
+                    {optional && <FormField
                         control={form.control}
                         name={"street" as any}
                         render={({ field }) => (
@@ -380,10 +392,10 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                                 <FormMessage />
                             </FormItem>
                         )}
-                    />
+                    />}
 
                     {/* Postal code */}
-                    <FormField
+                    {optional && <FormField
                         control={form.control}
                         name={"postalCode" as any}
                         render={({ field }) => (
@@ -405,7 +417,7 @@ const SignUp = ({ hideFooter = false, className, callbackURL = "/" }: SignUpProp
                                 <FormMessage />
                             </FormItem>
                         )}
-                    />
+                    />}
 
                     {/* Company-only fields */}
                     {userType === 'company' && (

@@ -60,7 +60,10 @@
       "signInLink": "Iniciar Sesión",
       "orContinueWith": "O continuar con",
       "googleButton": "Continuar con Google",
-      "optional": "opcional"
+      "optional": "opcional",
+      "messages": {
+        "verifyEmail": "Перевірте свою електронну пошту для підтвердження облікового запису."
+      }
     },
     "forgotPassword": {
       "title": "¿Olvidaste tu Contraseña?",

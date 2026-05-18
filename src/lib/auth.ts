@@ -11,21 +11,22 @@ import {
   admin as adminPlugin,
   customSession,
   openAPI,
-  twoFactor
+  twoFactor,
 } from "better-auth/plugins";
 import { validator, StandardAdapter } from "validation-better-auth";
 import { roleSignupPlugin } from "./role-signup-plugin";
 import { nextCookies } from "better-auth/next-js";
 import { ac, user, employee, admin } from "./permissions";
 import { db } from "@/db";
-import { 
-  user as userTable, 
-  session as sessionTable, 
-  account as accountTable, 
+import {
+  user as userTable,
+  session as sessionTable,
+  account as accountTable,
   verification as verificationTable,
-  twoFactor as twoFactorTable 
+  twoFactor as twoFactorTable,
 } from "@/db/schema";
 import { getServerDomainConfig } from "@/lib/server-domain";
+import { buildVerificationEmailHtml, getVerificationEmailSubject } from "@/helpers/email/verification-email";
 import { DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { eq } from "drizzle-orm";
 
@@ -34,263 +35,296 @@ async function resolveUrl(url: string): Promise<string> {
   return url.replace(/^https?:\/\/[^/]+/, baseUrl);
 }
 
-function createAuthInstance(baseURL: string, googleClientId: string, googleClientSecret: string) {
+function createAuthInstance(
+  baseURL: string,
+  googleClientId: string,
+  googleClientSecret: string,
+  locale: string,
+) {
   return betterAuth({
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "user",
-        input: false, // don't allow user to set role
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          required: false,
+          defaultValue: "user",
+          input: false, // don't allow user to set role
+        },
+        phoneNumber: {
+          type: "string",
+          required: true,
+          defaultValue: "555-555-555",
+        },
+        userAgreement: {
+          type: "boolean",
+          required: true,
+          defaultValue: false,
+        },
+        countryCode: {
+          type: "string",
+          required: true,
+          defaultValue: countryCodes[0].code,
+        },
+        companyName: {
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
+        userType: {
+          type: "string",
+          required: true,
+          defaultValue: "private",
+        },
+        vatNumber: {
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
+        addressLine: {
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
+        country: {
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
+        companyPosition: {
+          type: "string",
+          required: false,
+          defaultValue: "",
+        },
+        ownerId: {
+          type: "string",
+          required: false,
+          defaultValue: null,
+          input: false,
+        },
       },
-      phoneNumber: {
-        type: "string",
-        required: true,
-        defaultValue: "555-555-555",
-      },
-      userAgreement: {
-        type: "boolean",
-        required: true,
-        defaultValue: false,
-      },
-      countryCode: {
-        type: "string",
-        required: true,
-        defaultValue: countryCodes[0].code,
-      },
-      companyName: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
-      userType: {
-        type: "string",
-        required: true,
-        defaultValue: "private",
-      },
-      vatNumber: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
-      addressLine: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
-      country: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
-      companyPosition: {
-        type: "string",
-        required: false,
-        defaultValue: "",
-      },
-      ownerId: {
-        type: "string",
-        required: false,
-        defaultValue: null,
-        input: false,
+      deleteUser: {
+        enabled: true,
       },
     },
-    deleteUser: {
+    appName: "power-automation",
+    baseURL,
+    trustedOrigins: [
+      // Локальна розробка
+      "http://localhost:3000",
+      "http://localhost:3001",
+      // Продакшн домени
+      DOMAIN_CONFIGS.pl.baseUrl,
+      `https://www.${DOMAIN_CONFIGS.pl.host}`,
+      DOMAIN_CONFIGS.ua.baseUrl,
+      `https://www.${DOMAIN_CONFIGS.ua.host}`,
+      // Тестові домени з .env (APP_UA_TEST_HOST / APP_PL_TEST_HOST)
+      process.env.APP_UA_TEST_HOST
+        ? `https://${process.env.APP_UA_TEST_HOST}`
+        : "",
+      process.env.APP_UA_TEST_HOST
+        ? `https://www.${process.env.APP_UA_TEST_HOST}`
+        : "",
+      process.env.APP_PL_TEST_HOST
+        ? `https://${process.env.APP_PL_TEST_HOST}`
+        : "",
+      // Legacy / кастомні override
+      process.env.BASE_URL || "",
+      process.env.BETTER_AUTH_URL || "",
+      process.env.NEXT_PUBLIC_APP_URL || "",
+    ].filter(Boolean),
+    advanced: {
+      disableCSRFCheck: false,
+      // В продакшні завжди HTTPS
+      useSecureCookies: process.env.NODE_ENV === "production",
+      generateSessionId: () => {
+        return crypto.randomUUID();
+      },
+    },
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema: {
+        user: userTable,
+        session: sessionTable,
+        account: accountTable,
+        verification: verificationTable,
+        twoFactor: twoFactorTable,
+      },
+    }),
+    socialProviders: {
+      google: {
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+        mapProfileToUser: (profile) => {
+          // Google OAuth надає locale (мову акаунта), але НЕ номер телефону.
+          // Використовуємо locale для кращого визначення країни та phone code.
+          const localeMap: Record<
+            string,
+            { country: string; countryCode: string }
+          > = {
+            pl: { country: "PL", countryCode: "+48" },
+            uk: { country: "UA", countryCode: "+380" },
+            de: { country: "DE", countryCode: "+49" },
+            fr: { country: "FR", countryCode: "+33" },
+            it: { country: "IT", countryCode: "+39" },
+            es: { country: "ES", countryCode: "+34" },
+            nl: { country: "NL", countryCode: "+31" },
+            cs: { country: "CZ", countryCode: "+420" },
+            hu: { country: "HU", countryCode: "+36" },
+            ro: { country: "RO", countryCode: "+40" },
+            sk: { country: "SK", countryCode: "+421" },
+            bg: { country: "BG", countryCode: "+359" },
+            hr: { country: "HR", countryCode: "+385" },
+            sl: { country: "SI", countryCode: "+386" },
+            et: { country: "EE", countryCode: "+372" },
+            lv: { country: "LV", countryCode: "+371" },
+            lt: { country: "LT", countryCode: "+370" },
+            fi: { country: "FI", countryCode: "+358" },
+            sv: { country: "SE", countryCode: "+46" },
+            da: { country: "DK", countryCode: "+45" },
+            el: { country: "GR", countryCode: "+30" },
+            pt: { country: "PT", countryCode: "+351" },
+            "en-GB": { country: "GB", countryCode: "+44" },
+          };
+
+          const locale = (profile as any).locale ?? "";
+          const langKey = locale.split("-")[0]?.toLowerCase() ?? "";
+          const mapped = localeMap[locale] ?? localeMap[langKey];
+
+          // Fallback: беремо країну з домену через env (NEXT_PUBLIC_DOMAIN_KEY)
+          const domainKey = process.env.NEXT_PUBLIC_DOMAIN_KEY;
+          const domainDefault =
+            domainKey === "ua"
+              ? { country: "UA", countryCode: "+380" }
+              : { country: "PL", countryCode: "+48" };
+
+          return {
+            country: mapped?.country ?? domainDefault.country,
+            countryCode: mapped?.countryCode ?? domainDefault.countryCode,
+            userAgreement: true,
+            userType: "private",
+            phoneNumber: "000-000-000",
+          };
+        },
+      },
+    },
+    emailAndPassword: {
       enabled: true,
+      autoSignIn: true,
+      minPasswordLength: 8,
+      maxPasswordLength: 20,
+      requireEmailVerification: true,
+      resetPasswordTokenExpiresIn: 3600 * 24,
+      sendResetPassword: async ({ user, url, token }) => {
+        const resolvedUrl = await resolveUrl(url);
+        await email.sendMail({
+          from: process.env.MAIL_USER,
+          to: user.email,
+          subject: "Reset your password",
+          html: `Click the link to reset your password: ${resolvedUrl}`,
+        });
+      },
     },
-  },
-  appName: "power-automation",
-  baseURL,
-  trustedOrigins: [
-    // Локальна розробка
-    "http://localhost:3000",
-    "http://localhost:3001",
-    // Продакшн домени
-    DOMAIN_CONFIGS.pl.baseUrl,
-    `https://www.${DOMAIN_CONFIGS.pl.host}`,
-    DOMAIN_CONFIGS.ua.baseUrl,
-    `https://www.${DOMAIN_CONFIGS.ua.host}`,
-    // Тестові домени з .env (APP_UA_TEST_HOST / APP_PL_TEST_HOST)
-    process.env.APP_UA_TEST_HOST ? `https://${process.env.APP_UA_TEST_HOST}` : "",
-    process.env.APP_UA_TEST_HOST ? `https://www.${process.env.APP_UA_TEST_HOST}` : "",
-    process.env.APP_PL_TEST_HOST ? `https://${process.env.APP_PL_TEST_HOST}` : "",
-    // Legacy / кастомні override
-    process.env.BASE_URL || "",
-    process.env.BETTER_AUTH_URL || "",
-    process.env.NEXT_PUBLIC_APP_URL || "",
-  ].filter(Boolean),
-  advanced: {
-    disableCSRFCheck: false,
-    // В продакшні завжди HTTPS
-    useSecureCookies: process.env.NODE_ENV === "production",
-    generateSessionId: () => {
-      return crypto.randomUUID();
+    emailVerification: {
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+      sendVerificationEmail: async ({ user, url }) => {
+        const resolvedUrl = await resolveUrl(url);
+        await email.sendMail({
+          from: process.env.MAIL_USER,
+          to: user.email,
+          subject: getVerificationEmailSubject(locale),
+          html: buildVerificationEmailHtml(resolvedUrl, locale),
+        });
+      },
     },
-  },
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema: {
-      user: userTable,
-      session: sessionTable,
-      account: accountTable,
-      verification: verificationTable,
-      twoFactor: twoFactorTable,
+    session: {
+      expiresIn: 60 * 60 * 24,
+      updateAge: 60 * 60 * 12,
+      freshAge: 60 * 60 * 1,
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60, // Cache duration in seconds
+      },
     },
-  }),
-  socialProviders: {
-    google: {
-      clientId: googleClientId,
-      clientSecret: googleClientSecret,
-      mapProfileToUser: (profile) => {
-        // Google OAuth надає locale (мову акаунта), але НЕ номер телефону.
-        // Використовуємо locale для кращого визначення країни та phone code.
-        const localeMap: Record<string, { country: string; countryCode: string }> = {
-          pl:    { country: 'PL', countryCode: '+48'  },
-          uk:    { country: 'UA', countryCode: '+380' },
-          de:    { country: 'DE', countryCode: '+49'  },
-          fr:    { country: 'FR', countryCode: '+33'  },
-          it:    { country: 'IT', countryCode: '+39'  },
-          es:    { country: 'ES', countryCode: '+34'  },
-          nl:    { country: 'NL', countryCode: '+31'  },
-          cs:    { country: 'CZ', countryCode: '+420' },
-          hu:    { country: 'HU', countryCode: '+36'  },
-          ro:    { country: 'RO', countryCode: '+40'  },
-          sk:    { country: 'SK', countryCode: '+421' },
-          bg:    { country: 'BG', countryCode: '+359' },
-          hr:    { country: 'HR', countryCode: '+385' },
-          sl:    { country: 'SI', countryCode: '+386' },
-          et:    { country: 'EE', countryCode: '+372' },
-          lv:    { country: 'LV', countryCode: '+371' },
-          lt:    { country: 'LT', countryCode: '+370' },
-          fi:    { country: 'FI', countryCode: '+358' },
-          sv:    { country: 'SE', countryCode: '+46'  },
-          da:    { country: 'DK', countryCode: '+45'  },
-          el:    { country: 'GR', countryCode: '+30'  },
-          pt:    { country: 'PT', countryCode: '+351' },
-          'en-GB': { country: 'GB', countryCode: '+44' },
-        };
+    plugins: [
+      roleSignupPlugin(),
+      twoFactor({
+        otpOptions: {
+          async sendOTP({ user, otp }) {
+            await email.sendMail({
+              from: process.env.MAIL_USER,
+              to: user.email,
+              subject: "Two Factor",
+              html: `Your OTP is ${otp}`,
+            });
+          },
+        },
+        skipVerificationOnEnable: true,
+      }),
+      validator([
+        { path: "/sign-up/email", adapter: StandardAdapter(SignupSchema) },
+        { path: "/sign-in/email", adapter: StandardAdapter(SignInSchema) },
+        {
+          path: "/two-factor/enable",
+          adapter: StandardAdapter(PasswordSchema),
+        },
+        {
+          path: "/two-factor/disable",
+          adapter: StandardAdapter(PasswordSchema),
+        },
+        {
+          path: "/two-factor/verify-otp",
+          adapter: StandardAdapter(twoFactorSchema),
+        },
+        {
+          path: "/forgot-password",
+          adapter: StandardAdapter(ForgotPasswordSchema),
+        },
+      ]),
+      nextCookies(),
+      adminPlugin({
+        defaultRole: "user",
+        impersonationSessionDuration: 60 * 60 * 24,
+        defaultBanReason: "Spamming",
+        ac,
+        roles: {
+          admin,
+          user,
+          employee,
+        },
+        allowedRoles: [
+          "user",
+          "company_owner",
+          "company_employee",
+          "employee",
+          "admin",
+        ],
+        adminRoles: ["admin"],
+        adminUserIds: [process.env.ADMIN_USER || ""],
+      }),
+      openAPI(),
+      customSession(async ({ user, session }) => {
+        const [response] = await db
+          .select({
+            role: userTable.role,
+            twoFactorEnabled: userTable.twoFactorEnabled,
+          })
+          .from(userTable)
+          .where(eq(userTable.id, session.userId));
 
-        const locale = (profile as any).locale ?? '';
-        const langKey = locale.split('-')[0]?.toLowerCase() ?? '';
-        const mapped = localeMap[locale] ?? localeMap[langKey];
-
-        // Fallback: беремо країну з домену через env (NEXT_PUBLIC_DOMAIN_KEY)
-        const domainKey = process.env.NEXT_PUBLIC_DOMAIN_KEY;
-        const domainDefault = domainKey === 'ua'
-          ? { country: 'UA', countryCode: '+380' }
-          : { country: 'PL', countryCode: '+48' };
+        const role = response?.role || "user";
+        const twoFactorEnabled = response?.twoFactorEnabled || false;
 
         return {
-          country:     mapped?.country     ?? domainDefault.country,
-          countryCode: mapped?.countryCode ?? domainDefault.countryCode,
-          userAgreement: true,
-          userType: 'private',
-          phoneNumber: '000-000-000',
+          user: {
+            ...user,
+            role,
+            twoFactorEnabled,
+          },
+          session,
         };
-      },
-    },
-  },
-  emailAndPassword: {
-    enabled: true,
-    autoSignIn: true,
-    minPasswordLength: 8,
-    maxPasswordLength: 20,
-    requireEmailVerification: true,
-    resetPasswordTokenExpiresIn: 3600 * 24,
-    sendResetPassword: async ({ user, url, token }) => {
-      const resolvedUrl = await resolveUrl(url);
-      await email.sendMail({
-        from: process.env.MAIL_USER,
-        to: user.email,
-        subject: "Reset your password",
-        html: `Click the link to reset your password: ${resolvedUrl}`,
-      });
-    },
-  },
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
-      const resolvedUrl = await resolveUrl(url);
-      await email.sendMail({
-        from: process.env.MAIL_USER,
-        to: user.email,
-        subject: "Email Verification",
-        html: `Click the link to verify your email: ${resolvedUrl}`,
-      });
-    },
-  },
-  session: {
-    expiresIn: 60 * 60 * 24,
-    updateAge: 60 * 60 * 12,
-    freshAge: 60 * 60 * 1,
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60 // Cache duration in seconds
-    }
-  },
-  plugins: [
-    roleSignupPlugin(),
-    twoFactor({
-      otpOptions: {
-        async sendOTP({ user, otp }) {
-          await email.sendMail({
-            from: process.env.MAIL_USER,
-            to: user.email,
-            subject: "Two Factor",
-            html: `Your OTP is ${otp}`,
-          });
-        },
-      },
-      skipVerificationOnEnable: true,
-    }),
-    validator([
-      { path: "/sign-up/email", adapter: StandardAdapter(SignupSchema) },
-      { path: "/sign-in/email", adapter: StandardAdapter(SignInSchema) },
-      { path: "/two-factor/enable", adapter: StandardAdapter(PasswordSchema) },
-      { path: "/two-factor/disable", adapter: StandardAdapter(PasswordSchema) },
-      { path: "/two-factor/verify-otp", adapter: StandardAdapter(twoFactorSchema) },
-      { path: "/forgot-password", adapter: StandardAdapter(ForgotPasswordSchema) },
-    ]),
-    nextCookies(),
-    adminPlugin({
-      defaultRole: "user",
-      impersonationSessionDuration: 60 * 60 * 24,
-      defaultBanReason: "Spamming",
-      ac,
-      roles: {
-        admin,
-        user,
-        employee
-      },
-      allowedRoles: ["user", "company_owner", "company_employee", "employee", "admin"],
-      adminRoles: ["admin"],
-      adminUserIds: [process.env.ADMIN_USER || ""]
-    }),
-    openAPI(),
-    customSession(async ({ user, session }) => {
-      const [response] = await db
-        .select({
-          role: userTable.role,
-          twoFactorEnabled: userTable.twoFactorEnabled
-        })
-        .from(userTable)
-        .where(eq(userTable.id, session.userId));
-
-      const role = response?.role || "user";
-      const twoFactorEnabled = response?.twoFactorEnabled || false;
-      
-      return {
-        user: {
-          ...user,
-          role,
-          twoFactorEnabled
-        },
-        session
-      }
-    }),
-  ],
+      }),
+    ],
   });
 }
 
@@ -299,8 +333,9 @@ function createAuthInstance(baseURL: string, googleClientId: string, googleClien
 // registered as an Authorized redirect URI in Google Cloud Console.
 export const authPl = createAuthInstance(
   DOMAIN_CONFIGS.pl.baseUrl,
-  process.env.GOOGLE_CLIENT_ID_PL || '',
-  process.env.GOOGLE_CLIENT_SECRET_PL || '',
+  process.env.GOOGLE_CLIENT_ID_PL || "",
+  process.env.GOOGLE_CLIENT_SECRET_PL || "",
+  "pl",
 );
 
 // UA instance: powerautomation.com.ua
@@ -309,8 +344,9 @@ export const authPl = createAuthInstance(
 // Requires env vars: GOOGLE_CLIENT_ID_UA, GOOGLE_CLIENT_SECRET_UA
 export const authUa = createAuthInstance(
   DOMAIN_CONFIGS.ua.baseUrl,
-  process.env.GOOGLE_CLIENT_ID_UA || '',
-  process.env.GOOGLE_CLIENT_SECRET_UA || '',
+  process.env.GOOGLE_CLIENT_ID_UA || "",
+  process.env.GOOGLE_CLIENT_SECRET_UA || "",
+  "ua",
 );
 
 // Default export for server-side session checks (both instances share the same DB + secret)

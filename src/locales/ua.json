@@ -60,7 +60,10 @@
       "signInLink": "Увійти",
       "orContinueWith": "Або продовжити через",
       "googleButton": "Продовжити через Google",
-      "optional": "необов'язково"
+      "optional": "необов'язково",
+      "messages": {
+        "verifyEmail": "Перевірте свою електронну пошту для підтвердження облікового запису."
+      }
     },
     "forgotPassword": {
       "title": "Забули пароль?",

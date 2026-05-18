@@ -60,7 +60,10 @@
       "signInLink": "Zaloguj się",
       "orContinueWith": "Lub kontynuuj przez",
       "googleButton": "Kontynuuj przez Google",
-      "optional": "opcjonalnie"
+      "optional": "opcjonalnie",
+      "messages": {
+        "verifyEmail": "Sprawdź swoją skrzynkę mailową, aby zweryfikować konto."
+      }
     },
     "forgotPassword": {
       "title": "Zapomniałeś hasła?",

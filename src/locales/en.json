@@ -60,7 +60,10 @@
       "signInLink": "Sign In",
       "orContinueWith": "Or continue with",
       "googleButton": "Continue with Google",
-      "optional": "optional"
+      "optional": "optional",
+      "messages": {
+        "verifyEmail": "Check your email to verify your account."
+      }
     },
     "forgotPassword": {
       "title": "Forgot Password?",

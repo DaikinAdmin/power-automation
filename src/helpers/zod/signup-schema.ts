@@ -3,16 +3,12 @@ import { z } from "zod";
 export const PasswordSchema = z.object({
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least 1 number"),
+    .min(8, "Password must be at least 8 characters long"),
 });
 
 const passwordRules = z
   .string()
-  .min(8, "Password must be at least 8 characters long")
-  .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-  .regex(/[0-9]/, "Password must contain at least 1 number");
+  .min(8, "Password must be at least 8 characters long");
 
 // Server-side base fields — addressLine is already assembled
 const baseFields = {

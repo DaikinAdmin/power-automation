@@ -54,7 +54,7 @@ export default function ProductPageClient({
 
   const [product, setProduct] = useState<ProductDetailsResponse | null>(null);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -120,10 +120,11 @@ export default function ProductPageClient({
     return product.warehouses.map((warehouse, index) => {
       const basePrice = parsePriceValue(warehouse.price) ?? 0;
       const baseSpecialPrice = warehouse.specialPrice
-        ? parsePriceValue(warehouse.specialPrice) ?? undefined
+        ? (parsePriceValue(warehouse.specialPrice) ?? undefined)
         : undefined;
 
-      const fromCurrency = (warehouse.initialCurrency as SupportedCurrency) ?? 'EUR';
+      const fromCurrency =
+        (warehouse.initialCurrency as SupportedCurrency) ?? "EUR";
       return {
         id: `${product.id}-${warehouse.warehouseId}-${index}`,
         ...warehouse,
@@ -154,7 +155,7 @@ export default function ProductPageClient({
       return wPrice < bestPrice ? w : best;
     }, candidates[0]);
     setSelectedWarehouseId(
-      (prev) => prev ?? defaultWarehouse?.warehouseId ?? null
+      (prev) => prev ?? defaultWarehouse?.warehouseId ?? null,
     );
     // Set default warehouse for ask price form
     setAskPriceForm((prev) => ({
@@ -166,7 +167,7 @@ export default function ProductPageClient({
   const selectedWarehouse = useMemo(() => {
     if (!selectorWarehouses.length) return null;
     const found = selectorWarehouses.find(
-      (warehouse) => warehouse.warehouseId === selectedWarehouseId
+      (warehouse) => warehouse.warehouseId === selectedWarehouseId,
     );
     return found ?? selectorWarehouses[0];
   }, [selectorWarehouses, selectedWarehouseId]);
@@ -195,13 +196,14 @@ export default function ProductPageClient({
     opinion: string;
   }) => {
     try {
-      await fetch('/api/opinions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/opinions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itemId: product?.id,
           itemSlug: product?.articleId,
-          productName: product?.itemDetails?.[0]?.itemName || product?.articleId || id,
+          productName:
+            product?.itemDetails?.[0]?.itemName || product?.articleId || id,
           comment: data.opinion,
           locale,
           name: data.name,
@@ -229,7 +231,7 @@ export default function ProductPageClient({
         const baseSpecialPrice =
           selectedWarehouse.baseSpecialPrice ??
           (selectedWarehouse.specialPrice
-            ? parsePriceValue(selectedWarehouse.specialPrice) ?? undefined
+            ? (parsePriceValue(selectedWarehouse.specialPrice) ?? undefined)
             : undefined);
         const specialPrice = baseSpecialPrice;
 
@@ -244,7 +246,7 @@ export default function ProductPageClient({
           itemImageLink: product.itemImageLink || [product.image] || [],
           categorySlug: product.categorySlug,
           brandSlug: product.brandSlug ?? null,
-          warrantyType: product.warrantyType ?? '',
+          warrantyType: product.warrantyType ?? "",
           warrantyLength: product.warrantyMonths ?? 12,
           sellCounter: product.sellCounter ?? 0,
           createdAt: now,
@@ -350,7 +352,7 @@ export default function ProductPageClient({
         setAskPriceForm({ warehouseId: "", quantity: 1, comment: "" });
         // You might want to show a success message here
         alert(
-          "Price request submitted successfully! We will contact you soon."
+          "Price request submitted successfully! We will contact you soon.",
         );
       } else {
         throw new Error("Failed to submit price request");
@@ -437,11 +439,12 @@ export default function ProductPageClient({
 
   const basePriceNumber = selectedWarehouse?.basePrice ?? 0;
   const specialPriceNumber = selectedWarehouse?.baseSpecialPrice;
-  const selectedInitialCurrency = (selectedWarehouse?.initialCurrency as SupportedCurrency) ?? 'EUR';
+  const selectedInitialCurrency =
+    (selectedWarehouse?.initialCurrency as SupportedCurrency) ?? "EUR";
 
   const formattedPrice = formatPriceWithCurrency(
     specialPriceNumber ?? basePriceNumber,
-    selectedInitialCurrency
+    selectedInitialCurrency,
   );
   const formattedOriginalPrice = specialPriceNumber
     ? formatPriceWithCurrency(basePriceNumber, selectedInitialCurrency)
@@ -472,8 +475,9 @@ export default function ProductPageClient({
                 itemName={productName}
               />
             )}
-
-            <ProductInfoTabs warrantyMonths={product.warrantyMonths} />
+            <div className="hidden md:block">
+              <ProductInfoTabs warrantyMonths={product.warrantyMonths} />
+            </div>
           </div>
 
           <div className="space-y-6">
@@ -507,6 +511,9 @@ export default function ProductPageClient({
               category={product.category}
               subcategory={product.subcategory}
             />
+            <div className="block md:hidden">
+              <ProductInfoTabs warrantyMonths={product.warrantyMonths} />
+            </div>
 
             <ProductOpinionForm onSubmit={handleOpinionSubmit} />
           </div>
