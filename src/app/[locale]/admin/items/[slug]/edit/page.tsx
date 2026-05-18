@@ -129,6 +129,10 @@ export default function EditItemPage({
               }))
             : [],
           linkedItems: item.linkedItems || [],
+          grossWeight: item.grossWeight != null ? parseFloat(item.grossWeight) : null,
+          heightPacking: item.heightPacking != null ? parseFloat(item.heightPacking) : null,
+          widthPacking: item.widthPacking != null ? parseFloat(item.widthPacking) : null,
+          lengthPacking: item.lengthPacking != null ? parseFloat(item.lengthPacking) : null,
         };
 
         setInitialData(itemFormData);
