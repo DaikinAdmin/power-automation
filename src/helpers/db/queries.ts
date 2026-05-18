@@ -378,6 +378,10 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
           updatedAt: brand.updatedAt || '',
         }
       : null,
+    grossWeight: item.grossWeight ?? null,
+    heightPacking: item.heightPacking ?? null,
+    widthPacking: item.widthPacking ?? null,
+    lengthPacking: item.lengthPacking ?? null,
     category: {
       slug: category?.slug || '',
       name: categoryTranslation?.name || category?.name || '',

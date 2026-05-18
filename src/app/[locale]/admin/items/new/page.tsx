@@ -47,7 +47,11 @@ const initialFormData: Item = {
   },
   itemPrice: [],
   itemDetails: [],
-  linkedItems: []
+  linkedItems: [],
+  grossWeight: null,
+  heightPacking: null,
+  widthPacking: null,
+  lengthPacking: null,
 };
 
 export default function NewItemPage() {

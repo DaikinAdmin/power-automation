@@ -47,7 +47,7 @@ export function CategoryPageClient({
     sectionsOpen,
     toggleSection,
   } = useCatalogFilters();
-  
+
   const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
   const { getItemDetails, getItemPrice, getMinPrice, getAvailableWarehouses } =
@@ -56,38 +56,40 @@ export function CategoryPageClient({
     });
 
   // Get current filter values from URL
-  const urlSubcategories = searchParams?.getAll('subcategory') || [];
-  const urlBrands = searchParams?.getAll('brand') || [];
-  const urlWarehouses = searchParams?.getAll('warehouse') || [];
-  const currentPage = parseInt(searchParams?.get('page') || '1', 10);
-  const pageSize = parseInt(searchParams?.get('limit') || '16', 10);
+  const urlSubcategories = searchParams?.getAll("subcategory") || [];
+  const urlBrands = searchParams?.getAll("brand") || [];
+  const urlWarehouses = searchParams?.getAll("warehouse") || [];
+  const currentPage = parseInt(searchParams?.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams?.get("limit") || "16", 10);
 
   // Function to update URL with parameters
-  const updateURLParams = (updates: Record<string, string | string[] | number>) => {
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    
+  const updateURLParams = (
+    updates: Record<string, string | string[] | number>,
+  ) => {
+    const params = new URLSearchParams(searchParams?.toString() || "");
+
     Object.entries(updates).forEach(([key, value]) => {
       params.delete(key);
       if (Array.isArray(value)) {
-        value.forEach(v => params.append(key, v));
+        value.forEach((v) => params.append(key, v));
       } else if (value) {
         params.set(key, value.toString());
       }
     });
-    
-    const newUrl = `/category/${categorySlug}${params.toString() ? `?${params.toString()}` : ''}`;
+
+    const newUrl = `/category/${categorySlug}${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl);
   };
 
   // Handler for subcategory filter toggle
   const handleSubcategoryToggle = (subcategorySlug: string) => {
     const currentSelected = urlSubcategories.includes(subcategorySlug)
-      ? urlSubcategories.filter(s => s !== subcategorySlug)
+      ? urlSubcategories.filter((s) => s !== subcategorySlug)
       : [...urlSubcategories, subcategorySlug];
-    
-    updateURLParams({ 
+
+    updateURLParams({
       subcategory: currentSelected,
-      page: 1 
+      page: 1,
     });
   };
 
@@ -95,11 +97,11 @@ export function CategoryPageClient({
   const handleBrandSelection = (brand: string, checked: boolean) => {
     const currentSelected = checked
       ? [...urlBrands, brand]
-      : urlBrands.filter(b => b !== brand);
-    
-    updateURLParams({ 
+      : urlBrands.filter((b) => b !== brand);
+
+    updateURLParams({
       brand: currentSelected,
-      page: 1 
+      page: 1,
     });
   };
 
@@ -107,26 +109,26 @@ export function CategoryPageClient({
   const handleWarehouseSelection = (warehouseId: string, checked: boolean) => {
     const currentSelected = checked
       ? [...urlWarehouses, warehouseId]
-      : urlWarehouses.filter(w => w !== warehouseId);
-    
-    updateURLParams({ 
+      : urlWarehouses.filter((w) => w !== warehouseId);
+
+    updateURLParams({
       warehouse: currentSelected,
-      page: 1 
+      page: 1,
     });
   };
 
   // Handler for page size change
   const handlePageSizeChange = (newSize: number) => {
-    updateURLParams({ 
+    updateURLParams({
       limit: newSize,
-      page: 1 
+      page: 1,
     });
   };
 
   // Handler for page change
   const handlePageChange = (newPage: number) => {
     updateURLParams({ page: newPage });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Handler for sort change
@@ -140,14 +142,18 @@ export function CategoryPageClient({
     if (initialData.items.length === 0) {
       return { minPrice: 0, maxPrice: 100000 };
     }
-    
+
     const prices = initialData.items
-      .map(item => {
-        const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+      .map((item) => {
+        const price =
+          item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+        const fromCurrency =
+          ((item.prices[0] as any)
+            ?.initialCurrency as import("@/helpers/currency").SupportedCurrency) ??
+          "EUR";
         return convertFromCurrency(price, fromCurrency);
       })
-      .filter(price => price > 0); // Filter out zero prices
+      .filter((price) => price > 0); // Filter out zero prices
 
     if (prices.length === 0) {
       return { minPrice: 0, maxPrice: 100000 };
@@ -168,10 +174,16 @@ export function CategoryPageClient({
   const sortedItems = useMemo(() => {
     return [...initialData.items]
       .filter((item) => {
-        const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+        const price =
+          item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+        const fromCurrency =
+          ((item.prices[0] as any)
+            ?.initialCurrency as import("@/helpers/currency").SupportedCurrency) ??
+          "EUR";
         const convertedPrice = convertFromCurrency(price, fromCurrency);
-        return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
+        return (
+          convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1]
+        );
       })
       .sort((a, b) => {
         const aInStock = a.prices.some((p: any) => p.quantity > 0);
@@ -185,7 +197,9 @@ export function CategoryPageClient({
 
         switch (sortBy) {
           case "name":
-            return (aDetails?.itemName || "").localeCompare(bDetails?.itemName || "");
+            return (aDetails?.itemName || "").localeCompare(
+              bDetails?.itemName || "",
+            );
           case "price-low":
             return aPrice - bPrice;
           case "price-high":
@@ -199,12 +213,18 @@ export function CategoryPageClient({
   }, [initialData.items, priceRange, sortBy, convertFromCurrency]);
 
   // Handler for adding to cart
-  const handleAddToCart = (item: ItemResponse, warehouseId: string, price: number) => {
+  const handleAddToCart = (
+    item: ItemResponse,
+    warehouseId: string,
+    price: number,
+  ) => {
     const now = new Date();
     const details = getItemDetails(item);
     const { initialCurrency: itemCurrency } = getItemPrice(item);
     const subCategory = item.subCategorySlug
-      ? item.category.subCategories.find((s: any) => s.slug === item.subCategorySlug)
+      ? item.category.subCategories.find(
+          (s: any) => s.slug === item.subCategorySlug,
+        )
       : null;
 
     const cartItem: Omit<CartItemType, "quantity"> = {
@@ -266,6 +286,10 @@ export function CategoryPageClient({
       displayName: details?.itemName,
       availableWarehouses: getAvailableWarehouses(item),
       linkedItems: [],
+      grossWeight: item.grossWeight ?? null,
+      heightPacking: item.heightPacking ?? null,
+      widthPacking: item.widthPacking ?? null,
+      lengthPacking: item.lengthPacking ?? null,
     };
 
     addToCart(cartItem);
@@ -321,7 +345,7 @@ export function CategoryPageClient({
             selectedSubcategories={urlSubcategories}
             onSubcategoryToggle={handleSubcategoryToggle}
           />
-          
+
           <ProductsGrid
             items={sortedItems}
             viewMode={viewMode}
@@ -334,7 +358,7 @@ export function CategoryPageClient({
             calculateDiscountPercentage={calculateDiscountPercentage}
             onAddToCart={handleAddToCart}
           />
-          
+
           {/* Pagination Controls */}
           {initialData.pagination.totalPages > 1 && (
             <Pagination

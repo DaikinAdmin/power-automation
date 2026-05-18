@@ -51,6 +51,10 @@ const initialFormData: Item = {
   brandSlug: null,
   warrantyLength: 12,
   warrantyType: 'manufacturer',
+  grossWeight: null,
+  heightPacking: null,
+  widthPacking: null,
+  lengthPacking: null,
 };
 
 export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
@@ -81,6 +85,10 @@ export function ItemModal({ isOpen, onClose, onSave, item }: ItemModalProps) {
         brandSlug: item.brandSlug || null,
         warrantyLength: item.warrantyLength || 12,
         warrantyType: item.warrantyType || 'manufacturer',
+        grossWeight: item.grossWeight ?? null,
+        heightPacking: item.heightPacking ?? null,
+        widthPacking: item.widthPacking ?? null,
+        lengthPacking: item.lengthPacking ?? null,
       };
       setFormData(populatedData);
       setOriginalFormData(populatedData);

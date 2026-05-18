@@ -410,6 +410,10 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                         displayName: details?.itemName,
                         availableWarehouses: getAvailableWarehouses(item),
                         linkedItems: [],
+                        grossWeight: item.grossWeight,
+                        heightPacking: item.heightPacking,
+                        widthPacking: item.widthPacking,
+                        lengthPacking: item.lengthPacking,
                       };
 
                       addToCart(cartItem);

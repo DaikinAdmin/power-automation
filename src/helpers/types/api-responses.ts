@@ -75,6 +75,10 @@ export interface ItemResponse {
   prices: ItemPriceResponse[];
   brand: BrandResponse | null;
   category: CategoryResponse;
+  grossWeight: number | null;
+  heightPacking: number | null;
+  widthPacking: number | null;
+  lengthPacking: number | null;
 }
 
 export interface ItemListResponse {

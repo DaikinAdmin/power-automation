@@ -252,6 +252,10 @@ export default function ProductsTabsSection({
                   basePrice: itemPrice,
                   warehouseId,
                   initialCurrency: itemCurrency ?? null,
+                  grossWeight: item.grossWeight,
+                  heightPacking: item.heightPacking,
+                  widthPacking: item.widthPacking,
+                  lengthPacking: item.lengthPacking,
                 });
               };
 
@@ -386,6 +390,10 @@ export default function ProductsTabsSection({
                       basePrice: itemPrice,
                       warehouseId,
                       initialCurrency: itemCurrency ?? null,
+                      grossWeight: item.grossWeight,
+                      heightPacking: item.heightPacking,
+                      widthPacking: item.widthPacking,
+                      lengthPacking: item.lengthPacking,
                     });
                   };
 
