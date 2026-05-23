@@ -138,11 +138,14 @@ export const CurrencyProvider = ({
 
   const formatPrice = useCallback(
     (value: number) => {
-      const formatter = new Intl.NumberFormat(getLocaleForCurrency(currencyCode), {
-        style: 'currency',
-        currency: currencyCode,
-      });
-      return formatter.format(value);
+      const formatted = new Intl.NumberFormat(getLocaleForCurrency(currencyCode), {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+      const symbol = getCurrencySymbol(currencyCode);
+      // Place symbol before for € / $ / ₴, after for zł
+      return currencyCode === 'PLN' ? `${formatted} ${symbol}` : `${symbol}${formatted}`;
     },
     [currencyCode]
   );
@@ -187,8 +190,15 @@ export const CurrencyProvider = ({
   );
 
   const formatAs = useCallback(
-    (value: number, currency: SupportedCurrency): string =>
-      new Intl.NumberFormat(getLocaleForCurrency(currency), { style: 'currency', currency }).format(value),
+    (value: number, currency: SupportedCurrency): string => {
+      const formatted = new Intl.NumberFormat(getLocaleForCurrency(currency), {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value);
+      const symbol = getCurrencySymbol(currency);
+      return currency === 'PLN' ? `${formatted} ${symbol}` : `${symbol}${formatted}`;
+    },
     []
   );
 

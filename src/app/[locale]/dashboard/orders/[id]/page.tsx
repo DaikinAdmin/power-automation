@@ -4,16 +4,19 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Package, MapPin, Calendar, CreditCard } from 'lucide-react';
-
+import { useOrderTranslations, useDeliveryTranslations } from '@/helpers/use-translations';
+import { ArrowLeft, Package, MapPin, CreditCard } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatCurrency, formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
+import { formatDate, getOrderStatusBadgeStyle, getPaymentStatusBadgeStyle } from '@/helpers/formatting';
 import type { OrderDetail } from '@/types/order';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('dashboard.orders.detail');
+  const tr = useOrderTranslations();
+  const trDelivery = useDeliveryTranslations();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -132,33 +135,6 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const canProceedWithPayment = order && ['NEW', 'WAITING_FOR_PAYMENT'].includes(order.status) && 
     (!order.payment || order.payment.status !== 'COMPLETED');
 
-  // Format currency with payment currency or default to EUR for originalTotalPrice
-  const formatPrice = (amount?: number) => {
-    if (!amount && amount !== 0) return 'N/A';
-    
-    // If we have payment data, use that currency and amount
-    if (order?.payment) {
-      return new Intl.NumberFormat('pl-PL', {
-        style: 'currency',
-        currency: order.payment.currency,
-      }).format(amount / 100);
-    }
-    
-    // Otherwise use EUR (originalTotalPrice is in EUR cents)
-    return formatCurrency(amount);
-  };
-  
-  const getOrderTotal = () => {
-    if (order?.payment?.amount) {
-      // Show payment amount in the currency that was paid
-      return new Intl.NumberFormat('pl-PL', {
-        style: 'currency',
-        currency: order.payment.currency,
-      }).format(order.payment.amount / 100);
-    }
-    // Fallback to original price in EUR
-    return formatCurrency(order?.originalTotalPrice || 0);
-  };
 
   if (isLoading) {
     return (
@@ -250,13 +226,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('orderNumber', { id: order.id.slice(-8) })}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('orderNumber', { id: order.id.slice(0, 8) })}</h1>
             <p className="text-sm text-gray-600">{t('placedOn', { date: formatDate(order.createdAt) })}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusBadgeStyle(order.status)}`}>
-            {order.status.replace(/_/g, ' ')}
+            {tr.statusLabel(order.status)}
           </span>
           {canProceedWithPayment && (
             <Button onClick={handlePayOrder} className="bg-green-600 hover:bg-green-700">
@@ -302,15 +278,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                       <p className="text-sm text-gray-600">{t('articleId')}: {item.articleId}</p>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                         <span>{t('quantity', { quantity: item.quantity })}</span>
-                        {item.unitPrice && (
-                          <span>{t('unit', { price: formatPrice(item.unitPrice) })}</span>
+                        {item.unitPriceGrossConverted != null && (
+                          <span>{t('unit', { price: new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'EUR' }).format(item.unitPriceGrossConverted) })}</span>
                         )}
                         {(item.warehouseDisplayedName || item.warehouseName) && (
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             <span>
                               {item.warehouseDisplayedName || item.warehouseName}
-                              {item.warehouseCountry && ` (${item.warehouseCountry})`}
                             </span>
                           </div>
                         )}
@@ -318,7 +293,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
-                        {item.lineTotal ? formatPrice(item.lineTotal) : 'N/A'}
+                        {item.lineTotalGrossConverted != null
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'EUR' }).format(item.lineTotalGrossConverted)
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -334,14 +311,22 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <CardTitle>{t('orderSummary')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-600">{t('subtotal')}</span>
-                <span>{getOrderTotal()}</span>
+                <span>
+                  {order.totalNet != null && order.currency
+                    ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalNet)
+                    : '—'}
+                </span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between font-medium text-lg">
                   <span>{t('total')}</span>
-                  <span>{getOrderTotal()}</span>
+                  <span>
+                    {order.totalGross != null && order.currency
+                      ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                      : '—'}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -356,12 +341,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('paymentStatus')}</span>
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                    order.payment.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                    order.payment.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    order.payment.status === 'REFUNDED' ? 'bg-purple-100 text-purple-800' :
-                    'bg-red-100 text-red-800'
+                    getPaymentStatusBadgeStyle(order.payment.status)
                   }`}>
-                    {order.payment.status}
+                    {tr.paymentStatusLabel(order.payment.status)}
                   </span>
                 </div>
                 {order.payment.paymentMethod && (
@@ -374,7 +356,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </Card>
           )}
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -399,15 +381,56 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           {order.deliveryId && (
             <Card>
               <CardHeader>
                 <CardTitle>{t('deliveryInfo')}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">{t('deliveryId', { id: order.deliveryId })}</p>
+              <CardContent className="space-y-2 text-sm">
+                {order.delivery ? (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('deliveryType')}</span>
+                      <span>{trDelivery.typeLabel(order.delivery.type)}</span>
+                    </div>
+                    {order.delivery.city && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryCity')}</span>
+                        <span>{order.delivery.city}</span>
+                      </div>
+                    )}
+                    {order.delivery.warehouseDesc && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryWarehouse')}</span>
+                        <span>{order.delivery.warehouseDesc}</span>
+                      </div>
+                    )}
+                    {(order.delivery.street || order.delivery.building) && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('deliveryAddress')}</span>
+                        <span>
+                          {[order.delivery.street, order.delivery.building, order.delivery.flat]
+                            .filter(Boolean)
+                            .join(', ')}
+                        </span>
+                      </div>
+                    )}
+                    {order.delivery.trackingNumber && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">{t('trackingNumber')}</span>
+                        <span className="font-medium">{order.delivery.trackingNumber}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('deliveryStatus')}</span>
+                      <span>{trDelivery.statusLabel(order.delivery.status)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-gray-600">{t('deliveryId', { id: order.deliveryId })}</p>
+                )}
               </CardContent>
             </Card>
           )}

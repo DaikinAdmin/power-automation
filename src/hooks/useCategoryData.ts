@@ -27,6 +27,7 @@ interface Category {
 interface Brand {
   name: string;
   slug: string;
+  imageLink?: string;
 }
 
 interface Warehouse {
@@ -114,8 +115,8 @@ export function useCategoryData({
 
       // Load all visible brands from the dedicated brands endpoint
       if (brandsApiResponse.ok) {
-        const brandsData: { alias: string; name: string }[] = await brandsApiResponse.json();
-        setBrands(brandsData.map((b) => ({ name: b.name, slug: b.alias })));
+        const brandsData: { alias: string; name: string; imageLink?: string }[] = await brandsApiResponse.json();
+        setBrands(brandsData.map((b) => ({ name: b.name, slug: b.alias, imageLink: b.imageLink })));
       }
       
       if (allItemsResponse.ok) {

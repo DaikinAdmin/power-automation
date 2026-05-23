@@ -4,45 +4,28 @@ import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Search, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useOrderTranslations } from '@/helpers/use-translations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getPaymentStatusBadgeStyle, getOrderStatusBadgeStyle } from '@/helpers/formatting';
+import type { PaymentRecord } from '@/types/order';
 
-type Payment = {
-  id: string;
-  sessionId: string | null;
-  amount: number;
-  currency: string;
-  status: string;
-  paymentMethod: string | null;
-  transactionId: string | null;
-  createdAt: string;
-  updatedAt: string;
-  order: {
-    id: string;
-    status: string;
-    totalPrice: number;
-  } | null;
-  user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  } | null;
-};
 
 interface PaymentsResponse {
-  payments: Payment[];
+  payments: PaymentRecord[];
   viewerRole: string;
 }
 
 export default function PaymentsPage() {
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [filteredPayments, setFilteredPayments] = useState<Payment[]>([]);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [filteredPayments, setFilteredPayments] = useState<PaymentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [refundingPaymentId, setRefundingPaymentId] = useState<string | null>(null);
   const t = useTranslations('adminDashboard');
+  const tr = useOrderTranslations();
 
   useEffect(() => {
     loadPayments();
@@ -137,25 +120,6 @@ export default function PaymentsPage() {
     }).format(mainAmount);
   };
 
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
-      case 'PENDING':
-      case 'INITIATED':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'FAILED':
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800';
-      case 'REFUNDED':
-        return 'bg-purple-100 text-purple-800';
-      case 'PROCESSING':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const paymentStats = {
     total: payments.length,
     completed: payments.filter(p => p.status === 'COMPLETED').length,
@@ -245,13 +209,13 @@ export default function PaymentsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="ALL">{t('payments.table.allStatuses')}</option>
-              <option value="PENDING">{t('payments.table.pending')}</option>
-              <option value="INITIATED">{t('payments.table.initiated')}</option>
-              <option value="PROCESSING">{t('payments.table.processing')}</option>
-              <option value="COMPLETED">{t('payments.table.completed')}</option>
-              <option value="FAILED">{t('payments.table.failed')}</option>
-              <option value="CANCELLED">{t('payments.table.cancelled')}</option>
-              <option value="REFUNDED">{t('payments.table.refunded')}</option>
+              <option value="PENDING">{tr.paymentStatusLabel('PENDING')}</option>
+              <option value="INITIATED">{tr.paymentStatusLabel('INITIATED')}</option>
+              <option value="PROCESSING">{tr.paymentStatusLabel('PROCESSING')}</option>
+              <option value="COMPLETED">{tr.paymentStatusLabel('COMPLETED')}</option>
+              <option value="FAILED">{tr.paymentStatusLabel('FAILED')}</option>
+              <option value="CANCELLED">{tr.paymentStatusLabel('CANCELLED')}</option>
+              <option value="REFUNDED">{tr.paymentStatusLabel('REFUNDED')}</option>
             </select>
             <button
               onClick={loadPayments}
@@ -317,13 +281,13 @@ export default function PaymentsPage() {
                         {formatAmount(payment.amount, payment.currency)}
                       </td>
                       <td className="p-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeStyle(payment.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPaymentStatusBadgeStyle(payment.status)}`}>
                           {payment.status}
                         </span>
                       </td>
                       <td className="p-3">
                         {payment.order?.status ? (
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeStyle(payment.order.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusBadgeStyle(payment.order.status)}`}>
                             {payment.order.status}
                           </span>
                         ) : (

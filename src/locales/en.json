@@ -11,7 +11,9 @@
       "forgotPassword": "Forgot password?",
       "signInButton": "Sign In",
       "noAccount": "Don't have an account?",
-      "signUpLink": "Sign Up"
+      "signUpLink": "Sign Up",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google"
     },
     "signUp": {
       "title": "Sign Up",
@@ -35,8 +37,14 @@
       "countryPlaceholder": "Select country",
       "vatNumberLabel": "EU VAT Number",
       "vatNumberPlaceholder": "e.g. PL1234567890",
-      "addressLineLabel": "Address Line",
-      "addressLinePlaceholder": "Street, City, Postal Code",
+      "vatNumberPlaceholderUa": "Ukrainian tax ID (RNOCPP or EDRPOU)",
+      "vatNumberPlaceholderPl": "NIP or VAT",
+      "cityLabel": "City",
+      "cityPlaceholder": "e.g. Warsaw",
+      "streetLabel": "Street and number",
+      "streetPlaceholder": "e.g. Marszałkowska 1",
+      "postalCodeLabel": "Postal code",
+      "postalCodePlaceholder": "e.g. 00-001",
       "positionLabel": "Your Position",
       "positionOwner": "Owner",
       "positionEmployee": "Employee",
@@ -49,7 +57,10 @@
       "userAgreement": "User Agreement",
       "signUpButton": "Sign Up",
       "haveAccount": "Already have an account?",
-      "signInLink": "Sign In"
+      "signInLink": "Sign In",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google",
+      "optional": "optional"
     },
     "forgotPassword": {
       "title": "Forgot Password?",
@@ -83,6 +94,7 @@
     "searchResults": "Search Results",
     "productsFound": "products found for",
     "productsAvailable": "products available",
+    "selectedBrandTitle": "Best deals for brand {brand}",
     "sortBy": "Sort by:",
     "popularity": "Popularity",
     "priceLow": "Price: Low",
@@ -331,24 +343,6 @@
         "refundSuccess": "Refund processed successfully",
         "refundError": "Failed to process refund"
       },
-      "orderStatuses": {
-        "NEW": "New",
-        "WAITING_FOR_PAYMENT": "Waiting for payment",
-        "PROCESSING": "Processing",
-        "DELIVERY": "Delivery",
-        "COMPLETED": "Completed",
-        "CANCELLED": "Cancelled",
-        "REFUND": "Refund"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Paid",
-        "PENDING": "Pending",
-        "INITIATED": "Initiated",
-        "FAILED": "Failed",
-        "CANCELLED": "Cancelled",
-        "REFUNDED": "Refunded",
-        "PROCESSING": "Processing"
-      },
       "detail": {
         "backToOrders": "Back to Orders",
         "orderNumber": "Order #{id}",
@@ -373,6 +367,12 @@
         "lastUpdated": "Last Updated",
         "deliveryInfo": "Delivery Information",
         "deliveryId": "Delivery ID: {id}",
+        "deliveryType": "Delivery type:",
+        "deliveryCity": "City:",
+        "deliveryWarehouse": "Branch:",
+        "deliveryAddress": "Address:",
+        "trackingNumber": "Tracking number:",
+        "deliveryStatus": "Delivery status:",
         "paymentInfo": "Payment Information",
         "paymentStatus": "Payment Status:",
         "paidWith": "Paid with:",
@@ -389,6 +389,9 @@
       "countryCode": "Country code",
       "phone": "Phone",
       "vatNumber": "VAT number",
+      "vatNumberPlaceholderUa": "TIN or EDRPOU",
+      "vatNumberPlaceholderPl": "NIP or VAT",
+      "companySection": "Company Information",
       "companyName": "Company name",
       "companyPosition": "Position",
       "addressTitle": "Delivery address",
@@ -412,7 +415,7 @@
       "backToHome": "Back to Home"
     },
     "articleId": "Article",
-    "from": "From {warehouse}",
+    "from": "From: Warehouse №{warehouse}",
     "moreLocations": "+{count} more locations",
     "price": {
       "discount": "-{percent}%",
@@ -511,9 +514,9 @@
       "errorMessage": "Failed to submit request. Please try again.",
       "deliveryDays": "Estimated delivery: {days} days"
     },
-    "productCatalogCard":{
-      "buy":"Buy",
-      "outOfStock":"Out of Stock",
+    "productCatalogCard": {
+      "buy": "Buy",
+      "outOfStock": "Out of Stock",
       "addToCompare": "Add to Compare",
       "inCompare": "In Comparison",
       "from": "from",
@@ -619,7 +622,8 @@
     "brands": "Brands",
     "purchaseDelivery": "Purchase and Delivery",
     "refunding": "Refunding",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "nobrands": "No brands available"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved",
@@ -785,6 +789,97 @@
         "date": "Date"
       }
     },
+    "analytics": {
+      "title": "Reports & Analytics",
+      "description": "Financial reports and inventory stock analysis",
+      "tabs": {
+        "financial": "Financial Report",
+        "inventory": "Inventory Report"
+      },
+      "filters": {
+        "dateFrom": "From",
+        "dateTo": "To",
+        "apply": "Apply",
+        "reset": "Reset"
+      },
+      "export": {
+        "label": "Export",
+        "pdf": "Export PDF",
+        "excel": "Export Excel"
+      },
+      "financial": {
+        "summary": "Summary",
+        "totalOrders": "Total Orders",
+        "totalNet": "Total Net",
+        "totalVat": "Total VAT",
+        "totalGross": "Total Gross",
+        "avgOrder": "Avg. Order Value",
+        "byStatus": "By Order Status",
+        "monthly": "Monthly Trend",
+        "month": "Month",
+        "orders": "Orders",
+        "net": "Net",
+        "vat": "VAT",
+        "gross": "Gross",
+        "status": "Status",
+        "count": "Count"
+      },
+      "inventory": {
+        "warehouseFilter": "Warehouse",
+        "allWarehouses": "All Warehouses",
+        "currencyFilter": "Display Currency",
+        "summary": "Stock Summary",
+        "totalItems": "Total Items",
+        "totalValue": "Total Stock Value",
+        "zeroStock": "Items Out of Stock",
+        "table": {
+          "article": "Article",
+          "name": "Product Name",
+          "warehouse": "Warehouse",
+          "quantity": "Qty",
+          "price": "Price",
+          "totalValue": "Total Value",
+          "badge": "Status"
+        },
+        "columns": {
+          "articleId": "Article",
+          "namesPl": "Name (PL)",
+          "namesUa": "Name (UA)",
+          "namesEn": "Name (EN)",
+          "namesEs": "Name (ES)",
+          "warehouseId": "Warehouse ID",
+          "warehouseName": "Warehouse Name",
+          "warehouseDisplayedName": "Displayed Name",
+          "quantity": "Qty",
+          "badge": "Status",
+          "initialPrice": "Initial Price",
+          "initialCurrency": "Currency",
+          "margin": "Margin (%)",
+          "priceWithMarginNoVat": "Selling Price (excl. VAT)",
+          "vatUa": "VAT UA (20%)",
+          "vatPl": "VAT PL (23%)",
+          "priceWithMarginWithVatUa": "Selling Price (incl. VAT UA)",
+          "priceWithMarginWithVatPl": "Selling Price (incl. VAT PL)",
+          "initialPriceDisplay": "Initial Price (sel. currency)",
+          "totalValue": "Total Value"
+        },
+        "columnConfig": {
+          "title": "Configure Columns",
+          "description": "Select fields to display and export",
+          "resetDefaults": "Reset to defaults",
+          "apply": "Apply",
+          "groups": {
+            "identifiers": "Identifiers",
+            "names": "Product Names",
+            "warehouse": "Warehouse",
+            "stock": "Stock",
+            "pricing": "Pricing"
+          }
+        }
+      },
+      "loading": "Loading report data...",
+      "noData": "No data for the selected period"
+    },
     "common": {
       "actions": "Actions",
       "edit": "Edit",
@@ -911,6 +1006,106 @@
         "itemsCount": "{count} items",
         "more": "+{count} more",
         "empty": "No orders found."
+      },
+      "detail": {
+        "title": "Order Details",
+        "description": "Review the order information and manage its status.",
+        "backToOrders": "Back to Orders",
+        "deleteOrder": "Delete Order",
+        "notFound": "The requested order could not be found.",
+        "deleteDialog": {
+          "title": "Delete order?",
+          "prefix": "This action is irreversible. Order",
+          "suffix": "will be deleted permanently.",
+          "cancel": "Cancel",
+          "confirm": "Yes, delete",
+          "deleting": "Deleting..."
+        },
+        "summary": {
+          "title": "Order Summary",
+          "orderId": "Order ID",
+          "placedOn": "Placed On",
+          "status": "Status",
+          "total": "Total",
+          "deliveryId": "Delivery ID",
+          "comment": "Comment",
+          "notProvided": "Not provided",
+          "noComment": "No comment"
+        },
+        "customer": {
+          "title": "Customer",
+          "name": "Name",
+          "email": "Email",
+          "phone": "Phone",
+          "accountType": "Account type",
+          "company": "Company",
+          "vatNip": "VAT / NIP",
+          "address": "Address",
+          "typeCompany": "Company",
+          "typePrivate": "Private"
+        },
+        "items": {
+          "title": "Items",
+          "columnItem": "Item",
+          "columnWarehouse": "Warehouse",
+          "columnQuantity": "Quantity",
+          "columnPrice": "Price (with VAT)",
+          "columnLineTotal": "Line Total (with VAT)",
+          "empty": "No line items recorded for this order.",
+          "article": "Article: {id}"
+        },
+        "notes": {
+          "title": "Notes history",
+          "empty": "No notes",
+          "newNoteLabel": "New Note",
+          "newNotePlaceholder": "E.g.: Item 1 — awaiting response from supplier",
+          "addNote": "Add Note",
+          "saving": "Saving...",
+          "deleteTitle": "Delete note",
+          "added": "Note added",
+          "errorSave": "Error saving note",
+          "errorDelete": "Error deleting note"
+        },
+        "delivery": {
+          "title": "Delivery",
+          "noData": "No delivery data available.",
+          "type": "Type",
+          "city": "City",
+          "warehouse": "Warehouse",
+          "address": "Address",
+          "paymentMethod": "Payment Method",
+          "status": "Status",
+          "trackingNumber": "Tracking Number"
+        },
+        "updateStatus": {
+          "title": "Update Status",
+          "description": "Change the order status. Provide a delivery ticket identifier when setting the status to DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Delivery Management",
+          "description": "Update the status and tracking number.",
+          "statusLabel": "Delivery Status",
+          "trackingLabel": "TTN / Waybill",
+          "trackingPlaceholder": "Waybill number",
+          "save": "Save",
+          "saving": "Saving...",
+          "saved": "Delivery updated",
+          "errorSave": "Error updating delivery"
+        },
+        "toasts": {
+          "orderDeleted": "Order deleted",
+          "errorDeleteOrder": "Error deleting order"
+        },
+        "payment": {
+          "title": "Payment",
+          "noData": "No payment data available.",
+          "system": "Payment system",
+          "method": "Payment type",
+          "status": "Payment status",
+          "transactionId": "Transaction ID",
+          "amount": "Payment amount",
+          "date": "Payment date"
+        }
       }
     },
     "payments": {
@@ -934,14 +1129,7 @@
         "actions": "Actions",
         "empty": "No payments found.",
         "searchPlaceholder": "Search by email or order ID...",
-        "allStatuses": "All Statuses",
-        "pending": "Pending",
-        "initiated": "Initiated",
-        "processing": "Processing",
-        "completed": "Completed",
-        "failed": "Failed",
-        "cancelled": "Cancelled",
-        "refunded": "Refunded"
+        "allStatuses": "All Statuses"
       },
       "refund": "Refund",
       "refunding": "Refunding...",
@@ -979,6 +1167,12 @@
         "email": "Email",
         "company": "Company",
         "noCompany": "No company",
+        "userType": "Account type",
+        "userTypePrivate": "Private",
+        "userTypeCompany": "Company",
+        "phone": "Phone",
+        "vatNumber": "VAT / NIP",
+        "address": "Address",
         "created": "Created",
         "editableFields": "Editable Fields",
         "role": "Role",
@@ -1062,6 +1256,48 @@
       }
     },
     "banners": {
+      "title": "Banner Management",
+      "description": "Manage promotional banners across different pages and devices",
+      "addNew": "Add New Banner",
+      "filters": {
+        "title": "Filters",
+        "position": "Position",
+        "device": "Device",
+        "locale": "Locale"
+      },
+      "stats": {
+        "total": "Total Banners",
+        "active": "Active",
+        "hidden": "Hidden",
+        "inactive": "Inactive"
+      },
+      "list": {
+        "dragToReorder": "Drag to reorder",
+        "listTitle": "Banners — {pos} — {dev} — {loc}",
+        "empty": "No banners found for this configuration",
+        "createFirst": "Create First Banner",
+        "untitled": "Untitled Banner",
+        "order": "Order: {order}"
+      },
+      "modal": {
+        "addTitle": "Create New Banner",
+        "editTitle": "Edit Banner",
+        "titleLabel": "Title (Optional)",
+        "titlePlaceholder": "Enter banner title",
+        "imageUrl": "Image URL *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "Link URL (Optional)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Position",
+        "device": "Device",
+        "locale": "Locale",
+        "active": "Active",
+        "activeDesc": "Show this banner to visitors",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "createBtn": "Create Banner",
+        "updateBtn": "Update Banner"
+      },
       "delete": {
         "title": "Are you sure?",
         "description": "This will permanently delete the banner \"{title}\" from position {position}.",
@@ -1204,20 +1440,6 @@
         "date": "Date",
         "empty": "No deliveries found",
         "edit": "Edit"
-      },
-      "type": {
-        "PICKUP": "Pickup",
-        "USER_ADDRESS": "Address",
-        "NOVA_POSHTA": "Nova Poshta",
-        "COURIER": "Courier"
-      },
-      "status": {
-        "PENDING": "Pending",
-        "PROCESSING": "Processing",
-        "IN_TRANSIT": "In Transit",
-        "DELIVERED": "Delivered",
-        "RETURNED": "Returned",
-        "CANCELLED": "Cancelled"
       },
       "modal": {
         "title": "Edit Delivery",
@@ -1377,55 +1599,6 @@
       "deleteError": "Error deleting page",
       "publishError": "Error updating publish status"
     },
-    "banners": {
-      "title": "Banner Management",
-      "description": "Manage promotional banners across different pages and devices",
-      "addNew": "Add New Banner",
-      "filters": {
-        "title": "Filters",
-        "position": "Position",
-        "device": "Device",
-        "locale": "Locale"
-      },
-      "stats": {
-        "total": "Total Banners",
-        "active": "Active",
-        "hidden": "Hidden"
-      },
-      "list": {
-        "dragToReorder": "Drag to reorder",
-        "listTitle": "Banners — {pos} — {dev} — {loc}",
-        "empty": "No banners found for this configuration",
-        "createFirst": "Create First Banner",
-        "untitled": "Untitled Banner",
-        "order": "Order: {order}"
-      },
-      "modal": {
-        "addTitle": "Create New Banner",
-        "editTitle": "Edit Banner",
-        "titleLabel": "Title (Optional)",
-        "titlePlaceholder": "Enter banner title",
-        "imageUrl": "Image URL *",
-        "imageUrlPlaceholder": "https://example.com/banner.jpg",
-        "linkUrl": "Link URL (Optional)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Position",
-        "device": "Device",
-        "locale": "Locale",
-        "active": "Active",
-        "activeDesc": "Show this banner to visitors",
-        "saving": "Saving...",
-        "cancel": "Cancel",
-        "createBtn": "Create Banner",
-        "updateBtn": "Update Banner"
-      },
-      "delete": {
-        "title": "Are you sure?",
-        "description": "This will permanently delete the banner \"{title}\" from position {position}.",
-        "cannotUndo": "This action cannot be undone.",
-        "deleteBtn": "Delete Banner"
-      }
-    },
     "uploads": {
       "title": "Image Uploads",
       "description": "Manage uploaded images for the site",
@@ -1496,7 +1669,7 @@
       "statusLabel": "Order Status",
       "deliveryId": "Delivery ID",
       "deliveryPlaceholder": "Enter delivery ticket ID",
-      "updating": "Updating\u2026",
+      "updating": "Updating…",
       "updateBtn": "Update Order",
       "noPermission": "You do not have permission to update this order."
     },
@@ -1589,7 +1762,7 @@
     },
     "detailModal": {
       "title": "Edit Item Details",
-      "description": "Update the item details information for this locale.",
+      "description": "Description *",
       "localeLabel": "Locale *",
       "localePlaceholder": "Select a locale",
       "itemName": "Item Name *",
@@ -1598,7 +1771,6 @@
       "sellerPlaceholder": "Enter seller name",
       "discount": "Discount (%)",
       "discountPlaceholder": "Enter discount percentage",
-      "description": "Description *",
       "descriptionPlaceholder": "Enter item description",
       "specifications": "Specifications",
       "specificationsPlaceholder": "Enter item specifications",
@@ -1634,7 +1806,7 @@
       "subtitle": "Select locales, fields and format",
       "sectionLocales": "Locales",
       "localesSubtitle": "Data will be fetched per locale",
-      "localesNote": "\ud83d\udcca Each locale will be a separate sheet (XLSX) or file (CSV).",
+      "localesNote": "📊 Each locale will be a separate sheet (XLSX) or file (CSV).",
       "sectionFields": "Fields",
       "fieldsSubtitle": "{selected} of {total} selected",
       "sectionFormat": "Format",
@@ -1648,8 +1820,8 @@
       "footerStats": "{locales} locale · {fields} fields",
       "footerStatsPlural": "{locales} locales · {fields} fields",
       "cancel": "Cancel",
-      "exporting": "Exporting\u2026",
-      "exportBtn": "\u2193 Export {format}",
+      "exporting": "Exporting…",
+      "exportBtn": "↓ Export {format}",
       "selectFieldError": "Select at least one field to export."
     },
     "imagePicker": {
@@ -1685,15 +1857,131 @@
     "apartmentOrOffice": "Apt / Office",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Pickup", "description": "From our warehouse" },
-      "nova_dept": { "label": "Department", "description": "Nova Poshta" },
-      "nova_courier": { "label": "Courier", "description": "Nova Poshta" }
+      "warehouse": {
+        "label": "Pickup",
+        "description": "From our warehouse"
+      },
+      "nova_dept": {
+        "label": "Department",
+        "description": "Nova Poshta"
+      },
+      "nova_courier": {
+        "label": "Courier",
+        "description": "Nova Poshta"
+      }
     },
     "paymentOption": {
-      "online_card": { "label": "Card online", "description": "Visa / Mastercard" },
-      "bank_transfer": { "label": "Bank transfer", "description": "Invoice" },
-      "cash_on_delivery": { "label": "Cash on delivery", "description": "Pay on receipt" },
-      "installment": { "label": "Installments", "description": "PrivatBank · Monobank" }
+      "online_card": {
+        "label": "Card online",
+        "description": "Visa / Mastercard"
+      },
+      "bank_transfer": {
+        "label": "Bank transfer",
+        "description": "Invoice"
+      },
+      "cash_on_delivery": {
+        "label": "Cash on delivery",
+        "description": "Pay on receipt"
+      },
+      "installment": {
+        "label": "Installments",
+        "description": "PrivatBank"
+      }
+    },
+    "deliveryCostNote": "The payment amount does not include delivery costs. Delivery is charged according to the carrier&#39;s tariffs.",
+    "courierAddressMissing": "For courier delivery, please fill in your address in the &#39;Delivery Details&#39; section above."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "New Order #{orderShortId} from {customerName}",
+      "title": "New Order Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "total": "Total",
+      "comment": "Comment",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Order Confirmation #{orderShortId} — PowerAutomation",
+      "title": "Thank you for your order!",
+      "greeting": "Dear {customerName},",
+      "received": "We have received your order #{orderShortId}.",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "nextEmail": "You will receive another email once your payment is confirmed.",
+      "footer": "If you have questions, contact us at"
+    },
+    "paymentSuccessManager": {
+      "subject": "Payment Received for Order #{orderShortId}",
+      "title": "Payment Received",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "phone": "Phone",
+      "company": "Company",
+      "paymentAmount": "Payment Amount",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderTotal": "Order Total",
+      "orderItems": "Order Items",
+      "footer": "This is an automated notification from PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Payment Confirmed — Order #{orderShortId} — PowerAutomation",
+      "title": "Payment Confirmed!",
+      "greeting": "Dear {customerName},",
+      "confirmed": "Your payment for order #{orderShortId} has been successfully processed.",
+      "amountPaid": "Amount Paid",
+      "paymentMethod": "Payment Method",
+      "transactionId": "Transaction ID",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "processing": "Your order is now being processed. We will notify you when it ships.",
+      "footer": "If you have questions, contact us at"
+    },
+    "table": {
+      "product": "Product",
+      "article": "Article",
+      "qty": "Qty",
+      "unitPrice": "Unit Price",
+      "total": "Total"
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "New",
+      "WAITING_FOR_PAYMENT": "Waiting for payment",
+      "PROCESSING": "Processing",
+      "DELIVERY": "Delivery",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled",
+      "REFUND": "Refund"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Paid",
+      "PENDING": "Pending",
+      "INITIATED": "Initiated",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled",
+      "REFUNDED": "Refunded",
+      "PROCESSING": "Processing"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "IN_TRANSIT": "In Transit",
+      "DELIVERED": "Delivered",
+      "RETURNED": "Returned",
+      "CANCELLED": "Cancelled"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Pickup",
+      "COURIER": "Courier",
+      "USER_ADDRESS": "User Address",
+      "NOVA_POSHTA": "Nova Poshta"
     }
   }
 }

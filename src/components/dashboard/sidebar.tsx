@@ -6,11 +6,11 @@ import { useSession } from '@/lib/auth-client';
 import { useTranslations } from 'next-intl';
 
 const baseNavItems = [
-  { label: 'stats', href: '/dashboard' },
+  // { label: 'stats', href: '/dashboard' },
   { label: 'userInfo', href: '/dashboard/profile' },
   { label: 'orders', href: '/dashboard/orders' },
   { label: 'favorites', href: '/dashboard/favorites' },
-  { label: 'contact', href: '/dashboard/contact' },
+  { label: 'contact', href: '/contacts' },
 ];
 
 const ownerNavItems = [

@@ -3,16 +3,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-
+import { useOrderTranslations } from '@/helpers/use-translations';
+import type { OrderStatus } from '@/db/schema';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 type OrderListItem = {
   id: string;
-  status: string;
-  totalPrice: string | null;
-  originalTotalPrice: number;
+  status: OrderStatus;
+  currency: string | null;
+  totalGross: number | null;
   createdAt: string;
   user: {
     name: string | null;
@@ -36,6 +38,8 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('adminDashboard');
+  const tr = useOrderTranslations();
+  const domainConfig = useDomainConfig();
 
   useEffect(() => {
     let isMounted = true;
@@ -79,7 +83,7 @@ export default function OrdersPage() {
     completed: orders.filter(order => order.status === 'COMPLETED').length,
     totalRevenue: orders
       .filter(order => order.status === 'COMPLETED')
-      .reduce((sum, order) => sum + order.originalTotalPrice, 0),
+      .reduce((sum, order) => sum + (order.totalGross ?? 0), 0),
   };
 
   return (
@@ -129,7 +133,7 @@ export default function OrdersPage() {
               <Skeleton className="h-8 w-32" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{formatCurrency(orderStats.totalRevenue)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(orderStats.totalRevenue, domainConfig.currency)}</div>
                 <p className="text-xs text-gray-600">
                   {t('orders.stats.fromCompleted', { count: orderStats.completed })}
                 </p>
@@ -187,7 +191,7 @@ export default function OrdersPage() {
                 {!isLoading && orders.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      <div className="font-mono text-sm">#{order.id.slice(-8)}</div>
+                      <div className="font-mono text-sm">#{order.id.slice(0, 8)}</div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium">{order.user?.name ?? '—'}</div>
@@ -205,12 +209,14 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-medium">
-                        {`${formatCurrency(order.originalTotalPrice)}${order.totalPrice ? ` (${order.totalPrice})` : ''}`}
+                        {order.totalGross != null && order.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                          : '—'}
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getOrderStatusBadgeStyle(order.status)}`}>
-                        {order.status}
+                        {tr.statusLabel(order.status)}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-600 text-sm">

@@ -70,6 +70,35 @@ export async function GET(
       ? lineItems.map((item: any) => item.itemId).filter(Boolean)
       : [];
 
+    // Fetch delivery details if linked
+    let deliveryData: {
+      type: string;
+      city: string | null;
+      warehouseDesc: string | null;
+      street: string | null;
+      building: string | null;
+      flat: string | null;
+      trackingNumber: string | null;
+      status: string;
+    } | null = null;
+    if (order.deliveryId) {
+      const [row] = await db
+        .select({
+          type: schema.delivery.type,
+          city: schema.delivery.city,
+          warehouseDesc: schema.delivery.warehouseDesc,
+          street: schema.delivery.street,
+          building: schema.delivery.building,
+          flat: schema.delivery.flat,
+          trackingNumber: schema.delivery.trackingNumber,
+          status: schema.delivery.status,
+        })
+        .from(schema.delivery)
+        .where(eq(schema.delivery.id, order.deliveryId))
+        .limit(1);
+      deliveryData = row ?? null;
+    }
+
     let items: any[] = [];
     if (itemIds.length > 0) {
       // Fetch items with details, prices, and brand
@@ -114,7 +143,7 @@ export async function GET(
       );
     }
 
-    const orderWithItems = { ...order, items, payment: paymentData || null };
+    const orderWithItems = { ...order, items, payment: paymentData || null, delivery: deliveryData };
 
     /* Prisma implementation (commented out)
     const order = await db.order.findFirst({

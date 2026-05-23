@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
-
+import { useTranslations } from 'next-intl';
+import { useOrderTranslations, useDeliveryTranslations } from '@/helpers/use-translations';
 import { formatCurrency, formatDate } from '@/helpers/formatting';
 import { OrderStatusForm } from '@/components/admin/order-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ORDER_STATUS_OPTIONS } from '@/constants/order';
-import { DELIVERY_STATUS_OPTIONS, TYPE_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/constants/delivery';
+import { DELIVERY_STATUS_OPTIONS, STATUS_COLORS } from '@/constants/delivery';
+import { getPaymentStatusBadgeStyle } from '@/helpers/formatting';
 import type { DeliveryRecord } from '@/types/delivery';
-import type { OrderDetail } from '@/types/order';
+import type { OrderDetail, OrderNote, Payment } from '@/types/order';
 
 interface OrderDetailClientProps {
   orderId: string;
@@ -21,6 +24,7 @@ type FetchState = 'idle' | 'loading' | 'loaded' | 'error' | 'not_found';
 export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [delivery, setDelivery] = useState<DeliveryRecord | null>(null);
+  const [payment, setPayment] = useState<Payment | null>(null);
   const [canUpdate, setCanUpdate] = useState(false);
   const [status, setStatus] = useState<FetchState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,6 +33,20 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [deliveryStatus, setDeliveryStatus] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [isSavingDelivery, setIsSavingDelivery] = useState(false);
+
+  // Notes state
+  const [notes, setNotes] = useState<OrderNote[]>([]);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
+
+  // Delete state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const router = useRouter();
+  const t = useTranslations('adminDashboard.orders.detail');
+  const tr = useOrderTranslations();
+  const trDelivery = useDeliveryTranslations();
 
   useEffect(() => {
     let isMounted = true;
@@ -55,16 +73,23 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         const data = (await response.json()) as {
           order: OrderDetail;
           delivery: DeliveryRecord | null;
+          payment: Payment | null;
           viewerRole: string;
         };
 
         if (!isMounted) return;
 
         setOrder(data.order);
+        if (Array.isArray(data.order.notes)) {
+          setNotes(data.order.notes);
+        }
         if (data.delivery) {
           setDelivery(data.delivery);
           setDeliveryStatus(data.delivery.status);
           setTrackingNumber(data.delivery.trackingNumber ?? '');
+        }
+        if (data.payment) {
+          setPayment(data.payment);
         }
         setCanUpdate(data.viewerRole === 'admin' || data.viewerRole === 'employee');
         setStatus('loaded');
@@ -103,11 +128,73 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       }
       const updated = await res.json();
       setDelivery(updated.delivery);
-      toast.success('Доставку оновлено');
+      toast.success(t('deliveryManagement.saved'));
     } catch (err: any) {
-      toast.error(err.message || 'Помилка оновлення доставки');
+      toast.error(err.message || t('deliveryManagement.errorSave'));
     } finally {
       setIsSavingDelivery(false);
+    }
+  };
+
+  const handleAddNote = async () => {
+    const text = newNoteText.trim();
+    if (!text || isSavingNote) return;
+    setIsSavingNote(true);
+    try {
+      const newNote: OrderNote = {
+        id: crypto.randomUUID(),
+        text,
+        createdAt: new Date().toISOString(),
+      };
+      const updatedNotes = [...notes, newNote];
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateNotes', notes: updatedNotes }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || 'Failed to save note');
+      }
+      setNotes(updatedNotes);
+      setNewNoteText('');
+      toast.success(t('notes.added'));
+    } catch (err: any) {
+      toast.error(err.message || t('notes.errorSave'));
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    const updatedNotes = notes.filter((n) => n.id !== noteId);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateNotes', notes: updatedNotes }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setNotes(updatedNotes);
+    } catch {
+      toast.error(t('notes.errorDelete'));
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || 'Failed to delete order');
+      }
+      toast.success(t('toasts.orderDeleted'));
+      router.push('/admin/orders');
+    } catch (err: any) {
+      toast.error(err.message || t('toasts.errorDeleteOrder'));
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -116,14 +203,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Order Details</h1>
-            <p className="text-gray-600">The requested order could not be found.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+            <p className="text-gray-600">{t('notFound')}</p>
           </div>
           <Link
             href="/admin/orders"
             className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100"
           >
-            Back to Orders
+            {t('backToOrders')}
           </Link>
         </div>
       </div>
@@ -134,16 +221,59 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Order Details</h1>
-          <p className="text-gray-600">Review the order information and manage its status.</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-gray-600">{t('description')}</p>
         </div>
-        <Link
-          href="/admin/orders"
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100"
-        >
-          Back to Orders
-        </Link>
+        <div className="flex items-center gap-3">
+          {canUpdate && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 shadow-sm hover:bg-red-100"
+            >
+              {t('deleteOrder')}
+            </button>
+          )}
+          <Link
+            href="/admin/orders"
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+          >
+            {t('backToOrders')}
+          </Link>
+        </div>
       </div>
+
+      {/* Delete confirmation dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-gray-900">{t('deleteDialog.title')}</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {t('deleteDialog.prefix')}{' '}
+              <span className="font-mono font-semibold">#{orderId.slice(0, 8)}</span>{' '}
+              {t('deleteDialog.suffix')}
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                {t('deleteDialog.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeleteOrder()}
+                disabled={isDeleting}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? t('deleteDialog.deleting') : t('deleteDialog.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {status === 'error' && errorMessage && (
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -154,7 +284,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Order Summary</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('summary.title')}</h2>
             {showSkeleton ? (
               <div className="mt-4 space-y-2">
                 <Skeleton className="h-4 w-40" />
@@ -166,39 +296,41 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             ) : (
               <dl className="mt-4 space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
-                  <dt className="font-medium">Order ID</dt>
+                  <dt className="font-medium">{t('summary.orderId')}</dt>
                   <dd className="font-mono">#{order?.id}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Placed On</dt>
+                  <dt className="font-medium">{t('summary.placedOn')}</dt>
                   <dd>{order ? formatDate(order.createdAt) : '—'}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Status</dt>
-                  <dd>{order ? order.status.replace(/_/g, ' ') : '—'}</dd>
+                  <dt className="font-medium">{t('summary.status')}</dt>
+                  <dd>{order ? tr.statusLabel(order.status) : '—'}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Total</dt>
+                  <dt className="font-medium">{t('summary.total')}</dt>
                   <dd>
                     {order
-                      ? `${formatCurrency(order.originalTotalPrice)}${order.totalPrice ? ` (${order.totalPrice})` : ''}`
+                      ? (order.totalGross != null && order.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                          : '—')
                       : '—'}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Delivery ID</dt>
-                  <dd>{order?.deliveryId ? order.deliveryId : 'Not provided'}</dd>
+                  <dt className="font-medium">{t('summary.deliveryId')}</dt>
+                  <dd>{order?.deliveryId ? order.deliveryId : t('summary.notProvided')}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Comment</dt>
-                  <dd>{order?.comment ? order.comment : 'No comment'}</dd>
+                  <dt className="font-medium">{t('summary.comment')}</dt>
+                  <dd>{order?.comment ? order.comment : t('summary.noComment')}</dd>
                 </div>
               </dl>
             )}
           </section>
 
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Customer</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('customer.title')}</h2>
             {showSkeleton ? (
               <div className="mt-4 space-y-2">
                 <Skeleton className="h-4 w-48" />
@@ -208,27 +340,57 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             ) : (
               <dl className="mt-4 space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
-                  <dt className="font-medium">Name</dt>
+                  <dt className="font-medium">{t('customer.name')}</dt>
                   <dd>{order?.user?.name ?? '—'}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Email</dt>
+                  <dt className="font-medium">{t('customer.email')}</dt>
                   <dd>{order?.user?.email ?? '—'}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="font-medium">Phone</dt>
+                  <dt className="font-medium">{t('customer.phone')}</dt>
                   <dd>
                     {order?.user?.phoneNumber
                       ? `${order.user.countryCode || '+'}${order.user.phoneNumber}`
                       : '—'}
                   </dd>
                 </div>
+                {order?.user?.userType && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('customer.accountType')}</dt>
+                    <dd>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        order.user.userType === 'company' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {order.user.userType === 'company' ? t('customer.typeCompany') : t('customer.typePrivate')}
+                      </span>
+                    </dd>
+                  </div>
+                )}
+                {order?.user?.companyName && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('customer.company')}</dt>
+                    <dd>{order.user.companyName}</dd>
+                  </div>
+                )}
+                {order?.user?.vatNumber && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('customer.vatNip')}</dt>
+                    <dd className="font-mono">{order.user.vatNumber}</dd>
+                  </div>
+                )}
+                {order?.user?.addressLine && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('customer.address')}</dt>
+                    <dd className="text-right max-w-[60%]">{order.user.addressLine.replaceAll('|', ', ')}</dd>
+                  </div>
+                )}
               </dl>
             )}
           </section>
 
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Items</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('items.title')}</h2>
             {showSkeleton ? (
               <div className="mt-4 space-y-3">
                 {[...Array(3)].map((_, index) => (
@@ -244,18 +406,18 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-2 text-left font-semibold text-gray-600">Item</th>
-                      <th className="px-4 py-2 text-left font-semibold text-gray-600">Warehouse</th>
-                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Quantity</th>
-                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Unit Price</th>
-                      <th className="px-4 py-2 text-right font-semibold text-gray-600">Line Total</th>
+                      <th className="px-4 py-2 text-left font-semibold text-gray-600">{t('items.columnItem')}</th>
+                      <th className="px-4 py-2 text-left font-semibold text-gray-600">{t('items.columnWarehouse')}</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnQuantity')}</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnPrice')}</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnLineTotal')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {lineItems.length === 0 && (
                       <tr>
                         <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
-                          No line items recorded for this order.
+                          {t('items.empty')}
                         </td>
                       </tr>
                     )}
@@ -263,7 +425,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       <tr key={`${item.itemId}-${item.warehouseId}`}>
                         <td className="px-4 py-2">
                           <div className="font-medium text-gray-900">{item.name}</div>
-                          <div className="text-xs text-gray-500">Article: {item.articleId}</div>
+                          <div className="text-xs text-gray-500">{t('items.article', { id: item.articleId })}</div>
                         </td>
                         <td className="px-4 py-2">
                           <div className="text-gray-900">{item.warehouseName || item.warehouseDisplayedName || '—'}</div>
@@ -271,10 +433,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                         </td>
                         <td className="px-4 py-2 text-right">{item.quantity}</td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.unitPrice === 'number' ? formatCurrency(item.unitPrice) : '—'}
+                          {typeof item.unitPriceNet === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.unitPriceGrossConverted ?? item.unitPriceNet)
+                            : '—'}
                         </td>
                         <td className="px-4 py-2 text-right">
-                          {typeof item.lineTotal === 'number' ? formatCurrency(item.lineTotal) : '—'}
+                          {typeof item.lineTotalGrossConverted === 'number'
+                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.lineTotalGrossConverted)
+                            : '—'}
                         </td>
                       </tr>
                     ))}
@@ -284,9 +450,134 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
             )}
           </section>
 
+          {/* Notes History */}
+          <section className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">{t('notes.title')}</h2>
+            {showSkeleton ? (
+              <div className="mt-4 space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ) : (
+              <div className="mt-4 space-y-4">
+                {notes.length === 0 ? (
+                  <p className="text-sm text-gray-500">{t('notes.empty')}</p>
+                ) : (
+                  <ol className="relative border-l border-gray-200 space-y-4 ml-3">
+                    {notes.map((note) => (
+                      <li key={note.id} className="ml-4">
+                        <div className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border border-white bg-red-400" />
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <time className="mb-1 block text-xs font-normal leading-none text-gray-400">
+                              {new Date(note.createdAt).toLocaleString('uk-UA', {
+                                day: '2-digit', month: '2-digit', year: 'numeric',
+                                hour: '2-digit', minute: '2-digit',
+                              })}
+                            </time>
+                            <p className="text-sm text-gray-700 whitespace-pre-wrap">{note.text}</p>
+                          </div>
+                          {canUpdate && (
+                            <button
+                              type="button"
+                              onClick={() => void handleDeleteNote(note.id)}
+                              className="shrink-0 text-xs text-gray-400 hover:text-red-500"
+                              title={t('notes.deleteTitle')}
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                {canUpdate && (
+                  <div className="mt-4 space-y-2">
+                    <label htmlFor="new-note" className="block text-sm font-medium text-gray-700">
+                      {t('notes.newNoteLabel')}
+                    </label>
+                    <textarea
+                      id="new-note"
+                      rows={3}
+                      value={newNoteText}
+                      onChange={(e) => setNewNoteText(e.target.value)}
+                      placeholder={t('notes.newNotePlaceholder')}
+                      disabled={isSavingNote}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 disabled:opacity-60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handleAddNote()}
+                      disabled={!newNoteText.trim() || isSavingNote}
+                      className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSavingNote ? t('notes.saving') : t('notes.addNote')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Payment Details */}
+          <section className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">{t('payment.title')}</h2>
+            {showSkeleton ? (
+              <div className="mt-4 space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-4 w-56" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+            ) : !payment ? (
+              <p className="mt-3 text-sm text-gray-500">{t('payment.noData')}</p>
+            ) : (
+              <dl className="mt-4 space-y-2 text-sm text-gray-700">
+                {payment.paymentMethod && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('payment.method')}</dt>
+                    <dd>{payment.paymentMethod}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <dt className="font-medium">{t('payment.status')}</dt>
+                  <dd>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      getPaymentStatusBadgeStyle(payment.status)
+                    }`}>
+                      {tr.paymentStatusLabel(payment.status)}
+                    </span>
+                  </dd>
+                </div>
+                {payment.transactionId && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('payment.transactionId')}</dt>
+                    <dd className="font-mono text-xs">{payment.transactionId}</dd>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <dt className="font-medium">{t('payment.amount')}</dt>
+                  <dd>
+                    {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: payment.currency }).format(payment.amount / 100)}
+                  </dd>
+                </div>
+                {payment.status === 'COMPLETED' && (
+                <div className="flex justify-between">
+                  <dt className="font-medium">{t('payment.date')}</dt>
+                  <dd>
+                    {formatDate(payment.updatedAt ?? '')}
+                  </dd>
+                </div>
+                )}
+              </dl>
+            )}
+          </section>
+
           {/* Delivery Details */}
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Доставка</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('delivery.title')}</h2>
             {showSkeleton ? (
               <div className="mt-4 space-y-2">
                 <Skeleton className="h-4 w-40" />
@@ -294,28 +585,28 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 <Skeleton className="h-4 w-32" />
               </div>
             ) : !delivery ? (
-              <p className="mt-3 text-sm text-gray-500">Дані доставки відсутні.</p>
+              <p className="mt-3 text-sm text-gray-500">{t('delivery.noData')}</p>
             ) : (
               <dl className="mt-4 space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
-                  <dt className="font-medium">Тип</dt>
-                  <dd>{TYPE_LABELS[delivery.type] ?? delivery.type}</dd>
+                  <dt className="font-medium">{t('delivery.type')}</dt>
+                  <dd>{trDelivery.typeLabel(delivery.type)}</dd>
                 </div>
                 {delivery.city && (
                   <div className="flex justify-between">
-                    <dt className="font-medium">Місто</dt>
+                    <dt className="font-medium">{t('delivery.city')}</dt>
                     <dd>{delivery.city}</dd>
                   </div>
                 )}
                 {delivery.warehouseDesc && (
                   <div className="flex justify-between">
-                    <dt className="font-medium">Відділення</dt>
+                    <dt className="font-medium">{t('delivery.warehouse')}</dt>
                     <dd>{delivery.warehouseDesc}</dd>
                   </div>
                 )}
                 {(delivery.street || delivery.building) && (
                   <div className="flex justify-between">
-                    <dt className="font-medium">Адреса</dt>
+                    <dt className="font-medium">{t('delivery.address')}</dt>
                     <dd>
                       {[delivery.street, delivery.building, delivery.flat].filter(Boolean).join(', ')}
                     </dd>
@@ -323,21 +614,21 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 )}
                 {delivery.paymentMethod && (
                   <div className="flex justify-between">
-                    <dt className="font-medium">Метод оплати</dt>
+                    <dt className="font-medium">{t('delivery.paymentMethod')}</dt>
                     <dd>{delivery.paymentMethod.replace(/_/g, ' ')}</dd>
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <dt className="font-medium">Статус</dt>
+                  <dt className="font-medium">{t('delivery.status')}</dt>
                   <dd>
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_COLORS[delivery.status] ?? 'bg-gray-100 text-gray-800'}`}>
-                      {STATUS_LABELS[delivery.status] ?? delivery.status}
+                      {trDelivery.statusLabel(delivery.status)}
                     </span>
                   </dd>
                 </div>
                 {delivery.trackingNumber && (
                   <div className="flex justify-between">
-                    <dt className="font-medium">ТТН / Накладна</dt>
+                    <dt className="font-medium">{t('delivery.trackingNumber')}</dt>
                     <dd className="font-mono">{delivery.trackingNumber}</dd>
                   </div>
                 )}
@@ -348,9 +639,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
         <div className="space-y-6">
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">Update Status</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('updateStatus.title')}</h2>
             <p className="mt-1 text-sm text-gray-600">
-              Change the order status. Provide a delivery ticket identifier when setting the status to DELIVERY.
+              {t('updateStatus.description')}
             </p>
             <div className="mt-4">
               {order ? (
@@ -370,8 +661,8 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
           {/* Delivery management card */}
           {(delivery || showSkeleton) && (
             <section className="rounded-lg border bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900">Керування доставкою</h2>
-              <p className="mt-1 text-sm text-gray-600">Оновіть статус і номер ТТН.</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t('deliveryManagement.title')}</h2>
+              <p className="mt-1 text-sm text-gray-600">{t('deliveryManagement.description')}</p>
               {showSkeleton ? (
                 <div className="mt-4 space-y-3">
                   <Skeleton className="h-9 w-full" />
@@ -382,7 +673,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 <div className="mt-4 space-y-4">
                   <div>
                     <label htmlFor="delivery-status" className="block text-sm font-medium text-gray-700">
-                      Статус доставки
+                      {t('deliveryManagement.statusLabel')}
                     </label>
                     <select
                       id="delivery-status"
@@ -393,14 +684,14 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     >
                       {DELIVERY_STATUS_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>
-                          {STATUS_LABELS[opt] ?? opt}
+                          {trDelivery.statusLabel(opt)}
                         </option>
                       ))}
                     </select>
                   </div>
                   <div>
                     <label htmlFor="tracking-number" className="block text-sm font-medium text-gray-700">
-                      ТТН / Накладна
+                      {t('deliveryManagement.trackingLabel')}
                     </label>
                     <input
                       id="tracking-number"
@@ -408,7 +699,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
                       disabled={!canUpdate || isSavingDelivery}
-                      placeholder="Номер накладної"
+                      placeholder={t('deliveryManagement.trackingPlaceholder')}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
                   </div>
@@ -418,7 +709,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     disabled={!canUpdate || isSavingDelivery}
                     className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {isSavingDelivery ? 'Збереження...' : 'Зберегти'}
+                    {isSavingDelivery ? t('deliveryManagement.saving') : t('deliveryManagement.save')}
                   </button>
                 </div>
               ) : null}

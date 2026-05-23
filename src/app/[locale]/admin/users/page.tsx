@@ -19,6 +19,12 @@ interface User {
   role: string;
   emailVerified: Date | null;
   companyName: string | null;
+  vatNumber?: string;
+  userType?: string;
+  phoneNumber?: string;
+  countryCode?: string;
+  addressLine?: string;
+  country?: string;
   discountLevel: number | null;
   createdAt: Date;
 }
@@ -97,6 +103,34 @@ function EditUserModal({
             <Label className="text-right font-medium">{t('users.edit.company')}</Label>
             <div className="col-span-3 text-sm">{user.companyName || t('users.edit.noCompany')}</div>
           </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right font-medium">{t('users.edit.userType')}</Label>
+            <div className="col-span-3 text-sm">
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                user.userType === 'company' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+              }`}>
+                {user.userType === 'company' ? t('users.edit.userTypeCompany') : t('users.edit.userTypePrivate')}
+              </span>
+            </div>
+          </div>
+          {user.phoneNumber && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-medium">{t('users.edit.phone')}</Label>
+              <div className="col-span-3 text-sm">{user.countryCode}{user.phoneNumber}</div>
+            </div>
+          )}
+          {user.vatNumber && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-medium">{t('users.edit.vatNumber')}</Label>
+              <div className="col-span-3 text-sm font-mono">{user.vatNumber}</div>
+            </div>
+          )}
+          {user.addressLine && (
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-medium">{t('users.edit.address')}</Label>
+              <div className="col-span-3 text-sm">{user.addressLine}</div>
+            </div>
+          )}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right font-medium">{t('users.edit.created')}</Label>
             <div className="col-span-3 text-sm">{format(new Date(user.createdAt), 'MMM dd, yyyy HH:mm')}</div>
@@ -381,7 +415,9 @@ export default function UsersPage() {
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.name')}</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.email')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.edit.userType')}</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.company')}</th>
+                  <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.edit.phone')}</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.role')}</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.status')}</th>
                   <th className="text-left py-3 px-4 font-semibold text-sm">{t('users.table.joined')}</th>
@@ -395,12 +431,22 @@ export default function UsersPage() {
                       <div className="font-medium">{user.name}</div>
                     </td>
                     <td className="py-3 px-4 text-gray-600">{user.email}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        user.userType === 'company' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.userType === 'company' ? t('users.edit.userTypeCompany') : t('users.edit.userTypePrivate')}
+                      </span>
+                    </td>
                     <td className="py-3 px-4 text-gray-600">
                       {user.companyName ? (
                         <span className="font-medium">{user.companyName}</span>
                       ) : (
                         <span className="text-gray-400 italic">{t('users.table.noCompany')}</span>
                       )}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 text-sm">
+                      {user.phoneNumber ? `${user.countryCode ?? ''}${user.phoneNumber}` : '—'}
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

@@ -47,6 +47,8 @@ export interface DomainConfig {
   contacts: DomainContacts;
   /** Назва компанії / сайту */
   siteName: string;
+  /** Валюта за замовчуванням */
+  currency: string;
 }
 
 // ---------- конфіг ----------
@@ -69,6 +71,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
       email: 'sale@powerautomation.com.ua',
     },
     siteName: 'Power Automation Україна',
+    currency: 'UAH',
   },
   pl: {
     key: 'pl',
@@ -89,6 +92,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
       contactRole: 'Manager ds. sprzedaży',
     },
     siteName: 'Power Automation',
+    currency: 'PLN',
   },
 };
 

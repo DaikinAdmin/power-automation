@@ -15,12 +15,14 @@ import {
   type EmployeeDetail,
 } from '@/components/dashboard/employee-view-dialog';
 import { useSession } from '@/lib/auth-client';
+import { useTranslations } from 'next-intl';
 
 type Employee = EmployeeDetail;
 
 export default function DashboardEmployeesPage() {
   const { data: session } = useSession();
   const owner = session?.user as any;
+  const t = useTranslations("dashboard.employees");
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);

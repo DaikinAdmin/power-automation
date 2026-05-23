@@ -11,7 +11,7 @@ interface BulkUpdateItem {
   articleId: string;
   initialPrice?: number;
   price?: number;
-  quantity: number;
+  quantity?: number;
   currency?: string;
   badge?: string;
   brand?: string;
@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
               warehouseId,
               price: calculatedPrice,
               initialPrice: item.initialPrice,
-              quantity: item.quantity,
+              quantity: item.quantity ?? 0,
               badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
               promotionPrice: item.promoPrice || null,

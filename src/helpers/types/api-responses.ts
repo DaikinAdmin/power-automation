@@ -141,8 +141,10 @@ export interface OrderItemResponse {
 export interface OrderResponse {
   orderId: string;
   userId: string;
-  totalPrice: string;
-  originalTotalPrice: number;
+  currency: string;
+  totalNet: number;
+  totalVat: number;
+  totalGross: number;
   status: string;
   deliveryId: string | null;
   comment: string | null;
@@ -153,7 +155,8 @@ export interface OrderResponse {
 
 export interface OrderListResponse {
   orderId: string;
-  totalPrice: string;
+  currency: string;
+  totalGross: number;
   status: string;
   createdAt: string;
   itemCount: number;
@@ -184,6 +187,12 @@ export interface UserListResponse {
   role: string;
   emailVerified: boolean;
   companyName: string | null;
+  vatNumber?: string;
+  userType?: string;
+  phoneNumber?: string;
+  countryCode?: string;
+  addressLine?: string;
+  country?: string;
   discountLevel: string | null;  // Changed to string (discount level ID)
   createdAt: string;
 }
@@ -213,7 +222,8 @@ export interface RecentOrderResponse {
   orderId: string;
   userName: string;
   userEmail: string;
-  totalPrice: string;
+  currency: string;
+  totalGross: number;
   status: string;
   createdAt: string;
   itemCount: number;

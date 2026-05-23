@@ -1,38 +1,36 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from '@/i18n/navigation';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "@/components/cart-context";
-import PageLayout from '@/components/layout/page-layout';
-import { CartItemType } from '@/helpers/types/item';
-import { useCatalogPricing } from '@/hooks/useCatalogPricing';
-import { useCategoryData } from '@/hooks/useCategoryData';
-import { calculateDiscountPercentage } from '@/helpers/pricing';
-import { useCatalogFilters } from '@/hooks/useCatalogFilters';
-import { useCurrency } from '@/hooks/useCurrency';
-import { CategoryBreadcrumb } from '@/components/category/category-breadcrumb';
-import { CategoryHeader } from '@/components/category/category-header';
-import { CategorySidebar } from '@/components/category/category-sidebar';
-import { ProductsGrid } from '@/components/category/products-grid';
-import { MobileFilterDrawer } from '@/components/category/mobile-filter-drawer';
-import { Pagination } from '@/components/category/pagination';
-import { useTranslations } from 'next-intl';
+import PageLayout from "@/components/layout/page-layout";
+import { CartItemType } from "@/helpers/types/item";
+import { useCatalogPricing } from "@/hooks/useCatalogPricing";
+import { useCategoryData } from "@/hooks/useCategoryData";
+import { calculateDiscountPercentage } from "@/helpers/pricing";
+import { useCatalogFilters } from "@/hooks/useCatalogFilters";
+import { useCurrency } from "@/hooks/useCurrency";
+import { CategoryBreadcrumb } from "@/components/category/category-breadcrumb";
+import { CategoryHeader } from "@/components/category/category-header";
+import { CategorySidebar } from "@/components/category/category-sidebar";
+import { ProductsGrid } from "@/components/category/products-grid";
+import { MobileFilterDrawer } from "@/components/category/mobile-filter-drawer";
+import { Pagination } from "@/components/category/pagination";
+import { useTranslations } from "next-intl";
 
 export default function CategoriesPage({ locale }: { locale: string }) {
-  const t = useTranslations('categories');
+  const t = useTranslations("categories");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {
-    addToCart,
-  } = useCart();
+  const { addToCart } = useCart();
 
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
-  const currentPage = Number(searchParams?.get('page') || '1');
-  const pageSize = Number(searchParams?.get('pageSize') || '16');
+  const currentPage = Number(searchParams?.get("page") || "1");
+  const pageSize = Number(searchParams?.get("pageSize") || "16");
 
   const {
     viewMode,
@@ -45,35 +43,32 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
   // Sync filters with URL parameters
-  const urlBrands = searchParams?.getAll('brand') || [];
-  const urlWarehouses = searchParams?.getAll('warehouse') || [];
-  const searchQuery = searchParams?.get('search') || '';
+  const urlBrands = searchParams?.getAll("brand") || [];
+  const urlWarehouses = searchParams?.getAll("warehouse") || [];
+  const searchQuery = searchParams?.get("search") || "";
+
+  const isSingleBrandSelected = urlBrands.length === 1;
+  const selectedBrandSlug = isSingleBrandSelected ? urlBrands[0] : null;
 
   const updatePageInURL = (page: number, newPageSize?: number) => {
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(searchParams?.toString() || "");
     if (page > 1) {
-      params.set('page', String(page));
+      params.set("page", String(page));
     } else {
-      params.delete('page');
+      params.delete("page");
     }
     const size = newPageSize ?? pageSize;
     if (size !== 16) {
-      params.set('pageSize', String(size));
+      params.set("pageSize", String(size));
     } else {
-      params.delete('pageSize');
+      params.delete("pageSize");
     }
-    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
   };
 
   // Use custom hook for fetching all category data
-  const {
-    items,
-    categories,
-    brands,
-    warehouses,
-    isLoading,
-  } = useCategoryData({
+  const { items, categories, brands, warehouses, isLoading } = useCategoryData({
     locale,
     filters: {
       brand: urlBrands,
@@ -88,25 +83,28 @@ export default function CategoriesPage({ locale }: { locale: string }) {
     });
 
   // Function to update URL with filter parameters
-  const updateURLParams = (filterType: 'brand' | 'warehouse', values: string[]) => {
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    
+  const updateURLParams = (
+    filterType: "brand" | "warehouse",
+    values: string[],
+  ) => {
+    const params = new URLSearchParams(searchParams?.toString() || "");
+
     // Remove all existing params of this type
     params.delete(filterType);
-    
+
     // Add new values
-    values.forEach(value => params.append(filterType, value));
+    values.forEach((value) => params.append(filterType, value));
 
     // Reset to page 1 on filter change
-    params.delete('page');
-    
+    params.delete("page");
+
     // Keep search query if exists
     if (searchQuery) {
-      params.set('search', searchQuery);
+      params.set("search", searchQuery);
     }
-    
+
     // Update URL
-    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `/categories${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
   };
 
@@ -114,17 +112,20 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   const handleBrandSelectionWithURL = (brand: string, checked: boolean) => {
     const currentSelected = checked
       ? [...urlBrands, brand]
-      : urlBrands.filter(b => b !== brand);
-    
-    updateURLParams('brand', currentSelected);
+      : urlBrands.filter((b) => b !== brand);
+
+    updateURLParams("brand", currentSelected);
   };
 
-  const handleWarehouseSelectionWithURL = (warehouseId: string, checked: boolean) => {
+  const handleWarehouseSelectionWithURL = (
+    warehouseId: string,
+    checked: boolean,
+  ) => {
     const currentSelected = checked
       ? [...urlWarehouses, warehouseId]
-      : urlWarehouses.filter(w => w !== warehouseId);
-    
-    updateURLParams('warehouse', currentSelected);
+      : urlWarehouses.filter((w) => w !== warehouseId);
+
+    updateURLParams("warehouse", currentSelected);
   };
 
   // Handler for page size change
@@ -135,32 +136,54 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   // Handler for page change
   const handlePageChange = (newPage: number) => {
     updatePageInURL(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Calculate min/max prices from items (prices are in base EUR currency)
   // If no filters are applied, use full range (0 to 100000)
   // If filters are applied, use actual min/max from filtered items
-  const hasActiveFilters = urlBrands.length > 0 || urlWarehouses.length > 0 || searchQuery !== '';
-  
-  const minPrice = hasActiveFilters && items.length > 0
-    ? Math.floor(Math.min(...items.map(item => {
-        const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
-        return convertFromCurrency(price, fromCurrency);
-      })))
-    : 0;
-  const maxPrice = hasActiveFilters && items.length > 0
-    ? Math.ceil(Math.max(...items.map(item => {
-        const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-        const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
-        return convertFromCurrency(price, fromCurrency);
-      })))
-    : 100000;
+  const hasActiveFilters =
+    urlBrands.length > 0 || urlWarehouses.length > 0 || searchQuery !== "";
+
+  const minPrice =
+    hasActiveFilters && items.length > 0
+      ? Math.floor(
+          Math.min(
+            ...items.map((item) => {
+              const price =
+                item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+              const fromCurrency =
+                ((item.prices[0] as any)
+                  ?.initialCurrency as import("@/helpers/currency").SupportedCurrency) ??
+                "EUR";
+              return convertFromCurrency(price, fromCurrency);
+            }),
+          ),
+        )
+      : 0;
+  const maxPrice =
+    hasActiveFilters && items.length > 0
+      ? Math.ceil(
+          Math.max(
+            ...items.map((item) => {
+              const price =
+                item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+              const fromCurrency =
+                ((item.prices[0] as any)
+                  ?.initialCurrency as import("@/helpers/currency").SupportedCurrency) ??
+                "EUR";
+              return convertFromCurrency(price, fromCurrency);
+            }),
+          ),
+        )
+      : 100000;
 
   // Update price range when items change
   useEffect(() => {
-    if (items.length > 0 && (priceRange[0] !== minPrice || priceRange[1] !== maxPrice)) {
+    if (
+      items.length > 0 &&
+      (priceRange[0] !== minPrice || priceRange[1] !== maxPrice)
+    ) {
       setPriceRange([minPrice, maxPrice]);
     }
   }, [items, minPrice, maxPrice]);
@@ -168,8 +191,12 @@ export default function CategoriesPage({ locale }: { locale: string }) {
   // Client-side price filtering and sorting
   const sortedItems = [...items]
     .filter((item) => {
-      const price = item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
-      const fromCurrency = ((item.prices[0] as any)?.initialCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
+      const price =
+        item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+      const fromCurrency =
+        ((item.prices[0] as any)
+          ?.initialCurrency as import("@/helpers/currency").SupportedCurrency) ??
+        "EUR";
       const convertedPrice = convertFromCurrency(price, fromCurrency);
       return convertedPrice >= priceRange[0] && convertedPrice <= priceRange[1];
     })
@@ -186,7 +213,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
       switch (sortBy) {
         case "name":
           return (aDetails?.itemName || "").localeCompare(
-            bDetails?.itemName || ""
+            bDetails?.itemName || "",
           );
         case "price-low":
           return aPrice - bPrice;
@@ -222,12 +249,16 @@ export default function CategoriesPage({ locale }: { locale: string }) {
             {/* Breadcrumb */}
             <CategoryBreadcrumb
               locale={locale}
-              categoryName={searchQuery ? `${t('breadcrumb.search')}: "${searchQuery}"` : t('breadcrumb.allCategories')}
+              categoryName={
+                searchQuery
+                  ? `${t("breadcrumb.search")}: "${searchQuery}"`
+                  : t("breadcrumb.allCategories")
+              }
             />
 
             {/* Category Header */}
             <CategoryHeader
-              categoryName={searchQuery ? t('searchResults') : t('pageTitle')}
+              categoryName={searchQuery ? t("searchResults") : t("pageTitle")}
               productsCount={totalItems}
               sortBy={sortBy}
               setSortBy={setSortBy}
@@ -286,6 +317,23 @@ export default function CategoriesPage({ locale }: { locale: string }) {
 
                 {/* Products Grid/List */}
                 <div className="lg:col-span-3">
+                  {isSingleBrandSelected && (() => {
+                    const selectedBrand = brands.find((b) => b.slug === selectedBrandSlug);
+                    return (
+                      <div className="mb-6 p-4 bg-white rounded-lg border border-blue-100 flex items-center gap-4">
+                        {selectedBrand?.imageLink && (
+                          <img
+                            src={selectedBrand.imageLink}
+                            alt={selectedBrand.name}
+                            className="h-16 w-auto object-contain"
+                          />
+                        )}
+                        <p>
+                          {t("selectedBrandTitle", { brand: selectedBrand?.name ?? "" })}
+                        </p>
+                      </div>
+                    );
+                  })()}
                   <ProductsGrid
                     items={paginatedItems}
                     viewMode={viewMode}
@@ -301,7 +349,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       const details = getItemDetails(item);
                       const subCategory = item.subCategorySlug
                         ? item.category.subCategories.find(
-                            (s: any) => s.slug === item.subCategorySlug
+                            (s: any) => s.slug === item.subCategorySlug,
                           )
                         : null;
 
@@ -347,7 +395,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                               updatedAt: item.brand.updatedAt || now,
                             } as any)
                           : null,
-                        warrantyType: item.warrantyType ?? 'manufacturer',
+                        warrantyType: item.warrantyType ?? "manufacturer",
                         warrantyLength: item.warrantyLength ?? 12,
                         itemDetails: [
                           {
@@ -367,7 +415,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                       addToCart(cartItem);
                     }}
                   />
-                  
+
                   {/* Pagination Controls */}
                   {totalPages > 1 && (
                     <Pagination

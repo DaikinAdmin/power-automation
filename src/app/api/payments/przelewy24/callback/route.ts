@@ -1,18 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
-import * as schema from '@/db/schema';
-import logger from '@/lib/logger';
-import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
-import crypto from 'crypto';
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import * as schema from "@/db/schema";
+import logger from "@/lib/logger";
+import crypto from "crypto";
 
 // Przelewy24 configuration
-const P24_MERCHANT_ID = process.env.P24_MERCHANT_ID || '';
-const P24_POS_ID = process.env.P24_POS_ID || '';
-const P24_API_KEY = process.env.P24_API_KEY || '';
-const P24_CRC = process.env.P24_CRC || '';
-const P24_SANDBOX = process.env.P24_SANDBOX === 'true';
-const P24_API_URL = P24_SANDBOX ? 'https://sandbox.przelewy24.pl/api/v1' : 'https://secure.przelewy24.pl/api/v1';
+const P24_MERCHANT_ID = process.env.P24_MERCHANT_ID || "";
+const P24_POS_ID = process.env.P24_POS_ID || "";
+const P24_API_KEY = process.env.P24_API_KEY || "";
+const P24_CRC = process.env.P24_CRC || "";
+const P24_SANDBOX = process.env.P24_SANDBOX === "true";
+const P24_API_URL = P24_SANDBOX
+  ? "https://sandbox.przelewy24.pl/api/v1"
+  : "https://secure.przelewy24.pl/api/v1";
 
 interface P24NotificationData {
   merchantId: number;
@@ -39,7 +40,10 @@ interface P24VerifyRequest {
 
 /**
  * POST /api/payments/przelewy24/callback
- * Handles payment status notifications from Przelewy24
+ * Handles payment status notifications from Przelewy24.
+ *
+ * IMPORTANT: Przelewy24 requires HTTP 200 for every response, including
+ * errors — otherwise it retries indefinitely. Never return 4xx/5xx here.
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -47,35 +51,56 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as P24NotificationData;
 
-    logger.info('Received Przelewy24 payment callback', {
+    logger.info("Received Przelewy24 payment callback", {
       sessionId: body.sessionId,
       amount: body.amount,
-      orderId: body.orderId,
+      p24OrderId: body.orderId,
     });
 
-    // Validate required fields
+    // Validate required fields — return 200 with error so P24 stops retrying
     if (!body.sessionId || !body.amount || !body.merchantId || !body.sign) {
-      throw new BadRequestError('Missing required fields in callback');
+      logger.error("Missing required fields in P24 callback", { body });
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" },
+        { status: 200 },
+      );
     }
 
-    // Verify signature
-    const signString = JSON.stringify({
+    // -----------------------------------------------------------------------
+    // Verify IPN signature
+    // Sign = SHA384(JSON{sessionId, orderId, amount, originAmount, currency, crc})
+    // -----------------------------------------------------------------------
+    const notificationSignString = JSON.stringify({
+      merchantId: body.merchantId,
+      posId: body.posId,
       sessionId: body.sessionId,
-      orderId: body.orderId,
       amount: body.amount,
       originAmount: body.originAmount,
       currency: body.currency,
+      orderId: body.orderId,
+      methodId: body.methodId,
+      statement: body.statement,
       crc: P24_CRC,
     });
-    const expectedSign = crypto.createHash('sha384').update(signString).digest('hex');
+    const expectedNotificationSign = crypto
+      .createHash("sha384")
+      .update(notificationSignString)
+      .digest("hex");
 
-    if (body.sign !== expectedSign) {
-      logger.error('Invalid signature in Przelewy24 callback', {
-        sessionId: body.sessionId,
-        receivedSign: body.sign,
-        expectedSign,
-      });
-      throw new BadRequestError('Invalid signature');
+    if (body.sign !== expectedNotificationSign) {
+      logger.error(
+        "Invalid signature in P24 callback — possible spoofing attempt",
+        {
+          sessionId: body.sessionId,
+          receivedSign: body.sign,
+          expectedSign: expectedNotificationSign,
+        },
+      );
+      // Return 200 — do NOT process, but don't let P24 retry forever
+      return NextResponse.json(
+        { success: false, message: "Invalid signature" },
+        { status: 200 },
+      );
     }
 
     // Find payment record by sessionId
@@ -86,11 +111,32 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!payment) {
-      logger.error('Payment not found', { sessionId: body.sessionId });
-      throw new BadRequestError('Payment not found');
+      logger.error("P24 callback: payment record not found", {
+        sessionId: body.sessionId,
+      });
+      return NextResponse.json(
+        { success: false, message: "Payment not found" },
+        { status: 200 },
+      );
     }
 
-    // Verify the transaction with Przelewy24
+    // -----------------------------------------------------------------------
+    // Verify transaction with Przelewy24
+    // Verify sign = SHA384(JSON{sessionId, orderId, amount, currency, crc})
+    // NOTE: NO originAmount in the verify sign — different from notification sign!
+    // -----------------------------------------------------------------------
+    const verifySignString = JSON.stringify({
+      sessionId: body.sessionId,
+      orderId: body.orderId,
+      amount: body.amount,
+      currency: body.currency,
+      crc: P24_CRC,
+    });
+    const verifySign = crypto
+      .createHash("sha384")
+      .update(verifySignString)
+      .digest("hex");
+
     const verifyRequest: P24VerifyRequest = {
       merchantId: parseInt(P24_MERCHANT_ID),
       posId: parseInt(P24_POS_ID),
@@ -98,39 +144,38 @@ export async function POST(request: NextRequest) {
       amount: body.amount,
       currency: body.currency,
       orderId: body.orderId,
-      sign: expectedSign,
+      sign: verifySign,
     };
 
-    logger.info('Verifying transaction with Przelewy24', {
+    logger.info("Verifying transaction with Przelewy24", {
       sessionId: body.sessionId,
     });
 
     const verifyResponse = await fetch(`${P24_API_URL}/transaction/verify`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString('base64')}`,
+        "Content-Type": "application/json",
+        Authorization: `Basic ${Buffer.from(`${P24_POS_ID}:${P24_API_KEY}`).toString("base64")}`,
       },
       body: JSON.stringify(verifyRequest),
     });
 
     const verifyData = await verifyResponse.json();
+    const now = new Date().toISOString();
 
     if (!verifyResponse.ok) {
-      logger.error('Transaction verification failed', {
+      logger.error("P24 transaction verification failed", {
         sessionId: body.sessionId,
         status: verifyResponse.status,
         error: verifyData,
       });
 
-      // Update payment status to FAILED
-      const now = new Date().toISOString();
       await db
         .update(schema.payment)
         .set({
-          status: 'FAILED',
+          status: "FAILED",
           errorCode: verifyData.code?.toString(),
-          errorMessage: verifyData.error || 'Transaction verification failed',
+          errorMessage: verifyData.error || "Transaction verification failed",
           metadata: {
             ...(payment.metadata as any),
             verifyResponse: verifyData,
@@ -140,19 +185,22 @@ export async function POST(request: NextRequest) {
         })
         .where(eq(schema.payment.id, payment.id));
 
-      throw new Error(`Transaction verification failed: ${JSON.stringify(verifyData)}`);
+      // Return 200 — payment failed but callback was handled correctly
+      return NextResponse.json(
+        { success: false, message: "Verification failed" },
+        { status: 200 },
+      );
     }
 
-    logger.info('Przelewy24 transaction verified successfully', {
+    logger.info("Przelewy24 transaction verified successfully", {
       sessionId: body.sessionId,
     });
 
-    // Update payment status to COMPLETED
-    const now = new Date().toISOString();
+    // Update payment to COMPLETED
     await db
       .update(schema.payment)
       .set({
-        status: 'COMPLETED',
+        status: "COMPLETED",
         transactionId: body.orderId.toString(),
         paymentMethod: body.statement,
         metadata: {
@@ -165,30 +213,27 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(schema.payment.id, payment.id));
 
-    // Update order status to PROCESSING
+    // Advance order to PROCESSING
     await db
       .update(schema.order)
-      .set({
-        status: 'PROCESSING',
-        updatedAt: now,
-      })
+      .set({ status: "PROCESSING", updatedAt: now })
       .where(eq(schema.order.id, payment.orderId));
 
     const duration = Date.now() - startTime;
-    logger.info('Przelewy24 callback processed successfully', {
+    logger.info("Przelewy24 callback processed successfully", {
       paymentId: payment.id,
       orderId: payment.orderId,
       duration,
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Payment processed successfully',
-    });
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return apiErrorHandler(error, request, {
-      endpoint: 'POST /api/payments/przelewy24/callback',
-    });
+    // Log the error but always return 200 — Przelewy24 must not retry on our internal errors
+    logger.error("Unhandled error in P24 callback", { error: String(error) });
+    return NextResponse.json(
+      { success: false, message: "Internal error" },
+      { status: 200 },
+    );
   }
 }
 
@@ -197,18 +242,9 @@ export async function POST(request: NextRequest) {
  * Handles payment return redirect from Przelewy24 (user browser redirect)
  */
 export async function GET(request: NextRequest) {
-  try {
-    logger.info('User returned from Przelewy24', {
-      url: request.url,
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Payment return received',
-    });
-  } catch (error) {
-    return apiErrorHandler(error, request, {
-      endpoint: 'GET /api/payments/przelewy24/callback',
-    });
-  }
+  logger.info("User returned from Przelewy24", { url: request.url });
+  return NextResponse.json(
+    { success: true, message: "Payment return received" },
+    { status: 200 },
+  );
 }

@@ -1,53 +1,18 @@
-"use client";
+﻿"use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import * as XLSX from "xlsx";
+import type { Locale } from "@/i18n/routing";
+import type { SupportedCurrency, ExchangeRate } from "@/helpers/currency";
+import type { WarehouseInfo } from "@/helpers/db/category-data-queries";
+import type { ExportField, ExportWarehousePrice, ExportItem } from "@/helpers/types/export";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Locale = "pl" | "ua" | "en" | "es";
-
-interface ExportField {
-  key: string;
-  label: string;
-  group: "basic" | "pricing" | "meta" | "category";
-}
-
-interface WarehousePrice {
-  warehouseSlug: string;
-  price: number;
-  quantity: number;
-  promotionPrice: number | null;
-  badge: string;
-  margin: number;
-  warehouse: { displayedName: string; name: string };
-}
-
-interface Item {
-  articleId: string;
-  slug: string;
-  isDisplayed: boolean;
-  sellCounter: number;
-  categorySlug: string;
-  brandSlug: string;
-  warrantyType: string;
-  warrantyLength: number;
-  createdAt: string;
-  updatedAt: string;
-  details: {
-    locale: string;
-    itemName: string;
-    description: string;
-    specifications: string;
-    seller: string;
-    discount: number | null;
-    popularity: number | null;
-    metaKeyWords: string;
-    metaDescription: string;
-  };
-  prices: WarehousePrice[];
-}
+// Local aliases for convenience
+type WarehousePrice = ExportWarehousePrice;
+type Item = ExportItem;
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -58,7 +23,14 @@ const LOCALES: { value: Locale; label: string; flag: string }[] = [
   { value: "es", label: "Español", flag: "🇪🇸" },
 ];
 
-const EXPORT_FIELDS: ExportField[] = [
+const CURRENCIES: { value: SupportedCurrency; label: string; symbol: string }[] = [
+  { value: "EUR", label: "Euro", symbol: "€" },
+  { value: "PLN", label: "Polski złoty", symbol: "zł" },
+  { value: "UAH", label: "Гривня", symbol: "₴" },
+  { value: "USD", label: "US Dollar", symbol: "$" },
+];
+
+const BASE_EXPORT_FIELDS: ExportField[] = [
   // Basic
   { key: "articleId", label: "Article ID", group: "basic" },
   { key: "slug", label: "Slug", group: "basic" },
@@ -75,13 +47,6 @@ const EXPORT_FIELDS: ExportField[] = [
   { key: "description", label: "Description", group: "basic" },
   { key: "specifications", label: "Specifications", group: "basic" },
   { key: "seller", label: "Seller", group: "basic" },
-  // Pricing
-  { key: "prices_warehouse1", label: "warehouse-2 Price", group: "pricing" },
-  { key: "prices_qty1", label: "warehouse-2 Qty", group: "pricing" },
-  { key: "prices_warehouse2", label: "warehouse-3 Price", group: "pricing" },
-  { key: "prices_qty2", label: "warehouse-3 Qty", group: "pricing" },
-  { key: "prices_warehouse3", label: "warehouse-4 Price", group: "pricing" },
-  { key: "prices_qty3", label: "warehouse-4 Qty", group: "pricing" },
   // Meta
   { key: "metaKeyWords", label: "Meta Keywords", group: "meta" },
   { key: "metaDescription", label: "Meta Description", group: "meta" },
@@ -91,56 +56,90 @@ const EXPORT_FIELDS: ExportField[] = [
 
 const FIELD_GROUPS = [
   { id: "basic" },
-  { id: "pricing" },
   { id: "meta" },
 ] as const;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function flattenItem(item: Item, selectedFields: Set<string>): Record<string, unknown> {
-  const warehouseByDisplay: Record<string, WarehousePrice> = {};
-  for (const p of item.prices) {
-    warehouseByDisplay[p.warehouse.displayedName] = p;
-  }
+function convertPrice(price: number, fromCurrency: string, toCurrency: SupportedCurrency, rates: ExchangeRate[]): number {
+  const from = (fromCurrency || "EUR") as SupportedCurrency;
+  if (from === toCurrency) return price;
+  // Normalize to EUR first, then to target
+  const fromRate = from === "EUR" ? 1 : (rates.find((r) => r.from === "EUR" && r.to === from)?.rate ?? null);
+  const toRate = toCurrency === "EUR" ? 1 : (rates.find((r) => r.from === "EUR" && r.to === toCurrency)?.rate ?? null);
+  if (fromRate === null || toRate === null) return price; // rate not configured — return as-is
+  return Math.round((price / fromRate) * toRate * 100) / 100;
+}
 
-  const all: Record<string, unknown> = {
-    articleId: item.articleId,
-    slug: item.slug,
-    brandSlug: item.brandSlug,
-    categorySlug: item.categorySlug,
-    isDisplayed: item.isDisplayed,
-    warrantyType: item.warrantyType,
-    warrantyLength: item.warrantyLength,
-    sellCounter: item.sellCounter,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt,
-    itemName: item.details.itemName,
-    description: item.details.description,
-    specifications: item.details.specifications,
-    seller: item.details.seller,
-    prices_warehouse1: warehouseByDisplay["warehouse-2"]?.price ?? "",
-    prices_qty1: warehouseByDisplay["warehouse-2"]?.quantity ?? "",
-    prices_warehouse2: warehouseByDisplay["warehouse-3"]?.price ?? "",
-    prices_qty2: warehouseByDisplay["warehouse-3"]?.quantity ?? "",
-    prices_warehouse3: warehouseByDisplay["warehouse-4"]?.price ?? "",
-    prices_qty3: warehouseByDisplay["warehouse-4"]?.quantity ?? "",
-    metaKeyWords: item.details.metaKeyWords,
-    metaDescription: item.details.metaDescription,
-    discount: item.details.discount ?? "",
-    popularity: item.details.popularity ?? "",
-  };
+function flattenItem(
+  item: Item,
+  selectedFields: Set<string>,
+  warehouses: WarehouseInfo[],
+  selectedWarehouses: Set<string>,
+  convertCurrency: SupportedCurrency | null,
+  exchangeRates: ExchangeRate[],
+): Record<string, unknown> {
+  const warehouseByName: Record<string, WarehousePrice> = {};
+  for (const p of item.prices) {
+    warehouseByName[p.warehouse.displayedName] = p;
+  }
 
   const result: Record<string, unknown> = {};
-  for (const field of EXPORT_FIELDS) {
-    if (selectedFields.has(field.key)) {
-      result[field.label] = all[field.key] ?? "";
+
+  // Base fields
+  for (const field of BASE_EXPORT_FIELDS) {
+    if (!selectedFields.has(field.key)) continue;
+    const map: Record<string, unknown> = {
+      articleId: item.articleId,
+      slug: item.slug,
+      brandSlug: item.brandSlug,
+      categorySlug: item.categorySlug,
+      isDisplayed: item.isDisplayed,
+      warrantyType: item.warrantyType,
+      warrantyLength: item.warrantyLength,
+      sellCounter: item.sellCounter,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      itemName: item.details.itemName,
+      description: item.details.description,
+      specifications: item.details.specifications,
+      seller: item.details.seller,
+      metaKeyWords: item.details.metaKeyWords,
+      metaDescription: item.details.metaDescription,
+      discount: item.details.discount ?? "",
+      popularity: item.details.popularity ?? "",
+    };
+    result[field.label] = map[field.key] ?? "";
+  }
+
+  // Per-warehouse columns: Initial Price, Initial Currency, Qty, Margin, Price With VAT (EUR), Price Without VAT (EUR)
+  // + optionally converted prices
+  for (const w of warehouses) {
+    if (!selectedWarehouses.has(w.id)) continue;
+    const p = warehouseByName[w.displayedName];
+    const n = w.displayedName;
+    const srcCurrency = p?.initialPriceCurrency || "EUR";
+    result[`${n} - Вхідна ціна`] = p?.initialPrice ?? "";
+    result[`${n} - Вхідна валюта`] = srcCurrency;
+    result[`${n} - К-сть`] = p?.quantity ?? "";
+    result[`${n} - Маржа %`] = p?.margin ?? "";
+    result[`${n} - Ціна з ПДВ (${srcCurrency})`] = p?.priceWithVAT ?? "";
+    result[`${n} - Ціна без ПДВ (${srcCurrency})`] = p?.priceWithoutVAT ?? "";
+
+    if (convertCurrency && convertCurrency !== srcCurrency) {
+      const sym = convertCurrency;
+      result[`${n} - Ціна з ПДВ (${sym})`] =
+        p?.priceWithVAT != null ? convertPrice(p.priceWithVAT, srcCurrency, convertCurrency, exchangeRates) : "";
+      result[`${n} - Ціна без ПДВ (${sym})`] =
+        p?.priceWithoutVAT != null ? convertPrice(p.priceWithoutVAT, srcCurrency, convertCurrency, exchangeRates) : "";
     }
   }
+
   return result;
 }
 
-async function fetchLocaleItems(locale: Locale): Promise<Item[]> {
-  const res = await fetch(`/api/admin/items/export?locale=${locale}`);
+async function fetchLocaleItems(locale: Locale, vatPct: number): Promise<Item[]> {
+  const res = await fetch(`/api/admin/items/export?locale=${locale}&vat=${vatPct}`);
   if (!res.ok) throw new Error(`Failed to fetch locale: ${locale}`);
   return res.json();
 }
@@ -164,9 +163,30 @@ interface ExportModalProps {
 export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
   const t = useTranslations('adminDashboard');
   const [selectedLocales, setSelectedLocales] = useState<Set<Locale>>(new Set(["pl"]));
+  const [warehouses, setWarehouses] = useState<WarehouseInfo[]>([]);
+  const [selectedWarehouses, setSelectedWarehouses] = useState<Set<string>>(new Set());
   const [selectedFields, setSelectedFields] = useState<Set<string>>(
-    new Set(EXPORT_FIELDS.map((f) => f.key))
+    new Set(BASE_EXPORT_FIELDS.map((f) => f.key))
   );
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
+  const [convertCurrency, setConvertCurrency] = useState<SupportedCurrency | null>(null);
+  const [vatPct, setVatPct] = useState<number>(23);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch("/api/admin/warehouses")
+      .then((r) => r.json())
+      .then((data: WarehouseInfo[]) => {
+        setWarehouses(data);
+        setSelectedWarehouses(new Set(data.map((w) => w.id)));
+      })
+      .catch(() => {});
+    fetch("/api/admin/currency-exchange")
+      .then((r) => r.json())
+      .then((data: ExchangeRate[]) => setExchangeRates(data))
+      .catch(() => {});
+  }, [isOpen]);
+
   const [format, setFormat] = useState<"xlsx" | "csv">("xlsx");
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState<string>("");
@@ -176,7 +196,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
     setSelectedLocales((prev) => {
       const next = new Set(prev);
       if (next.has(locale)) {
-        if (next.size === 1) return prev; // always keep at least one
+        if (next.size === 1) return prev;
         next.delete(locale);
       } else {
         next.add(locale);
@@ -194,7 +214,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
   };
 
   const toggleGroup = (group: string) => {
-    const groupFields = EXPORT_FIELDS.filter((f) => f.group === group).map((f) => f.key);
+    const groupFields = BASE_EXPORT_FIELDS.filter((f) => f.group === group).map((f) => f.key);
     const allSelected = groupFields.every((k) => selectedFields.has(k));
     setSelectedFields((prev) => {
       const next = new Set(prev);
@@ -203,7 +223,15 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
     });
   };
 
-  const selectAllFields = () => setSelectedFields(new Set(EXPORT_FIELDS.map((f) => f.key)));
+  const toggleWarehouse = (id: string) => {
+    setSelectedWarehouses((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllFields = () => setSelectedFields(new Set(BASE_EXPORT_FIELDS.map((f) => f.key)));
   const clearAllFields = () => setSelectedFields(new Set());
 
   const handleExport = useCallback(async () => {
@@ -220,9 +248,9 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
       for (const locale of localesArray) {
         setProgress(`Fetching ${locale.toUpperCase()}…`);
-        const items = await fetchLocaleItems(locale);
+        const items = await fetchLocaleItems(locale, vatPct);
         for (const item of items) {
-          const row = flattenItem(item, selectedFields);
+          const row = flattenItem(item, selectedFields, warehouses, selectedWarehouses, convertCurrency, exchangeRates);
           if (localesArray.length > 1) row["Locale"] = locale.toUpperCase();
           allRows.push(row);
         }
@@ -233,7 +261,6 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
       if (format === "csv") {
         if (localesArray.length > 1) {
-          // Multi-locale → ZIP with one CSV per locale (simple multi-file download)
           for (const locale of localesArray) {
             const localeRows = allRows.filter((r) => r["Locale"] === locale.toUpperCase() || localesArray.length === 1);
             const ws = XLSX.utils.json_to_sheet(localeRows);
@@ -250,7 +277,6 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
         if (localesArray.length > 1) {
           for (const locale of localesArray) {
             const localeRows = allRows.filter((r) => r["Locale"] === locale.toUpperCase());
-            // Remove redundant Locale column per sheet
             const cleanRows = localeRows.map(({ Locale: _l, ...rest }) => rest);
             const ws = XLSX.utils.json_to_sheet(cleanRows);
             autoFitColumns(ws, cleanRows);
@@ -272,7 +298,7 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
       setIsExporting(false);
       setProgress("");
     }
-  }, [selectedLocales, selectedFields, format, onClose]);
+  }, [selectedLocales, selectedFields, selectedWarehouses, warehouses, format, convertCurrency, exchangeRates, vatPct, onClose]);
 
   if (!isOpen) return null;
 
@@ -359,10 +385,132 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
             )}
           </Section>
 
+          {/* Warehouses */}
+          <Section title="Склади" subtitle={`Вибрано ${selectedWarehouses.size} з ${warehouses.length}`}>
+            {warehouses.length === 0 ? (
+              <p style={{ fontSize: 13, color: "#9ca3af" }}>Завантаження…</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {warehouses.map((w) => {
+                  const active = selectedWarehouses.has(w.id);
+                  return (
+                    <button
+                      key={w.id}
+                      onClick={() => toggleWarehouse(w.id)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                      style={{
+                        background: active ? "rgba(22,163,74,0.08)" : "#f9fafb",
+                        border: `1.5px solid ${active ? "#16a34a" : "#e5e7eb"}`,
+                        color: active ? "#16a34a" : "#6b7280",
+                      }}
+                    >
+                      <Checkbox checked={active} />
+                      <span>{w.displayedName || w.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <p className="mt-2" style={{ fontSize: 12, color: "#9ca3af" }}>
+              Колонки: Вхідна ціна · Вхідна валюта · К-сть · Маржа · Ціна з ПДВ (EUR) · Ціна без ПДВ (EUR)
+            </p>
+          </Section>
+
+          {/* VAT % */}
+          <Section title="ПДВ %" subtitle="Застосовується до ціни EUR для розрахунку ціни з ПДВ">
+            <div className="flex items-center gap-3">
+              {[0, 20, 23].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setVatPct(v)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                  style={{
+                    background: vatPct === v ? "rgba(22,163,74,0.08)" : "#f9fafb",
+                    border: `1.5px solid ${vatPct === v ? "#16a34a" : "#e5e7eb"}`,
+                    color: vatPct === v ? "#16a34a" : "#6b7280",
+                  }}
+                >
+                  {v}%
+                </button>
+              ))}
+              <div className="flex items-center gap-1">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={vatPct}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value);
+                    if (!isNaN(v) && v >= 0 && v <= 100) setVatPct(v);
+                  }}
+                  className="w-16 px-2 py-1.5 rounded-lg text-sm text-center"
+                  style={{ border: "1.5px solid #e5e7eb", color: "#374151", background: "#f9fafb" }}
+                />
+                <span style={{ fontSize: 13, color: "#6b7280" }}>%</span>
+              </div>
+            </div>
+          </Section>
+
+          {/* Currency Conversion */}
+          <Section
+            title="Конвертація цін"
+            subtitle={
+              convertCurrency
+                ? `Додаткові колонки у ${convertCurrency} (за курсом адмін-панелі)`
+                : "Опціонально: додати конвертовані ціни"
+            }
+          >
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setConvertCurrency(null)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{
+                  background: convertCurrency === null ? "rgba(22,163,74,0.08)" : "#f9fafb",
+                  border: `1.5px solid ${convertCurrency === null ? "#16a34a" : "#e5e7eb"}`,
+                  color: convertCurrency === null ? "#16a34a" : "#6b7280",
+                }}
+              >
+                Без конвертації
+              </button>
+              {CURRENCIES.filter((c) => c.value !== "EUR").map(({ value, label, symbol }) => {
+                const active = convertCurrency === value;
+                const hasRate = exchangeRates.some((r) => r.from === "EUR" && r.to === value);
+                return (
+                  <button
+                    key={value}
+                    onClick={() => setConvertCurrency(value)}
+                    disabled={!hasRate}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                    style={{
+                      background: active ? "rgba(22,163,74,0.08)" : "#f9fafb",
+                      border: `1.5px solid ${active ? "#16a34a" : "#e5e7eb"}`,
+                      color: active ? "#16a34a" : hasRate ? "#6b7280" : "#d1d5db",
+                      cursor: hasRate ? "pointer" : "not-allowed",
+                    }}
+                    title={hasRate ? undefined : `Курс EUR → ${value} не налаштовано`}
+                  >
+                    <span>{symbol}</span>
+                    <span>{label}</span>
+                    <span className="text-xs uppercase tracking-widest" style={{ color: active ? "rgba(22,163,74,0.7)" : hasRate ? "#d1d5db" : "#e5e7eb" }}>
+                      {value}
+                    </span>
+                    {!hasRate && <span style={{ fontSize: 10, color: "#fbbf24" }}>⚠</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {convertCurrency && (
+              <p className="text-xs mt-2" style={{ color: "#9ca3af" }}>
+                Буде додано: Ціна з ПДВ ({convertCurrency}), Ціна без ПДВ ({convertCurrency}) для кожного складу
+              </p>
+            )}
+          </Section>
+
           {/* Fields */}
           <Section
             title={t('exportModal.sectionFields')}
-            subtitle={t('exportModal.fieldsSubtitle', { selected: selectedFields.size, total: EXPORT_FIELDS.length })}
+            subtitle={t('exportModal.fieldsSubtitle', { selected: selectedFields.size, total: BASE_EXPORT_FIELDS.length })}
             action={
               <div className="flex gap-2">
                 <PillButton onClick={selectAllFields}>{t('exportModal.selectAll')}</PillButton>
@@ -372,10 +520,10 @@ export default function ExportModal({ isOpen, onClose }: ExportModalProps) {
           >
             <div className="space-y-4">
               {FIELD_GROUPS.map(({ id }) => {
-                const groupFields = EXPORT_FIELDS.filter((f) => f.group === id);
+                const groupFields = BASE_EXPORT_FIELDS.filter((f) => f.group === id);
                 const allChecked = groupFields.every((f) => selectedFields.has(f.key));
                 const someChecked = groupFields.some((f) => selectedFields.has(f.key));
-                const groupLabel = id === 'basic' ? t('exportModal.groups.basic') : id === 'pricing' ? t('exportModal.groups.pricing') : t('exportModal.groups.meta');
+                const groupLabel = id === 'basic' ? t('exportModal.groups.basic') : t('exportModal.groups.meta');
                 return (
                   <div key={id}>
                     {/* Group header */}

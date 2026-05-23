@@ -1,6 +1,7 @@
 import PageLayout from "@/components/layout/page-layout";
 import PageSidebarNav from "@/components/static-pages/side-bar-nav";
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,7 @@ export default async function BrandsPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "staticPages" });
   const brands = await getBrands();
 
   return (
@@ -52,11 +54,11 @@ export default async function BrandsPage({
           {/* Content */}
           <div className="flex-1">
             <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
-              Brands
+              {t("brands")}
             </h1>
 
             {brands.length === 0 ? (
-              <p className="text-gray-500">No brands available</p>
+              <p className="text-gray-500">{t("nobrands")}</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
                 {brands.map((brand) => (

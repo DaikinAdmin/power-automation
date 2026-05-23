@@ -1,6 +1,6 @@
 // Drizzle query helpers for API endpoints
 import { db } from '@/db';
-import { eq, and, like, or, desc, asc, sql, inArray } from 'drizzle-orm';
+import { eq, and, like, or, desc, asc, sql, inArray, exists } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import type {
   ItemResponse,
@@ -26,27 +26,43 @@ export async function getCategoriesByLocale(locale: string) {
       updatedAt: schema.category.updatedAt,
     })
     .from(schema.category)
-    .where(eq(schema.category.isVisible, true));
+    .where(
+      and(
+        eq(schema.category.isVisible, true),
+        exists(
+          db.select()
+            .from(schema.item)
+            .innerJoin(schema.itemPrice, eq(schema.itemPrice.itemSlug, schema.item.slug))
+            .where(eq(schema.item.categorySlug, schema.category.slug))
+        )
+      )
+    );
 
-  // Fetch translations
+  const subcategories = await db
+    .select()
+    .from(schema.subcategories)
+    .where(
+      and(
+        eq(schema.subcategories.isVisible, true),
+        exists(
+          db.select()
+            .from(schema.item)
+            .innerJoin(schema.itemPrice, eq(schema.itemPrice.itemSlug, schema.item.slug))
+            .where(eq(schema.item.categorySlug, schema.subcategories.slug))
+        )
+      )
+    );
+
   const categoryTranslations = await db
     .select()
     .from(schema.categoryTranslation)
     .where(eq(schema.categoryTranslation.locale, locale));
 
-  // Fetch subcategories
-  const subcategories = await db
-    .select()
-    .from(schema.subcategories)
-    .where(eq(schema.subcategories.isVisible, true));
-
-  // Fetch subcategory translations
   const subcategoryTranslations = await db
     .select()
     .from(schema.subcategoryTranslation)
     .where(eq(schema.subcategoryTranslation.locale, locale));
 
-  // Map data
   return categories.map((cat) => {
     const translation = categoryTranslations.find((t) => t.categorySlug === cat.slug);
     const subs = subcategories.filter((s) => s.categorySlug === cat.slug);

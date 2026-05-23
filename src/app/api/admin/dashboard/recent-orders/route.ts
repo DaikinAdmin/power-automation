@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
     const recentOrders = await db
       .select({
         id: schema.order.id,
-        totalPrice: schema.order.totalPrice,
-        originalTotalPrice: schema.order.originalTotalPrice,
+        totalGross: schema.order.totalGross,
+        currency: schema.order.currency,
         status: schema.order.status,
         createdAt: schema.order.createdAt,
         userName: schema.user.name,
@@ -32,8 +32,8 @@ export async function GET(req: NextRequest) {
     const formattedOrders = recentOrders.map((order) => ({
       id: order.id,
       customerName: order.userName,
-      totalPriceFormatted: order.totalPrice,
-      originalTotalPrice: order.originalTotalPrice,
+      totalGross: order.totalGross,
+      currency: order.currency,
       status: order.status,
       createdAt: order.createdAt,
     }));

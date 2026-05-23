@@ -56,8 +56,8 @@ RUN apk add --no-cache \
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 --ingroup nodejs nextjs
 
-# Install tsx for running migrations
-RUN npm install -g tsx
+# Install tsx and drizzle-kit for running migrations
+RUN npm install -g tsx drizzle-kit
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
@@ -71,6 +71,9 @@ COPY --from=builder /app/src/resources ./src/resources
 
 # Copy node_modules needed for migrations and runtime
 COPY --from=builder /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder /app/node_modules/drizzle-kit ./node_modules/drizzle-kit
+COPY --from=builder /app/node_modules/@drizzle-team ./node_modules/@drizzle-team
+COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules/postgres ./node_modules/postgres
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 COPY --from=builder /app/node_modules/better-auth ./node_modules/better-auth

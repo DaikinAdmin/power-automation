@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
+import { useOrderTranslations } from '@/helpers/use-translations';
 
 interface OrderStatusFormProps {
   orderId: string;
@@ -21,6 +22,7 @@ export function OrderStatusForm({
   canUpdate,
 }: OrderStatusFormProps) {
   const t = useTranslations('adminDashboard');
+  const tr = useOrderTranslations();
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [deliveryId, setDeliveryId] = useState(initialDeliveryId ?? '');
@@ -56,6 +58,45 @@ export function OrderStatusForm({
         throw new Error(data.error || 'Failed to update order');
       }
 
+      const data = await response.json();
+
+      if (status === 'PROCESSING') {
+        const order = data.order;
+        const lineItems = Array.isArray(order?.lineItems) ? order.lineItems : [];
+
+        // Parse formatted totalPrice string (e.g. "1 250,00 PLN") for value + currency
+        const totalPriceStr: string | null = order?.totalPrice ?? null;
+        const currencyMatch = totalPriceStr?.match(/([A-Z]{3})\s*$/);
+        const parsedCurrency = currencyMatch ? currencyMatch[1] : null;
+        const parsedAmount = parsedCurrency
+          ? parseFloat(totalPriceStr!.replace(parsedCurrency, '').trim().replace(/\s/g, '').replace(',', '.'))
+          : NaN;
+
+        const value = data.currency && order?.payment?.amount
+          ? order.payment.amount / 100
+          : (!isNaN(parsedAmount) ? parsedAmount : (order?.originalTotalPrice ?? 0));
+        const currency = data.currency ?? parsedCurrency ?? 'EUR';
+
+        // const w = window as any;
+        // w.dataLayer = w.dataLayer || [];
+        // w.dataLayer.push({ ecommerce: null });
+        // w.dataLayer.push({
+        //   event: 'purchase',
+        //   ecommerce: {
+        //     transaction_id: order?.id ?? orderId,
+        //     value,
+        //     currency,
+        //     shipping: 0,
+        //     items: lineItems.map((item: any) => ({
+        //       item_id: item.articleId,
+        //       item_name: item.name,
+        //       price: item.unitPrice ?? 0,
+        //       quantity: item.quantity ?? 1,
+        //     })),
+        //   },
+        // });
+      }
+
       toast.success('Order updated successfully');
       router.refresh();
     } catch (error: any) {
@@ -81,7 +122,7 @@ export function OrderStatusForm({
         >
           {statusOptions.map((option) => (
             <option key={option} value={option}>
-              {option.replace(/_/g, ' ')}
+              {tr.statusLabel(option as any)}
             </option>
           ))}
         </select>

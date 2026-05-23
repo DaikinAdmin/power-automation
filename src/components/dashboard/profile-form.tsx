@@ -6,6 +6,7 @@ import { parseAddress, type AddressFields } from "@/helpers/address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDomainKey } from "@/hooks/useDomain";
 
 interface ProfileFormProps {
   user: {
@@ -17,6 +18,7 @@ interface ProfileFormProps {
     companyName?: string;
     companyPosition?: string;
     addressLine?: string;
+    userType?: string;
   };
 }
 
@@ -31,6 +33,7 @@ function Field({ label, children, className }: { label: string; children: React.
 
 export default function ProfileForm({ user }: ProfileFormProps) {
   const t = useTranslations("dashboard.profile");
+  const domainKey = useDomainKey();
 
   const parsedAddress = parseAddress(user.addressLine);
 
@@ -45,6 +48,9 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  const isCompany = user.userType === "company";
+  const vatPlaceholder = domainKey === "ua" ? t("vatNumberPlaceholderUa") : t("vatNumberPlaceholderPl");
 
   const handleAddressChange = (field: keyof AddressFields, value: string) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
@@ -102,20 +108,30 @@ export default function ProfileForm({ user }: ProfileFormProps) {
               <Input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="123-456-7890" />
             </Field>
           </div>
-
-          <Field label={t("vatNumber")}>
-            <Input value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} placeholder="PL1234567890" />
-          </Field>
-
-          <Field label={t("companyName")}>
-            <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-          </Field>
-
-          <Field label={t("companyPosition")}>
-            <Input value={companyPosition} onChange={(e) => setCompanyPosition(e.target.value)} />
-          </Field>
         </CardContent>
       </Card>
+
+      {/* Company info — only for company users */}
+      {isCompany && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("companySection")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Field label={t("vatNumber")}>
+              <Input value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} placeholder={vatPlaceholder} />
+            </Field>
+
+            <Field label={t("companyName")}>
+              <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+            </Field>
+
+            <Field label={t("companyPosition")}>
+              <Input value={companyPosition} onChange={(e) => setCompanyPosition(e.target.value)} />
+            </Field>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Address */}
       <Card>

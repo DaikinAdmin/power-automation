@@ -67,7 +67,8 @@ export async function GET(request: NextRequest) {
         paymentUpdatedAt: schema.payment.updatedAt,
         orderId: schema.order.id,
         orderStatus: schema.order.status,
-        orderTotalPrice: schema.order.originalTotalPrice,
+        orderTotalGross: schema.order.totalGross,
+        orderCurrency: schema.order.currency,
         userId: schema.user.id,
         userName: schema.user.name,
         userEmail: schema.user.email,
@@ -113,7 +114,8 @@ export async function GET(request: NextRequest) {
       order: payment.orderId ? {
         id: payment.orderId,
         status: payment.orderStatus,
-        totalPrice: payment.orderTotalPrice,
+        totalGross: payment.orderTotalGross,
+        currency: payment.orderCurrency,
       } : null,
       user: payment.userId ? {
         id: payment.userId,

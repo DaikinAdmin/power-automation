@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // import prisma from '@/db';
-import { db } from '@/db';
-import { auth } from '@/lib/auth';
-import { eq, desc, inArray } from 'drizzle-orm';
-import * as schema from '@/db/schema';
-import logger from '@/lib/logger';
-import { apiErrorHandler } from '@/lib/error-handler';
+import { db } from "@/db";
+import { auth } from "@/lib/auth";
+import { eq, desc } from "drizzle-orm";
+import * as schema from "@/db/schema";
+import logger from "@/lib/logger";
+import { apiErrorHandler } from "@/lib/error-handler";
+import { getDomainKeyByHost } from "@/lib/domain-config";
 
-const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
+const AUTHORIZED_ROLES = new Set(["admin", "employee"]);
 
 async function ensureAuthorized(request: NextRequest) {
   const session = await auth.api.getSession({
@@ -16,7 +17,9 @@ async function ensureAuthorized(request: NextRequest) {
   });
 
   if (!session?.user) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
   }
 
   const [user] = await db
@@ -26,7 +29,9 @@ async function ensureAuthorized(request: NextRequest) {
     .limit(1);
 
   if (!user || !user.role || !AUTHORIZED_ROLES.has(user.role)) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+    return {
+      error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
   }
 
   return { session, role: user.role };
@@ -36,87 +41,75 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
     const authResult = await ensureAuthorized(request);
-    if ('error' in authResult) {
+    if ("error" in authResult) {
       return authResult.error;
     }
 
-    logger.info('Fetching all orders', {
-      endpoint: 'GET /api/admin/orders',
+    const host = request.headers.get("host") || "";
+    const domainKey = getDomainKeyByHost(host);
+
+    const currency =
+      domainKey === "ua" ? "UAH" : domainKey === "pl" ? "PLN" : "";
+
+    logger.info("Fetching all orders", {
+      endpoint: "GET /api/admin/orders",
       role: authResult.role,
     });
 
     // Fetch orders with user data
-    const ordersWithUser = await db
+    const ordersWithUser = (await db
       .select({
         id: schema.order.id,
         status: schema.order.status,
-        totalPrice: schema.order.totalPrice,
-        originalTotalPrice: schema.order.originalTotalPrice,
+        currency: schema.order.currency,
+        totalNet: schema.order.totalNet,
+        totalVat: schema.order.totalVat,
+        totalGross: schema.order.totalGross,
         lineItems: schema.order.lineItems,
         createdAt: schema.order.createdAt,
-        itemIds: schema.order.lineItems,
         userName: schema.user.name,
         userEmail: schema.user.email,
       })
       .from(schema.order)
+      .where(eq(schema.order.currency, currency))
       .leftJoin(schema.user, eq(schema.order.userId, schema.user.id))
-      .orderBy(desc(schema.order.createdAt)) as unknown as Array<{
-        id: string;
-        status: string;
-        totalPrice: number;
-        originalTotalPrice: number;
-        lineItems: any;
-        createdAt: Date;
-        itemIds: string[];
-        userName: string | null;
-        userEmail: string | null;
-      }>;
+      .orderBy(desc(schema.order.createdAt))) as unknown as Array<{
+      id: string;
+      status: string;
+      currency: string | null;
+      totalNet: number | null;
+      totalVat: number | null;
+      totalGross: number | null;
+      lineItems: Array<{
+        itemId: string;
+        articleId: string;
+        name: string;
+        quantity: number;
+      }> | null;
+      createdAt: Date;
+      userName: string | null;
+      userEmail: string | null;
+    }>;
 
-    // Fetch item details for all orders
-    const allItemIds = ordersWithUser.flatMap(order => order.itemIds || []) as string[];
-    const uniqueItemIds = [...new Set(allItemIds)];
-    
-    let itemsMap = new Map();
-    if (uniqueItemIds.length > 0) {
-      const items = await db
-        .select({
-          id: schema.item.id,
-          articleId: schema.item.articleId,
-        })
-        .from(schema.item)
-        .where(inArray(schema.item.id, uniqueItemIds));
-
-      // Fetch item details for these items
-      const itemDetailsPromises = items.map(async (item) => {
-        const [detail] = await db
-          .select({ itemName: schema.itemDetails.itemName })
-          .from(schema.itemDetails)
-          .where(eq(schema.itemDetails.itemSlug, item.articleId))
-          .limit(1);
-        
-        return {
-          id: item.id,
-          itemDetails: detail ? [detail] : [],
-        };
-      });
-
-      const itemsWithDetails = await Promise.all(itemDetailsPromises);
-      itemsMap = new Map(itemsWithDetails.map(item => [item.id, item]));
-    }
-
-    // Format orders
-    const orders = ordersWithUser.map(order => ({
+    // Format orders — derive items list directly from lineItems JSON (no extra DB lookup needed)
+    const orders = ordersWithUser.map((order) => ({
       id: order.id,
       status: order.status,
-      totalPrice: order.totalPrice,
-      originalTotalPrice: order.originalTotalPrice,
-      lineItems: order.lineItems,
+      currency: order.currency ?? null,
+      totalNet: order.totalNet ?? null,
+      totalVat: order.totalVat ?? null,
+      totalGross: order.totalGross ?? null,
       createdAt: order.createdAt,
       user: {
         name: order.userName,
         email: order.userEmail,
       },
-      items: (order.itemIds || []).map(itemId => itemsMap.get(itemId)).filter(Boolean),
+      items: Array.isArray(order.lineItems)
+        ? order.lineItems.map((li) => ({
+            id: li.itemId,
+            itemDetails: [{ itemName: li.name ?? li.articleId }],
+          }))
+        : [],
     }));
 
     /* Prisma implementation (commented out)
@@ -162,8 +155,8 @@ export async function GET(request: NextRequest) {
     */
 
     const duration = Date.now() - startTime;
-    logger.info('Orders fetched successfully', {
-      endpoint: 'GET /api/admin/orders',
+    logger.info("Orders fetched successfully", {
+      endpoint: "GET /api/admin/orders",
       count: orders.length,
       role: authResult.role,
       duration,
@@ -174,6 +167,8 @@ export async function GET(request: NextRequest) {
       viewerRole: authResult.role,
     });
   } catch (error) {
-    return apiErrorHandler(error, request, { endpoint: 'GET /api/admin/orders' });
+    return apiErrorHandler(error, request, {
+      endpoint: "GET /api/admin/orders",
+    });
   }
 }

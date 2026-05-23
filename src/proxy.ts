@@ -77,6 +77,7 @@ export default function middleware(request: NextRequest) {
 
   response.headers.set('x-request-id', requestId);
   response.headers.set(DOMAIN_HEADER, domainConfig.key);
+  response.headers.set('x-pathname', pathname);
   response.cookies.set(DOMAIN_COOKIE, domainConfig.key, {
     path: '/',
     httpOnly: false,

@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 const CONSENT_KEY = "cookie_consent";
 
-export default function CookieConsent() {
+export default function CookieConsent({ requireConsent }: { requireConsent: boolean }) {
   const t = useTranslations("cookieConsent");
   const locale = useLocale();
   const [visible, setVisible] = useState(false);
@@ -15,11 +15,18 @@ export default function CookieConsent() {
 
   useEffect(() => {
     setMounted(true);
+    // UA domain: auto-accept, no banner needed (not subject to ePrivacy like EU)
+    if (!requireConsent) {
+      if (!localStorage.getItem(CONSENT_KEY)) {
+        localStorage.setItem(CONSENT_KEY, 'accepted');
+      }
+      return;
+    }
     const stored = localStorage.getItem(CONSENT_KEY);
     if (!stored) {
       setVisible(true);
     }
-  }, []);
+  }, [requireConsent]);
 
   function handleAccept() {
     localStorage.setItem(CONSENT_KEY, "accepted");

@@ -1,7 +1,7 @@
 type OrderStatus = 'NEW' | 'WAITING_FOR_PAYMENT' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUND' | 'DELIVERY' | 'ASK_FOR_PRICE';
 
-export const formatCurrency = (amount: number): string => {
-  return `${amount.toFixed(2)} €`;
+export const formatCurrency = (amount: number, currency: string): string => {
+  return `${amount.toFixed(2)} ${currency}`;
 };
 
 export const formatDate = (
@@ -10,11 +10,10 @@ export const formatDate = (
 ): string => {
   const parsedDate = typeof date === 'string' ? new Date(date) : date;
   const defaultOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    dateStyle: 'short',
+    timeStyle: 'short',
   };
-  return parsedDate.toLocaleString('en-US', options ?? defaultOptions);
+  return parsedDate.toLocaleString('uk-UA', options ?? defaultOptions);
 };
 
 export const getOrderStatusStyle = (status: OrderStatus | string): string => {
@@ -51,6 +50,8 @@ export const getOrderStatusBadgeStyle = (status: OrderStatus | string): string =
     COMPLETED: 'bg-green-100 text-green-800',
     CANCELLED: 'bg-red-100 text-red-800',
     REFUND: 'bg-purple-100 text-purple-800',
+    DELIVERY: 'bg-cyan-100 text-cyan-800',
+    ASK_FOR_PRICE: 'bg-gray-100 text-gray-800',
   };
 
   return mapping[status] || 'bg-gray-100 text-gray-800';

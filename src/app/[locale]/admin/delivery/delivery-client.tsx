@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { DeliveryItem, Stats } from '@/types/delivery';
+import { DeliveryRecord, Stats } from '@/types/delivery';
 import { DeliveryEditModal } from '@/components/admin/delivery/delivery-edit-modal';
 import { DeliveryStats } from '@/components/admin/delivery/delivery-stats';
 import { DeliveryFilters } from '@/components/admin/delivery/delivery-filters';
@@ -11,13 +11,13 @@ import { DeliveryTable } from '@/components/admin/delivery/delivery-table';
 
 export default function DeliveryClient() {
   const t = useTranslations('adminDashboard.delivery');
-  const [deliveries, setDeliveries] = useState<DeliveryItem[]>([]);
+  const [deliveries, setDeliveries] = useState<DeliveryRecord[]>([]);
   const [stats, setStats] = useState<Stats>({});
   const [isLoading, setIsLoading] = useState(true);
   
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
-  const [editingDelivery, setEditingDelivery] = useState<DeliveryItem | null>(null);
+  const [editingDelivery, setEditingDelivery] = useState<DeliveryRecord | null>(null);
 
   const fetchDeliveries = useCallback(async () => {
     setIsLoading(true);
@@ -43,7 +43,7 @@ export default function DeliveryClient() {
     fetchDeliveries();
   }, [fetchDeliveries]);
 
-  const handleSaved = (updated: DeliveryItem) => {
+  const handleSaved = (updated: DeliveryRecord) => {
     setDeliveries((prev) => prev.map((d) => d.id === updated.id ? updated : d));
     setEditingDelivery(null);
   };

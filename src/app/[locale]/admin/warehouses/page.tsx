@@ -286,7 +286,7 @@ export default function WarehousesPage() {
                     <td className="py-3 px-4">{warehouse.name}</td>
                     <td className="py-3 px-4">{warehouse.countrySlug}</td>
                     <td className="py-3 px-4">
-                      <Link href={`/admin/warehouses/${warehouse.id}`}>
+                      <Link href={`/admin/analytics?tab=inventory&warehouse=${warehouse.id}`}>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer hover:bg-gray-200 duration-300">
                           {t('warehouses.table.prices', { count: warehouse._count?.item_price || 0 })}
                         </span>

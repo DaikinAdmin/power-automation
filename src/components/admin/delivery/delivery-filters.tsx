@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { DELIVERY_STATUS_OPTIONS, TYPE_LABELS } from '@/constants/delivery';
+import { useDeliveryTranslations } from '@/helpers/use-translations';
+import { DELIVERY_STATUS_OPTIONS, DELIVERY_TYPE_OPTIONS } from '@/constants/delivery';
 
 interface Props {
   statusFilter: string;
@@ -12,6 +13,7 @@ interface Props {
 
 export function DeliveryFilters({ statusFilter, setStatusFilter, typeFilter, setTypeFilter }: Props) {
   const t = useTranslations('adminDashboard.delivery');
+  const tr = useDeliveryTranslations();
   return (
     <div className="flex flex-wrap gap-3 items-center">
       <select
@@ -21,7 +23,7 @@ export function DeliveryFilters({ statusFilter, setStatusFilter, typeFilter, set
       >
         <option value="">{t('filters.allStatuses')}</option>
         {DELIVERY_STATUS_OPTIONS.map((opt) => (
-          <option key={opt} value={opt}>{t(`status.${opt}`)}</option>
+          <option key={opt} value={opt}>{tr.statusLabel(opt)}</option>
         ))}
       </select>
       <select
@@ -30,8 +32,8 @@ export function DeliveryFilters({ statusFilter, setStatusFilter, typeFilter, set
         className="rounded-md border-gray-300 shadow-sm text-sm focus:border-red-500 focus:ring-red-500"
       >
         <option value="">{t('filters.allTypes')}</option>
-        {Object.keys(TYPE_LABELS).map((k) => (
-          <option key={k} value={k}>{t(`type.${k}`)}</option>
+        {DELIVERY_TYPE_OPTIONS.map((k) => (
+          <option key={k} value={k}>{tr.typeLabel(k)}</option>
         ))}
       </select>
     </div>

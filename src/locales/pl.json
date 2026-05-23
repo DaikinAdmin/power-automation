@@ -11,7 +11,9 @@
       "forgotPassword": "Zapomniałeś hasła?",
       "signInButton": "Zaloguj się",
       "noAccount": "Nie masz konta?",
-      "signUpLink": "Zarejestruj się"
+      "signUpLink": "Zarejestruj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google"
     },
     "signUp": {
       "title": "Zarejestruj się",
@@ -35,8 +37,14 @@
       "countryPlaceholder": "Wybierz kraj",
       "vatNumberLabel": "NIP / VAT UE",
       "vatNumberPlaceholder": "np. PL1234567890",
-      "addressLineLabel": "Adres",
-      "addressLinePlaceholder": "Ulica, Miasto, Kod pocztowy",
+      "vatNumberPlaceholderUa": "РНОКПП lub ЄДРПОУ",
+      "vatNumberPlaceholderPl": "NIP lub VAT",
+      "cityLabel": "Miasto",
+      "cityPlaceholder": "np. Warszawa",
+      "streetLabel": "Ulica i numer",
+      "streetPlaceholder": "np. ul. Marszałkowska 1",
+      "postalCodeLabel": "Kod pocztowy",
+      "postalCodePlaceholder": "np. 00-001",
       "positionLabel": "Twoje stanowisko",
       "positionOwner": "Właściciel",
       "positionEmployee": "Pracownik",
@@ -49,7 +57,10 @@
       "userAgreement": "Umowę użytkownika",
       "signUpButton": "Zarejestruj się",
       "haveAccount": "Masz już konto?",
-      "signInLink": "Zaloguj się"
+      "signInLink": "Zaloguj się",
+      "orContinueWith": "Lub kontynuuj przez",
+      "googleButton": "Kontynuuj przez Google",
+      "optional": "opcjonalnie"
     },
     "forgotPassword": {
       "title": "Zapomniałeś hasła?",
@@ -83,6 +94,7 @@
     "searchResults": "Wyniki wyszukiwania",
     "productsFound": "znalezionych produktów dla",
     "productsAvailable": "dostępnych produktów",
+    "selectedBrandTitle": "Najlepsze oferty dla marki {brand}",
     "sortBy": "Sortuj według:",
     "popularity": "Popularność",
     "priceLow": "Cena: Niskie",
@@ -337,24 +349,6 @@
         "refundSuccess": "Zwrot został pomyślnie przetworzony",
         "refundError": "Nie udało się przetworzyć zwrotu"
       },
-      "orderStatuses": {
-        "NEW": "Nowe",
-        "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
-        "PROCESSING": "W realizacji",
-        "DELIVERY": "Dostawa",
-        "COMPLETED": "Zrealizowane",
-        "CANCELLED": "Anulowane",
-        "REFUND": "Zwrot"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Opłacone",
-        "PENDING": "Oczekuje",
-        "INITIATED": "Zainicjowano",
-        "FAILED": "Błąd",
-        "CANCELLED": "Anulowane",
-        "REFUNDED": "Zwrócone",
-        "PROCESSING": "Przetwarzanie"
-      },
       "detail": {
         "backToOrders": "Powrót do zamówień",
         "orderNumber": "Zamówienie #{id}",
@@ -379,6 +373,12 @@
         "lastUpdated": "Ostatnia aktualizacja",
         "deliveryInfo": "Informacje o dostawie",
         "deliveryId": "ID dostawy: {id}",
+        "deliveryType": "Typ dostawy:",
+        "deliveryCity": "Miasto:",
+        "deliveryWarehouse": "Oddział:",
+        "deliveryAddress": "Adres:",
+        "trackingNumber": "Numer śledzenia:",
+        "deliveryStatus": "Status dostawy:",
         "paymentInfo": "Informacje o płatności",
         "paymentStatus": "Status płatności:",
         "paidWith": "Zapłacono przez:",
@@ -395,6 +395,9 @@
       "countryCode": "Kod kraju",
       "phone": "Telefon",
       "vatNumber": "Numer NIP/VAT",
+      "vatNumberPlaceholderUa": "Ukraiński numer identyfikacyjny (RNOCPP lub EDRPOU)",
+      "vatNumberPlaceholderPl": "NIP lub VAT",
+      "companySection": "Informacje o firmie",
       "companyName": "Nazwa firmy",
       "companyPosition": "Stanowisko",
       "addressTitle": "Adres dostawy",
@@ -418,7 +421,7 @@
       "backToHome": "Powrót do strony głównej"
     },
     "articleId": "Artykuł",
-    "from": "Z {warehouse}",
+    "from": "Z: Magazyn №{warehouse}",
     "moreLocations": "+{count} więcej lokalizacji",
     "price": {
       "discount": "-{percent}%",
@@ -603,7 +606,8 @@
     "brands": "Marki",
     "purchaseDelivery": "Zakup i dostawa",
     "refunding": "Zwroty",
-    "contacts": "Kontakt"
+    "contacts": "Kontakt",
+    "nobrands": "Brak dostępnych marek"
   },
   "header": {
     "nav": {
@@ -791,6 +795,97 @@
         "date": "Data"
       }
     },
+    "analytics": {
+      "title": "Raporty i analityka",
+      "description": "Raporty finansowe i analiza stanów magazynowych",
+      "tabs": {
+        "financial": "Raport finansowy",
+        "inventory": "Raport stanów magazynowych"
+      },
+      "filters": {
+        "dateFrom": "Od",
+        "dateTo": "Do",
+        "apply": "Zastosuj",
+        "reset": "Resetuj"
+      },
+      "export": {
+        "label": "Eksport",
+        "pdf": "Eksportuj PDF",
+        "excel": "Eksportuj Excel"
+      },
+      "financial": {
+        "summary": "Podsumowanie",
+        "totalOrders": "Łączna liczba zamówień",
+        "totalNet": "Łącznie netto",
+        "totalVat": "Łącznie VAT",
+        "totalGross": "Łącznie brutto",
+        "avgOrder": "Śr. wartość zamówienia",
+        "byStatus": "Według statusu zamówień",
+        "monthly": "Trend miesięczny",
+        "month": "Miesiąc",
+        "orders": "Zamówień",
+        "net": "Netto",
+        "vat": "VAT",
+        "gross": "Brutto",
+        "status": "Status",
+        "count": "Liczba"
+      },
+      "inventory": {
+        "warehouseFilter": "Magazyn",
+        "allWarehouses": "Wszystkie magazyny",
+        "currencyFilter": "Waluta wyświetlania",
+        "summary": "Podsumowanie stanów",
+        "totalItems": "Łączna liczba pozycji",
+        "totalValue": "Łączna wartość stanów",
+        "zeroStock": "Pozycje z zerowym stanem",
+        "table": {
+          "article": "Artykuł",
+          "name": "Nazwa produktu",
+          "warehouse": "Magazyn",
+          "quantity": "Ilość",
+          "price": "Cena",
+          "totalValue": "Wartość łączna",
+          "badge": "Status"
+        },
+        "columns": {
+          "articleId": "Artykuł",
+          "namesPl": "Nazwa (PL)",
+          "namesUa": "Nazwa (UA)",
+          "namesEn": "Nazwa (EN)",
+          "namesEs": "Nazwa (ES)",
+          "warehouseId": "ID magazynu",
+          "warehouseName": "Nazwa magazynu",
+          "warehouseDisplayedName": "Wyświetlana nazwa",
+          "quantity": "Ilość",
+          "badge": "Status",
+          "initialPrice": "Cena początkowa",
+          "initialCurrency": "Waluta",
+          "margin": "Marża (%)",
+          "priceWithMarginNoVat": "Cena sprzedaży (bez VAT)",
+          "vatUa": "VAT UA (20%)",
+          "vatPl": "VAT PL (23%)",
+          "priceWithMarginWithVatUa": "Cena sprzedaży (VAT UA)",
+          "priceWithMarginWithVatPl": "Cena sprzedaży (VAT PL)",
+          "initialPriceDisplay": "Cena początkowa (wyb. waluta)",
+          "totalValue": "Wartość łączna"
+        },
+        "columnConfig": {
+          "title": "Konfiguracja kolumn",
+          "description": "Wybierz pola do wyświetlenia i eksportu",
+          "resetDefaults": "Przywróć domyślne",
+          "apply": "Zastosuj",
+          "groups": {
+            "identifiers": "Identyfikatory",
+            "names": "Nazwy produktów",
+            "warehouse": "Magazyn",
+            "stock": "Stany",
+            "pricing": "Cennik"
+          }
+        }
+      },
+      "loading": "Ładowanie danych raportu...",
+      "noData": "Brak danych dla wybranego okresu"
+    },
     "common": {
       "actions": "Akcje",
       "edit": "Edytuj",
@@ -917,6 +1012,106 @@
         "itemsCount": "{count} produktów",
         "more": "+{count} więcej",
         "empty": "Nie znaleziono zamówień."
+      },
+      "detail": {
+        "title": "Szczegóły zamówienia",
+        "description": "Przejrzyj informacje o zamówieniu i zarządzaj jego statusem.",
+        "backToOrders": "Powrót do zamówień",
+        "deleteOrder": "Usuń zamówienie",
+        "notFound": "Nie znaleziono żądanego zamówienia.",
+        "deleteDialog": {
+          "title": "Usunąć zamówienie?",
+          "prefix": "Ta akcja jest nieodwracalna. Zamówienie",
+          "suffix": "zostanie trwale usunięte.",
+          "cancel": "Anuluj",
+          "confirm": "Tak, usuń",
+          "deleting": "Usuwanie..."
+        },
+        "summary": {
+          "title": "Podsumowanie zamówienia",
+          "orderId": "ID zamówienia",
+          "placedOn": "Data złożenia",
+          "status": "Status",
+          "total": "Suma",
+          "deliveryId": "ID dostawy",
+          "comment": "Komentarz",
+          "notProvided": "Nie podano",
+          "noComment": "Brak komentarza"
+        },
+        "customer": {
+          "title": "Klient",
+          "name": "Imię i nazwisko",
+          "email": "Email",
+          "phone": "Telefon",
+          "accountType": "Typ konta",
+          "company": "Firma",
+          "vatNip": "VAT / NIP",
+          "address": "Adres",
+          "typeCompany": "Firma",
+          "typePrivate": "Prywatny"
+        },
+        "items": {
+          "title": "Produkty",
+          "columnItem": "Produkt",
+          "columnWarehouse": "Magazyn",
+          "columnQuantity": "Ilość",
+          "columnPrice": "Cena (z VAT)",
+          "columnLineTotal": "Suma linii (z VAT)",
+          "empty": "Brak produktów w tym zamówieniu.",
+          "article": "Artykuł: {id}"
+        },
+        "notes": {
+          "title": "Historia notatek",
+          "empty": "Brak notatek",
+          "newNoteLabel": "Nowa notatka",
+          "newNotePlaceholder": "Np.: Produkt 1 — oczekiwanie na odpowiedź od dostawcy",
+          "addNote": "Dodaj notatkę",
+          "saving": "Zapisywanie...",
+          "deleteTitle": "Usuń notatkę",
+          "added": "Notatka dodana",
+          "errorSave": "Błąd zapisywania notatki",
+          "errorDelete": "Błąd usuwania notatki"
+        },
+        "delivery": {
+          "title": "Dostawa",
+          "noData": "Brak danych dostawy.",
+          "type": "Typ",
+          "city": "Miasto",
+          "warehouse": "Magazyn",
+          "address": "Adres",
+          "paymentMethod": "Metoda płatności",
+          "status": "Status",
+          "trackingNumber": "Numer śledzenia"
+        },
+        "updateStatus": {
+          "title": "Zmień status",
+          "description": "Zmień status zamówienia. Podaj identyfikator dostawy przy ustawieniu statusu DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Zarządzanie dostawą",
+          "description": "Zaktualizuj status i numer listu przewozowego.",
+          "statusLabel": "Status dostawy",
+          "trackingLabel": "List przewozowy / TTN",
+          "trackingPlaceholder": "Numer listu przewozowego",
+          "save": "Zapisz",
+          "saving": "Zapisywanie...",
+          "saved": "Dostawa zaktualizowana",
+          "errorSave": "Błąd aktualizacji dostawy"
+        },
+        "toasts": {
+          "orderDeleted": "Zamówienie usunięte",
+          "errorDeleteOrder": "Błąd usuwania zamówienia"
+        },
+        "payment": {
+          "title": "Płatność",
+          "noData": "Brak danych płatności.",
+          "system": "System płatności",
+          "method": "Typ płatności",
+          "status": "Status płatności",
+          "transactionId": "ID transakcji",
+          "amount": "Kwota płatności",
+          "date": "Data płatności"
+        }
       }
     },
     "payments": {
@@ -940,14 +1135,7 @@
         "actions": "Akcje",
         "empty": "Nie znaleziono płatności.",
         "searchPlaceholder": "Szukaj po e-mailu lub ID zamówienia...",
-        "allStatuses": "Wszystkie statusy",
-        "pending": "Oczekująca",
-        "initiated": "Zainicjowana",
-        "processing": "W realizacji",
-        "completed": "Zakończona",
-        "failed": "Nieudana",
-        "cancelled": "Anulowana",
-        "refunded": "Zwrócona"
+        "allStatuses": "Wszystkie statusy"
       },
       "refund": "Zwrot",
       "refunding": "Przetwarzanie zwrotu...",
@@ -985,6 +1173,12 @@
         "email": "E-mail",
         "company": "Firma",
         "noCompany": "Brak firmy",
+        "userType": "Typ konta",
+        "userTypePrivate": "Osoba prywatna",
+        "userTypeCompany": "Firma",
+        "phone": "Telefon",
+        "vatNumber": "NIP / VAT",
+        "address": "Adres",
         "created": "Utworzono",
         "editableFields": "Edytowalne pola",
         "role": "Rola",
@@ -1068,6 +1262,51 @@
       }
     },
     "banners": {
+      "title": "Zarządzanie banerami",
+      "description": "Zarządzaj banerami wyświetlanymi na stronie głównej.",
+      "addNew": "Dodaj baner",
+      "filters": {
+        "title": "Filtruj banery",
+        "position": "Pozycja",
+        "device": "Urządzenie",
+        "locale": "Język",
+        "all": "Wszystkie",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne"
+      },
+      "stats": {
+        "total": "Łącznie banerów",
+        "active": "Aktywne",
+        "inactive": "Nieaktywne",
+        "hidden": "Ukryte"
+      },
+      "list": {
+        "dragToReorder": "Przeciągnij, aby zmienić kolejność",
+        "listTitle": "Banery — {pos} — {dev} — {loc}",
+        "empty": "Brak banerów",
+        "createFirst": "Utwórz swój pierwszy baner",
+        "untitled": "Baner bez tytułu",
+        "order": "Kolejność: {order}"
+      },
+      "modal": {
+        "addTitle": "Dodaj nowy baner",
+        "editTitle": "Edytuj baner",
+        "titleLabel": "Tytuł (opcjonalnie)",
+        "titlePlaceholder": "Wpisz tytuł banera",
+        "imageUrl": "URL obrazu *",
+        "imageUrlPlaceholder": "https://example.com/baner.jpg",
+        "linkUrl": "URL linku (opcjonalnie)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Pozycja",
+        "device": "Urządzenie",
+        "locale": "Język",
+        "active": "Aktywny",
+        "activeDesc": "Wyświetl ten baner odwiedzającym",
+        "saving": "Zapisywanie...",
+        "cancel": "Anuluj",
+        "createBtn": "Utwórz baner",
+        "updateBtn": "Zaktualizuj baner"
+      },
       "delete": {
         "title": "Czy jesteś pewny?",
         "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
@@ -1210,20 +1449,6 @@
         "date": "Data",
         "empty": "Nie znaleziono dostaw",
         "edit": "Edytuj"
-      },
-      "type": {
-        "PICKUP": "Odbiór osobisty",
-        "USER_ADDRESS": "Adres",
-        "NOVA_POSHTA": "Nova Poshta",
-        "COURIER": "Kurier"
-      },
-      "status": {
-        "PENDING": "Oczekuje",
-        "PROCESSING": "W realizacji",
-        "IN_TRANSIT": "W transporcie",
-        "DELIVERED": "Dostarczone",
-        "RETURNED": "Zwrócone",
-        "CANCELLED": "Anulowane"
       },
       "modal": {
         "title": "Edytuj dostawę",
@@ -1382,54 +1607,6 @@
       "confirmDelete": "Czy na pewno chcesz usunąć tę stronę?",
       "deleteError": "Nie udało się usunąć strony",
       "publishError": "Nie udało się zaktualizować statusu strony"
-    },
-    "banners": {
-      "title": "Zarządzanie banerami",
-      "description": "Zarządzaj banerami wyświetlanymi na stronie głównej.",
-      "addNew": "Dodaj baner",
-      "filters": {
-        "all": "Wszystkie",
-        "active": "Aktywne",
-        "inactive": "Nieaktywne"
-      },
-      "stats": {
-        "total": "Łącznie banerów",
-        "active": "Aktywne",
-        "inactive": "Nieaktywne"
-      },
-      "list": {
-        "dragToReorder": "Przeciągnij, aby zmienić kolejność",
-        "listTitle": "Banery — {pos} — {dev} — {loc}",
-        "empty": "Brak banerów",
-        "createFirst": "Utwórz swój pierwszy baner",
-        "untitled": "Baner bez tytułu",
-        "order": "Kolejność: {order}"
-      },
-      "modal": {
-        "addTitle": "Dodaj nowy baner",
-        "editTitle": "Edytuj baner",
-        "titleLabel": "Tytuł (opcjonalnie)",
-        "titlePlaceholder": "Wpisz tytuł banera",
-        "imageUrl": "URL obrazu *",
-        "imageUrlPlaceholder": "https://example.com/baner.jpg",
-        "linkUrl": "URL linku (opcjonalnie)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Pozycja",
-        "device": "Urządzenie",
-        "locale": "Język",
-        "active": "Aktywny",
-        "activeDesc": "Wyświetl ten baner odwiedzającym",
-        "saving": "Zapisywanie...",
-        "cancel": "Anuluj",
-        "createBtn": "Utwórz baner",
-        "updateBtn": "Zaktualizuj baner"
-      },
-      "delete": {
-        "title": "Czy jesteś pewny?",
-        "description": "Spowoduje to trwałe usunięcie banera \"{title}\" z pozycji {position}.",
-        "cannotUndo": "Tej akcji nie można cofnąć.",
-        "deleteBtn": "Usuń baner"
-      }
     },
     "uploads": {
       "title": "Zarządzanie zdjęciami",
@@ -1591,7 +1768,7 @@
     },
     "detailModal": {
       "title": "Edytuj szczegóły",
-      "description": "Zaktualizuj szczegóły produktu dla wybranego języka",
+      "description": "Opis",
       "localeLabel": "Język",
       "localePlaceholder": "Wybierz język",
       "itemName": "Nazwa produktu",
@@ -1600,7 +1777,6 @@
       "sellerPlaceholder": "Nazwa sprzedawcy",
       "discount": "Rabat (%)",
       "discountPlaceholder": "np. 10",
-      "description": "Opis",
       "descriptionPlaceholder": "Opis produktu",
       "specifications": "Specyfikacje",
       "specificationsPlaceholder": "Specyfikacje produktu",
@@ -1687,15 +1863,131 @@
     "apartmentOrOffice": "Mieszkanie / Biuro",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Odbiór własny", "description": "Z naszego magazynu" },
-      "nova_dept": { "label": "Oddział", "description": "Nova Poshta" },
-      "nova_courier": { "label": "Kurier", "description": "Nova Poshta" }
+      "warehouse": {
+        "label": "Odbiór własny",
+        "description": "Z naszego magazynu"
+      },
+      "nova_dept": {
+        "label": "Oddział",
+        "description": "Nova Poshta"
+      },
+      "nova_courier": {
+        "label": "Kurier",
+        "description": "Nova Poshta"
+      }
     },
     "paymentOption": {
-      "online_card": { "label": "Kartą online", "description": "Visa / Mastercard" },
-      "bank_transfer": { "label": "Przelew bankowy", "description": "Faktura" },
-      "cash_on_delivery": { "label": "Za pobraniem", "description": "Płatność przy odbiorze" },
-      "installment": { "label": "Płatność ratalna", "description": "PrivatBank · Monobank" }
+      "online_card": {
+        "label": "Kartą online",
+        "description": "Visa / Mastercard"
+      },
+      "bank_transfer": {
+        "label": "Przelew bankowy",
+        "description": "Faktura"
+      },
+      "cash_on_delivery": {
+        "label": "Za pobraniem",
+        "description": "Płatność przy odbiorze"
+      },
+      "installment": {
+        "label": "Płatność ratalna",
+        "description": "PrivatBank"
+      }
+    },
+    "deliveryCostNote": "Kwota płatności nie zawiera kosztu dostawy. Opłata za dostawę realizowana jest zgodnie z taryfami przewoźnika.",
+    "courierAddressMissing": "Aby dostarczyć kurierem, wypełnij adres w sekcji ‘Szczegóły dostawy’ powyżej.",
+    "emails": {
+      "newOrderManager": {
+        "subject": "Nowe zamówienie #{orderShortId} od {customerName}",
+        "title": "Nowe zamówienie otrzymano",
+        "orderId": "Nr zamówienia",
+        "customer": "Klient",
+        "email": "Email",
+        "phone": "Telefon",
+        "company": "Firma",
+        "total": "Suma",
+        "comment": "Komentarz",
+        "orderItems": "Pozycje zamówienia",
+        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+      },
+      "newOrderCustomer": {
+        "subject": "Potwierdzenie zamówienia #{orderShortId} — PowerAutomation",
+        "title": "Dziękujemy za zamówienie!",
+        "greeting": "Drogi {customerName},",
+        "received": "Otrzymaliśmy Twoje zamówienie #{orderShortId}.",
+        "orderSummary": "Podsumowanie zamówienia",
+        "total": "Suma",
+        "nextEmail": "Otrzymasz kolejny email po potwierdzeniu płatności.",
+        "footer": "W razie pytań skontaktuj się z nami:"
+      },
+      "paymentSuccessManager": {
+        "subject": "Płatność za zamówienie #{orderShortId} otrzymana",
+        "title": "Płatność otrzymana",
+        "orderId": "Nr zamówienia",
+        "customer": "Klient",
+        "phone": "Telefon",
+        "company": "Firma",
+        "paymentAmount": "Kwota płatności",
+        "paymentMethod": "Metoda płatności",
+        "transactionId": "ID transakcji",
+        "orderTotal": "Suma zamówienia",
+        "orderItems": "Pozycje zamówienia",
+        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+      },
+      "paymentSuccessCustomer": {
+        "subject": "Płatność potwierdzona — zamówienie #{orderShortId} — PowerAutomation",
+        "title": "Płatność potwierdzona!",
+        "greeting": "Drogi {customerName},",
+        "confirmed": "Twoja płatność za zamówienie #{orderShortId} została pomyślnie przetworzona.",
+        "amountPaid": "Zapłacona kwota",
+        "paymentMethod": "Metoda płatności",
+        "transactionId": "ID transakcji",
+        "orderSummary": "Podsumowanie zamówienia",
+        "total": "Suma",
+        "processing": "Twoje zamówienie jest teraz realizowane. Powiadomimy Cię, gdy zostanie wysłane.",
+        "footer": "W razie pytań skontaktuj się z nami:"
+      },
+      "table": {
+        "product": "Produkt",
+        "article": "Artykuł",
+        "qty": "Ilość",
+        "unitPrice": "Cena jedn.",
+        "total": "Suma"
+      }
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "Nowe",
+      "WAITING_FOR_PAYMENT": "Oczekuje na płatność",
+      "PROCESSING": "W trakcie realizacji",
+      "DELIVERY": "Dostawa",
+      "COMPLETED": "Zrealizowane",
+      "CANCELLED": "Anulowane",
+      "REFUND": "Zwrot"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Opłacono",
+      "PENDING": "Oczekuje",
+      "INITIATED": "Zainicjowano",
+      "FAILED": "Błąd",
+      "CANCELLED": "Anulowano",
+      "REFUNDED": "Zwrócono",
+      "PROCESSING": "Przetwarzanie"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Oczekuje",
+      "PROCESSING": "Przetwarzanie",
+      "IN_TRANSIT": "W drodze",
+      "DELIVERED": "Dostarczono",
+      "RETURNED": "Zwrócono",
+      "CANCELLED": "Anulowano"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Odbiór osobisty",
+      "COURIER": "Kurier",
+      "USER_ADDRESS": "Adres użytkownika",
+      "NOVA_POSHTA": "Nova Poshta"
     }
   }
 }

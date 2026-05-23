@@ -34,6 +34,7 @@ export default async function DashboardProfilePage() {
           companyName: user.companyName,
           companyPosition: user.companyPosition,
           addressLine: user.addressLine,
+          userType: user.userType,
         }}
       />
     </div>

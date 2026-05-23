@@ -96,12 +96,8 @@ export async function POST(request: NextRequest) {
       throw new NotFoundError('User not found');
     }
 
-    // Parse the PLN amount from the pre-formatted totalPrice string (e.g. "430,00 zł").
-    // totalPrice is set at checkout in the domain currency (PLN for przelewy24),
-    // so no conversion is needed — just extract the number and convert to grosze.
-    const plnAmount = parseFloat(
-      order.totalPrice.replace(/[^\d,]/g, '').replace(',', '.')
-    );
+    // Use totalGross directly — it's stored in the domain currency (PLN for przelewy24).
+    const plnAmount = order.totalGross;
     if (!Number.isFinite(plnAmount) || plnAmount <= 0) {
       throw new BadRequestError('Invalid order total price');
     }
@@ -148,7 +144,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sending request to Przelewy24', {
       sessionId,
-      totalPrice: order.totalPrice,
+      totalGross: order.totalGross,
       amountInGrosze,
       sandbox: P24_SANDBOX,
     });

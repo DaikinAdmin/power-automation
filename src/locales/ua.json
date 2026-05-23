@@ -11,7 +11,9 @@
       "forgotPassword": "Забули пароль?",
       "signInButton": "Увійти",
       "noAccount": "Немає облікового запису?",
-      "signUpLink": "Зареєструватися"
+      "signUpLink": "Зареєструватися",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google"
     },
     "signUp": {
       "title": "Реєстрація",
@@ -35,8 +37,14 @@
       "countryPlaceholder": "Оберіть країну",
       "vatNumberLabel": "ПДВ номер (VAT)",
       "vatNumberPlaceholder": "напр. PL1234567890",
-      "addressLineLabel": "Адреса",
-      "addressLinePlaceholder": "Вулиця, Місто, Поштовий індекс",
+      "vatNumberPlaceholderUa": "ІПН або ЄДРПОУ",
+      "vatNumberPlaceholderPl": "NIP або VAT",
+      "cityLabel": "Місто",
+      "cityPlaceholder": "наприклад, Київ",
+      "streetLabel": "Вулиця і номер",
+      "streetPlaceholder": "наприклад, вул. Хрещатик 1",
+      "postalCodeLabel": "Поштовий індекс",
+      "postalCodePlaceholder": "наприклад, 01001",
       "positionLabel": "Ваша посада",
       "positionOwner": "Власник",
       "positionEmployee": "Співробітник",
@@ -49,7 +57,10 @@
       "userAgreement": "Угоду користувача",
       "signUpButton": "Зареєструватися",
       "haveAccount": "Вже є обліковий запис?",
-      "signInLink": "Увійти"
+      "signInLink": "Увійти",
+      "orContinueWith": "Або продовжити через",
+      "googleButton": "Продовжити через Google",
+      "optional": "необов'язково"
     },
     "forgotPassword": {
       "title": "Забули пароль?",
@@ -83,6 +94,7 @@
     "searchResults": "Результати пошуку",
     "productsFound": "продуктів знайдено для",
     "productsAvailable": "доступних продуктів",
+    "selectedBrandTitle": "Найкращі пропозиції для бренду {brand}",
     "sortBy": "Сортувати за:",
     "popularity": "Популярність",
     "priceLow": "Ціна: Низька",
@@ -306,24 +318,6 @@
         "refundSuccess": "Повернення успішно оброблено",
         "refundError": "Не вдалося обробити повернення"
       },
-      "orderStatuses": {
-        "NEW": "Нове",
-        "WAITING_FOR_PAYMENT": "Очікує оплати",
-        "PROCESSING": "В обробці",
-        "DELIVERY": "Доставка",
-        "COMPLETED": "Виконано",
-        "CANCELLED": "Скасовано",
-        "REFUND": "Повернення"
-      },
-      "paymentStatuses": {
-        "COMPLETED": "Оплачено",
-        "PENDING": "Очікується",
-        "INITIATED": "Ініційовано",
-        "FAILED": "Помилка",
-        "CANCELLED": "Скасовано",
-        "REFUNDED": "Повернено",
-        "PROCESSING": "Обробляється"
-      },
       "detail": {
         "backToOrders": "Назад до замовлень",
         "orderNumber": "Замовлення #{id}",
@@ -348,6 +342,12 @@
         "lastUpdated": "Останнє оновлення",
         "deliveryInfo": "Інформація про доставку",
         "deliveryId": "ID доставки: {id}",
+        "deliveryType": "Тип доставки:",
+        "deliveryCity": "Місто:",
+        "deliveryWarehouse": "Відділення:",
+        "deliveryAddress": "Адреса:",
+        "trackingNumber": "ТТН / трек-номер:",
+        "deliveryStatus": "Статус доставки:",
         "paymentInfo": "Інформація про оплату",
         "paymentStatus": "Статус оплати:",
         "paidWith": "Оплачено через:",
@@ -364,6 +364,9 @@
       "countryCode": "Код країни",
       "phone": "Телефон",
       "vatNumber": "Номер ПДВ (VAT)",
+      "vatNumberPlaceholderUa": "ІПН або ЄДРПОУ",
+      "vatNumberPlaceholderPl": "NIP або VAT",
+      "companySection": "Інформація про компанію",
       "companyName": "Назва компанії",
       "companyPosition": "Посада",
       "addressTitle": "Адреса доставки",
@@ -603,7 +606,8 @@
     "brands": "Бренди",
     "purchaseDelivery": "Покупка та доставка",
     "refunding": "Повернення",
-    "contacts": "Контакти"
+    "contacts": "Контакти",
+    "nobrands": "Бренди відсутні"
   },
   "header": {
     "nav": {
@@ -791,6 +795,97 @@
         "date": "Дата"
       }
     },
+    "analytics": {
+      "title": "Звіти та аналітика",
+      "description": "Фінансові звіти та аналіз залишків на складах",
+      "tabs": {
+        "financial": "Фінансовий звіт",
+        "inventory": "Звіт по залишках"
+      },
+      "filters": {
+        "dateFrom": "Від",
+        "dateTo": "До",
+        "apply": "Застосувати",
+        "reset": "Скинути"
+      },
+      "export": {
+        "label": "Експорт",
+        "pdf": "Експорт PDF",
+        "excel": "Експорт Excel"
+      },
+      "financial": {
+        "summary": "Зведення",
+        "totalOrders": "Всього замовлень",
+        "totalNet": "Всього без ПДВ",
+        "totalVat": "Всього ПДВ",
+        "totalGross": "Всього з ПДВ",
+        "avgOrder": "Сер. сума замовлення",
+        "byStatus": "За статусом замовлень",
+        "monthly": "Помісячна динаміка",
+        "month": "Місяць",
+        "orders": "Замовлень",
+        "net": "Без ПДВ",
+        "vat": "ПДВ",
+        "gross": "З ПДВ",
+        "status": "Статус",
+        "count": "Кількість"
+      },
+      "inventory": {
+        "warehouseFilter": "Склад",
+        "allWarehouses": "Всі склади",
+        "currencyFilter": "Валюта відображення",
+        "summary": "Зведення по залишках",
+        "totalItems": "Всього позицій",
+        "totalValue": "Загальна вартість залишків",
+        "zeroStock": "Позиції з нульовим залишком",
+        "table": {
+          "article": "Артикул",
+          "name": "Назва товару",
+          "warehouse": "Склад",
+          "quantity": "Кількість",
+          "price": "Ціна",
+          "totalValue": "Загальна вартість",
+          "badge": "Статус"
+        },
+        "columns": {
+          "articleId": "Артикул",
+          "namesPl": "Назва (PL)",
+          "namesUa": "Назва (UA)",
+          "namesEn": "Назва (EN)",
+          "namesEs": "Назва (ES)",
+          "warehouseId": "ID складу",
+          "warehouseName": "Назва складу",
+          "warehouseDisplayedName": "Відображувана назва",
+          "quantity": "Кількість",
+          "badge": "Статус",
+          "initialPrice": "Початкова ціна",
+          "initialCurrency": "Валюта",
+          "margin": "Маржа (%)",
+          "priceWithMarginNoVat": "Ціна продажу (без ПДВ)",
+          "vatUa": "ПДВ Укр (20%)",
+          "vatPl": "ПДВ Пол (23%)",
+          "priceWithMarginWithVatUa": "Ціна продажу (ПДВ Укр)",
+          "priceWithMarginWithVatPl": "Ціна продажу (ПДВ Пол)",
+          "initialPriceDisplay": "Початкова ціна (обр. валюта)",
+          "totalValue": "Загальна вартість"
+        },
+        "columnConfig": {
+          "title": "Налаштування стовпців",
+          "description": "Оберіть поля для відображення та експорту",
+          "resetDefaults": "Скинути до замовчувань",
+          "apply": "Застосувати",
+          "groups": {
+            "identifiers": "Ідентифікатори",
+            "names": "Назви товару",
+            "warehouse": "Склад",
+            "stock": "Залишки",
+            "pricing": "Ціноутворення"
+          }
+        }
+      },
+      "loading": "Завантаження даних звіту...",
+      "noData": "Немає даних за обраний період"
+    },
     "common": {
       "actions": "Дії",
       "edit": "Редагувати",
@@ -917,6 +1012,106 @@
         "itemsCount": "{count} товарів",
         "more": "+{count} ще",
         "empty": "Замовлень не знайдено."
+      },
+      "detail": {
+        "title": "Деталі замовлення",
+        "description": "Перегляньте інформацію про замовлення та керуйте його статусом.",
+        "backToOrders": "Назад до замовлень",
+        "deleteOrder": "Видалити замовлення",
+        "notFound": "Запитане замовлення не знайдено.",
+        "deleteDialog": {
+          "title": "Видалити замовлення?",
+          "prefix": "Ця дія незворотня. Замовлення",
+          "suffix": "буде видалено назавжди.",
+          "cancel": "Скасувати",
+          "confirm": "Так, видалити",
+          "deleting": "Видалення..."
+        },
+        "summary": {
+          "title": "Огляд замовлення",
+          "orderId": "ID замовлення",
+          "placedOn": "Дата замовлення",
+          "status": "Статус",
+          "total": "Сума",
+          "deliveryId": "ID доставки",
+          "comment": "Коментар",
+          "notProvided": "Не вказано",
+          "noComment": "Немає коментаря"
+        },
+        "customer": {
+          "title": "Клієнт",
+          "name": "Ім’я",
+          "email": "Email",
+          "phone": "Телефон",
+          "accountType": "Тип акаунту",
+          "company": "Компанія",
+          "vatNip": "ПДВ / НІП",
+          "address": "Адреса",
+          "typeCompany": "Компанія",
+          "typePrivate": "Фізична особа"
+        },
+        "items": {
+          "title": "Товари",
+          "columnItem": "Товар",
+          "columnWarehouse": "Склад",
+          "columnQuantity": "Кількість",
+          "columnPrice": "Ціна (з ПДВ)",
+          "columnLineTotal": "Сума рядка (з ПДВ)",
+          "empty": "Товари у цьому замовленні відсутні.",
+          "article": "Артикул: {id}"
+        },
+        "notes": {
+          "title": "Історія приміток",
+          "empty": "Немає приміток",
+          "newNoteLabel": "Нова примітка",
+          "newNotePlaceholder": "Напр.: Товар 1 — очікування відповіді від постачальника",
+          "addNote": "Додати примітку",
+          "saving": "Збереження...",
+          "deleteTitle": "Видалити примітку",
+          "added": "Примітку додано",
+          "errorSave": "Помилка збереження примітки",
+          "errorDelete": "Помилка видалення примітки"
+        },
+        "delivery": {
+          "title": "Доставка",
+          "noData": "Немає даних про доставку.",
+          "type": "Тип",
+          "city": "Місто",
+          "warehouse": "Склад",
+          "address": "Адреса",
+          "paymentMethod": "Метод оплати",
+          "status": "Статус",
+          "trackingNumber": "Номер відстеження"
+        },
+        "updateStatus": {
+          "title": "Оновити статус",
+          "description": "Змініть статус замовлення. Вкажіть ідентифікатор доставки при встановленні статусу DELIVERY."
+        },
+        "deliveryManagement": {
+          "title": "Керування доставкою",
+          "description": "Оновіть статус і номер ТТН.",
+          "statusLabel": "Статус доставки",
+          "trackingLabel": "ТТН / Накладна",
+          "trackingPlaceholder": "Номер накладної",
+          "save": "Зберегти",
+          "saving": "Збереження...",
+          "saved": "Доставку оновлено",
+          "errorSave": "Помилка оновлення доставки"
+        },
+        "toasts": {
+          "orderDeleted": "Замовлення видалено",
+          "errorDeleteOrder": "Помилка видалення замовлення"
+        },
+        "payment": {
+          "title": "Платіж",
+          "noData": "Немає даних про платіж.",
+          "system": "Платіжна система",
+          "method": "Тип платежу",
+          "status": "Статус оплати",
+          "transactionId": "ID транзакції",
+          "amount": "Сума платежу",
+          "date": "Дата платежу"
+        }
       }
     },
     "payments": {
@@ -940,14 +1135,7 @@
         "actions": "Дії",
         "empty": "Платежів не знайдено.",
         "searchPlaceholder": "Пошук за email або ID замовлення...",
-        "allStatuses": "Всі статуси",
-        "pending": "Очікується",
-        "initiated": "Ініційовано",
-        "processing": "В обробці",
-        "completed": "Завершено",
-        "failed": "Невдало",
-        "cancelled": "Скасовано",
-        "refunded": "Повернуто"
+        "allStatuses": "Всі статуси"
       },
       "refund": "Повернення",
       "refunding": "Обробка повернення...",
@@ -985,6 +1173,12 @@
         "email": "Email",
         "company": "Компанія",
         "noCompany": "Без компанії",
+        "userType": "Тип користувача",
+        "userTypePrivate": "Приватна особа",
+        "userTypeCompany": "Компанія",
+        "phone": "Телефон",
+        "vatNumber": "ІПН / ЄДРПОУ / VAT",
+        "address": "Адреса",
         "created": "Створено",
         "editableFields": "Редаговані поля",
         "role": "Роль",
@@ -1068,10 +1262,55 @@
       }
     },
     "banners": {
+      "title": "Управління банерами",
+      "description": "Керуйте банерами, що відображаються на головній сторінці.",
+      "addNew": "Додати банер",
+      "filters": {
+        "title": "Фільтри",
+        "position": "Локація",
+        "device": "Пристрій",
+        "locale": "Мова",
+        "all": "Всі",
+        "active": "Активні",
+        "inactive": "Неактивні"
+      },
+      "stats": {
+        "total": "Всього банерів",
+        "active": "Активні",
+        "inactive": "Неактивні",
+        "hidden": "Приховані"
+      },
+      "list": {
+        "dragToReorder": "Перетягніть для зміни порядку",
+        "listTitle": "Банери — {pos} — {dev} — {loc}",
+        "empty": "Немає банерів",
+        "createFirst": "Створіть свій перший банер",
+        "untitled": "Банер без назви",
+        "order": "Порядок: {order}"
+      },
+      "modal": {
+        "addTitle": "Додати новий банер",
+        "editTitle": "Редагувати банер",
+        "titleLabel": "Заголовок (необов'язково)",
+        "titlePlaceholder": "Введіть заголовок банера",
+        "imageUrl": "URL зображення *",
+        "imageUrlPlaceholder": "https://example.com/banner.jpg",
+        "linkUrl": "URL посилання (необов'язково)",
+        "linkUrlPlaceholder": "https://example.com/promo",
+        "position": "Позиція",
+        "device": "Пристрій",
+        "locale": "Мова",
+        "active": "Активний",
+        "activeDesc": "Показувати цей банер відвідувачам",
+        "saving": "Збереження...",
+        "cancel": "Скасувати",
+        "createBtn": "Створити банер",
+        "updateBtn": "Оновити банер"
+      },
       "delete": {
         "title": "Ви впевнені?",
         "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
-        "cannotUndo": "Цю дію не можна скасувати.",
+        "cannotUndo": "Цю дію неможливо скасувати.",
         "deleteBtn": "Видалити банер"
       }
     },
@@ -1191,9 +1430,9 @@
       "title": "Доставки",
       "description": "Управління доставками замовлень",
       "stats": {
-        "total": "Всього",
+        "total": "Всього доставок",
         "inTransit": "В дорозі",
-        "pending": "Очікують",
+        "pending": "Очікується",
         "delivered": "Доставлено"
       },
       "filters": {
@@ -1210,20 +1449,6 @@
         "date": "Дата",
         "empty": "Доставок не знайдено",
         "edit": "Редагувати"
-      },
-      "type": {
-        "PICKUP": "Самовивіз",
-        "USER_ADDRESS": "Адреса",
-        "NOVA_POSHTA": "Нова Пошта",
-        "COURIER": "Кур'єр"
-      },
-      "status": {
-        "PENDING": "Очікує",
-        "PROCESSING": "Обробляється",
-        "IN_TRANSIT": "В дорозі",
-        "DELIVERED": "Доставлено",
-        "RETURNED": "Повернено",
-        "CANCELLED": "Скасовано"
       },
       "modal": {
         "title": "Редагувати доставку",
@@ -1382,54 +1607,6 @@
       "confirmDelete": "Ви впевнені, що хочете видалити цю сторінку?",
       "deleteError": "Не вдалося видалити сторінку",
       "publishError": "Не вдалося оновити статус сторінки"
-    },
-    "banners": {
-      "title": "Управління банерами",
-      "description": "Керуйте банерами, що відображаються на головній сторінці.",
-      "addNew": "Додати банер",
-      "filters": {
-        "all": "Всі",
-        "active": "Активні",
-        "inactive": "Неактивні"
-      },
-      "stats": {
-        "total": "Всього банерів",
-        "active": "Активні",
-        "inactive": "Неактивні"
-      },
-      "list": {
-        "dragToReorder": "Перетягніть для зміни порядку",
-        "listTitle": "Банери — {pos} — {dev} — {loc}",
-        "empty": "Немає банерів",
-        "createFirst": "Створіть свій перший банер",
-        "untitled": "Банер без назви",
-        "order": "Порядок: {order}"
-      },
-      "modal": {
-        "addTitle": "Додати новий банер",
-        "editTitle": "Редагувати банер",
-        "titleLabel": "Заголовок (необов'язково)",
-        "titlePlaceholder": "Введіть заголовок банера",
-        "imageUrl": "URL зображення *",
-        "imageUrlPlaceholder": "https://example.com/banner.jpg",
-        "linkUrl": "URL посилання (необов'язково)",
-        "linkUrlPlaceholder": "https://example.com/promo",
-        "position": "Позиція",
-        "device": "Пристрій",
-        "locale": "Мова",
-        "active": "Активний",
-        "activeDesc": "Показувати цей банер відвідувачам",
-        "saving": "Збереження...",
-        "cancel": "Скасувати",
-        "createBtn": "Створити банер",
-        "updateBtn": "Оновити банер"
-      },
-      "delete": {
-        "title": "Ви впевнені?",
-        "description": "Це назавжди видалить банер \"{title}\" з позиції {position}.",
-        "cannotUndo": "Цю дію неможливо скасувати.",
-        "deleteBtn": "Видалити банер"
-      }
     },
     "uploads": {
       "title": "Завантажені зображення",
@@ -1591,7 +1768,7 @@
     },
     "detailModal": {
       "title": "Редагувати деталі",
-      "description": "Оновіть деталі товару для вибраної мови",
+      "description": "Опис",
       "localeLabel": "Мова",
       "localePlaceholder": "Оберіть мову",
       "itemName": "Назва товару",
@@ -1600,7 +1777,6 @@
       "sellerPlaceholder": "Назва продавця",
       "discount": "Знижка (%)",
       "discountPlaceholder": "напр. 10",
-      "description": "Опис",
       "descriptionPlaceholder": "Опис товару",
       "specifications": "Специфікації",
       "specificationsPlaceholder": "Специфікації товару",
@@ -1687,15 +1863,131 @@
     "apartmentOrOffice": "Квартира / Офіс",
     "apartmentOrOfficePlaceholder": "42",
     "deliveryOption": {
-      "warehouse": { "label": "Самовивіз", "description": "З нашого складу" },
-      "nova_dept": { "label": "Відділення", "description": "Нової Пошти" },
-      "nova_courier": { "label": "Кур'єр", "description": "Нова Пошта" }
+      "warehouse": {
+        "label": "Самовивіз",
+        "description": "З нашого складу"
+      },
+      "nova_dept": {
+        "label": "Відділення",
+        "description": "Нової Пошти"
+      },
+      "nova_courier": {
+        "label": "Кур'єр",
+        "description": "Нова Пошта"
+      }
     },
     "paymentOption": {
-      "online_card": { "label": "Картою онлайн", "description": "Visa / Mastercard" },
-      "bank_transfer": { "label": "Банківський переказ", "description": "Рахунок-фактура" },
-      "cash_on_delivery": { "label": "Накладений платіж", "description": "Оплата при отриманні" },
-      "installment": { "label": "Оплата частинами", "description": "ПриватБанк · Monobank" }
+      "online_card": {
+        "label": "Картою онлайн",
+        "description": "Visa / Mastercard"
+      },
+      "bank_transfer": {
+        "label": "Банківський переказ",
+        "description": "Рахунок-фактура"
+      },
+      "cash_on_delivery": {
+        "label": "Накладений платіж",
+        "description": "Оплата при отриманні"
+      },
+      "installment": {
+        "label": "Оплата частинами",
+        "description": "ПриватБанк"
+      }
+    },
+    "deliveryCostNote": "Сума оплати не включає вартість доставки. Оплата за доставку здійснюється згідно тарифів перевізника.",
+    "courierAddressMissing": "Для доставки кур'єром вкажіть адресу у розділі 'Деталі доставки' вище."
+  },
+  "emails": {
+    "newOrderManager": {
+      "subject": "Нове замовлення #{orderShortId} від {customerName}",
+      "title": "Нове замовлення отримано",
+      "orderId": "№ замовлення",
+      "customer": "Клієнт",
+      "email": "Email",
+      "phone": "Телефон",
+      "company": "Компанія",
+      "total": "Сума",
+      "comment": "Коментар",
+      "orderItems": "Товари замовлення",
+      "footer": "Це автоматичне повідомлення від PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Підтвердження замовлення #{orderShortId} — PowerAutomation",
+      "title": "Дякуємо за ваше замовлення!",
+      "greeting": "Шановний {customerName},",
+      "received": "Ми отримали ваше замовлення #{orderShortId}.",
+      "orderSummary": "Деталі замовлення",
+      "total": "Сума",
+      "nextEmail": "Ви отримаєте ще один email після підтвердження оплати.",
+      "footer": "Якщо у вас є питання, зв'яжіться з нами:"
+    },
+    "paymentSuccessManager": {
+      "subject": "Оплата за замовлення #{orderShortId} отримана",
+      "title": "Оплату отримано",
+      "orderId": "№ замовлення",
+      "customer": "Клієнт",
+      "phone": "Телефон",
+      "company": "Компанія",
+      "paymentAmount": "Сума оплати",
+      "paymentMethod": "Спосіб оплати",
+      "transactionId": "ID транзакції",
+      "orderTotal": "Загальна сума замовлення",
+      "orderItems": "Товари замовлення",
+      "footer": "Це автоматичне повідомлення від PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Оплату підтверджено — замовлення #{orderShortId} — PowerAutomation",
+      "title": "Оплату підтверджено!",
+      "greeting": "Шановний {customerName},",
+      "confirmed": "Ваш платіж за замовлення #{orderShortId} успішно оброблено.",
+      "amountPaid": "Сплачена сума",
+      "paymentMethod": "Спосіб оплати",
+      "transactionId": "ID транзакції",
+      "orderSummary": "Деталі замовлення",
+      "total": "Сума",
+      "processing": "Ваше замовлення обробляється. Ми повідомимо вас, коли воно буде відправлено.",
+      "footer": "Якщо у вас є питання, зв'яжіться з нами:"
+    },
+    "table": {
+      "product": "Товар",
+      "article": "Артикул",
+      "qty": "Кіл-ть",
+      "unitPrice": "Ціна за шт.",
+      "total": "Сума"
+    }
+  },
+  "translations": {
+    "orderStatuses": {
+      "NEW": "Нове",
+      "WAITING_FOR_PAYMENT": "Очікує оплати",
+      "PROCESSING": "В обробці",
+      "DELIVERY": "Доставка",
+      "COMPLETED": "Виконано",
+      "CANCELLED": "Скасовано",
+      "REFUND": "Повернення"
+    },
+    "paymentStatuses": {
+      "COMPLETED": "Оплачено",
+      "PENDING": "Очікується",
+      "INITIATED": "Ініційовано",
+      "FAILED": "Помилка",
+      "CANCELLED": "Скасовано",
+      "REFUNDED": "Повернено",
+      "PROCESSING": "Обробляється"
+    },
+    "deliveryStatuses": {
+      "PENDING": "Очікує",
+      "PROCESSING": "Обробляється",
+      "IN_TRANSIT": "В дорозі",
+      "DELIVERED": "Доставлено",
+      "RETURNED": "Повернено",
+      "CANCELLED": "Скасовано"
+    },
+    "deliveryTypes": {
+      "PICKUP": "Відділення",
+      "COURIER": "Кур'єр",
+      "USER_ADDRESS": "Адреса",
+      "NOVA_POSHTA": "Нова Пошта"
     }
   }
 }

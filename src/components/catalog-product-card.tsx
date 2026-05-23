@@ -117,7 +117,6 @@ const CatalogProductCard = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка "додати в кошик" */}
-        <Link href={`/product/${itemId}`}>
           <button
             className={`px-4 py-2 rounded transition-colors text-sm ${
               disabled
@@ -129,7 +128,6 @@ const CatalogProductCard = ({
           >
             {resolvedAddToCartLabel}
           </button>
-        </Link>
 
         {/* Дві маленькі кнопки справа */}
         <div className="flex gap-2 justify-end">

@@ -1,7 +1,8 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
+import { headers } from "next/headers";
 import { CartProvider } from "@/components/cart-context";
 import { CompareProvider } from "@/components/compare-context";
 import { CurrencyProvider } from "@/hooks/useCurrency";
@@ -10,69 +11,20 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
-import BinotelScripts from "@/components/binotel-scripts";
-import Script from 'next/script';
-import { GoogleTagManager } from '@next/third-parties/google';
-import { getServerDomainConfig } from '@/lib/server-domain';
-import { getVatBySlug } from '@/helpers/db/vat-queries';
+import Script from "next/script";
+import { GoogleTagManager } from "@next/third-parties/google";
+import { getServerDomainConfig } from "@/lib/server-domain";
+import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
+import { CatalogDataProvider } from "@/components/catalog-data-context";
+
+export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
-
-const SITE_META: Record<string, { title: string; description: string }> = {
-  ua: {
-    title: "Power Automation — промислова автоматизація в Україні",
-    description:
-      "Інтернет-магазин промислового обладнання. Siemens, Pilz, Atlas Copco та інші бренди. Наявність на складі, швидка доставка по Україні.",
-  },
-  pl: {
-    title: "Power Automation — automatyka przemysłowa",
-    description:
-      "Sklep internetowy z osprzętem przemysłowym. Siemens, Pilz, Atlas Copco i inne marki. Szybka dostawa.",
-  },
-  en: {
-    title: "Power Automation — Industrial Automation",
-    description:
-      "Online store for industrial equipment. Siemens, Pilz, Atlas Copco and more. Fast delivery.",
-  },
-  es: {
-    title: "Power Automation — Automatización Industrial",
-    description:
-      "Tienda online de equipos industriales. Siemens, Pilz, Atlas Copco y más. Entrega rápida.",
-  },
-};
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const domainConfig = await getServerDomainConfig();
-  const meta = SITE_META[locale] ?? SITE_META.ua;
-  const isIndexed = domainConfig.indexedLocales.includes(locale);
-  return {
-    title: {
-      default: meta.title,
-      template: "%s | Power Automation",
-    },
-    description: meta.description,
-    metadataBase: new URL(domainConfig.baseUrl),
-    alternates: {
-      canonical: `${domainConfig.baseUrl}/${locale}`,
-    },
-    openGraph: {
-      siteName: domainConfig.siteName,
-      locale: locale === "ua" ? "uk_UA" : locale,
-      type: "website",
-    },
-    robots: isIndexed ? "index, follow" : "noindex, nofollow",
-  };
-}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -107,18 +59,26 @@ export default async function LocaleLayout({
   // Domain-specific GTM ID and currency
   const domainConfig = await getServerDomainConfig();
   const gtmId = domainConfig.gtmId;
-  const domainCurrencyMap: Record<string, SupportedCurrency> = { pl: 'PLN', ua: 'UAH' };
-  const initialCurrency: SupportedCurrency = domainCurrencyMap[domainConfig.key] ?? 'EUR';
+
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') ?? '';
+  const isAdmin = pathname.includes('/admin');
+  const domainCurrencyMap: Record<string, SupportedCurrency> = {
+    pl: "PLN",
+    ua: "UAH",
+  };
+  const initialCurrency: SupportedCurrency =
+    domainCurrencyMap[domainConfig.key] ?? "EUR";
 
   // VAT configuration per domain — Ukraine uses 20% (slug='ua'), all others use 23% (slug='pl')
-  const vatSlug = domainConfig.key === 'ua' ? 'ua' : 'pl';
+  const vatSlug = domainConfig.key === "ua" ? "ua" : "pl";
   const vatPercentage = await getVatBySlug(vatSlug);
   const vatInclusive = true;
 
   return (
     <html lang={locale} className="overflow-x-hidden">
       <head>
-        <Script
+        {!isAdmin && <Script
           id="consent-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
@@ -126,6 +86,16 @@ export default async function LocaleLayout({
               window.dataLayer=window.dataLayer||[];
               function gtag(){dataLayer.push(arguments);}
               window.gtag=gtag;
+              ${
+                domainConfig.key === "ua"
+                  ? `
+              gtag('consent','default',{
+                analytics_storage:'granted',ad_storage:'granted',
+                ad_user_data:'granted',ad_personalization:'granted',
+                functionality_storage:'granted',security_storage:'granted'
+              });
+              `
+                  : `
               try{
                 var c=localStorage.getItem('cookie_consent');
                 var s=c==='accepted'?'granted':'denied';
@@ -143,30 +113,42 @@ export default async function LocaleLayout({
                   wait_for_update:500
                 });
               }
+              `
+              }
             `,
           }}
-        />
+        />}
       </head>
-      <GoogleTagManager gtmId={gtmId} />
+      {!isAdmin && <GoogleTagManager gtmId={gtmId} />}
       <body
         className={`${montserrat.variable} antialiased font-sans overflow-x-hidden`}
       >
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
+        {!isAdmin && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         <NextIntlClientProvider>
           <CartProvider>
             <CompareProvider>
-              <CurrencyProvider initialCurrency={initialCurrency} vatPercentage={vatPercentage} vatInclusive={vatInclusive}>{children}</CurrencyProvider>
+              <CurrencyProvider
+                initialCurrency={initialCurrency}
+                vatPercentage={vatPercentage}
+                vatInclusive={vatInclusive}
+              >
+                <CatalogDataProvider locale={locale}>
+                  {children}
+                </CatalogDataProvider>
+              </CurrencyProvider>
             </CompareProvider>
           </CartProvider>
           <Toaster />
-          <CookieConsent />
+          <CookieConsent requireConsent={domainConfig.key !== "ua"} />
         </NextIntlClientProvider>
       </body>
     </html>

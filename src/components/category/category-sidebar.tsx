@@ -117,7 +117,7 @@ export function CategorySidebar({
           onClick={() => setShowFilters(true)}
           className="w-full justify-center"
         >
-          {t("filter") || "Фільтр"}
+          {t("filters.title") || "Фільтр"}
         </Button>
         <div className="flex gap-2">
           <select

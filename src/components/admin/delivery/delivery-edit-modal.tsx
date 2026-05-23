@@ -3,18 +3,20 @@
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { useDeliveryTranslations } from '@/helpers/use-translations';
 import { toast } from 'sonner';
-import { DeliveryItem } from '@/types/delivery';
+import { DeliveryRecord } from '@/types/delivery';
 import { DELIVERY_STATUS_OPTIONS } from '@/constants/delivery';
 
 interface Props {
-  delivery: DeliveryItem;
+  delivery: DeliveryRecord;
   onClose: () => void;
-  onSaved: (updated: DeliveryItem) => void;
+  onSaved: (updated: DeliveryRecord) => void;
 }
 
 export function DeliveryEditModal({ delivery, onClose, onSaved }: Props) {
   const t = useTranslations('adminDashboard.delivery');
+  const tr = useDeliveryTranslations();
   const [status, setStatus] = useState(delivery.status);
   const [trackingNumber, setTrackingNumber] = useState(delivery.trackingNumber ?? '');
   const [isSaving, setIsSaving] = useState(false);
@@ -92,12 +94,12 @@ export function DeliveryEditModal({ delivery, onClose, onSaved }: Props) {
           <label className="block text-sm font-medium text-gray-700 mb-1">{t('modal.labelStatus')}</label>
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) => setStatus(e.target.value as DeliveryRecord['status'])}
             disabled={isSaving}
             className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
           >
             {DELIVERY_STATUS_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>{t(`status.${opt}`)}</option>
+              <option key={opt} value={opt}>{tr.statusLabel(opt)}</option>
             ))}
           </select>
         </div>

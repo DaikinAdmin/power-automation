@@ -232,7 +232,7 @@ export default function ProductPageClient({
         const now = new Date().toISOString();
 
         const cartItem: Omit<CartItemType, "quantity"> = {
-          id: product.id,
+          id: `${product.id}-${selectedWarehouse.warehouseId}`,
           slug: product.slug,
           articleId: product.articleId,
           alias: product.alias ? product.alias : "",

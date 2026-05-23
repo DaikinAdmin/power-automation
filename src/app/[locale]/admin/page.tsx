@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
-
 import { OrderStatus } from '@/db/schema';
+import { useOrderTranslations } from '@/helpers/use-translations';
 import { Link } from '@/i18n/navigation';
 import { 
   ShoppingCart, 
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency, formatDate, getOrderStatusStyle } from '@/helpers/formatting';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 interface DashboardStats {
   totalUsers: number;
@@ -36,8 +37,8 @@ interface DashboardStats {
 interface Order {
   id: string;
   customerName: string;
-  originalTotalPrice: number;
-  totalPriceFormatted: string;
+  totalGross: number | null;
+  currency: string | null;
   status: OrderStatus;
   createdAt: string;
 }
@@ -47,6 +48,8 @@ export default function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const t = useTranslations('adminDashboard.dashboard');
+  const tr = useOrderTranslations();
+  const domainConfig = useDomainConfig();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -159,7 +162,7 @@ export default function AdminDashboard() {
               <Skeleton className="h-8 w-24" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{formatCurrency(stats?.revenue || 0)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats?.revenue || 0, domainConfig.currency)}</div>
                 <p className="text-xs text-gray-600">
                   {stats && stats.revenueGrowth > 0 ? '+' : ''}{stats?.revenueGrowth.toFixed(1)}% {t('stats.fromLastMonth')}
                 </p>
@@ -213,12 +216,14 @@ export default function AdminDashboard() {
                     <div className="space-y-1">
                       <p className="text-sm font-medium leading-none">Order #{order.id.slice(-5)}</p>
                       <p className="text-sm text-gray-600">
-                        {order.customerName} - {order.totalPriceFormatted || formatCurrency(order.originalTotalPrice)}
+                        {order.customerName} - {order.totalGross != null && order.currency
+                          ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                          : '—'}
                       </p>
                     </div>
                     <div className="text-right">
                       <span className={`text-xs font-medium ${getOrderStatusStyle(order.status)}`}>
-                        {order.status.replace('_', ' ')}
+                        {tr.statusLabel(order.status)}
                       </span>
                       <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
                     </div>

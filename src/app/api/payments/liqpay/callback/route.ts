@@ -14,6 +14,7 @@ import {
   sendPaymentSuccessEmails,
   type PaymentEmailData,
 } from '@/lib/order-emails';
+import { computeLineItemDerived } from '@/app/api/orders/shared';
 
 // ---------------------------------------------------------------------------
 // LiqPay configuration
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest) {
 
         if (orderUser && paidOrder) {
           const lineItems = Array.isArray(paidOrder.lineItems) ? paidOrder.lineItems as any[] : [];
+          const orderNotes = paidOrder.notes as Record<string, unknown> | null;
           const emailData: PaymentEmailData = {
             orderId: paidOrder.id,
             orderShortId: paidOrder.id.substring(0, 8),
@@ -167,16 +169,20 @@ export async function POST(request: NextRequest) {
             customerEmail: orderUser.email,
             customerPhone: orderUser.phoneNumber || undefined,
             companyName: orderUser.companyName || undefined,
-            totalPrice: paidOrder.totalPrice,
-            originalTotalPrice: paidOrder.originalTotalPrice,
-            lineItems: lineItems.map((li: any) => ({
-              name: li.name || li.articleId,
-              articleId: li.articleId,
-              quantity: li.quantity,
-              unitPrice: li.unitPrice,
-              lineTotal: li.lineTotal,
-              warehouseName: li.warehouseName,
-            })),
+            totalGross: paidOrder.totalGross ?? 0,
+            currency: paidOrder.currency ?? 'UAH',
+            locale: typeof orderNotes?.locale === 'string' ? orderNotes.locale : undefined,
+            lineItems: lineItems.map((li: any) => {
+              const derived = computeLineItemDerived(li);
+              return {
+                name: li.name || li.articleId,
+                articleId: li.articleId,
+                quantity: li.quantity,
+                unitPriceGross: derived.unitPriceGrossConverted,
+                lineTotalGrossConverted: derived.lineTotalGrossConverted,
+                warehouseName: li.warehouseName,
+              };
+            }),
             paymentMethod: payload.paytype || 'LiqPay',
             paymentAmount: payload.amount,
             paymentCurrency: payload.currency || 'UAH',

@@ -391,6 +391,11 @@ export default function NovaPostDelivery({
             value={payment}
             onChange={setPayment}
           />
+          {/* Delivery cost disclaimer */}
+          <p className="mt-3 text-xs text-gray-500 leading-relaxed">
+            <svg className="inline-block mr-1 mb-0.5 flex-shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            {t("deliveryCostNote")}
+          </p>
         </>
       )}
     </div>

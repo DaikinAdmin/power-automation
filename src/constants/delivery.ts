@@ -1,18 +1,3 @@
-export const TYPE_LABELS: Record<string, string> = {
-  PICKUP: 'Самовивіз',
-  USER_ADDRESS: 'Адреса',
-  NOVA_POSHTA: 'Нова Пошта',
-  COURIER: "Кур'єр",
-};
-
-export const STATUS_LABELS: Record<string, string> = {
-  PENDING: 'Очікує',
-  PROCESSING: 'Обробляється',
-  IN_TRANSIT: 'В дорозі',
-  DELIVERED: 'Доставлено',
-  RETURNED: 'Повернено',
-  CANCELLED: 'Скасовано',
-};
 
 export const STATUS_COLORS: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
@@ -30,4 +15,11 @@ export const DELIVERY_STATUS_OPTIONS = [
   'DELIVERED', 
   'RETURNED', 
   'CANCELLED'
+] as const;
+
+export const DELIVERY_TYPE_OPTIONS = [
+  'PICKUP',
+  'USER_ADDRESS',
+  'NOVA_POSHTA',
+  'COURIER'
 ] as const;
