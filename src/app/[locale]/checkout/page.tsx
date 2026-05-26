@@ -55,8 +55,9 @@ export default function CheckoutPage({
   const { contacts } = domainConfig;
   const router = useRouter();
   
-  const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">("register");
-  const [quickOrderMode, setQuickOrderMode] = useState(false);
+  // UA: default to quick order (no registration required); PL: show register/login tabs
+  const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">(locale === "ua" ? "quick" : "register");
+  const [quickOrderMode, setQuickOrderMode] = useState(locale === "ua");
   const [guestInfo, setGuestInfo] = useState({ name: "", email: "", phone: "", countryCode: "+380" });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
