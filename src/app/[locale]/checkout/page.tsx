@@ -55,7 +55,9 @@ export default function CheckoutPage({
   const { contacts } = domainConfig;
   const router = useRouter();
   
-  const [activeTab, setActiveTab] = useState<"register" | "login">("register");
+  const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">("register");
+  const [quickOrderMode, setQuickOrderMode] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({ name: "", email: "", phone: "", countryCode: "+380" });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -192,11 +194,16 @@ export default function CheckoutPage({
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!acceptTerms) { alert(t("messages.acceptTerms")); return; }
-      if (!session.data?.user) { alert(t("messages.pleaseLogin")); return; }
+      if (!session.data?.user && !quickOrderMode) { alert(t("messages.pleaseLogin")); return; }
       if (cartItems.length === 0) { alert(t("messages.cartEmpty")); return; }
       setIsSubmittingOrder(true);
       setOrderError("");
       try {
+          const effectiveEmail = quickOrderMode ? guestInfo.email : session.data!.user.email;
+          const effectiveName = quickOrderMode ? guestInfo.name : (deliveryInfo.name || session.data!.user.name);
+          const effectivePhone = quickOrderMode ? guestInfo.phone : deliveryInfo.phone;
+          const effectiveCountryCode = quickOrderMode ? guestInfo.countryCode : deliveryInfo.countryCode;
+
           const orderData = {
               cartItems: cartItems.map((item) => ({
                   articleId: item.articleId,
@@ -210,11 +217,11 @@ export default function CheckoutPage({
               totalPrice: formatPaymentTotal(),
               domainCurrency,
               customerInfo: {
-                  email: session.data.user.email,
-                  name: deliveryInfo.name || session.data.user.name,
-                  phone: deliveryInfo.phone,
-                  countryCode: deliveryInfo.countryCode,
-                  vatNumber: deliveryInfo.vatNumber,
+                  email: effectiveEmail,
+                  name: effectiveName,
+                  phone: effectivePhone,
+                  countryCode: effectiveCountryCode,
+                  vatNumber: quickOrderMode ? "" : deliveryInfo.vatNumber,
                   country: deliveryInfo.address.country,
                   city: deliveryInfo.address.city,
                   street: deliveryInfo.address.street,
@@ -250,10 +257,15 @@ export default function CheckoutPage({
               locale: locale,
           };
 
-          const response = await fetch("/api/orders", {
+          const endpoint = quickOrderMode ? "/api/orders/guest" : "/api/orders";
+          const requestBody = quickOrderMode
+              ? { ...orderData, guestEmail: guestInfo.email, guestName: guestInfo.name, guestPhone: guestInfo.phone, guestCountryCode: guestInfo.countryCode }
+              : orderData;
+
+          const response = await fetch(endpoint, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderData),
+              body: JSON.stringify(requestBody),
           });
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || "Failed to create order");
@@ -286,7 +298,7 @@ export default function CheckoutPage({
               },
           });
 
-          if (session.data?.user) {
+          if (!quickOrderMode && session.data?.user) {
               fetch("/api/user/profile", {
                   method: "PATCH",
                   headers: { "Content-Type": "application/json" },
@@ -306,7 +318,13 @@ export default function CheckoutPage({
               if (paymentMethod === "online_card" || paymentMethod === "installment") {
                   setIsRedirectingToPayment(true);
                   const isInstallment = paymentMethod === "installment";
-                  const payRes = await fetch(isInstallment ? "/api/payments/liqpay-installments/initiate" : "/api/payments/liqpay/initiate", {
+                  const payRes = await fetch(
+                      isInstallment
+                          ? "/api/payments/liqpay-installments/initiate"
+                          : quickOrderMode
+                              ? "/api/payments/liqpay/initiate-guest"
+                              : "/api/payments/liqpay/initiate",
+                      {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify(isInstallment ? { orderId: result.order.id, installmentType: "moment_part", months: 0 } : { orderId: result.order.id }),
@@ -348,7 +366,9 @@ export default function CheckoutPage({
   };
 
   const isConfirmOrderDisabled = () => {
-    if (!acceptTerms || cartItems.length === 0 || !session.data?.user || isSubmittingOrder) return true;
+    if (!acceptTerms || cartItems.length === 0 || isSubmittingOrder) return true;
+    if (!session.data?.user && !quickOrderMode) return true;
+    if (quickOrderMode && (!guestInfo.email.trim() || !guestInfo.name.trim())) return true;
     if (locale === "ua" && (!novaPostState || !novaPostState.isValid)) return true;
     if (locale === "ua" && novaPostState?.method === "nova_courier") {
       const { city, street } = deliveryInfo.address;
@@ -493,7 +513,7 @@ export default function CheckoutPage({
 
           {/* Left Side - Forms */}
           <div className="order-2 lg:order-1">
-            {!session.data?.user ? (
+            {!session.data?.user && !quickOrderMode ? (
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="flex border-b">
                   <button
@@ -508,23 +528,91 @@ export default function CheckoutPage({
                   >
                     {t("login")}
                   </button>
+                  {locale === "ua" && (
+                    <button
+                      onClick={() => { setActiveTab("quick"); setQuickOrderMode(true); }}
+                      className={`flex-1 px-4 py-4 text-sm lg:text-base font-semibold ${activeTab === "quick" ? "bg-white border-b-2 border-red-600 text-red-600" : "bg-gray-50 text-gray-600"}`}
+                    >
+                      Без реєстрації
+                    </button>
+                  )}
                 </div>
                 <div className="lg:p-6">
                     {activeTab === "register" ? (
                     <SignUp optional={false} hideFooter className="w-full border-0 shadow-none p-0" callbackURL={`/${locale}/checkout`} />
-                    ) : (
+                    ) : activeTab === "login" ? (
                     <SignIn hideFooter onLoginSuccess={() => {}} className="w-full border-0 shadow-none p-0" callbackURL={`/${locale}/checkout`} />
-                    )}
+                    ) : null}
                 </div>
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 space-y-6">
-                <div>
+                {quickOrderMode && !session.data?.user ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Швидке замовлення</h3>
+                      <button
+                        type="button"
+                        onClick={() => { setQuickOrderMode(false); setActiveTab("register"); }}
+                        className="text-xs text-blue-600 underline"
+                      >
+                        Увійти / Зареєструватись
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">Ім'я та прізвище *</label>
+                      <input
+                        type="text"
+                        required
+                        value={guestInfo.name}
+                        onChange={(e) => setGuestInfo((p) => ({ ...p, name: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                        placeholder="Іван Іванов"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={guestInfo.email}
+                        onChange={(e) => setGuestInfo((p) => ({ ...p, email: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                        placeholder="your@email.com"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">На цей email буде надіслано підтвердження замовлення та дані для входу</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">Телефон</label>
+                      <div className="flex gap-2">
+                        <select
+                          value={guestInfo.countryCode}
+                          onChange={(e) => setGuestInfo((p) => ({ ...p, countryCode: e.target.value }))}
+                          className="w-[100px] px-2 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                        >
+                          {countryCodes.map((item) => (
+                            <option key={item.code} value={item.code}>{item.code}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="tel"
+                          value={guestInfo.phone}
+                          onChange={(e) => setGuestInfo((p) => ({ ...p, phone: e.target.value }))}
+                          className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg"
+                          placeholder="(67)-123-45-67"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
                     <h3 className="text-lg font-semibold">{t("welcome")}</h3>
-                    <p className="text-sm text-gray-500">{session.data.user.email}</p>
-                </div>
+                    <p className="text-sm text-gray-500">{session.data?.user?.email}</p>
+                  </div>
+                )}
 
-                <div className="space-y-4">
+                {!quickOrderMode && (
+                  <>
                   <h4 className="font-bold text-gray-800 border-b pb-2 text-sm uppercase tracking-wide">
                     {t("deliveryDetails")}
                   </h4>
@@ -612,9 +700,10 @@ export default function CheckoutPage({
                           />
                       </div>
                   </div>
-                </div>
+                  </>
+                )}
 
-                {domainConfig.key === "ua" && (
+                {(session.data?.user || quickOrderMode) && domainConfig.key === "ua" && (
                   <div className="pt-4 border-t">
                     <h4 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Nova Poshta</h4>
                     <NovaPostDelivery
@@ -630,7 +719,7 @@ export default function CheckoutPage({
                   </div>
                 )}
 
-                {domainConfig.key === "pl" && (
+                {(session.data?.user || quickOrderMode) && domainConfig.key === "pl" && (
                   <div className="pt-4 border-t">
                     <h4 className="font-bold text-gray-800 mb-4 text-sm uppercase tracking-wide">Dostawa</h4>
                     <DeliveryPoland

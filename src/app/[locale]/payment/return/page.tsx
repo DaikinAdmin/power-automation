@@ -9,12 +9,14 @@ import { useRouter } from '@/i18n/navigation'
 import LanguageSwitcher from "@/components/languge-switcher";
 interface PaymentReturnPageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ orderId?: string; provider?: string }>;
+  searchParams: Promise<{ orderId?: string; provider?: string; token?: string }>;
 }
 
 export default function PaymentReturnPage({ params, searchParams }: PaymentReturnPageProps) {
   const { locale } = use(params);
-  const { orderId, provider } = use(searchParams);
+  const { orderId, provider, token } = use(searchParams);
+  // token is present when the user came from a guest (unauthenticated) payment flow
+  const isGuestFlow = !!token;
   const t = useTranslations('paymentReturn');
   const router = useRouter();
 
@@ -55,30 +57,41 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-      // Fetch the full order for display
-      const orderResponse = await fetch(`/api/orders/${orderId}`);
-      const orderResult = await orderResponse.json();
-      if (orderResponse.ok) {
-        setOrderData(orderResult.order);
-      }
-
       let resolvedPaymentStatus: string | undefined;
       let resolvedOrderStatus: string | undefined;
 
-      if (provider === 'przelewy24') {
-        // Przelewy24 status is set via webhook — read directly from order data
-        resolvedPaymentStatus = orderResult.order?.payment?.status;
-        resolvedOrderStatus = orderResult.order?.status;
+      if (isGuestFlow) {
+        // Guest flow: use the token-gated public endpoint (no session required)
+        const guestRes = await fetch(
+          `/api/guest/order-status?id=${encodeURIComponent(orderId!)}&token=${encodeURIComponent(token!)}`,
+        );
+        const guestData = await guestRes.json();
+        if (guestRes.ok) {
+          setOrderData(guestData.order);
+          resolvedPaymentStatus = guestData.paymentStatus;
+          resolvedOrderStatus = guestData.orderStatus;
+        }
       } else {
-        // LiqPay (and installments) — actively poll check-status
-        const checkResponse = await fetch('/api/payments/liqpay/check-status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId }),
-        });
-        const checkData = await checkResponse.json();
-        resolvedPaymentStatus = checkData.paymentStatus;
-        resolvedOrderStatus = checkData.orderStatus;
+        // Authenticated flow: original logic
+        const orderResponse = await fetch(`/api/orders/${orderId}`);
+        const orderResult = await orderResponse.json();
+        if (orderResponse.ok) {
+          setOrderData(orderResult.order);
+        }
+
+        if (provider === 'przelewy24') {
+          resolvedPaymentStatus = orderResult.order?.payment?.status;
+          resolvedOrderStatus = orderResult.order?.status;
+        } else {
+          const checkResponse = await fetch('/api/payments/liqpay/check-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId }),
+          });
+          const checkData = await checkResponse.json();
+          resolvedPaymentStatus = checkData.paymentStatus;
+          resolvedOrderStatus = checkData.orderStatus;
+        }
       }
 
       if (resolvedPaymentStatus === 'COMPLETED' || resolvedOrderStatus === 'PROCESSING' || resolvedOrderStatus === 'COMPLETED') {
