@@ -8,6 +8,7 @@ import { isUserAdmin } from '@/helpers/db/queries';
 import { apiErrorHandler, UnauthorizedError, ForbiddenError } from '@/lib/error-handler';
 
 const WAREHOUSE_ID = 'warehouse-schneider';
+const PARTNERSE_BATCH_SIZE = 100;
 
 async function fetchPartnerseCatalog(refs: string): Promise<{ ok: boolean; data?: unknown; error?: string }> {
   const headers = new Headers();
@@ -25,10 +26,43 @@ async function fetchPartnerseCatalog(refs: string): Promise<{ ok: boolean; data?
   const data = await response.json();
 
   if (!response.ok) {
-    return { ok: false, error: typeof data === 'object' && data !== null && 'error' in data ? String((data as Record<string, unknown>).error) : `HTTP ${response.status}` };
+    return {
+      ok: false,
+      error:
+        typeof data === 'object' && data !== null && 'error' in data
+          ? String((data as Record<string, unknown>).error)
+          : `HTTP ${response.status}`,
+    };
   }
 
   return { ok: true, data };
+}
+
+function extractItems(data: unknown): unknown[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray((data as Record<string, unknown>)?.data)) {
+    return (data as Record<string, unknown>).data as unknown[];
+  }
+  return [];
+}
+
+async function fetchPartnerseCatalogBatched(
+  allRefs: string[]
+): Promise<{ ok: boolean; data?: unknown[]; error?: string }> {
+  const allItems: unknown[] = [];
+
+  for (let i = 0; i < allRefs.length; i += PARTNERSE_BATCH_SIZE) {
+    const batch = allRefs.slice(i, i + PARTNERSE_BATCH_SIZE).join(',');
+    const result = await fetchPartnerseCatalog(batch);
+
+    if (!result.ok) {
+      return { ok: false, error: result.error };
+    }
+
+    allItems.push(...extractItems(result.data));
+  }
+
+  return { ok: true, data: allItems };
 }
 
 export async function GET(request: NextRequest) {
@@ -46,16 +80,17 @@ export async function GET(request: NextRequest) {
     .from(schema.item)
     .where(eq(schema.item.brandSlug, 'schneider-electric'));
 
-  const refs = rows.map((r) => r.articleId).join(',');
+  const allRefs = rows.map((r) => r.articleId).filter(Boolean);
 
-  if (!refs) {
+  if (allRefs.length === 0) {
     return NextResponse.json({ error: 'No schneider-electric items found in DB' }, { status: 400 });
   }
 
-  const result = await fetchPartnerseCatalog(refs);
+  const result = await fetchPartnerseCatalogBatched(allRefs);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
+
   return NextResponse.json(result.data);
 }
 
@@ -95,35 +130,33 @@ export async function PUT(request: NextRequest) {
     // use defaults
   }
 
-  const refs = rows.map((r) => r.articleId).join(',');
-  const result = await fetchPartnerseCatalog(refs);
-  // console.log('Partnerse catalog update result:', result);
+  const allRefs = rows.map((r) => r.articleId).filter(Boolean);
+  const result = await fetchPartnerseCatalogBatched(allRefs);
+
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+
+  const catalogItems = result.data ?? [];
+
+  if (catalogItems.length === 0) {
+    return NextResponse.json({ error: 'No items returned from Partnerse' }, { status: 502 });
   }
 
   const itemByArticleId = new Map(rows.map((r) => [r.articleId, { id: r.id, slug: r.slug }]));
   const now = new Date().toISOString();
 
-  let updated = 0;
-  let created = 0;
-
-  const catalogItems = Array.isArray(result.data)
-    ? result.data
-    : Array.isArray((result.data as Record<string, unknown>)?.data)
-      ? (result.data as Record<string, unknown>).data as unknown[]
-      : [];
-
-  if (catalogItems.length === 0) {
-    return NextResponse.json({ error: 'No items returned from Partnerse', raw: result.data }, { status: 502 });
-  }
-
   const dbRefs = [...itemByArticleId.keys()].slice(0, 5);
-  const apiArticles = (catalogItems as Array<{ article: string }>).slice(0, 5).map(i => i.article);
+  const apiArticles = (catalogItems as Array<{ article: string }>).slice(0, 5).map((i) => i.article);
   console.log('DB articleIds (first 5):', dbRefs);
   console.log('Partnerse articles (first 5):', apiArticles);
-  const matchCount = (catalogItems as Array<{ article: string }>).filter(i => itemByArticleId.has(i.article)).length;
+  const matchCount = (catalogItems as Array<{ article: string }>).filter((i) =>
+    itemByArticleId.has(i.article)
+  ).length;
   console.log(`Matched ${matchCount} of ${catalogItems.length} Partnerse items to DB`);
+
+  let updated = 0;
+  let created = 0;
 
   for (const catalogItem of catalogItems as Array<{
     article: string;
@@ -133,7 +166,10 @@ export async function PUT(request: NextRequest) {
   }>) {
     const item = itemByArticleId.get(catalogItem.article);
     if (!item) continue;
+
     const price = typeof catalogItem.price === 'string' ? parseFloat(catalogItem.price) : catalogItem.price;
+    const priceExVat = price / 1.2;
+    const priceAfterDiscount = Math.round(priceExVat * (1 - discount / 100) * 100) / 100;
 
     const [existing] = await db
       .select()
@@ -148,8 +184,6 @@ export async function PUT(request: NextRequest) {
 
     if (existing) {
       const effectiveMargin = updateExistingMargin ? newItemMargin : (existing.margin ?? 0);
-      const priceExVat = price / 1.2;
-      const priceAfterDiscount = Math.round(priceExVat * (1 - discount / 100) * 100) / 100;
       const calculatedPrice = Math.round(priceAfterDiscount * (1 + effectiveMargin / 100) * 100) / 100;
       const quantityChanged = existing.quantity !== catalogItem.total_warehouse;
       const priceChanged = existing.initialPrice !== priceAfterDiscount;
@@ -188,11 +222,11 @@ export async function PUT(request: NextRequest) {
           .set({ quantity: catalogItem.total_warehouse, updatedAt: now })
           .where(eq(schema.itemPrice.id, existing.id));
       }
+
       updated++;
     } else {
-      const priceExVat = price / 1.2;
-      const priceAfterDiscount = Math.round(priceExVat * (1 - discount / 100) * 100) / 100;
       const calculatedPrice = Math.round(priceAfterDiscount * (1 + newItemMargin / 100) * 100) / 100;
+
       await db.insert(schema.itemPrice).values({
         itemSlug: item.slug,
         warehouseId: WAREHOUSE_ID,
@@ -203,6 +237,7 @@ export async function PUT(request: NextRequest) {
         margin: newItemMargin,
         updatedAt: now,
       });
+
       created++;
     }
   }
