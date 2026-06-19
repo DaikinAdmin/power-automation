@@ -184,6 +184,14 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Excluded destinations for PL domain
+      let excludedDestinationsXml = "";
+      if (domainConfig.key === 'pl') {
+        excludedDestinationsXml = `      <g:excluded_destination>free_local_listings</g:excluded_destination>
+      <g:excluded_destination>local_inventory_ads</g:excluded_destination>
+`;
+      }
+
       // Additional images — absolute URLs via powerautomation.pl
       const additionalImages = images
         .slice(1)
@@ -209,7 +217,7 @@ ${salePriceXml ? salePriceXml + "\n" : ""}      <g:availability>${availability}<
       <g:brand>${escapeXml(brandName)}</g:brand>
       <g:mpn>${escapeXml(item.articleId)}</g:mpn>
       <g:google_product_category>222</g:google_product_category>
-    </item>`);
+${excludedDestinationsXml}    </item>`);
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
