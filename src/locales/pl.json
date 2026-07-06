@@ -875,7 +875,11 @@
           "priceWithMarginWithVatUa": "Cena sprzedaży (VAT UA)",
           "priceWithMarginWithVatPl": "Cena sprzedaży (VAT PL)",
           "initialPriceDisplay": "Cena początkowa (wyb. waluta)",
-          "totalValue": "Wartość łączna"
+          "totalValue": "Wartość łączna",
+          "grossWeight": "Waga brutto (kg)",
+          "lengthPacking": "Długość opakowania (cm)",
+          "widthPacking": "Szerokość opakowania (cm)",
+          "heightPacking": "Wysokość opakowania (cm)"
         },
         "columnConfig": {
           "title": "Konfiguracja kolumn",
@@ -887,7 +891,8 @@
             "names": "Nazwy produktów",
             "warehouse": "Magazyn",
             "stock": "Stany",
-            "pricing": "Cennik"
+            "pricing": "Cennik",
+            "sizes": "Waga i wymiary"
           }
         }
       },

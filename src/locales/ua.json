@@ -874,7 +874,11 @@
           "priceWithMarginWithVatUa": "Ціна продажу (ПДВ Укр)",
           "priceWithMarginWithVatPl": "Ціна продажу (ПДВ Пол)",
           "initialPriceDisplay": "Початкова ціна (обр. валюта)",
-          "totalValue": "Загальна вартість"
+          "totalValue": "Загальна вартість",
+          "grossWeight": "Вага (кг)",
+          "lengthPacking": "Довжина упаковки (см)",
+          "widthPacking": "Ширина упаковки (см)",
+          "heightPacking": "Висота упаковки (см)"
         },
         "columnConfig": {
           "title": "Налаштування стовпців",
@@ -886,7 +890,8 @@
             "names": "Назви товару",
             "warehouse": "Склад",
             "stock": "Залишки",
-            "pricing": "Ціноутворення"
+            "pricing": "Ціноутворення",
+            "sizes": "Вага та розміри"
           }
         }
       },

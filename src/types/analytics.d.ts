@@ -61,11 +61,15 @@ export type InventoryColumnKey =
   | 'priceWithMarginWithVatUa'
   | 'priceWithMarginWithVatPl'
   | 'initialPriceDisplay'
-  | 'totalValue';
+  | 'totalValue'
+  | 'grossWeight'
+  | 'lengthPacking'
+  | 'widthPacking'
+  | 'heightPacking';
 
 export interface InventoryColumnDef {
   key: InventoryColumnKey;
-  group: 'identifiers' | 'names' | 'warehouse' | 'stock' | 'pricing';
+  group: 'identifiers' | 'names' | 'warehouse' | 'stock' | 'pricing' | 'sizes';
   defaultVisible: boolean;
   numeric: boolean;
   format?: 'price' | 'percent' | 'integer';
@@ -106,6 +110,11 @@ export interface InventoryRow {
   priceWithMarginWithVatPl: number;
   // Total
   totalValue: number;
+  // Sizes
+  grossWeight: number | null;
+  lengthPacking: number | null;
+  widthPacking: number | null;
+  heightPacking: number | null;
 }
 
 export interface InventorySummary {

@@ -835,7 +835,11 @@
           "priceWithMarginWithVatUa": "Precio de venta (IVA UA)",
           "priceWithMarginWithVatPl": "Precio de venta (IVA PL)",
           "initialPriceDisplay": "Precio inicial (moneda sel.)",
-          "totalValue": "Valor total"
+          "totalValue": "Valor total",
+          "grossWeight": "Peso bruto (kg)",
+          "lengthPacking": "Longitud del paquete (cm)",
+          "widthPacking": "Anchura del paquete (cm)",
+          "heightPacking": "Altura del paquete (cm)"
         },
         "columnConfig": {
           "title": "Configurar columnas",
@@ -847,7 +851,8 @@
             "names": "Nombres de productos",
             "warehouse": "Almacén",
             "stock": "Stock",
-            "pricing": "Precios"
+            "pricing": "Precios",
+            "sizes": "Peso y dimensiones"
           }
         }
       },

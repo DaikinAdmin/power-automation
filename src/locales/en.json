@@ -868,7 +868,11 @@
           "priceWithMarginWithVatUa": "Selling Price (incl. VAT UA)",
           "priceWithMarginWithVatPl": "Selling Price (incl. VAT PL)",
           "initialPriceDisplay": "Initial Price (sel. currency)",
-          "totalValue": "Total Value"
+          "totalValue": "Total Value",
+          "grossWeight": "Gross Weight (kg)",
+          "lengthPacking": "Package Length (cm)",
+          "widthPacking": "Package Width (cm)",
+          "heightPacking": "Package Height (cm)"
         },
         "columnConfig": {
           "title": "Configure Columns",
@@ -880,7 +884,8 @@
             "names": "Product Names",
             "warehouse": "Warehouse",
             "stock": "Stock",
-            "pricing": "Pricing"
+            "pricing": "Pricing",
+            "sizes": "Weight & Dimensions"
           }
         }
       },

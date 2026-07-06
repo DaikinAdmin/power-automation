@@ -21,7 +21,7 @@ interface ColumnConfigModalProps {
   onChange: (visible: Set<InventoryColumnKey>) => void;
 }
 
-const GROUPS = ['identifiers', 'names', 'warehouse', 'stock', 'pricing'] as const;
+const GROUPS = ['identifiers', 'names', 'warehouse', 'stock', 'pricing', 'sizes'] as const;
 type Group = (typeof GROUPS)[number];
 
 export function ColumnConfigModal({ visible, onChange }: ColumnConfigModalProps) {

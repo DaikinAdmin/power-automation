@@ -114,6 +114,36 @@ export const INVENTORY_COLUMNS: InventoryColumnDef[] = [
     numeric: true,
     format: "price",
   },
+
+  // Sizes
+  {
+  key: "grossWeight",
+  group: "sizes",
+  defaultVisible: false,
+  numeric: true,
+  format: "integer",
+  },
+  {
+    key: "lengthPacking",
+    group: "sizes",
+    defaultVisible: false,
+    numeric: true,
+    format: "integer",
+  },
+  {
+    key: "widthPacking",
+    group: "sizes",
+    defaultVisible: false,
+    numeric: true,
+    format: "integer",
+  },
+  {
+    key: "heightPacking",
+    group: "sizes",
+    defaultVisible: false,
+    numeric: true,
+    format: "integer",
+  },
 ];
 
 export const DEFAULT_VISIBLE_COLUMNS = new Set<InventoryColumnKey>(

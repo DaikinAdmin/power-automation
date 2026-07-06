@@ -97,6 +97,10 @@ export async function GET(request: NextRequest) {
         itemSlug: schema.item.slug,
         articleId: schema.item.articleId,
         brandSlug: schema.item.brandSlug,
+        grossWeight: schema.item.grossWeight,
+        heightPacking: schema.item.heightPacking,
+        widthPacking: schema.item.widthPacking,
+        lengthPacking: schema.item.lengthPacking,
         warehouseId: schema.itemPrice.warehouseId,
         quantity: schema.itemPrice.quantity,
         price: schema.itemPrice.price,
@@ -187,6 +191,10 @@ export async function GET(request: NextRequest) {
         priceWithMarginWithVatUa,
         priceWithMarginWithVatPl,
         totalValue: sellingPrice * r.quantity,
+        grossWeight: r.grossWeight,
+        heightPacking: r.heightPacking,
+        widthPacking: r.widthPacking,
+        lengthPacking: r.lengthPacking,
       };
     });
 
