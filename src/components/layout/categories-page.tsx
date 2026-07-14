@@ -347,6 +347,7 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                     onAddToCart={(item, warehouseId, price) => {
                       const now = new Date();
                       const details = getItemDetails(item);
+                      const { originalPrice: itemOriginalPrice } = getItemPrice(item);
                       const subCategory = item.subCategorySlug
                         ? item.category.subCategories.find(
                             (s: any) => s.slug === item.subCategorySlug,
@@ -406,6 +407,9 @@ export default function CategoriesPage({ locale }: { locale: string }) {
                         ] as any,
                         itemPrice: item.prices as any,
                         price,
+                        basePrice: itemOriginalPrice ?? price,
+                        specialPrice: itemOriginalPrice ? price : undefined,
+                        baseSpecialPrice: itemOriginalPrice ? price : undefined,
                         warehouseId,
                         displayName: details?.itemName,
                         availableWarehouses: getAvailableWarehouses(item),

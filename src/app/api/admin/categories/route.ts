@@ -17,7 +17,13 @@ const generateSlug = (value: string) =>
     .replace(/-+/g, '-')
     .trim();
 
-const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> }> => {
+const normalizeGoogleProductCategory = (value: any): number | null => {
+  if (value === undefined || value === null || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+};
+
+const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; googleProductCategory: number | null; translations: Array<{ locale: string; name: string }> }> => {
   if (!Array.isArray(raw)) return [];
 
   return raw
@@ -30,6 +36,7 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug: generateSlug(name),
           isVisible: true,
+          googleProductCategory: null,
           translations: [],
         };
       }
@@ -45,13 +52,14 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug,
           isVisible: entry.isVisible !== undefined ? Boolean(entry.isVisible) : true,
+          googleProductCategory: normalizeGoogleProductCategory(entry.googleProductCategory),
           translations,
         };
       }
 
       return null;
     })
-    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
+    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; googleProductCategory: number | null; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
 };
 
 // GET all categories
@@ -142,7 +150,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, slug, subcategory, isVisible } = body;
+    const { name, slug, subcategory, isVisible, googleProductCategory } = body;
 
     // Validate required fields
     if (!name || !slug) {
@@ -179,6 +187,7 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         isVisible: isVisible ?? true,
+        googleProductCategory: normalizeGoogleProductCategory(googleProductCategory),
         createdAt: now,
         updatedAt: now,
       })
@@ -193,6 +202,7 @@ export async function POST(request: NextRequest) {
           slug: sub.slug,
           categorySlug: category.id,
           isVisible: sub.isVisible,
+          googleProductCategory: sub.googleProductCategory,
           createdAt: now,
           updatedAt: now,
         }))

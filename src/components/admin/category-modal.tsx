@@ -39,6 +39,7 @@ type SubcategoryEntry = {
   name: string;
   slug: string;
   isVisible: boolean;
+  googleProductCategory: string;
   translations: TranslationMap;
 };
 
@@ -51,6 +52,10 @@ const categorySchema = z.object({
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   isVisible: z.boolean().default(true),
+  googleProductCategory: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d+$/.test(val), 'Must be a numeric Google product category ID'),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -79,6 +84,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
       name: '',
       slug: '',
       isVisible: true,
+      googleProductCategory: '',
     },
   });
 
@@ -102,6 +108,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
           name: category.name,
           slug: category.slug,
           isVisible: category.isVisible ?? true,
+          googleProductCategory: category.googleProductCategory != null ? String(category.googleProductCategory) : '',
         });
         setImageLink(category.imageLink ?? '');
 
@@ -126,12 +133,13 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
             name: sub.name,
             slug: sub.slug,
             isVisible: sub.isVisible ?? true,
+            googleProductCategory: sub.googleProductCategory != null ? String(sub.googleProductCategory) : '',
             translations: subTransMap,
           };
         });
         setSubcategories(mappedSubs);
       } else {
-        form.reset({ name: '', slug: '', isVisible: true });
+        form.reset({ name: '', slug: '', isVisible: true, googleProductCategory: '' });
         setCategoryTranslations(emptyTranslations());
         setSubcategories([]);
         setImageLink('');
@@ -150,6 +158,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
         name: trimmed,
         slug: generateSlug(trimmed),
         isVisible: true,
+        googleProductCategory: '',
         translations: emptyTranslations(),
       };
       const updated = [...subcategories, entry];
@@ -197,6 +206,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
         name: sub.name,
         slug: sub.slug,
         isVisible: sub.isVisible,
+        googleProductCategory: sub.googleProductCategory.trim() || null,
         translations: LOCALES.flatMap((locale) =>
           sub.translations[locale].trim()
             ? [{ locale, name: sub.translations[locale].trim() }]
@@ -209,6 +219,7 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          googleProductCategory: data.googleProductCategory?.trim() || null,
           imageLink: imageLink.trim() || null,
           translations: translationsArr,
           subcategory: subcategoryPayload,
@@ -305,6 +316,29 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                 )}
               />
             </div>
+
+            {/* Google Product Category */}
+            <FormField
+              control={form.control}
+              name="googleProductCategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('categoryModal.googleProductCategory')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. 222"
+                      inputMode="numeric"
+                      {...field}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <div className="text-xs text-gray-500">
+                    {t('categoryModal.googleProductCategoryDesc')}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Category Translations */}
             <div className="space-y-2">
@@ -424,6 +458,24 @@ export function CategoryModal({ isOpen, onClose, onSave, category, mode }: Categ
                                 disabled={isLoading}
                                 className="h-8 text-sm"
                               />
+                            </div>
+                          </div>
+
+                          {/* Google Product Category */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">{t('categoryModal.googleProductCategory')}</Label>
+                            <Input
+                              placeholder="e.g. 222"
+                              inputMode="numeric"
+                              value={sub.googleProductCategory}
+                              onChange={(e) =>
+                                updateSubcategory(index, { googleProductCategory: e.target.value })
+                              }
+                              disabled={isLoading}
+                              className="h-8 text-sm"
+                            />
+                            <div className="text-xs text-gray-500">
+                              {t('categoryModal.googleProductCategorySubDesc')}
                             </div>
                           </div>
 

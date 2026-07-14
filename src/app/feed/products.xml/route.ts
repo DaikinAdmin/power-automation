@@ -83,9 +83,39 @@ export async function GET(request: NextRequest) {
         itemImageLink: schema.item.itemImageLink,
         brandSlug: schema.item.brandSlug,
         isDisplayed: schema.item.isDisplayed,
+        categorySlug: schema.item.categorySlug,
       })
       .from(schema.item)
       .where(eq(schema.item.isDisplayed, true));
+
+    // 1b. Preload category/subcategory Google product category IDs.
+    // item.categorySlug can point at either a category or a subcategory slug —
+    // a subcategory's own ID (if set) wins over its parent category's ID.
+    const categoryRows = await db
+      .select({ slug: schema.category.slug, googleProductCategory: schema.category.googleProductCategory })
+      .from(schema.category);
+    const subcategoryRows = await db
+      .select({
+        slug: schema.subcategories.slug,
+        categorySlug: schema.subcategories.categorySlug,
+        googleProductCategory: schema.subcategories.googleProductCategory,
+      })
+      .from(schema.subcategories);
+
+    const categoryGpcBySlug = new Map(categoryRows.map((c) => [c.slug, c.googleProductCategory]));
+    const subcategoryBySlug = new Map(subcategoryRows.map((s) => [s.slug, s]));
+
+    const DEFAULT_GOOGLE_PRODUCT_CATEGORY = "222";
+    const resolveGoogleProductCategory = (itemCategorySlug: string): string => {
+      const sub = subcategoryBySlug.get(itemCategorySlug);
+      if (sub) {
+        if (sub.googleProductCategory != null) return String(sub.googleProductCategory);
+        const parentGpc = categoryGpcBySlug.get(sub.categorySlug);
+        return parentGpc != null ? String(parentGpc) : DEFAULT_GOOGLE_PRODUCT_CATEGORY;
+      }
+      const gpc = categoryGpcBySlug.get(itemCategorySlug);
+      return gpc != null ? String(gpc) : DEFAULT_GOOGLE_PRODUCT_CATEGORY;
+    };
 
     // 2. For each item, fetch localised details, brand, and best price
     const feedItems: string[] = [];
@@ -205,6 +235,8 @@ export async function GET(request: NextRequest) {
 
       const productLink = `${feedCfg.baseUrl}/${feedCfg.locale}/product/${encodeURIComponent(item.slug)}`;
 
+      const googleProductCategory = resolveGoogleProductCategory(item.categorySlug);
+
       feedItems.push(`    <item>
       <g:id>${escapeXml(item.articleId)}</g:id>
       <g:title>${escapeXml(title)}</g:title>
@@ -216,7 +248,7 @@ ${salePriceXml ? salePriceXml + "\n" : ""}      <g:availability>${availability}<
       <g:condition>new</g:condition>
       <g:brand>${escapeXml(brandName)}</g:brand>
       <g:mpn>${escapeXml(item.articleId)}</g:mpn>
-      <g:google_product_category>222</g:google_product_category>
+      <g:google_product_category>${escapeXml(googleProductCategory)}</g:google_product_category>
 ${excludedDestinationsXml}    </item>`);
     }
 

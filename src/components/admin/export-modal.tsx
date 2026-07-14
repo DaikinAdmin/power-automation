@@ -50,7 +50,6 @@ const BASE_EXPORT_FIELDS: ExportField[] = [
   // Meta
   { key: "metaKeyWords", label: "Meta Keywords", group: "meta" },
   { key: "metaDescription", label: "Meta Description", group: "meta" },
-  { key: "discount", label: "Discount", group: "meta" },
   { key: "popularity", label: "Popularity", group: "meta" },
 ];
 
@@ -106,7 +105,6 @@ function flattenItem(
       seller: item.details.seller,
       metaKeyWords: item.details.metaKeyWords,
       metaDescription: item.details.metaDescription,
-      discount: item.details.discount ?? "",
       popularity: item.details.popularity ?? "",
     };
     result[field.label] = map[field.key] ?? "";

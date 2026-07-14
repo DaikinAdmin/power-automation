@@ -45,7 +45,6 @@ export default function ProductsTabsSection({
           .sort((a, b) => (b.sellCounter || 0) - (a.sellCounter || 0))
           .slice(0, 8);
       case "discount":
-        const today = new Date();
         return displayedItems
           .filter((item) => {
             // Check if item has DISCOUNT badge
@@ -53,29 +52,11 @@ export default function ProductsTabsSection({
               (price) => price.badge === "HOT_DEALS"
             );
 
-            // Check if item has active promotion price
+            // API already excludes promotionPrice for promos outside their
+            // promoStartDate/promoEndDate window, so no date check needed here.
             const hasActivePromotion = item.prices.some(
-              (price: {
-                promotionPrice: number | null;
-                price: number;
-                promoEndDate: string | number | Date | null;
-              }) => {
-                if (
-                  !price.promotionPrice ||
-                  price.promotionPrice >= price.price
-                )
-                  return false;
-
-                // Check if promotion is active today
-                if (price.promoEndDate) {
-                  const startDate = new Date();
-                  const endDate = new Date(price.promoEndDate);
-                  return today >= startDate && today <= endDate;
-                }
-
-                // If no date restrictions, consider promotion active
-                return true;
-              }
+              (price: { promotionPrice: number | null; price: number }) =>
+                !!price.promotionPrice && price.promotionPrice < price.price
             );
 
             return hasDiscountBadge || hasActivePromotion;
@@ -213,7 +194,7 @@ export default function ProductsTabsSection({
 
               const addToCartHandler = () => {
                 if (!inStock) return;
-                const { warehouseId, price: itemPrice, initialCurrency: itemCurrency } = getItemPrice(item);
+                const { warehouseId, price: itemPrice, originalPrice: itemOriginalPrice, initialCurrency: itemCurrency } = getItemPrice(item);
                 const subCategory = item.subCategorySlug
                   ? item.category.subCategories.find(
                       (s) => s.slug === item.subCategorySlug
@@ -249,7 +230,9 @@ export default function ProductsTabsSection({
                     : null,
                   linkedItems: [],
                   price: itemPrice,
-                  basePrice: itemPrice,
+                  basePrice: itemOriginalPrice ?? itemPrice,
+                  specialPrice: itemOriginalPrice ? itemPrice : undefined,
+                  baseSpecialPrice: itemOriginalPrice ? itemPrice : undefined,
                   warehouseId,
                   initialCurrency: itemCurrency ?? null,
                   grossWeight: item.grossWeight,
@@ -351,7 +334,7 @@ export default function ProductsTabsSection({
 
                   const addToCartHandler = () => {
                     if (!inStock) return;
-                    const { warehouseId, price: itemPrice, initialCurrency: itemCurrency } = getItemPrice(item);
+                    const { warehouseId, price: itemPrice, originalPrice: itemOriginalPrice, initialCurrency: itemCurrency } = getItemPrice(item);
                     const subCategory = item.subCategorySlug
                       ? item.category.subCategories.find(
                           (s) => s.slug === item.subCategorySlug
@@ -387,7 +370,9 @@ export default function ProductsTabsSection({
                         : null,
                       linkedItems: [],
                       price: itemPrice,
-                      basePrice: itemPrice,
+                      basePrice: itemOriginalPrice ?? itemPrice,
+                      specialPrice: itemOriginalPrice ? itemPrice : undefined,
+                      baseSpecialPrice: itemOriginalPrice ? itemPrice : undefined,
                       warehouseId,
                       initialCurrency: itemCurrency ?? null,
                       grossWeight: item.grossWeight,

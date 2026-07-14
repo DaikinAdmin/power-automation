@@ -220,7 +220,7 @@ export function CategoryPageClient({
   ) => {
     const now = new Date();
     const details = getItemDetails(item);
-    const { initialCurrency: itemCurrency } = getItemPrice(item);
+    const { initialCurrency: itemCurrency, originalPrice: itemOriginalPrice } = getItemPrice(item);
     const subCategory = item.subCategorySlug
       ? item.category.subCategories.find(
           (s: any) => s.slug === item.subCategorySlug,
@@ -241,6 +241,7 @@ export function CategoryPageClient({
       category: {
         ...item.category,
         id: item.category.slug,
+        googleProductCategory: null,
         subCategories: [],
         categoryTranslations: [],
       },
@@ -280,7 +281,9 @@ export function CategoryPageClient({
       ] as any,
       itemPrice: item.prices as any,
       price,
-      basePrice: price,
+      basePrice: itemOriginalPrice ?? price,
+      specialPrice: itemOriginalPrice ? price : undefined,
+      baseSpecialPrice: itemOriginalPrice ? price : undefined,
       initialCurrency: itemCurrency ?? null,
       warehouseId,
       displayName: details?.itemName,

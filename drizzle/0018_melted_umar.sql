@@ -1,0 +1,1 @@
+ALTER TABLE "item_details" DROP COLUMN "discount";

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { getItemBySlug } from '@/helpers/db/queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import { isPromoActive } from '@/helpers/pricing';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError, NotFoundError } from '@/lib/error-handler';
 
@@ -35,6 +36,10 @@ export async function GET(
     // Get the first recommended warehouse that has stock
     const recommendedPrice = itemData.prices.find((p) => p.quantity > 0) || itemData.prices[0];
 
+    const recommendedPromoActive =
+      recommendedPrice != null &&
+      isPromoActive(recommendedPrice.promoStartDate, recommendedPrice.promoEndDate);
+
     const formattedRecommended = recommendedPrice
       ? {
           warehouse: {
@@ -44,7 +49,7 @@ export async function GET(
             displayedName: recommendedPrice.warehouse.displayedName,
           },
           price: +(recommendedPrice.price).toFixed(2),
-          promotionPrice: recommendedPrice.promotionPrice
+          promotionPrice: recommendedPrice.promotionPrice && recommendedPromoActive
             ? +(recommendedPrice.promotionPrice * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2)
             : null,
           quantity: recommendedPrice.quantity,
@@ -78,7 +83,8 @@ export async function GET(
       warehouses: itemData.prices.map((price) => {
         const marginMultiplier = 1 + ((price.margin ?? 20) / 100);
         const priceWithMargin = +(price.price).toFixed(2);
-        const promoPriceWithMargin = price.promotionPrice
+        const promoActive = isPromoActive(price.promoStartDate, price.promoEndDate);
+        const promoPriceWithMargin = price.promotionPrice && promoActive
           ? +(price.promotionPrice * marginMultiplier).toFixed(2)
           : null;
         return {
@@ -109,7 +115,6 @@ export async function GET(
           description: itemData.details.description,
           specifications: itemData.details.specifications,
           seller: itemData.details.seller,
-          discount: itemData.details.discount,
           popularity: itemData.details.popularity,
           metaKeyWords: itemData.details.metaKeyWords,
           metaDescription: itemData.details.metaDescription,

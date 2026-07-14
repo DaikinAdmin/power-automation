@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getItemsByLocale } from '@/helpers/db/items-queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import { isPromoActive } from '@/helpers/pricing';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
 
@@ -71,12 +72,18 @@ export async function GET(
     // Strip margin and bake it into prices before returning public response
     const publicItems = items.map(item => ({
       ...item,
-      prices: item.prices.map(({ margin, price, promotionPrice, ...rest }) => {
+      prices: item.prices.map(({ margin, price, promotionPrice, promoStartDate, promoEndDate, ...rest }) => {
         const marginRate = 1 + ((margin ?? 20) / 100);
+        const activePromotionPrice =
+          promotionPrice != null && isPromoActive(promoStartDate, promoEndDate)
+            ? promotionPrice
+            : null;
         return {
           ...rest,
           price: price,
-          promotionPrice: promotionPrice != null ? promotionPrice * marginRate : null,
+          promoStartDate,
+          promoEndDate,
+          promotionPrice: activePromotionPrice != null ? activePromotionPrice * marginRate : null,
         };
       }),
     }));

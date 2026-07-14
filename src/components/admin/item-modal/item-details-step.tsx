@@ -32,7 +32,6 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
     description: '',
     specifications: '',
     seller: '',
-    discount: undefined as number | undefined,
   });
 
   const availableLocales = useMemo(() => {
@@ -52,7 +51,6 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
       description: '',
       specifications: '',
       seller: '',
-      discount: undefined,
     });
   };
 
@@ -70,7 +68,6 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
       description: newDetailEntry.description,
       specifications: newDetailEntry.specifications || '',
       seller: newDetailEntry.seller || '',
-      discount: newDetailEntry.discount ?? null,
       popularity: null,
     } as ItemDetail;
 
@@ -133,17 +130,15 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Locale</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Item Name</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Seller</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Discount (%)</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-900">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {formData.itemDetails.map((detail: { id: any; locale: string; itemName: any; seller: any; discount: any; }, index: number) => (
+                {formData.itemDetails.map((detail: { id: any; locale: string; itemName: any; seller: any; }, index: number) => (
                   <tr key={detail.id || `detail-${index}`}>
                     <td className="px-4 py-2 text-sm text-gray-900">{getLocaleName(detail.locale)}</td>
                     <td className="px-4 py-2 text-sm text-gray-900">{detail.itemName || 'No name'}</td>
                     <td className="px-4 py-2 text-sm text-gray-900">{detail.seller || '—'}</td>
-                    <td className="px-4 py-2 text-sm text-gray-900">{detail.discount ?? '—'}</td>
                     <td className="px-4 py-2">
                       <div className="flex gap-2">
                         <Button
@@ -217,24 +212,6 @@ export function ItemDetailsStep({ formData, setFormData }: ItemDetailsStepProps)
                   onChange={(e) => setNewDetailEntry((prev) => ({ ...prev, seller: e.target.value }))}
                   className="mt-1"
                   placeholder="Enter seller name"
-                />
-              </div>
-
-              <div>
-                <Label>Discount (%)</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={newDetailEntry.discount ?? ''}
-                  onChange={(e) =>
-                    setNewDetailEntry((prev) => ({
-                      ...prev,
-                      discount: e.target.value ? parseFloat(e.target.value) : undefined,
-                    }))
-                  }
-                  className="mt-1"
-                  placeholder="Enter discount percentage"
                 />
               </div>
             </div>

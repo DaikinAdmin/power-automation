@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { getDomainKeyByHost } from '@/lib/domain-config';
 import { getDeliveryPricingByDomainKey, computeDeliveryCharge } from '@/lib/delivery-pricing';
 import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
+import { isPromoActive } from '@/helpers/pricing';
 
 export type OrderLineItem = {
   itemId: string;
@@ -124,6 +125,8 @@ export async function orderHandler(body: any, userId: string, locale: string = '
           price: schema.itemPrice.price,
           quantity: schema.itemPrice.quantity,
           promotionPrice: schema.itemPrice.promotionPrice,
+          promoStartDate: schema.itemPrice.promoStartDate,
+          promoEndDate: schema.itemPrice.promoEndDate,
           margin: schema.itemPrice.margin,
           initialCurrency: schema.itemPrice.initialCurrency,
           warehouse: schema.warehouse,
@@ -220,7 +223,11 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     const exchangeRate = originalCurrency ? resolveRate(originalCurrency, orderCurrency) : 1;
     const vatRate = domainVatRate;
     const basePriceNet = itemPrice.price;
-    const specialPriceNet = itemPrice.promotionPrice ?? null;
+    const specialPriceNet =
+      itemPrice.promotionPrice != null &&
+      isPromoActive(itemPrice.promoStartDate, itemPrice.promoEndDate)
+        ? itemPrice.promotionPrice
+        : null;
     const unitPriceNet = specialPriceNet ?? basePriceNet;
     const lineTotalNet = +(unitPriceNet * cartItem.quantity).toFixed(6);
     const lineTotalNetConverted = +(lineTotalNet * exchangeRate).toFixed(2);

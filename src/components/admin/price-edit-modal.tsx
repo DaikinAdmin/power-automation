@@ -15,6 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { ItemPrice } from "@/helpers/types/item";
 import type { Warehouse, Badge } from "@/db/schema";
+import {
+  getEditableDiscountPercent,
+  priceFromDiscountPercent,
+  roundToCents,
+} from "@/helpers/pricing";
 
 interface PriceEditModalProps {
   isOpen: boolean;
@@ -70,15 +75,62 @@ export function PriceEditModal({
     },
   });
 
-  useEffect(() => {
-    if (formData.initialPrice && formData.margin) {
-      const calculated = formData.initialPrice * (1 + formData.margin / 100);
-      setFormData((prev: any) => ({
-        ...prev,
-        price: parseFloat(calculated.toFixed(2)),
-      }));
-    }
-  }, [formData.initialPrice, formData.margin]);
+  // Keep price, initial price, margin, sale price and discount % in sync:
+  // editing any one of them recalculates the others, preserving the current
+  // discount % when the base price moves (initialPrice/margin/price change).
+  const handleInitialPriceChange = (raw: string) => {
+    const initialPrice = raw ? parseFloat(raw) : null;
+    setFormData((prev: any) => {
+      const margin = prev.margin ?? 20;
+      const price =
+        initialPrice != null ? roundToCents(initialPrice * (1 + margin / 100)) : prev.price;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, initialPrice, price, promotionPrice };
+    });
+  };
+
+  const handleMarginChange = (raw: string) => {
+    const margin = parseFloat(raw) || 0;
+    setFormData((prev: any) => {
+      const price =
+        prev.initialPrice != null
+          ? roundToCents(prev.initialPrice * (1 + margin / 100))
+          : prev.price;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, margin, price, promotionPrice };
+    });
+  };
+
+  const handlePriceChange = (raw: string) => {
+    const price = parseFloat(raw) || 0;
+    setFormData((prev: any) => {
+      const margin =
+        prev.initialPrice && prev.initialPrice > 0
+          ? roundToCents((price / prev.initialPrice - 1) * 100)
+          : prev.margin;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, price, margin, promotionPrice };
+    });
+  };
+
+  const handlePromotionPriceChange = (raw: string) => {
+    const promotionPrice = raw ? parseFloat(raw) : null;
+    setFormData((prev: any) => ({ ...prev, promotionPrice }));
+  };
+
+  const handleDiscountPercentChange = (raw: string) => {
+    const pct = raw ? parseFloat(raw) : null;
+    setFormData((prev: any) => ({
+      ...prev,
+      promotionPrice: priceFromDiscountPercent(prev.price, pct),
+    }));
+  };
 
   useEffect(() => {
     fetchWarehouses();
@@ -168,12 +220,7 @@ export function PriceEditModal({
                 min="0"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    price: parseFloat(e.target.value) || 0,
-                  }))
-                }
+                onChange={(e) => handlePriceChange(e.target.value)}
                 className="mt-1"
                 placeholder="0.00"
                 required
@@ -205,16 +252,23 @@ export function PriceEditModal({
                 min="0"
                 step="0.01"
                 value={formData.promotionPrice || ""}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    promotionPrice: e.target.value
-                      ? parseFloat(e.target.value)
-                      : null,
-                  }))
-                }
+                onChange={(e) => handlePromotionPriceChange(e.target.value)}
                 className="mt-1"
                 placeholder="0.00"
+              />
+            </div>
+
+            <div>
+              <Label>{t('priceModal.discountPercent')}</Label>
+              <Input
+                type="number"
+                min="0"
+                max="99"
+                step="0.01"
+                value={getEditableDiscountPercent(formData.price, formData.promotionPrice) ?? ""}
+                onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                className="mt-1"
+                placeholder="0"
               />
             </div>
 
@@ -254,6 +308,29 @@ export function PriceEditModal({
             </div>
 
             <div>
+              <Label>{t('priceModal.promoStartDate')}</Label>
+              <Input
+                type="date"
+                value={
+                  formData.promoStartDate
+                    ? new Date(formData.promoStartDate)
+                        .toISOString()
+                        .split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  setFormData((prev: any) => ({
+                    ...prev,
+                    promoStartDate: e.target.value
+                      ? new Date(e.target.value)
+                      : null,
+                  }))
+                }
+                className="mt-1"
+              />
+            </div>
+
+            <div>
               <Label>{t('priceModal.promoEndDate')}</Label>
               <Input
                 type="date"
@@ -284,12 +361,7 @@ export function PriceEditModal({
                 max="100"
                 step="0.1"
                 value={formData.margin ?? 20}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    margin: parseFloat(e.target.value) || 0,
-                  }))
-                }
+                onChange={(e) => handleMarginChange(e.target.value)}
                 className="mt-1"
                 placeholder="20"
               />
@@ -302,14 +374,7 @@ export function PriceEditModal({
                 min="0"
                 step="0.01"
                 value={formData.initialPrice ?? ""}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({
-                    ...prev,
-                    initialPrice: e.target.value
-                      ? parseFloat(e.target.value)
-                      : null,
-                  }))
-                }
+                onChange={(e) => handleInitialPriceChange(e.target.value)}
                 className="mt-1"
                 placeholder="0.00"
               />

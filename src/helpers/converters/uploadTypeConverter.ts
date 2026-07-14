@@ -31,7 +31,6 @@ export async function convertUploadTypeToItems(uploadData: UploadType[]): Promis
       specifications: upload.specifications || null,
       itemName: upload.itemName,
       seller: upload.seller || null,
-      discount: upload.discount || null,
       popularity: upload.popularity || null,
     }));
 

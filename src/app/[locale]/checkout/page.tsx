@@ -91,7 +91,7 @@ export default function CheckoutPage({
     formatCartItemPrice,
     formatCartTotal,
   } = useCartTotals({ items: cartItems });
-  const { convertToCurrency, formatAs } = useCurrency();
+  const { convertToCurrency, formatAs, currencyCode } = useCurrency();
   const domainCurrency = DOMAIN_CURRENCY[domainConfig.key] ?? "EUR";
   const session = authClient.useSession();
   const sessionUser = session.data?.user as AuthUser | undefined;
@@ -99,6 +99,16 @@ export default function CheckoutPage({
   const vatPlaceholder = domainConfig.key === "ua" ? "ІПН або ЄДРПОУ" : "NIP lub VAT";
 
   // Effects & Handlers
+  // A logged-in user is never in "quick/guest order" mode — quickOrderMode
+  // otherwise defaults to true for the UA locale even after login, which left
+  // isConfirmOrderDisabled() checking the (never filled-in) guest fields and
+  // hid the delivery-details address inputs for signed-in users.
+  useEffect(() => {
+    if (session.data?.user) {
+      setQuickOrderMode(false);
+    }
+  }, [session.data?.user]);
+
   useEffect(() => {
     if (!session.data?.user) return;
     const user = session.data.user as any;
@@ -466,7 +476,7 @@ export default function CheckoutPage({
                             <span className="text-red-600 font-bold text-sm">
                                 {formatPaymentPrice(item)}
                             </span>
-                            {getItemCurrency(item) !== domainCurrency && (
+                            {currencyCode !== domainCurrency && (
                               <span className="text-gray-400 text-[10px] lg:text-xs">
                                 ({formatCartItemPrice(item)})
                               </span>
@@ -499,7 +509,7 @@ export default function CheckoutPage({
                       <span>{t("orderSummary.total")}:</span>
                       <div className="text-right">
                         <span className="text-red-600">{formatAs(orderTotalNumeric + deliveryPrice, domainCurrency as SupportedCurrency)}</span>
-                        {cartItems.some(i => getItemCurrency(i) !== domainCurrency) && deliveryPrice === 0 && (
+                        {currencyCode !== domainCurrency && deliveryPrice === 0 && (
                            <div className="text-gray-500 font-normal text-xs lg:text-sm">
                              ({formatCartTotal()})
                            </div>

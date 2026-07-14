@@ -326,6 +326,7 @@ export const category = pgTable("category", {
   slug: text().notNull().unique(),
   isVisible: boolean().default(true),
   imageLink: text(),
+  googleProductCategory: integer("google_product_category"),
   createdAt: timestamp({ precision: 3, mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -347,6 +348,7 @@ export const subcategories = pgTable(
       .notNull(),
     updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
     isVisible: boolean().default(true),
+    googleProductCategory: integer("google_product_category"),
   },
   (table) => [
     foreignKey({
@@ -514,7 +516,6 @@ export const itemDetails = pgTable(
     specifications: text(),
     itemName: text().notNull(),
     seller: text(),
-    discount: doublePrecision(),
     popularity: integer(),
     metaDescription: text(),
     metaKeyWords: text(),

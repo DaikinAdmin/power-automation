@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     const categoryFilter = searchParams.get('category') || '';
     const hideHidden = searchParams.get('hideHidden') === 'true';
     const hasBadge = searchParams.get('hasBadge') === 'true';
+    const hasPromo = searchParams.get('hasPromo') === 'true';
     
     logger.info('Fetching items (admin)', { 
       userId: session.user.id, 
@@ -80,6 +81,12 @@ export async function GET(request: NextRequest) {
     if (hasBadge) {
       conditions.push(
         sql`EXISTS (SELECT 1 FROM "item_price" WHERE "item_price"."itemSlug" = "item"."slug" AND "item_price"."badge" != 'ABSENT')`
+      );
+    }
+
+    if (hasPromo) {
+      conditions.push(
+        sql`EXISTS (SELECT 1 FROM "item_price" WHERE "item_price"."itemSlug" = "item"."slug" AND "item_price"."promotionPrice" IS NOT NULL)`
       );
     }
     
@@ -508,7 +515,6 @@ export async function POST(request: NextRequest) {
         description: detail.description,
         specifications: detail.specifications,
         seller: detail.seller || null,
-        discount: detail.discount ?? null,
         popularity: detail.popularity ?? null,
         createdAt: now,
         updatedAt: now,

@@ -312,6 +312,13 @@ export default function BulkUploadPage() {
             item.promoPrice = parseFloat(row[columnMapping.promoPrice]) || 0;
           }
           if (
+            columnMapping.promoDiscountPercent !== null &&
+            row[columnMapping.promoDiscountPercent] !== undefined
+          ) {
+            item.promoDiscountPercent =
+              parseFloat(row[columnMapping.promoDiscountPercent]) || 0;
+          }
+          if (
             columnMapping.promoStartDate !== null &&
             row[columnMapping.promoStartDate] !== undefined
           ) {

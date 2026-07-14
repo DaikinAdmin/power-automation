@@ -263,7 +263,6 @@ export async function POST(request: NextRequest) {
               metaKeyWords: translated.metaKeyWords,
               itemSlug: source.itemSlug,
               seller: source.seller,
-              discount: source.discount,
               popularity: source.popularity,
             });
 

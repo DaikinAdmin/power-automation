@@ -124,7 +124,6 @@ export default function EditItemPage({
                 description: detail.description || "",
                 specifications: detail.specifications || "",
                 seller: detail.seller || "",
-                discount: detail.discount ? parseFloat(detail.discount) : null,
                 popularity: detail.popularity || null,
               }))
             : [],

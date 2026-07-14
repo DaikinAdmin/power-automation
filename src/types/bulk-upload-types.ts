@@ -20,7 +20,8 @@ export type OptionalField =
   | "promoCode"
   | "promoStartDate"
   | "promoEndDate"
-  | "promoPrice";
+  | "promoPrice"
+  | "promoDiscountPercent";
 export type TranslationField =
   | "name_pl"
   | "name_ua"
@@ -66,6 +67,7 @@ export interface ColumnMapping {
   promoStartDate: number | null;
   promoEndDate: number | null;
   promoPrice: number | null;
+  promoDiscountPercent: number | null;
   initialCurrency: number | null;
   name_pl: number | null;
   name_ua: number | null;
@@ -118,6 +120,7 @@ export const EMPTY_COLUMN_MAPPING: ColumnMapping = {
   promoStartDate: null,
   promoEndDate: null,
   promoPrice: null,
+  promoDiscountPercent: null,
   initialCurrency: null,
   name_pl: null,
   name_ua: null,
@@ -162,6 +165,7 @@ export const optionalFields: { key: OptionalField; label: string }[] = [
   { key: "initialCurrency", label: "Initial Currency" },
   { key: "promoCode", label: "Promo Code" },
   { key: "promoPrice", label: "Promo Price" },
+  { key: "promoDiscountPercent", label: "Discount %" },
   { key: "promoStartDate", label: "Promo Start Date" },
   { key: "promoEndDate", label: "Promo End Date" },
 ];

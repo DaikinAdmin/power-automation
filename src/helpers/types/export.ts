@@ -25,7 +25,6 @@ export interface ExportItemDetails {
   description: string;
   specifications: string;
   seller: string;
-  discount: number | null;
   popularity: number | null;
   metaKeyWords: string;
   metaDescription: string;

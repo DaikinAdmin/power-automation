@@ -40,6 +40,7 @@ export interface ItemPriceResponse {
   quantity: number;
   promotionPrice: number | null;
   promoCode: string | null;
+  promoStartDate: string | null;
   promoEndDate: string | null;
   badge: string | null;
   margin: number | null;
@@ -52,7 +53,6 @@ export interface ItemDetailsResponse {
   description: string;
   specifications: string | null;
   seller: string | null;
-  discount: number | null;
   popularity: number | null;
   metaKeyWords: string | null;
   metaDescription: string | null;

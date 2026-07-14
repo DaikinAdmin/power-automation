@@ -33,6 +33,7 @@ const initialFormData: Item = {
     slug: '',
     imageLink: null,
     isVisible: true,
+    googleProductCategory: null,
     subCategories: [],
     categoryTranslations: []
   },
@@ -43,7 +44,8 @@ const initialFormData: Item = {
     updatedAt: new Date().toISOString(),
     slug: '',
     isVisible: true,
-    categorySlug: ''
+    categorySlug: '',
+    googleProductCategory: null
   },
   itemPrice: [],
   itemDetails: [],

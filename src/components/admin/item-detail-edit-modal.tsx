@@ -62,7 +62,6 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
 
     onSave({
       ...formData,
-      discount: formData.discount ?? null,
       specifications: formData.specifications || '',
       seller: formData.seller || '',
     });
@@ -117,19 +116,6 @@ export function ItemDetailEditModal({ isOpen, onClose, itemDetail, onSave }: Ite
               value={formData.seller || ''}
               onChange={(e) => handleInputChange('seller', e.target.value)}
               placeholder={t('detailModal.sellerPlaceholder')}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="discount">{t('detailModal.discount')}</Label>
-            <Input
-              id="discount"
-              type="number"
-              min="0"
-              max="100"
-              value={formData.discount ?? ''}
-              onChange={(e) => handleInputChange('discount', e.target.value ? parseFloat(e.target.value) : null)}
-              placeholder={t('detailModal.discountPlaceholder')}
             />
           </div>
 

@@ -91,7 +91,6 @@ export type ProductDetailsResponse = {
     description: string | null;
     specifications: string | null;
     seller: string | null;
-    discount: number | null;
     popularity: number | null;
     metaKeyWords?: string | null;
     metaDescription?: string | null;
@@ -138,7 +137,6 @@ export interface UploadType {
   description: string;
   specifications: string;
   seller: string;
-  discount: number;
   popularity: number;
   warehouseName: string;
   price: number;
@@ -179,7 +177,6 @@ export interface ItemDetailResponse {
   description: string;
   specifications: string;
   seller: string;
-  discount: number;
   popularity: number;
   badge: string | null;
   warrantyMonths: number;
@@ -195,7 +192,6 @@ export interface ItemDetailResponse {
     description: string | null;
     specifications: string | null;
     seller: string | null;
-    discount: number | null;
     popularity: number | null;
   }>;
   recommendedWarehouse?: {

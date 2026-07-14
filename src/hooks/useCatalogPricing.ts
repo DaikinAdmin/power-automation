@@ -101,18 +101,25 @@ export const useCatalogPricing = (
 
   const getAvailableWarehouses = useCallback((item: ItemType) => {
     const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
-    
+
     return prices.map((priceInfo) => {
       const margin = ('margin' in priceInfo ? (priceInfo as any).margin : null) ?? 0;
-      const basePrice = priceInfo.promotionPrice ?? priceInfo.price;
       const marginMultiplier = 1 + margin / 100;
+      // price/basePrice must stay the full (non-promo) price and
+      // specialPrice/baseSpecialPrice the discounted one — cart-context relies
+      // on this distinction to render the correct strikethrough price.
+      const basePrice = priceInfo.price * marginMultiplier;
+      const baseSpecialPrice =
+        priceInfo.promotionPrice != null ? priceInfo.promotionPrice * marginMultiplier : undefined;
       return {
         warehouseId: priceInfo.warehouse.id,
         warehouseName: priceInfo.warehouse.name || priceInfo.warehouse.displayedName || 'Unknown Warehouse',
         warehouseCountry: priceInfo.warehouse.countrySlug || 'Unknown Country',
         displayName: priceInfo.warehouse.displayedName || undefined,
-        price: basePrice * marginMultiplier,
-        specialPrice: priceInfo.promotionPrice ? priceInfo.promotionPrice * marginMultiplier : undefined,
+        price: basePrice,
+        specialPrice: baseSpecialPrice,
+        basePrice,
+        baseSpecialPrice,
         inStock: priceInfo.quantity > 0,
         quantity: priceInfo.quantity,
         initialCurrency: (priceInfo as any).initialCurrency ?? null,

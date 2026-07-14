@@ -17,7 +17,13 @@ const generateSlug = (value: string) =>
     .replace(/-+/g, '-')
     .trim();
 
-const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> }> => {
+const normalizeGoogleProductCategory = (value: any): number | null => {
+  if (value === undefined || value === null || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+};
+
+const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; isVisible: boolean; googleProductCategory: number | null; translations: Array<{ locale: string; name: string }> }> => {
   if (!Array.isArray(raw)) return [];
 
   return raw
@@ -30,6 +36,7 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug: generateSlug(name),
           isVisible: true,
+          googleProductCategory: null,
           translations: [],
         };
       }
@@ -45,13 +52,14 @@ const normalizeSubcategories = (raw: any): Array<{ name: string; slug: string; i
           name,
           slug,
           isVisible: entry.isVisible !== undefined ? Boolean(entry.isVisible) : true,
+          googleProductCategory: normalizeGoogleProductCategory(entry.googleProductCategory),
           translations,
         };
       }
 
       return null;
     })
-    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
+    .filter((entry): entry is { name: string; slug: string; isVisible: boolean; googleProductCategory: number | null; translations: Array<{ locale: string; name: string }> } => Boolean(entry));
 };
 
 // GET single category
@@ -162,7 +170,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, slug: newSlug, subcategory, isVisible, translations, imageLink } = body;
+    const { name, slug: newSlug, subcategory, isVisible, translations, imageLink, googleProductCategory } = body;
 
     logger.info('Updating category', {
       endpoint: 'PUT /api/admin/categories/[slug]',
@@ -199,6 +207,7 @@ export async function PUT(
         slug: newSlug,
         isVisible: isVisible !== undefined ? isVisible : true,
         imageLink: imageLink ?? null,
+        googleProductCategory: normalizeGoogleProductCategory(googleProductCategory),
         updatedAt: new Date().toISOString(),
       })
       .where(eq(schema.category.slug, slug))
@@ -238,6 +247,7 @@ export async function PUT(
           slug: sub.slug,
           categorySlug: newSlug,
           isVisible: sub.isVisible,
+          googleProductCategory: sub.googleProductCategory,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }))

@@ -323,7 +323,6 @@ export async function PUT(
                 description: detail.description,
                 specifications: detail.specifications,
                 seller: detail.seller || null,
-                discount: detail.discount ?? null,
                 popularity: detail.popularity ?? null,
                 createdAt: now,
                 updatedAt: now,

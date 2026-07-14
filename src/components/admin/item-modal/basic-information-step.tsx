@@ -10,6 +10,11 @@ import { Item, Category, ItemPrice } from '@/helpers/types/item';
 import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
 import { ImagePickerModal } from '@/components/admin/image-picker-modal';
+import {
+  getEditableDiscountPercent,
+  priceFromDiscountPercent,
+  roundToCents,
+} from '@/helpers/pricing';
 
 interface BasicInformationStepProps {
   formData: Item;
@@ -202,6 +207,62 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
 
   const getSelectedCategory = () => {
     return categories.find(cat => cat.slug === formData.categorySlug);
+  };
+
+  // Keep price, initial price, margin, sale price and discount % in sync,
+  // same behavior as the PriceEditModal used elsewhere for existing rows.
+  const handleNewInitialPriceChange = (raw: string) => {
+    const initialPrice = raw ? parseFloat(raw) : null;
+    setNewPriceEntry((prev: any) => {
+      const margin = prev.margin ?? 20;
+      const price =
+        initialPrice != null ? roundToCents(initialPrice * (1 + margin / 100)) : prev.price;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, initialPrice, price, promotionPrice };
+    });
+  };
+
+  const handleNewMarginChange = (raw: string) => {
+    const margin = parseFloat(raw) || 0;
+    setNewPriceEntry((prev: any) => {
+      const price =
+        prev.initialPrice != null
+          ? roundToCents(prev.initialPrice * (1 + margin / 100))
+          : prev.price;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, margin, price, promotionPrice };
+    });
+  };
+
+  const handleNewPriceChange = (raw: string) => {
+    const price = parseFloat(raw) || 0;
+    setNewPriceEntry((prev: any) => {
+      const margin =
+        prev.initialPrice && prev.initialPrice > 0
+          ? roundToCents((price / prev.initialPrice - 1) * 100)
+          : prev.margin;
+      const pct = getEditableDiscountPercent(prev.price, prev.promotionPrice);
+      const promotionPrice =
+        pct != null ? priceFromDiscountPercent(price, pct) : prev.promotionPrice;
+      return { ...prev, price, margin, promotionPrice };
+    });
+  };
+
+  const handleNewPromotionPriceChange = (raw: string) => {
+    const promotionPrice = raw ? parseFloat(raw) : null;
+    setNewPriceEntry((prev: any) => ({ ...prev, promotionPrice }));
+  };
+
+  const handleNewDiscountPercentChange = (raw: string) => {
+    const pct = raw ? parseFloat(raw) : null;
+    setNewPriceEntry((prev: any) => ({
+      ...prev,
+      promotionPrice: priceFromDiscountPercent(prev.price, pct),
+    }));
   };
 
   const addPriceEntry = () => {
@@ -716,7 +777,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.01"
                   value={newPriceEntry.price}
-                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) => handleNewPriceChange(e.target.value)}
                   className="mt-1"
                   placeholder="0.00"
                   required
@@ -758,9 +819,23 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.01"
                   value={newPriceEntry.promotionPrice || ''}
-                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, promotionPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                  onChange={(e) => handleNewPromotionPriceChange(e.target.value)}
                   className="mt-1"
                   placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Discount %</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="99"
+                  step="0.01"
+                  value={getEditableDiscountPercent(newPriceEntry.price, newPriceEntry.promotionPrice) ?? ''}
+                  onChange={(e) => handleNewDiscountPercentChange(e.target.value)}
+                  className="mt-1"
+                  placeholder="0"
                 />
               </div>
 
@@ -791,7 +866,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.1"
                   value={newPriceEntry.margin ?? 20}
-                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, margin: parseFloat(e.target.value) || 0 }))}
+                  onChange={(e) => handleNewMarginChange(e.target.value)}
                   className="mt-1"
                   placeholder="20"
                 />
@@ -804,7 +879,7 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   min="0"
                   step="0.01"
                   value={newPriceEntry.initialPrice ?? ''}
-                  onChange={(e) => setNewPriceEntry((prev: any) => ({ ...prev, initialPrice: e.target.value ? parseFloat(e.target.value) : null }))}
+                  onChange={(e) => handleNewInitialPriceChange(e.target.value)}
                   className="mt-1"
                   placeholder="0.00"
                 />

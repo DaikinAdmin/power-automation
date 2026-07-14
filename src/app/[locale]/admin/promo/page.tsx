@@ -23,6 +23,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Plus, Pencil, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  calculateDiscountPercentage,
+  isPromoActive,
+  getEditableDiscountPercent,
+  priceFromDiscountPercent,
+} from "@/helpers/pricing";
 
 const BADGE_VALUES = [
   "NEW_ARRIVALS",
@@ -58,8 +64,34 @@ interface PriceEntry {
   price: number;
   quantity: number;
   badge: BadgeValue;
+  promotionPrice: number | null;
+  promoCode: string | null;
+  promoStartDate: string | null;
+  promoEndDate: string | null;
   warehouse: { id: string; name: string; displayedName: string } | null;
 }
+
+type PromoStatus = "active" | "scheduled" | "expired";
+
+const PROMO_STATUS_COLORS: Record<PromoStatus, string> = {
+  active: "bg-green-100 text-green-800 border-green-200",
+  scheduled: "bg-blue-100 text-blue-800 border-blue-200",
+  expired: "bg-gray-100 text-gray-500 border-gray-200",
+};
+
+const getPromoStatus = (price: PriceEntry): PromoStatus => {
+  if (isPromoActive(price.promoStartDate, price.promoEndDate)) {
+    return "active";
+  }
+  const now = new Date();
+  if (price.promoStartDate && now < new Date(price.promoStartDate)) {
+    return "scheduled";
+  }
+  return "expired";
+};
+
+const toDateInputValue = (value: string | null): string =>
+  value ? new Date(value).toISOString().split("T")[0] : "";
 
 interface ItemWithBadges {
   id: string;
@@ -104,6 +136,240 @@ export default function PromoPage() {
   const [assignSearchLoading, setAssignSearchLoading] = useState(false);
   const [assignPriceId, setAssignPriceId] = useState("");
   const [assignBadge, setAssignBadge] = useState<BadgeValue>("NEW_ARRIVALS");
+
+  // --- Promos tab state ---
+  const [promoItems, setPromoItems] = useState<ItemWithBadges[]>([]);
+  const [isPromoLoading, setIsPromoLoading] = useState(false);
+  const [promoPage, setPromoPage] = useState(1);
+  const [promoTotalPages, setPromoTotalPages] = useState(1);
+  const [isPromoSaving, setIsPromoSaving] = useState(false);
+  const [promoStatusFilter, setPromoStatusFilter] = useState<PromoStatus | null>(null);
+
+  // Edit promo modal
+  const [editPromoModal, setEditPromoModal] = useState<{
+    open: boolean;
+    articleId: string;
+    priceEntry: PriceEntry | null;
+  }>({ open: false, articleId: "", priceEntry: null });
+  const [editPromoPrice, setEditPromoPrice] = useState("");
+  const [editPromoCode, setEditPromoCode] = useState("");
+  const [editPromoStartDate, setEditPromoStartDate] = useState("");
+  const [editPromoEndDate, setEditPromoEndDate] = useState("");
+
+  // Assign promo modal
+  const [assignPromoModal, setAssignPromoModal] = useState(false);
+  const [assignPromoArticleId, setAssignPromoArticleId] = useState("");
+  const [assignPromoSearchResult, setAssignPromoSearchResult] =
+    useState<ItemWithBadges | null>(null);
+  const [assignPromoSearchLoading, setAssignPromoSearchLoading] = useState(false);
+  const [assignPromoPriceId, setAssignPromoPriceId] = useState("");
+  const [assignPromoPrice, setAssignPromoPrice] = useState("");
+  const [assignPromoCode, setAssignPromoCode] = useState("");
+  const [assignPromoStartDate, setAssignPromoStartDate] = useState("");
+  const [assignPromoEndDate, setAssignPromoEndDate] = useState("");
+
+  const fetchPromoItems = useCallback(async (p = 1) => {
+    setIsPromoLoading(true);
+    try {
+      const res = await fetch(
+        `/api/admin/items?hasPromo=true&page=${p}&pageSize=20`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setPromoItems(data.items ?? []);
+        setPromoTotalPages(data.pagination?.totalPages ?? 1);
+        setPromoPage(p);
+      }
+    } catch {
+      toast.error("Failed to load promoted items");
+    } finally {
+      setIsPromoLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPromoItems(1);
+  }, [fetchPromoItems]);
+
+  const getPromoPrices = (item: ItemWithBadges): PriceEntry[] =>
+    item.itemPrice.filter((p) => p.promotionPrice != null);
+
+  const promoFilteredRows = promoItems
+    .flatMap((item) => getPromoPrices(item).map((price) => ({ item, price })))
+    .filter(
+      ({ price }) => !promoStatusFilter || getPromoStatus(price) === promoStatusFilter
+    );
+
+  // --- Edit promo ---
+  const handleEditPromoOpen = (articleId: string, priceEntry: PriceEntry) => {
+    setEditPromoModal({ open: true, articleId, priceEntry });
+    setEditPromoPrice(String(priceEntry.promotionPrice ?? ""));
+    setEditPromoCode(priceEntry.promoCode ?? "");
+    setEditPromoStartDate(toDateInputValue(priceEntry.promoStartDate));
+    setEditPromoEndDate(toDateInputValue(priceEntry.promoEndDate));
+  };
+
+  const resetEditPromoModal = () => {
+    setEditPromoModal({ open: false, articleId: "", priceEntry: null });
+    setEditPromoPrice("");
+    setEditPromoCode("");
+    setEditPromoStartDate("");
+    setEditPromoEndDate("");
+  };
+
+  const handleEditPromoSave = async () => {
+    if (!editPromoModal.priceEntry) return;
+    setIsPromoSaving(true);
+    try {
+      const res = await fetch("/api/admin/items/bulk-update-prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              articleId: editPromoModal.articleId,
+              price: editPromoModal.priceEntry.price,
+              quantity: editPromoModal.priceEntry.quantity,
+              badge: editPromoModal.priceEntry.badge,
+              promoPrice: editPromoPrice ? parseFloat(editPromoPrice) : null,
+              promoCode: editPromoCode || null,
+              promoStartDate: editPromoStartDate || null,
+              promoEndDate: editPromoEndDate || null,
+            },
+          ],
+          warehouseId: editPromoModal.priceEntry.warehouseId,
+        }),
+      });
+      if (res.ok) {
+        toast.success(t('promo.editPromo.save'));
+        resetEditPromoModal();
+        fetchPromoItems(promoPage);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || "Failed to update sale");
+      }
+    } finally {
+      setIsPromoSaving(false);
+    }
+  };
+
+  const handleRemovePromo = async (articleId: string, priceEntry: PriceEntry) => {
+    if (
+      !confirm(
+        `Remove sale price from "${articleId}" (${priceEntry.warehouse?.displayedName || priceEntry.warehouse?.name})?`,
+      )
+    )
+      return;
+    setIsPromoSaving(true);
+    try {
+      const res = await fetch("/api/admin/items/bulk-update-prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              articleId,
+              price: priceEntry.price,
+              quantity: priceEntry.quantity,
+              badge: priceEntry.badge,
+              promoPrice: null,
+              promoCode: null,
+              promoStartDate: null,
+              promoEndDate: null,
+            },
+          ],
+          warehouseId: priceEntry.warehouseId,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Sale removed");
+        fetchPromoItems(promoPage);
+      } else {
+        toast.error("Failed to remove sale");
+      }
+    } finally {
+      setIsPromoSaving(false);
+    }
+  };
+
+  // --- Assign promo ---
+  const handleAssignPromoSearch = async () => {
+    const query = assignPromoArticleId.trim();
+    if (!query) return;
+    setAssignPromoSearchLoading(true);
+    setAssignPromoSearchResult(null);
+    try {
+      const res = await fetch(
+        `/api/admin/items?search=${encodeURIComponent(query)}&pageSize=5`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const found: ItemWithBadges | undefined = data.items?.find(
+          (i: ItemWithBadges) => i.articleId === query,
+        );
+        if (found) {
+          setAssignPromoSearchResult(found);
+          const firstPrice = found.itemPrice?.[0];
+          if (firstPrice) setAssignPromoPriceId(firstPrice.id);
+        } else {
+          toast.error("Item not found");
+        }
+      }
+    } finally {
+      setAssignPromoSearchLoading(false);
+    }
+  };
+
+  const resetAssignPromoModal = () => {
+    setAssignPromoModal(false);
+    setAssignPromoArticleId("");
+    setAssignPromoSearchResult(null);
+    setAssignPromoPriceId("");
+    setAssignPromoPrice("");
+    setAssignPromoCode("");
+    setAssignPromoStartDate("");
+    setAssignPromoEndDate("");
+  };
+
+  const handleAssignPromoSave = async () => {
+    if (!assignPromoSearchResult || !assignPromoPriceId || !assignPromoPrice) return;
+    const priceEntry = assignPromoSearchResult.itemPrice.find(
+      (p) => p.id === assignPromoPriceId,
+    );
+    if (!priceEntry) return;
+    setIsPromoSaving(true);
+    try {
+      const res = await fetch("/api/admin/items/bulk-update-prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: [
+            {
+              articleId: assignPromoSearchResult.articleId,
+              price: priceEntry.price,
+              quantity: priceEntry.quantity,
+              badge: priceEntry.badge,
+              promoPrice: parseFloat(assignPromoPrice),
+              promoCode: assignPromoCode || null,
+              promoStartDate: assignPromoStartDate || null,
+              promoEndDate: assignPromoEndDate || null,
+            },
+          ],
+          warehouseId: priceEntry.warehouseId,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Sale price added");
+        resetAssignPromoModal();
+        fetchPromoItems(promoPage);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || "Failed to add sale price");
+      }
+    } finally {
+      setIsPromoSaving(false);
+    }
+  };
 
   const fetchBadgedItems = useCallback(async (p = 1) => {
     setIsLoading(true);
@@ -302,16 +568,186 @@ export default function PromoPage() {
           <TabsTrigger value="badges">{t('promo.tabs.badges')}</TabsTrigger>
         </TabsList>
 
-        {/* Promos tab — placeholder */}
+        {/* Promos tab */}
         <TabsContent value="promos" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('promo.promos.title')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">{t('promo.promos.comingSoon')}</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold">{t('promo.promos.title')}</h2>
+                <Select
+                  value={promoStatusFilter ?? "ALL"}
+                  onValueChange={(v) =>
+                    setPromoStatusFilter(v === "ALL" ? null : (v as PromoStatus))
+                  }
+                >
+                  <SelectTrigger className="w-44 h-8 text-sm">
+                    <SelectValue placeholder={t('promo.promos.allStatuses')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">{t('promo.promos.allStatuses')}</SelectItem>
+                    <SelectItem value="active">{t('promo.promos.status.active')}</SelectItem>
+                    <SelectItem value="scheduled">{t('promo.promos.status.scheduled')}</SelectItem>
+                    <SelectItem value="expired">{t('promo.promos.status.expired')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={() => setAssignPromoModal(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                {t('promo.promos.assignPromo')}
+              </Button>
+            </div>
+
+            <Card>
+              <CardContent className="p-0">
+                {isPromoLoading ? (
+                  <div className="p-10 text-center text-gray-500">
+                    {t('promo.promos.loading')}
+                  </div>
+                ) : promoFilteredRows.length === 0 ? (
+                  <div className="p-10 text-center text-gray-500">
+                    {t('promo.promos.empty')}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.articleId')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.name')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.warehouse')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.price')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.promoPrice')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.discount')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.period')}
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.status')}
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {t('promo.promos.table.actions')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {promoFilteredRows.map(({ item, price }) => {
+                          const status = getPromoStatus(price);
+                          const discountPct = price.promotionPrice
+                            ? calculateDiscountPercentage(price.price, price.promotionPrice)
+                            : 0;
+                          return (
+                            <tr
+                              key={`${item.id}-${price.id}`}
+                              className="hover:bg-gray-50 transition-colors"
+                            >
+                              <td className="px-4 py-3 font-mono text-sm text-gray-900">
+                                {item.articleId}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-700 max-w-[200px] truncate">
+                                {getItemName(item)}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-600">
+                                {price.warehouse?.displayedName ||
+                                  price.warehouse?.name ||
+                                  price.warehouseId}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-400 line-through">
+                                {price.price}
+                              </td>
+                              <td className="px-4 py-3 text-sm font-medium text-red-600">
+                                {price.promotionPrice}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-600">
+                                {discountPct > 0 ? `-${discountPct}%` : "—"}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                                {price.promoStartDate
+                                  ? toDateInputValue(price.promoStartDate)
+                                  : t('promo.promos.noStartDate')}
+                                {" – "}
+                                {price.promoEndDate
+                                  ? toDateInputValue(price.promoEndDate)
+                                  : t('promo.promos.noEndDate')}
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium border ${PROMO_STATUS_COLORS[status]}`}
+                                >
+                                  {t(`promo.promos.status.${status}`)}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <div className="flex gap-1.5 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleEditPromoOpen(item.articleId, price)
+                                    }
+                                    title="Edit sale"
+                                  >
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                                    onClick={() =>
+                                      handleRemovePromo(item.articleId, price)
+                                    }
+                                    title="Remove sale"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Pagination */}
+            {promoTotalPages > 1 && (
+              <div className="flex items-center gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={promoPage <= 1}
+                  onClick={() => fetchPromoItems(promoPage - 1)}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-sm text-gray-600">
+                  {promoPage} / {promoTotalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={promoPage >= promoTotalPages}
+                  onClick={() => fetchPromoItems(promoPage + 1)}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         {/* Badges tab */}
@@ -631,6 +1067,283 @@ export default function PromoPage() {
               disabled={isSaving || !assignSearchResult || !assignPriceId}
             >
               {isSaving ? t('promo.assignBadge.saving') : t('promo.assignBadge.assign')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Promo Modal */}
+      <Dialog
+        open={editPromoModal.open}
+        onOpenChange={(open) => !open && resetEditPromoModal()}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t('promo.editPromo.title')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-xs text-gray-500">{t('promo.editPromo.articleId')}</Label>
+              <p className="mt-0.5 font-mono text-sm font-medium">
+                {editPromoModal.articleId}
+              </p>
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500">{t('promo.editPromo.warehouse')}</Label>
+              <p className="mt-0.5 text-sm">
+                {editPromoModal.priceEntry?.warehouse?.displayedName ||
+                  editPromoModal.priceEntry?.warehouse?.name}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>{t('promo.editPromo.promoPrice')}</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editPromoPrice}
+                  onChange={(e) => setEditPromoPrice(e.target.value)}
+                  className="mt-1"
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label>{t('promo.editPromo.discountPercent')}</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="99"
+                  step="0.01"
+                  value={
+                    getEditableDiscountPercent(
+                      editPromoModal.priceEntry?.price ?? 0,
+                      editPromoPrice ? parseFloat(editPromoPrice) : null
+                    ) ?? ""
+                  }
+                  onChange={(e) => {
+                    const pct = e.target.value ? parseFloat(e.target.value) : null;
+                    const base = editPromoModal.priceEntry?.price ?? 0;
+                    const promo = priceFromDiscountPercent(base, pct);
+                    setEditPromoPrice(promo != null ? String(promo) : "");
+                  }}
+                  className="mt-1"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>{t('promo.editPromo.promoCode')}</Label>
+              <Input
+                value={editPromoCode}
+                onChange={(e) => setEditPromoCode(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>{t('promo.editPromo.startDate')}</Label>
+                <Input
+                  type="date"
+                  value={editPromoStartDate}
+                  onChange={(e) => setEditPromoStartDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>{t('promo.editPromo.endDate')}</Label>
+                <Input
+                  type="date"
+                  value={editPromoEndDate}
+                  onChange={(e) => setEditPromoEndDate(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:justify-between">
+            <Button
+              variant="outline"
+              className="text-red-600 hover:text-red-700 hover:border-red-300"
+              onClick={() => {
+                if (editPromoModal.priceEntry) {
+                  handleRemovePromo(editPromoModal.articleId, editPromoModal.priceEntry);
+                  resetEditPromoModal();
+                }
+              }}
+            >
+              {t('promo.editPromo.remove')}
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={resetEditPromoModal}>
+                {t('promo.editPromo.cancel')}
+              </Button>
+              <Button onClick={handleEditPromoSave} disabled={isPromoSaving || !editPromoPrice}>
+                {isPromoSaving ? t('promo.editPromo.saving') : t('promo.editPromo.save')}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Promo Modal */}
+      <Dialog
+        open={assignPromoModal}
+        onOpenChange={(open) => !open && resetAssignPromoModal()}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('promo.assignPromo.title')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{t('promo.assignPromo.articleId')}</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  value={assignPromoArticleId}
+                  onChange={(e) => {
+                    setAssignPromoArticleId(e.target.value);
+                    setAssignPromoSearchResult(null);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleAssignPromoSearch()}
+                  placeholder={t('promo.assignPromo.placeholder')}
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleAssignPromoSearch}
+                  disabled={assignPromoSearchLoading || !assignPromoArticleId.trim()}
+                >
+                  {assignPromoSearchLoading ? t('promo.assignPromo.searching') : t('promo.assignPromo.search')}
+                </Button>
+              </div>
+            </div>
+
+            {assignPromoSearchResult && (
+              <>
+                <div className="rounded-md bg-gray-50 border px-3 py-2 text-sm text-gray-700">
+                  <span className="font-medium">
+                    {getItemName(assignPromoSearchResult)}
+                  </span>
+                  <span className="text-gray-400 ml-2 font-mono text-xs">
+                    {assignPromoSearchResult.articleId}
+                  </span>
+                </div>
+
+                <div>
+                  <Label>{t('promo.assignPromo.pricingVariant')}</Label>
+                  <Select
+                    value={assignPromoPriceId}
+                    onValueChange={setAssignPromoPriceId}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select warehouse..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {assignPromoSearchResult.itemPrice.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.warehouse?.displayedName ||
+                            p.warehouse?.name ||
+                            p.warehouseId}
+                          {" — "}
+                          {p.price} (qty: {p.quantity})
+                          {p.promotionPrice != null && (
+                            <span className="ml-1 text-xs text-orange-500">
+                              [-{p.promotionPrice}]
+                            </span>
+                          )}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{t('promo.assignPromo.promoPrice')}</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={assignPromoPrice}
+                      onChange={(e) => setAssignPromoPrice(e.target.value)}
+                      className="mt-1"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t('promo.assignPromo.discountPercent')}</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="99"
+                      step="0.01"
+                      value={
+                        getEditableDiscountPercent(
+                          assignPromoSearchResult?.itemPrice.find((p) => p.id === assignPromoPriceId)
+                            ?.price ?? 0,
+                          assignPromoPrice ? parseFloat(assignPromoPrice) : null
+                        ) ?? ""
+                      }
+                      onChange={(e) => {
+                        const pct = e.target.value ? parseFloat(e.target.value) : null;
+                        const base =
+                          assignPromoSearchResult?.itemPrice.find((p) => p.id === assignPromoPriceId)
+                            ?.price ?? 0;
+                        const promo = priceFromDiscountPercent(base, pct);
+                        setAssignPromoPrice(promo != null ? String(promo) : "");
+                      }}
+                      className="mt-1"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>{t('promo.assignPromo.promoCode')}</Label>
+                  <Input
+                    value={assignPromoCode}
+                    onChange={(e) => setAssignPromoCode(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>{t('promo.assignPromo.startDate')}</Label>
+                    <Input
+                      type="date"
+                      value={assignPromoStartDate}
+                      onChange={(e) => setAssignPromoStartDate(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t('promo.assignPromo.endDate')}</Label>
+                    <Input
+                      type="date"
+                      value={assignPromoEndDate}
+                      onChange={(e) => setAssignPromoEndDate(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={resetAssignPromoModal}>
+              {t('promo.assignPromo.cancel')}
+            </Button>
+            <Button
+              onClick={handleAssignPromoSave}
+              disabled={
+                isPromoSaving ||
+                !assignPromoSearchResult ||
+                !assignPromoPriceId ||
+                !assignPromoPrice
+              }
+            >
+              {isPromoSaving ? t('promo.assignPromo.saving') : t('promo.assignPromo.assign')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -6,6 +6,7 @@ import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
+import { priceFromDiscountPercent } from '@/helpers/pricing';
 
 interface BulkUpdateItem {
   articleId: string;
@@ -17,6 +18,7 @@ interface BulkUpdateItem {
   brand?: string;
   promoCode?: string;
   promoPrice?: number;
+  promoDiscountPercent?: number;
   promoStartDate?: string;
   promoEndDate?: string;
   margin?: number;
@@ -248,7 +250,12 @@ export async function POST(request: NextRequest) {
             updatedAt: new Date().toISOString(),
           };
           if (item.promoCode !== undefined) priceUpdateFields.promoCode = item.promoCode || null;
-          if (item.promoPrice !== undefined) priceUpdateFields.promotionPrice = item.promoPrice || null;
+          if (item.promoPrice !== undefined) {
+            // Explicit absolute promo price takes priority over a % column.
+            priceUpdateFields.promotionPrice = item.promoPrice || null;
+          } else if (item.promoDiscountPercent !== undefined) {
+            priceUpdateFields.promotionPrice = priceFromDiscountPercent(newPrice, item.promoDiscountPercent);
+          }
           if (item.promoStartDate !== undefined) priceUpdateFields.promoStartDate = item.promoStartDate || null;
           if (item.promoEndDate !== undefined) priceUpdateFields.promoEndDate = item.promoEndDate || null;
 
@@ -274,7 +281,9 @@ export async function POST(request: NextRequest) {
               quantity: item.quantity ?? 0,
               badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
-              promotionPrice: item.promoPrice || null,
+              promotionPrice: item.promoPrice
+                ? item.promoPrice
+                : priceFromDiscountPercent(calculatedPrice, item.promoDiscountPercent),
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,
               margin: effectiveMargin,
