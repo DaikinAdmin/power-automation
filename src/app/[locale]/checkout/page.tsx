@@ -43,6 +43,16 @@ const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
   ua: "UAH",
 };
 
+/** Reads the GA4 client_id portion of the _ga cookie (e.g. "GA1.1.123.456" -> "123.456"). */
+function getGaClientId(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)_ga=([^;]+)/);
+  if (!match) return null;
+  const parts = match[1].split(".");
+  if (parts.length < 4) return null;
+  return `${parts[2]}.${parts[3]}`;
+}
+
 export default function CheckoutPage({
   params,
 }: {
@@ -283,31 +293,42 @@ export default function CheckoutPage({
 
           setOrderSuccess(true);
 
-          // GTM purchase event
-          const gtmItems = cartItems.map((item) => ({
-              item_id: item.articleId,
-              item_name: item.displayName,
-              item_category: item.categorySlug || '',
-              item_list_name: item.categorySlug || 'direct',
-              price: convertToCurrency(resolveBaseUnitPrice(item), getItemCurrency(item), domainCurrency as SupportedCurrency),
-              quantity: item.quantity,
-          }));
-          const gtmValue = cartItems.reduce((sum, item) => {
-              return sum + convertToCurrency(resolveBaseUnitPrice(item) * item.quantity, getItemCurrency(item), domainCurrency as SupportedCurrency);
-          }, 0);
-          const w = window as any;
-          w.dataLayer = w.dataLayer || [];
-          w.dataLayer.push({ ecommerce: null });
-          w.dataLayer.push({
-              event: "purchase",
-              ecommerce: {
-                  transaction_id: result.order.id,
-                  value: gtmValue,
-                  currency: domainCurrency,
-                  shipping: 0,
-                  items: gtmItems,
-              },
-          });
+          // LiqPay online payments (card / installment) are only confirmed
+          // asynchronously via webhook, so the purchase conversion for those is
+          // sent server-side from /api/payments/liqpay/callback once the payment
+          // actually succeeds — firing it here would count failed/abandoned
+          // payments as conversions. See docs/LIQPAY_INTEGRATION.md.
+          const isLiqPayOnlinePayment =
+              locale === "ua" &&
+              (novaPostState?.payment === "online_card" || novaPostState?.payment === "installment");
+
+          if (!isLiqPayOnlinePayment) {
+              // GTM purchase event
+              const gtmItems = cartItems.map((item) => ({
+                  item_id: item.articleId,
+                  item_name: item.displayName,
+                  item_category: item.categorySlug || '',
+                  item_list_name: item.categorySlug || 'direct',
+                  price: convertToCurrency(resolveBaseUnitPrice(item), getItemCurrency(item), domainCurrency as SupportedCurrency),
+                  quantity: item.quantity,
+              }));
+              const gtmValue = cartItems.reduce((sum, item) => {
+                  return sum + convertToCurrency(resolveBaseUnitPrice(item) * item.quantity, getItemCurrency(item), domainCurrency as SupportedCurrency);
+              }, 0);
+              const w = window as any;
+              w.dataLayer = w.dataLayer || [];
+              w.dataLayer.push({ ecommerce: null });
+              w.dataLayer.push({
+                  event: "purchase",
+                  ecommerce: {
+                      transaction_id: result.order.id,
+                      value: gtmValue,
+                      currency: domainCurrency,
+                      shipping: 0,
+                      items: gtmItems,
+                  },
+              });
+          }
 
           if (!quickOrderMode && session.data?.user) {
               fetch("/api/user/profile", {
@@ -329,16 +350,19 @@ export default function CheckoutPage({
               if (paymentMethod === "online_card" || paymentMethod === "installment") {
                   setIsRedirectingToPayment(true);
                   const isInstallment = paymentMethod === "installment";
+                  const gaClientId = getGaClientId();
                   const payRes = await fetch(
                       isInstallment
-                          ? "/api/payments/liqpay-installments/initiate"
+                          ? quickOrderMode
+                              ? "/api/payments/liqpay-installments/initiate-guest"
+                              : "/api/payments/liqpay-installments/initiate"
                           : quickOrderMode
                               ? "/api/payments/liqpay/initiate-guest"
                               : "/api/payments/liqpay/initiate",
                       {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(isInstallment ? { orderId: result.order.id, installmentType: "moment_part", months: 0 } : { orderId: result.order.id }),
+                      body: JSON.stringify(isInstallment ? { orderId: result.order.id, installmentType: "moment_part", months: 0, gaClientId } : { orderId: result.order.id, gaClientId }),
                   });
                   const payData = await payRes.json();
                   if (!payRes.ok) throw new Error(payData.error || "Payment initiation failed");

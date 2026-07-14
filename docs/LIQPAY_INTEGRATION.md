@@ -222,3 +222,88 @@ import {
 - Signature verification in the callback uses `crypto.timingSafeEqual` to prevent timing attacks.
 - Always return HTTP 200 from the callback endpoint — use internal logging for errors instead of exposing them in the response.
 - Never log the raw `data` or `signature` fields at INFO level in production — they contain the full payment payload.
+
+---
+
+## Conversion Tracking (GA4)
+
+Online LiqPay payments (`card` / `installment`) are only confirmed asynchronously,
+so the `purchase` conversion is **not** fired from the checkout page — that would
+count failed/abandoned payments (declined card, closed LiqPay tab, etc.) as sales.
+Instead, the buyer's browser gets first shot at a *live* client-side hit (better
+attribution — real session, referrer, device); if they never come back, a
+background sweep reports the conversion server-side instead. Either way it
+fires **exactly once**:
+
+```
+Checkout (browser)         Your Server              LiqPay        /payment/return (browser)
+      │                         │                       │                  │
+      │ read _ga cookie         │                       │                  │
+      │─ POST /initiate ───────►│                       │                  │
+      │ { orderId, gaClientId } │ store on payment       │                  │
+      │◄ { paymentUrl } ────────│                       │                  │
+      │─ redirect to paymentUrl ──────────────────────►│                  │
+      │                         │                       │ buyer pays       │
+      │                         │◄─ POST server_url ───│                  │
+      │                         │ payment → COMPLETED   │                  │
+      │                         │ order → PROCESSING    │                  │
+      │                         │ (conversionSentAt untouched — no send yet)│
+      │                         │                       │  buyer redirected back
+      │                         │◄──────────────────────────── POST claim-conversion
+      │                         │ conditional UPDATE ... WHERE conversionSentAt IS NULL
+      │                         │──── { claimed: true, purchase: {...} } ──►│
+      │                         │                       │      dataLayer.push("purchase")
+      │                         │                                          │
+      │  [buyer never returns — grace period elapses]                      │
+      │                         │
+      │  every 5 min: sweepUnclaimedConversions() finds COMPLETED payments │
+      │  with conversionSentAt still NULL after a 10 min grace period,     │
+      │  claims them the same way, and sends GA4 Measurement Protocol      │
+      │  "purchase" server-side instead.
+```
+
+The `payment.conversionSentAt` column is the single dedup guard — both the
+browser claim and the background sweep use the same conditional
+`UPDATE ... WHERE conversionSentAt IS NULL`, so whichever gets there first
+wins and the other is a no-op. This also protects against LiqPay redelivering
+the same webhook, or the buyer refreshing `/payment/return`.
+
+**Relevant files:**
+
+| File | Purpose |
+|---|---|
+| `src/lib/ga4-measurement-protocol.ts` | GA4 Measurement Protocol client (`sendGA4PurchaseEvent`), used only by the sweep |
+| `src/app/api/payments/liqpay/callback/route.ts` | Marks payment COMPLETED — does **not** fire the conversion |
+| `src/app/api/payments/liqpay/claim-conversion/route.ts` | Browser-triggered claim; returns purchase data for a live client-side push |
+| `src/app/[locale]/payment/return/page.tsx` | Calls claim-conversion on success, pushes `dataLayer` purchase if it won the claim |
+| `src/lib/ga4-conversion-sweep.ts` | Offline fallback — claims + sends MP for payments unclaimed after the grace period |
+| `src/instrumentation.ts` | Starts the sweep on server boot (runs every 5 min) |
+| `src/app/[locale]/checkout/page.tsx` | Captures `_ga` client_id before redirect, skips the early GTM push for LiqPay online payments |
+
+**Required env vars** (UA domain only — LiqPay is not used on PL):
+
+```env
+# Admin -> Data Streams -> your stream -> Measurement Protocol API secrets
+GA4_MEASUREMENT_ID_UA="G-XXXXXXXXXX"
+GA4_API_SECRET_UA="..."
+```
+
+**Note:** `/mp/collect` always responds 2xx, even for events that fail
+validation — there's no reliable success signal beyond "the HTTP request
+didn't fail". If purchases aren't showing up in GA4's realtime report, check
+the payload shape manually against `/debug/mp/collect`.
+
+**Geo:** GA4's built-in Geo/Country dimension is derived from the IP of the
+request that hits `/mp/collect` — since that request comes from *our* server,
+not the buyer's browser, it can't be overridden and will show the server's
+location. Every event sent by `sendGA4PurchaseEvent` includes a hardcoded
+`offline_conversion_country: "Ukraine"` event parameter as a workaround (LiqPay
+is UA-only). To use it in reports, register it once in **GA4 Admin -> Custom
+definitions -> Create custom dimension** (scope: Event, parameter name
+`offline_conversion_country`) — then it's available in Explorations/reports
+alongside (but separate from) the built-in Country dimension.
+
+Non-LiqPay payment methods (`bank_transfer`, `cash_on_delivery`, Przelewy24 on
+the PL domain) are unaffected — they still fire the GTM `purchase` event
+immediately at order creation, since there's no separate async "paid"
+confirmation step for those.

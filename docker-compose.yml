@@ -67,6 +67,10 @@ services:
       LIQPAY_PUBLIC_KEY: ${LIQPAY_PUBLIC_KEY}
       LIQPAY_PRIVATE_KEY: ${LIQPAY_PRIVATE_KEY}
 
+      # GA4 Measurement Protocol (server-side purchase event, UA domain only)
+      GA4_MEASUREMENT_ID_UA: ${GA4_MEASUREMENT_ID_UA}
+      GA4_API_SECRET_UA: ${GA4_API_SECRET_UA}
+
       # Multi-domain
       APP_DOMAIN_KEY: ${APP_DOMAIN_KEY:-pl}
       APP_UA_TEST_HOST: ${APP_UA_TEST_HOST:-}

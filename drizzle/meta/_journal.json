@@ -141,6 +141,13 @@
       "when": 1784016436737,
       "tag": "0019_wealthy_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1784022758628,
+      "tag": "0020_steep_ironclad",
+      "breakpoints": true
     }
   ]
 }

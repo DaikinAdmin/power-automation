@@ -1,8 +1,10 @@
 /**
- * POST /api/payments/liqpay/initiate-guest
+ * POST /api/payments/liqpay-installments/initiate-guest
  *
  * TEMPORARY endpoint — no authentication required.
- * Used by the guest quick-order flow to initiate LiqPay payment.
+ * Used by the guest quick-order flow to initiate a LiqPay installment payment.
+ * Same flow as /api/payments/liqpay/initiate-guest but restricts paytypes to
+ * installment options (moment_part = Monobank, paypart = PrivatBank).
  *
  * Body: { orderId: string }
  */
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     // ── Rate limit: 5 req / min per IP ─────────────────────────
     const ip = getClientIp(request);
-    const rl = checkRateLimit(`liqpay-initiate-guest:${ip}`, 5, 60_000);
+    const rl = checkRateLimit(`liqpay-installments-initiate-guest:${ip}`, 5, 60_000);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
     const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
     const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
 
-    const sessionId = `${orderId}_${Date.now()}`;
+    const sessionId = `${orderId}_inst_${Date.now()}`;
     const guestToken = await generateGuestToken(orderId);
     const resultUrl = `${baseUrl}/payment/return?orderId=${orderId}&provider=liqpay&token=${encodeURIComponent(guestToken)}`;
     const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
@@ -86,12 +88,13 @@ export async function POST(request: NextRequest) {
       action: 'pay',
       amount: order.totalGross > 0 ? order.totalGross : 0,
       currency: 'UAH',
-      description: `Order #${orderId.substring(0, 8)}`,
+      description: `Order #${orderId.substring(0, 8)} (частинами)`,
       order_id: sessionId,
       result_url: resultUrl,
       server_url: serverUrl,
       language: 'uk',
-      paytypes: 'card,privat24,gpay,apayqr',
+      // Restrict to installment pay types so LiqPay routes to the installment checkout
+      paytypes: 'moment_part,paypart',
     };
 
     const paymentUrl = buildCheckoutUrl(params, LIQPAY_PRIVATE_KEY);
@@ -111,7 +114,7 @@ export async function POST(request: NextRequest) {
         status: 'INITIATED',
         p24Email: user.email,
         p24OrderId: sessionId,
-        description: `Order #${orderId}`,
+        description: `Order #${orderId} (installments)`,
         returnUrl: resultUrl,
         statusUrl: serverUrl,
         // GA4 client_id captured client-side right before the redirect — used by
@@ -119,6 +122,7 @@ export async function POST(request: NextRequest) {
         gaClientId: gaClientId || null,
         metadata: {
           provider: 'liqpay',
+          variant: 'installment',
           liqpayOrderId: sessionId,
           params,
         },
@@ -132,7 +136,7 @@ export async function POST(request: NextRequest) {
       .set({ status: 'WAITING_FOR_PAYMENT', updatedAt: now })
       .where(eq(schema.order.id, orderId));
 
-    logger.info('LiqPay guest payment initiated', {
+    logger.info('LiqPay guest installment payment initiated', {
       paymentId: payment.id,
       orderId,
       duration: Date.now() - startTime,
@@ -146,7 +150,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return apiErrorHandler(error, request, {
-      endpoint: 'POST /api/payments/liqpay/initiate-guest',
+      endpoint: 'POST /api/payments/liqpay-installments/initiate-guest',
     });
   }
 }

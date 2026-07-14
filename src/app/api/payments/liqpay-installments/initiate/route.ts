@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { orderId } = body;
+    const { orderId, gaClientId } = body;
 
     if (!orderId) {
       throw new BadRequestError('Missing required field: orderId');
@@ -122,6 +122,9 @@ export async function POST(request: NextRequest) {
         description: `Order #${orderId} (installments)`,
         returnUrl: resultUrl,
         statusUrl: serverUrl,
+        // GA4 client_id captured client-side right before the redirect — used by
+        // the callback webhook to send a server-side Measurement Protocol purchase event.
+        gaClientId: gaClientId || null,
         metadata: {
           provider: 'liqpay',
           variant: 'installment',

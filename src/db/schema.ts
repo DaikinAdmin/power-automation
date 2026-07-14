@@ -933,6 +933,14 @@ export const payment = pgTable(
     metadata: jsonb(), // Additional metadata
     errorCode: text(), // Error code if payment failed
     errorMessage: text(), // Error message if payment failed
+    // GA4 client_id (from the _ga cookie), captured client-side before the
+    // buyer is redirected to the payment gateway — needed to attribute a
+    // server-side Measurement Protocol purchase event to the right visitor.
+    gaClientId: text(),
+    // Set exactly once, guarded by a conditional UPDATE ... WHERE conversionSentAt IS NULL,
+    // when the GA4 purchase event has been sent for this payment. Prevents double-counting
+    // if the webhook is retried/redelivered by the payment provider.
+    conversionSentAt: timestamp({ precision: 3, mode: "string" }),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
