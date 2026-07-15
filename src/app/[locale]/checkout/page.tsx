@@ -301,6 +301,13 @@ export default function CheckoutPage({
           const isLiqPayOnlinePayment =
               locale === "ua" &&
               (novaPostState?.payment === "online_card" || novaPostState?.payment === "installment");
+          // "order_confirm_offline" is only for ua orders paid outside a payment
+          // gateway (bank transfer / cash on delivery) — every other case (pl
+          // Przelewy24, etc.) keeps firing the standard "purchase" event that
+          // /payment/return relies on for the LiqPay claim/sweep flow.
+          const isUaOfflinePayment =
+              locale === "ua" &&
+              (novaPostState?.payment === "bank_transfer" || novaPostState?.payment === "cash_on_delivery");
 
           if (!isLiqPayOnlinePayment) {
               // GTM purchase event
@@ -319,7 +326,7 @@ export default function CheckoutPage({
               w.dataLayer = w.dataLayer || [];
               w.dataLayer.push({ ecommerce: null });
               w.dataLayer.push({
-                  event: "order_confirm_offline",
+                  event: isUaOfflinePayment ? "order_confirm_offline" : "purchase",
                   ecommerce: {
                       transaction_id: result.order.id,
                       value: gtmValue,
