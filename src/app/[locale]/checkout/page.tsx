@@ -319,12 +319,11 @@ export default function CheckoutPage({
               w.dataLayer = w.dataLayer || [];
               w.dataLayer.push({ ecommerce: null });
               w.dataLayer.push({
-                  event: "purchase",
+                  event: "order_confirm_offline",
                   ecommerce: {
                       transaction_id: result.order.id,
                       value: gtmValue,
                       currency: domainCurrency,
-                      shipping: 0,
                       items: gtmItems,
                   },
               });

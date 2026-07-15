@@ -1,57 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 // import prisma from '@/db';
-import { getItemBySlug } from '@/helpers/db/queries';
-import type { ItemResponse } from '@/helpers/types/api-responses';
-import { isPromoActive } from '@/helpers/pricing';
-import logger from '@/lib/logger';
-import { apiErrorHandler, BadRequestError, NotFoundError } from '@/lib/error-handler';
+import { getItemBySlug } from "@/helpers/db/queries";
+import type { ItemResponse } from "@/helpers/types/api-responses";
+import { isPromoActive } from "@/helpers/pricing";
+import logger from "@/lib/logger";
+import {
+  apiErrorHandler,
+  BadRequestError,
+  NotFoundError,
+} from "@/lib/error-handler";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ locale: string; slug: string }> }
+  { params }: { params: Promise<{ locale: string; slug: string }> },
 ) {
   const startTime = Date.now();
   try {
     const { locale, slug } = await params;
 
     // Validate locale parameter
-    const validLocales = ['pl', 'en', 'ua', 'es'];
+    const validLocales = ["pl", "en", "ua", "es"];
     if (!validLocales.includes(locale)) {
-      throw new BadRequestError('Invalid locale');
+      throw new BadRequestError("Invalid locale");
     }
 
-    logger.info('Fetching item by slug', {
-      endpoint: 'GET /api/public/items/[locale]/[slug]',
+    logger.info("Fetching item by slug", {
+      endpoint: "GET /api/public/items/[locale]/[slug]",
       locale,
       slug,
     });
 
     // Drizzle implementation
-    const itemData: ItemResponse | null = await getItemBySlug(slug, locale.toLowerCase());
+    const itemData: ItemResponse | null = await getItemBySlug(
+      slug,
+      locale.toLowerCase(),
+    );
 
     if (!itemData) {
-      throw new NotFoundError('Item not found');
+      throw new NotFoundError("Item not found");
     }
 
     // Get the first recommended warehouse that has stock
-    const recommendedPrice = itemData.prices.find((p) => p.quantity > 0) || itemData.prices[0];
+    const recommendedPrice =
+      itemData.prices.find((p) => p.quantity > 0) || itemData.prices[0];
 
     const recommendedPromoActive =
       recommendedPrice != null &&
-      isPromoActive(recommendedPrice.promoStartDate, recommendedPrice.promoEndDate);
+      isPromoActive(
+        recommendedPrice.promoStartDate,
+        recommendedPrice.promoEndDate,
+      );
 
     const formattedRecommended = recommendedPrice
       ? {
           warehouse: {
             slug: recommendedPrice.warehouseSlug,
             name: recommendedPrice.warehouse.name,
-            country: recommendedPrice.warehouse.country?.name || '',
+            country: recommendedPrice.warehouse.country?.name || "",
             displayedName: recommendedPrice.warehouse.displayedName,
           },
-          price: +(recommendedPrice.price).toFixed(2),
-          promotionPrice: recommendedPrice.promotionPrice && recommendedPromoActive
-            ? +(recommendedPrice.promotionPrice * (1 + ((recommendedPrice.margin ?? 20) / 100))).toFixed(2)
-            : null,
+          price: +recommendedPrice.price.toFixed(2),
+          promotionPrice:
+            recommendedPrice.promotionPrice && recommendedPromoActive
+              ? +recommendedPrice.promotionPrice.toFixed(2)
+              : null,
           quantity: recommendedPrice.quantity,
           badge: recommendedPrice.badge || null,
         }
@@ -68,29 +80,35 @@ export async function GET(
       categorySlug: itemData.categorySlug,
       subCategorySlug: itemData.subCategorySlug,
       category: itemData.category.name,
-      subcategory: itemData.category.subCategories.find(sub => sub.slug === itemData.subCategorySlug)?.name || '',
+      subcategory:
+        itemData.category.subCategories.find(
+          (sub) => sub.slug === itemData.subCategorySlug,
+        )?.name || "",
       name: itemData.details.itemName,
-      brand: itemData.brand?.name || '',
+      brand: itemData.brand?.name || "",
       brandSlug: itemData.brandSlug,
       brandAlias: itemData.brand?.alias || null,
       brandImage: itemData.brand?.imageLink || null,
-      description: itemData.details.description || '',
+      description: itemData.details.description || "",
       badge: formattedRecommended?.badge || null,
       warrantyMonths: itemData.warrantyLength || 0,
       warrantyType: itemData.warrantyType || null,
 
       // Format warehouses for display
       warehouses: itemData.prices.map((price) => {
-        const marginMultiplier = 1 + ((price.margin ?? 20) / 100);
-        const priceWithMargin = +(price.price).toFixed(2);
-        const promoActive = isPromoActive(price.promoStartDate, price.promoEndDate);
-        const promoPriceWithMargin = price.promotionPrice && promoActive
-          ? +(price.promotionPrice * marginMultiplier).toFixed(2)
-          : null;
+        const priceWithMargin = +price.price.toFixed(2);
+        const promoActive = isPromoActive(
+          price.promoStartDate,
+          price.promoEndDate,
+        );
+        const promoPriceWithMargin =
+          price.promotionPrice && promoActive
+            ? +price.promotionPrice.toFixed(2)
+            : null;
         return {
           warehouseId: price.warehouseSlug,
-          warehouseName: price.warehouse.name || '',
-          warehouseCountry: price.warehouse.country?.name || '',
+          warehouseName: price.warehouse.name || "",
+          warehouseCountry: price.warehouse.country?.name || "",
           displayedName: price.warehouse.displayedName,
           price: `${priceWithMargin}`,
           specialPrice: promoPriceWithMargin ? `${promoPriceWithMargin}` : null,
@@ -118,7 +136,7 @@ export async function GET(
           popularity: itemData.details.popularity,
           metaKeyWords: itemData.details.metaKeyWords,
           metaDescription: itemData.details.metaDescription,
-        }
+        },
       ],
 
       // Include the recommended warehouse
@@ -126,8 +144,8 @@ export async function GET(
     };
 
     const duration = Date.now() - startTime;
-    logger.info('Item fetched successfully', {
-      endpoint: 'GET /api/public/items/[locale]/[slug]',
+    logger.info("Item fetched successfully", {
+      endpoint: "GET /api/public/items/[locale]/[slug]",
       locale,
       slug,
       articleId: formattedItem.articleId,
@@ -137,7 +155,9 @@ export async function GET(
 
     return NextResponse.json(formattedItem);
   } catch (error) {
-    return apiErrorHandler(error, request, { endpoint: 'GET /api/public/items/[locale]/[slug]' });
+    return apiErrorHandler(error, request, {
+      endpoint: "GET /api/public/items/[locale]/[slug]",
+    });
   }
 }
 
