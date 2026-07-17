@@ -73,6 +73,7 @@ services:
       # GA4 Measurement Protocol (server-side purchase event, UA domain only)
       GA4_MEASUREMENT_ID_UA: ${GA4_MEASUREMENT_ID_UA}
       GA4_API_SECRET_UA: ${GA4_API_SECRET_UA}
+      GA4_MP_DEBUG: ${GA4_MP_DEBUG:-false}
 
       # Multi-domain
       APP_DOMAIN_KEY: ${APP_DOMAIN_KEY:-pl}
