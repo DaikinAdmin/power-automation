@@ -13,6 +13,7 @@ import { ProductHeader } from "@/components/product/product-header";
 import { ProductPriceCard } from "@/components/product/product-price-card";
 import { ProductDetailsCard } from "@/components/product/product-details-card";
 import { ProductOpinionForm } from "@/components/product/product-opinion-form";
+import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
 import { AskPriceModal } from "@/components/product/ask-price-modal";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCurrency } from "@/hooks/useCurrency";
@@ -520,6 +521,8 @@ export default function ProductPageClient({
           </div>
         </div>
       </main>
+
+      <RelatedProductsCarousel slug={id} locale={locale} />
 
       <AskPriceModal
         isOpen={showAskPriceModal}

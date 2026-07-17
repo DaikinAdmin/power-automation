@@ -537,6 +537,9 @@
     "compare": {
       "alreadyAdded": "Ten produkt jest już na liście porównania",
       "limitReached": "Możesz porównać maksymalnie 5 produktów"
+    },
+    "relatedProducts": {
+      "title": "Podobne produkty"
     }
   },
   "compare": {

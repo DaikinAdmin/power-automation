@@ -196,8 +196,8 @@ const CatalogProductCard = ({
   return (
     <Link
       href={href}
-      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer ${
-        isList ? "flex" : ""
+      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer flex h-full ${
+        isList ? "" : "flex-col"
       } ${className || ""}`.trim()}
     >
       {badge && (
@@ -264,11 +264,7 @@ const CatalogProductCard = ({
         )}
       </div>
 
-      <div
-        className={`p-4 ${
-          isList ? "flex-1 flex flex-col justify-between" : ""
-        }`}
-      >
+      <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           <h3 className="text-product-title mb-2 line-clamp-2">{name}</h3>
           {brand && (
@@ -296,7 +292,7 @@ const CatalogProductCard = ({
           )}
         </div>
 
-        <div className={`${isList ? "flex items-center justify-between" : ""}`}>
+        <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-red-600 text-product-price">

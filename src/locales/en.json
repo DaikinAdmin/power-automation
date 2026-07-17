@@ -530,6 +530,9 @@
     "compare": {
       "alreadyAdded": "This product is already in the comparison list",
       "limitReached": "You can compare up to 5 products maximum"
+    },
+    "relatedProducts": {
+      "title": "Related Products"
     }
   },
   "compare": {

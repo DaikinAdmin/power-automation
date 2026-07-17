@@ -536,6 +536,9 @@
     "compare": {
       "alreadyAdded": "Цей товар вже є у списку порівняння",
       "limitReached": "Можна порівнювати максимум 5 товарів"
+    },
+    "relatedProducts": {
+      "title": "Схожі товари"
     }
   },
   "compare": {
