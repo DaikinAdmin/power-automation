@@ -67,6 +67,9 @@ services:
       LIQPAY_PUBLIC_KEY: ${LIQPAY_PUBLIC_KEY}
       LIQPAY_PRIVATE_KEY: ${LIQPAY_PRIVATE_KEY}
 
+      # Gemini (linked-items generation script)
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+
       # GA4 Measurement Protocol (server-side purchase event, UA domain only)
       GA4_MEASUREMENT_ID_UA: ${GA4_MEASUREMENT_ID_UA}
       GA4_API_SECRET_UA: ${GA4_API_SECRET_UA}
