@@ -12,6 +12,12 @@ const GA4_MEASUREMENT_ID = process.env.GA4_MEASUREMENT_ID_UA || '';
 const GA4_API_SECRET = process.env.GA4_API_SECRET_UA || '';
 const GA4_MP_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
 
+// Routes MP events into GA4 DebugView (Admin -> DebugView) instead of/alongside
+// standard reporting. GA4 does not surface Measurement Protocol events in
+// DebugView unless each event's params explicitly says so. Testing-only —
+// leave unset in production.
+const GA4_MP_DEBUG = process.env.GA4_MP_DEBUG === 'true';
+
 export interface GA4PurchaseItem {
   item_id: string;
   item_name: string;
@@ -71,6 +77,7 @@ export async function sendGA4PurchaseEvent(event: GA4PurchaseEvent): Promise<boo
               // buyer's). LiqPay is UA-only, so hardcode a custom dimension to
               // use in reports instead of the (server-located) built-in one.
               offline_conversion_country: 'Ukraine',
+              ...(GA4_MP_DEBUG ? { debug_mode: true } : {}),
             },
           },
         ],
@@ -89,6 +96,7 @@ export async function sendGA4PurchaseEvent(event: GA4PurchaseEvent): Promise<boo
       transactionId: event.transactionId,
       value: event.value,
       currency: event.currency,
+      debugMode: GA4_MP_DEBUG,
     });
     return true;
   } catch (error) {

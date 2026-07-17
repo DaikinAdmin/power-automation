@@ -293,6 +293,38 @@ validation — there's no reliable success signal beyond "the HTTP request
 didn't fail". If purchases aren't showing up in GA4's realtime report, check
 the payload shape manually against `/debug/mp/collect`.
 
+### Testing via GA4 DebugView
+
+GA4 does **not** surface Measurement Protocol events in DebugView by default —
+Realtime/standard reports still get them, but DebugView specifically requires
+each event's `params` to include `debug_mode: true`. Set `GA4_MP_DEBUG=true`
+in your environment to have `sendGA4PurchaseEvent` add it automatically
+(see `src/lib/ga4-measurement-protocol.ts`). **Testing only — never set this in production**,
+since it doesn't disable the real send, it just tags the event for DebugView.
+
+Step by step:
+
+1. In `.env.local`, set `GA4_MEASUREMENT_ID_UA`, `GA4_API_SECRET_UA`, and
+   `GA4_MP_DEBUG=true`, then restart the dev server.
+2. Open **GA4 Admin → DebugView** in another tab and leave it open.
+3. Trigger a send. Two options:
+   - **Full flow:** complete a LiqPay sandbox payment (card `4242 4242 4242 4242`)
+     and close the tab before it redirects to `/payment/return`, so the
+     client-side claim never fires. Wait for the webhook to mark the payment
+     `COMPLETED`, then wait for the 10-minute grace period + up to 5 minutes
+     for the next sweep tick (see `sweepUnclaimedConversions` in
+     `src/lib/ga4-conversion-sweep.ts` and `SWEEP_INTERVAL_MS` in
+     `src/instrumentation.ts`).
+   - **Fast path:** call `sendGA4PurchaseEvent(...)` directly from a throwaway
+     script/route with fake test data (any `clientId`, `transactionId`,
+     `value`, `currency`, `items`) — skips the whole payment flow when you
+     only need to confirm the payload shape and DebugView wiring.
+4. Within a few seconds, a `purchase` event should appear in DebugView's event
+   stream, with all params visible (`transaction_id`, `value`, `currency`,
+   `items`, `offline_conversion_country`) — useful for checking the payload
+   shape in a way Realtime doesn't show.
+5. Unset `GA4_MP_DEBUG` (or remove it from `.env.local`) once done testing.
+
 **Geo:** GA4's built-in Geo/Country dimension is derived from the IP of the
 request that hits `/mp/collect` — since that request comes from *our* server,
 not the buyer's browser, it can't be overridden and will show the server's
