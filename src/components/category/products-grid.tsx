@@ -9,7 +9,10 @@ interface ProductsGridProps {
   viewMode: "grid" | "list";
   getItemDetails: (item: any) => any;
   getItemPrice: (item: any) => any;
-  getMinPrice: (item: any) => { price: number; inStock: boolean; initialCurrency?: string | null };
+  getMinPrice: (
+    item: any,
+    toComparable?: (price: number, currency: string) => number
+  ) => { price: number; originalPrice?: number | null; inStock: boolean; initialCurrency?: string | null };
   getAvailableWarehouses: (item: any) => any[];
   convertPrice: (price: number) => number;
   currencyCode: string;
@@ -66,16 +69,17 @@ export function ProductsGrid({
         } = getItemPrice(item);
         const fromCurrency = (itemCurrency as SupportedCurrency) ?? 'EUR';
         const convertedPrice = convertFromCurrency(price, fromCurrency);
+        const { price: minPrice, originalPrice: minOriginalPrice, initialCurrency: minCurrency } = getMinPrice(item, (p, c) => convertFromCurrency(p, c as SupportedCurrency));
+        const minFromCurrency = (minCurrency as SupportedCurrency) ?? fromCurrency;
+        const convertedMinPrice = convertFromCurrency(minPrice, minFromCurrency);
         const convertedOriginalPrice =
-          originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
-        const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
-        const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as SupportedCurrency) ?? 'EUR');
+          minOriginalPrice != null ? convertFromCurrency(minOriginalPrice, minFromCurrency) : null;
         const hasMultipleWarehouses = item.prices.length > 1;
         const totalQuantity = item.prices.reduce((sum: number, p: any) => sum + (p.quantity ?? 0), 0);
 
-        const badge = originalPrice
+        const badge = minOriginalPrice
           ? {
-              text: `-${calculateDiscountPercentage(originalPrice, price)}%`,
+              text: `-${calculateDiscountPercentage(minOriginalPrice, minPrice)}%`,
               className: "bg-red-500 text-white",
             }
           : undefined;

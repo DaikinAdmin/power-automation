@@ -246,9 +246,9 @@ export async function POST(request: NextRequest) {
             margin: newMargin,
             initialCurrency: newInitialCurrency as any,
             quantity: item.quantity !== undefined ? item.quantity : oldPrice.quantity,
-            badge: (item.badge as any) || 'ABSENT',
             updatedAt: new Date().toISOString(),
           };
+          if (item.badge !== undefined) priceUpdateFields.badge = item.badge || 'ABSENT';
           if (item.promoCode !== undefined) priceUpdateFields.promoCode = item.promoCode || null;
           if (item.promoPrice !== undefined) {
             // Explicit absolute promo price takes priority over a % column.
@@ -281,8 +281,8 @@ export async function POST(request: NextRequest) {
               quantity: item.quantity ?? 0,
               badge: (item.badge as any) || 'ABSENT',
               promoCode: item.promoCode || null,
-              promotionPrice: item.promoPrice
-                ? item.promoPrice
+              promotionPrice: item.promoPrice !== undefined
+                ? (item.promoPrice || null)
                 : priceFromDiscountPercent(calculatedPrice, item.promoDiscountPercent),
               promoStartDate: item.promoStartDate || null,
               promoEndDate: item.promoEndDate || null,

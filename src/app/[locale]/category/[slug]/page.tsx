@@ -38,6 +38,7 @@ export default async function CategoryPage({
   // Extract pagination params
   const page = typeof search.page === 'string' ? parseInt(search.page, 10) : 1;
   const limit = typeof search.limit === 'string' ? parseInt(search.limit, 10) : 16;
+  const sort = typeof search.sort === 'string' ? search.sort : 'name';
 
   // Fetch data on the server
   const categoryData = await getCategoryPageData(
@@ -51,7 +52,8 @@ export default async function CategoryPage({
     {
       page: Math.max(1, page),
       limit: Math.min(100, Math.max(5, limit)),
-    }
+    },
+    sort
   );
 
   const getOriginalCategoryName = () => {

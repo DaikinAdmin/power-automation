@@ -60,6 +60,10 @@ export interface PaginationParams {
   limit: number;
 }
 
+function getItemPrice(item: ItemResponse): number {
+  return item.prices[0]?.promotionPrice || item.prices[0]?.price || 0;
+}
+
 /**
  * Fetches all data needed for the category page in a single optimized query
  */
@@ -67,7 +71,8 @@ export async function getCategoryPageData(
   locale: string,
   categorySlug: string,
   filters: CategoryFilters = {},
-  pagination: PaginationParams = { page: 1, limit: 20 }
+  pagination: PaginationParams = { page: 1, limit: 20 },
+  sortBy: string = 'name'
 ): Promise<CategoryPageData> {
   // Fetch all items for the locale
   const allItems = await getItemsByLocale(locale);
@@ -94,12 +99,24 @@ export async function getCategoryPageData(
     );
   }
   
-  // Sort: in-stock items first
+  // Sort: in-stock items first, then by the selected criteria, applied to the
+  // full filtered list so sorting is consistent across all pages.
   categoryItems.sort((a, b) => {
     const aInStock = a.prices.some(p => p.quantity > 0);
     const bInStock = b.prices.some(p => p.quantity > 0);
     if (aInStock !== bInStock) return aInStock ? -1 : 1;
-    return 0;
+
+    switch (sortBy) {
+      case 'price-low':
+        return getItemPrice(a) - getItemPrice(b);
+      case 'price-high':
+        return getItemPrice(b) - getItemPrice(a);
+      case 'popularity':
+        return (b.sellCounter || 0) - (a.sellCounter || 0);
+      case 'name':
+      default:
+        return (a.details?.itemName || '').localeCompare(b.details?.itemName || '');
+    }
   });
 
   // Calculate pagination

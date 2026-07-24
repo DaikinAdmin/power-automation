@@ -69,21 +69,23 @@ export async function GET(
       });
     }
 
-    // Strip margin and bake it into prices before returning public response
+    // price and promotionPrice are already margin-included at write time
+    // (admin item editor / promo tool compute promotionPrice as a percentage
+    // cut of the marked-up price) — just strip the internal margin field and
+    // gate promotionPrice by its active promo window.
     const publicItems = items.map(item => ({
       ...item,
       prices: item.prices.map(({ margin, price, promotionPrice, promoStartDate, promoEndDate, ...rest }) => {
-        const marginRate = 1 + ((margin ?? 20) / 100);
         const activePromotionPrice =
           promotionPrice != null && isPromoActive(promoStartDate, promoEndDate)
             ? promotionPrice
             : null;
         return {
           ...rest,
-          price: price,
+          price,
           promoStartDate,
           promoEndDate,
-          promotionPrice: activePromotionPrice != null ? activePromotionPrice * marginRate : null,
+          promotionPrice: activePromotionPrice,
         };
       }),
     }));

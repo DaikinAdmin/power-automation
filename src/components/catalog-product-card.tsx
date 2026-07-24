@@ -113,21 +113,21 @@ const CatalogProductCard = ({
 
     return (
       <div
-        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-50"
+        className="absolute top-[calc(100%-1px)] left-[-1px] right-[-1px] bg-white border border-t-0 border-accent rounded-b-sm p-4 hidden [@media(hover:hover)]:group-hover:grid grid-cols-[auto,auto] items-center gap-2 shadow-xl z-50"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Кнопка "додати в кошик" */}
-          <button
-            className={`px-4 py-2 rounded transition-colors text-sm ${
-              disabled
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-red-500 text-white hover:bg-red-600"
-            }`}
-            disabled={disabled}
-            // onClick={handleAddToCart}
-          >
-            {resolvedAddToCartLabel}
-          </button>
+        <button
+          className={`px-4 py-2 rounded transition-colors text-sm ${
+            disabled
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-red-500 text-white hover:bg-red-600"
+          }`}
+          disabled={disabled}
+          // onClick={handleAddToCart}
+        >
+          {resolvedAddToCartLabel}
+        </button>
 
         {/* Дві маленькі кнопки справа */}
         <div className="flex gap-2 justify-end">
@@ -191,12 +191,13 @@ const CatalogProductCard = ({
   };
 
   const priceDisplay = formatPrice(price);
-  const originalPriceDisplay = originalPrice != null ? formatPrice(originalPrice) : null;
+  const originalPriceDisplay =
+    originalPrice != null ? formatPrice(originalPrice) : null;
 
   return (
     <Link
       href={href}
-      className={`bg-white border border-gray-200 group relative hover:border-accent hover:rounded-t-sm hover:z-30 cursor-pointer flex h-full ${
+      className={`bg-white border border-gray-200 group relative [@media(hover:hover)]:hover:border-accent [@media(hover:hover)]:hover:rounded-t-sm [@media(hover:hover)]:hover:z-30 cursor-pointer flex h-full ${
         isList ? "" : "flex-col"
       } ${className || ""}`.trim()}
     >
@@ -237,7 +238,7 @@ const CatalogProductCard = ({
       <div
         className={`${
           isList ? "w-48 h-48 flex-shrink-0" : "aspect-square"
-        } bg-gray-100 flex items-center justify-center relative overflow-hidden group-hover:rounded-t-sm`}
+        } bg-gray-100 flex items-center justify-center relative overflow-hidden [@media(hover:hover)]:group-hover:rounded-t-sm`}
       >
         {normalizedImages.length > 0 ? (
           <img
@@ -294,13 +295,14 @@ const CatalogProductCard = ({
 
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-1 sm:gap-2">
               <span className="text-red-600 text-product-price">
                 {priceFrom && (
                   <span className="text-sm font-normal">{t("from")} </span>
                 )}
                 {priceDisplay}
               </span>
+
               {originalPriceDisplay && (
                 <span className="text-gray-400 line-through text-sm">
                   {originalPriceDisplay}

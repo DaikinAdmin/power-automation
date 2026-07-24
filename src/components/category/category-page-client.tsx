@@ -46,7 +46,7 @@ export function CategoryPageClient({
     setSortBy,
     sectionsOpen,
     toggleSection,
-  } = useCatalogFilters();
+  } = useCatalogFilters({ sortBy: searchParams?.get("sort") || "name" });
 
   const { convertPrice, convertFromCurrency, currencyCode } = useCurrency();
 
@@ -132,8 +132,12 @@ export function CategoryPageClient({
   };
 
   // Handler for sort change
+  // Sorting must happen on the full item list before pagination, so it is
+  // done server-side: update the `sort` URL param (which the server component
+  // reads to sort the entire list) instead of only re-sorting the current page.
   const handleSortChange = (newSort: string) => {
     setSortBy(newSort);
+    updateURLParams({ sort: newSort, page: 1 });
   };
 
   // Calculate min/max prices from items

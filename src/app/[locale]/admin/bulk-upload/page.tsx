@@ -248,6 +248,17 @@ export default function BulkUploadPage() {
     });
 
     try {
+      // Returns the trimmed cell value, or undefined if the column isn't
+      // mapped or the cell is blank — a blank cell means "leave this field
+      // untouched", and must never be coerced into "", 0, or false.
+      const cellValue = (row: any[], col: number | null): string | undefined => {
+        if (col === null) return undefined;
+        const raw = row[col];
+        if (raw === undefined || raw === null) return undefined;
+        const str = String(raw).trim();
+        return str === "" ? undefined : str;
+      };
+
       // Map the data based on column assignments
       const items = parsedData.rows
         .map((row) => {
@@ -286,50 +297,43 @@ export default function BulkUploadPage() {
             item.margin = margin;
           }
 
-          // Add optional fields if mapped
-          if (
-            columnMapping.badge !== null &&
-            row[columnMapping.badge] !== undefined
-          ) {
-            item.badge = row[columnMapping.badge];
+          // Add optional fields if mapped — a blank cell must leave the
+          // field untouched rather than clearing it (only an explicit 0
+          // deactivates promoPrice / promoDiscountPercent, see below).
+          const badgeCell = cellValue(row, columnMapping.badge);
+          if (badgeCell !== undefined) item.badge = badgeCell;
+
+          const brandCell = cellValue(row, columnMapping.brand);
+          if (brandCell !== undefined) item.brand = brandCell;
+
+          const promoCodeCell = cellValue(row, columnMapping.promoCode);
+          if (promoCodeCell !== undefined) item.promoCode = promoCodeCell;
+
+          // promoPrice and promoDiscountPercent are mutually exclusive: an
+          // explicit promo price is written straight to the DB as-is,
+          // otherwise a discount % is applied on top of the
+          // initialPrice+margin price (computed server-side). Setting
+          // either one to 0 deactivates the active promo/discount; leaving
+          // the cell blank changes nothing.
+          const promoPriceCell = cellValue(row, columnMapping.promoPrice);
+          if (promoPriceCell !== undefined) {
+            const parsed = parseFloat(promoPriceCell);
+            if (!isNaN(parsed)) item.promoPrice = parsed;
           }
-          if (
-            columnMapping.brand !== null &&
-            row[columnMapping.brand] !== undefined
-          ) {
-            item.brand = row[columnMapping.brand];
+          const promoDiscountPercentCell = cellValue(
+            row,
+            columnMapping.promoDiscountPercent,
+          );
+          if (promoDiscountPercentCell !== undefined) {
+            const parsed = parseFloat(promoDiscountPercentCell);
+            if (!isNaN(parsed)) item.promoDiscountPercent = parsed;
           }
-          if (
-            columnMapping.promoCode !== null &&
-            row[columnMapping.promoCode] !== undefined
-          ) {
-            item.promoCode = row[columnMapping.promoCode];
-          }
-          if (
-            columnMapping.promoPrice !== null &&
-            row[columnMapping.promoPrice] !== undefined
-          ) {
-            item.promoPrice = parseFloat(row[columnMapping.promoPrice]) || 0;
-          }
-          if (
-            columnMapping.promoDiscountPercent !== null &&
-            row[columnMapping.promoDiscountPercent] !== undefined
-          ) {
-            item.promoDiscountPercent =
-              parseFloat(row[columnMapping.promoDiscountPercent]) || 0;
-          }
-          if (
-            columnMapping.promoStartDate !== null &&
-            row[columnMapping.promoStartDate] !== undefined
-          ) {
-            item.promoStartDate = row[columnMapping.promoStartDate];
-          }
-          if (
-            columnMapping.promoEndDate !== null &&
-            row[columnMapping.promoEndDate] !== undefined
-          ) {
-            item.promoEndDate = row[columnMapping.promoEndDate];
-          }
+
+          const promoStartDateCell = cellValue(row, columnMapping.promoStartDate);
+          if (promoStartDateCell !== undefined) item.promoStartDate = promoStartDateCell;
+
+          const promoEndDateCell = cellValue(row, columnMapping.promoEndDate);
+          if (promoEndDateCell !== undefined) item.promoEndDate = promoEndDateCell;
 
           // Build translations object from mapped translation columns
           const translations: Record<
@@ -376,39 +380,24 @@ export default function BulkUploadPage() {
           if (Object.keys(translations).length > 0) {
             item.translations = translations;
           }
-          if (
-            columnMapping.seller !== null &&
-            row[columnMapping.seller] !== undefined
-          ) {
-            item.seller = String(row[columnMapping.seller]);
-          }
-          if (
-            columnMapping.imageUrl !== null &&
-            row[columnMapping.imageUrl] !== undefined
-          ) {
-            item.imageUrl = String(row[columnMapping.imageUrl]);
-          }
-          if (
-            columnMapping.alias !== null &&
-            row[columnMapping.alias] !== undefined
-          ) {
-            item.alias = String(row[columnMapping.alias]);
-          }
-          if (
-            columnMapping.isDisplayed !== null &&
-            row[columnMapping.isDisplayed] !== undefined
-          ) {
-            const val = String(row[columnMapping.isDisplayed])
-              .toLowerCase()
-              .trim();
+          const sellerCell = cellValue(row, columnMapping.seller);
+          if (sellerCell !== undefined) item.seller = sellerCell;
+
+          const imageUrlCell = cellValue(row, columnMapping.imageUrl);
+          if (imageUrlCell !== undefined) item.imageUrl = imageUrlCell;
+
+          const aliasCell = cellValue(row, columnMapping.alias);
+          if (aliasCell !== undefined) item.alias = aliasCell;
+
+          const isDisplayedCell = cellValue(row, columnMapping.isDisplayed);
+          if (isDisplayedCell !== undefined) {
+            const val = isDisplayedCell.toLowerCase();
             item.isDisplayed = val === "true" || val === "1" || val === "yes";
           }
-          if (
-            columnMapping.categorySlug !== null &&
-            row[columnMapping.categorySlug] !== undefined
-          ) {
-            item.categorySlug = String(row[columnMapping.categorySlug]).trim();
-          }
+
+          const categorySlugCell = cellValue(row, columnMapping.categorySlug);
+          if (categorySlugCell !== undefined) item.categorySlug = categorySlugCell;
+
           if (
             columnMapping.grossWeight !== null &&
             row[columnMapping.grossWeight] !== undefined

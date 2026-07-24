@@ -50,6 +50,7 @@ export default function FeaturesSection() {
               alt={feature.imageAlt}
               width={96}
               height={96}
+              draggable={false}
               className="h-16 w-16 object-contain sm:h-20 sm:w-20"
               sizes="(min-width: 1024px) 20vw, (min-width: 640px) 35vw, 60vw"
             />

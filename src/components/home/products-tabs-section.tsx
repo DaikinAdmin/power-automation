@@ -159,10 +159,11 @@ export default function ProductsTabsSection({
                 getItemPrice(item);
               const fromCurrency = (itemCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
               const convertedPrice = convertFromCurrency(price, fromCurrency);
+              const { price: minPrice, originalPrice: minOriginalPrice, initialCurrency: minCurrency } = getMinPrice(item, (p, c) => convertFromCurrency(p, c as import('@/helpers/currency').SupportedCurrency));
+              const minFromCurrency = (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? fromCurrency;
+              const convertedMinPrice = convertFromCurrency(minPrice, minFromCurrency);
               const convertedOriginalPrice =
-                originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
-              const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
-              const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR');
+                minOriginalPrice != null ? convertFromCurrency(minOriginalPrice, minFromCurrency) : null;
               const warehouseLabel = displayedName
                 ? `From ${displayedName}`
                 : undefined;
@@ -175,10 +176,10 @@ export default function ProductsTabsSection({
                   };
                 }
                 if (activeTab === "discount") {
-                  const label = originalPrice
+                  const label = minOriginalPrice
                     ? `${t("badges.discount")} -${calculateDiscountPercentage(
-                        originalPrice,
-                        price
+                        minOriginalPrice,
+                        minPrice
                       )}%`
                     : t("badges.discount");
                   return {
@@ -289,7 +290,7 @@ export default function ProductsTabsSection({
           </div>
           {/* Mobile carousel */}
           <div className="md:hidden">
-            <div className="embla overflow-x-auto" ref={emblaRef}>
+            <div className="embla overflow-x-clip overflow-y-hidden touch-pan-y" ref={emblaRef}>
               <div className="embla__container flex gap-3">
                 {products.map((item) => {
                   const details = getItemDetails(item);
@@ -297,10 +298,11 @@ export default function ProductsTabsSection({
                     getItemPrice(item);
                   const fromCurrency = (itemCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR';
                   const convertedPrice = convertFromCurrency(price, fromCurrency);
+                  const { price: minPrice, originalPrice: minOriginalPrice, initialCurrency: minCurrency } = getMinPrice(item, (p, c) => convertFromCurrency(p, c as import('@/helpers/currency').SupportedCurrency));
+                  const minFromCurrency = (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? fromCurrency;
+                  const convertedMinPrice = convertFromCurrency(minPrice, minFromCurrency);
                   const convertedOriginalPrice =
-                    originalPrice != null ? convertFromCurrency(originalPrice, fromCurrency) : null;
-                  const { price: minPrice, initialCurrency: minCurrency } = getMinPrice(item);
-                  const convertedMinPrice = convertFromCurrency(minPrice, (minCurrency as import('@/helpers/currency').SupportedCurrency) ?? 'EUR');
+                    minOriginalPrice != null ? convertFromCurrency(minOriginalPrice, minFromCurrency) : null;
                   const warehouseLabel = displayedName
                     ? `From ${displayedName}`
                     : undefined;
@@ -313,12 +315,12 @@ export default function ProductsTabsSection({
                       };
                     }
                     if (activeTab === "discount") {
-                      const label = originalPrice
+                      const label = minOriginalPrice
                         ? `${t(
                             "badges.discount"
                           )} -${calculateDiscountPercentage(
-                            originalPrice,
-                            price
+                            minOriginalPrice,
+                            minPrice
                           )}%`
                         : t("badges.discount");
                       return {

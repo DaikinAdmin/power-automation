@@ -95,6 +95,7 @@ export default function EditItemPage({
                   ? new Date(price.promoEndDate)
                   : null,
                 promoCode: price.promoCode || "",
+                badge: price.badge || "ABSENT",
                 initialPrice: price.initialPrice != null ? parseFloat(price.initialPrice) : null,
                 initialCurrency: price.initialCurrency || null,
                 createdAt: price.createdAt

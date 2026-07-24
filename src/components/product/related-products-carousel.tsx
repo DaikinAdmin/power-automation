@@ -107,15 +107,20 @@ export function RelatedProductsCarousel({
             } = getItemPrice(item);
             const fromCurrency =
               (itemCurrency as SupportedCurrency) ?? "EUR";
-            const { price: minPrice, initialCurrency: minCurrency } =
-              getMinPrice(item);
+            const {
+              price: minPrice,
+              originalPrice: minOriginalPrice,
+              initialCurrency: minCurrency,
+            } = getMinPrice(item, (p, c) => convertFromCurrency(p, c as SupportedCurrency));
+            const minFromCurrency =
+              (minCurrency as SupportedCurrency) ?? fromCurrency;
             const convertedMinPrice = convertFromCurrency(
               minPrice,
-              (minCurrency as SupportedCurrency) ?? "EUR",
+              minFromCurrency,
             );
             const convertedOriginalPrice =
-              originalPrice != null
-                ? convertFromCurrency(originalPrice, fromCurrency)
+              minOriginalPrice != null
+                ? convertFromCurrency(minOriginalPrice, minFromCurrency)
                 : null;
             const warehouseLabel = displayedName ?? undefined;
 

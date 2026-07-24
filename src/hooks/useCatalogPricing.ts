@@ -70,30 +70,50 @@ export const useCatalogPricing = (
     };
   }, [preferredCountryCode]);
 
-  const getMinPrice = useCallback((item: ItemType) => {
+  // toComparable converts (price, currency) into a common currency so warehouses
+  // priced in different currencies can be compared. Without it, raw numbers are
+  // compared directly (e.g. "8 EUR" < "520 UAH"), which is only right by luck —
+  // pass useCurrency's convertFromCurrency here to compare real value.
+  const getMinPrice = useCallback((
+    item: ItemType,
+    toComparable?: (price: number, currency: string) => number
+  ) => {
     const prices = 'itemPrice' in item ? item.itemPrice : item.prices;
 
     if (!prices || prices.length === 0) {
-      return { price: 0, inStock: false };
+      return { price: 0, originalPrice: null, inStock: false };
     }
 
     const inStockPrices = prices.filter((p: any) => p.quantity > 0);
     const pool = inStockPrices.length > 0 ? inStockPrices : prices;
 
-    let minPrice = Infinity;
+    let minComparable = Infinity;
+    // Raw price/currency of the winning entry — returned as-is so the caller
+    // still does its own display conversion, same as before.
+    let minPrice = 0;
+    // Original (pre-promotion) price of the same warehouse entry that produced
+    // minPrice — must not be mixed with another warehouse's price, or the
+    // displayed discount ends up comparing unrelated numbers.
+    let minOriginalPrice: number | null = null;
     let minPriceCurrency: string | null | undefined;
     for (const p of pool) {
       const margin = ('margin' in p ? (p as any).margin : null) ?? 0;
+      const marginMultiplier = 1 + margin / 100;
       const base = (p as any).promotionPrice ?? (p as any).price;
-      const final = base * (1 + margin / 100);
-      if (final < minPrice) {
+      const final = base * marginMultiplier;
+      const currency = (p as any).initialCurrency ?? 'EUR';
+      const comparable = toComparable ? toComparable(final, currency) : final;
+      if (comparable < minComparable) {
+        minComparable = comparable;
         minPrice = final;
+        minOriginalPrice = (p as any).promotionPrice != null ? (p as any).price * marginMultiplier : null;
         minPriceCurrency = (p as any).initialCurrency;
       }
     }
 
     return {
-      price: minPrice === Infinity ? 0 : minPrice,
+      price: minComparable === Infinity ? 0 : minPrice,
+      originalPrice: minComparable === Infinity ? null : minOriginalPrice,
       initialCurrency: minPriceCurrency,
       inStock: inStockPrices.length > 0,
     };
