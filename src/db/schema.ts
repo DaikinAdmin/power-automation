@@ -960,6 +960,43 @@ export const payment = pgTable(
   ]
 );
 
+// One row per Google Ads landing (visitor arrived with a ?gclid= param),
+// captured client-side by src/components/ad-click-tracker.tsx. Lets an admin
+// later match a Binotel call/chat (which only exposes the GA client_id) back
+// to the gclid needed for a manual Google Ads offline conversion import.
+export const adClick = pgTable(
+  "ad_click",
+  {
+    id: text()
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    visitorId: text().notNull(),
+    gclid: text().notNull(),
+    // GA4 client_id (from the _ga cookie) — may be captured slightly after
+    // the initial landing if consent/GTM hasn't set the cookie yet, so this
+    // starts null and gets backfilled by a retried POST.
+    gaClientId: text(),
+    utmSource: text(),
+    utmMedium: text(),
+    utmCampaign: text(),
+    utmTerm: text(),
+    utmContent: text(),
+    landingPage: text().notNull(),
+    referrer: text(),
+    userAgent: text(),
+    domain: text().notNull(), // domainConfig.key ("ua" | "pl")
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("ad_click_gclid_idx").on(table.gclid),
+    index("ad_click_gaClientId_idx").on(table.gaClientId),
+  ]
+);
+
 export const uploadedImage = pgTable(
   "uploaded_image",
   {
@@ -1046,5 +1083,7 @@ export type Messages = typeof messages.$inferSelect;
 export type MessagesInsert = typeof messages.$inferInsert;
 export type Payment = typeof payment.$inferSelect;
 export type PaymentInsert = typeof payment.$inferInsert;
+export type AdClick = typeof adClick.$inferSelect;
+export type AdClickInsert = typeof adClick.$inferInsert;
 export type UploadedImage = typeof uploadedImage.$inferSelect;
 export type UploadedImageInsert = typeof uploadedImage.$inferInsert;

@@ -20,6 +20,7 @@ import {
   Upload,
   ImageUp,
   Tag,
+  MousePointerClick,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -118,6 +119,11 @@ export function AdminSidebar({ className }: SidebarProps) {
       title: t('analytics'),
       href: '/admin/analytics',
       icon: <BarChart3 className="h-5 w-5" />
+    },
+    {
+      title: t('adClicks'),
+      href: '/admin/ad-clicks',
+      icon: <MousePointerClick className="h-5 w-5" />
     },
     {
       title: t('settings'),

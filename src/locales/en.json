@@ -567,12 +567,18 @@
     },
     "sections": {
       "categories": "Shop by Categories",
-      "brands": "Our Brands"
+      "brands": "Our Brands",
+      "courses": "Courses From Our Training School"
     },
     "badges": {
       "bestseller": "BESTSELLER",
       "discount": "DISCOUNT",
       "new": "NEW"
+    },
+    "courses": {
+      "subtitle": "Hands-on training for automation engineers: programming, commissioning and maintenance of automation systems",
+      "badge": "COURSE",
+      "cta": "Learn more"
     },
     "messages": {
       "noProducts": "No products available in this category.",
@@ -765,6 +771,7 @@
       "payments": "Payments",
       "delivery": "Deliveries",
       "analytics": "Analytics",
+      "adClicks": "Ad Clicks",
       "settings": "Settings"
     },
     "dashboard": {
@@ -894,6 +901,24 @@
       },
       "loading": "Loading report data...",
       "noData": "No data for the selected period"
+    },
+    "adClicks": {
+      "title": "Ad Clicks",
+      "description": "Visitors who landed via a Google Ads click. Search by the GA Client ID shown in Binotel's call/chat log to find the matching Google Click ID (gclid) for a manual offline conversion import.",
+      "searchPlaceholder": "Search by GA Client ID, gclid, campaign or landing page",
+      "search": "Search",
+      "clear": "Clear",
+      "export": "Export CSV",
+      "empty": "No ad clicks found.",
+      "resultsHint": "Showing latest {count} results",
+      "table": {
+        "date": "Date",
+        "gaClientId": "GA Client ID",
+        "gclid": "gclid",
+        "campaign": "Campaign",
+        "landingPage": "Landing Page",
+        "domain": "Domain"
+      }
     },
     "common": {
       "actions": "Actions",

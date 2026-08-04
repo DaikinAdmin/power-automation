@@ -17,6 +17,7 @@ import { getServerDomainConfig } from "@/lib/server-domain";
 import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
 import { CatalogDataProvider } from "@/components/catalog-data-context";
+import AdClickTracker from "@/components/ad-click-tracker";
 
 export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
 
@@ -149,6 +150,7 @@ export default async function LocaleLayout({
           </CartProvider>
           <Toaster />
           <CookieConsent requireConsent={domainConfig.key !== "ua"} />
+          {!isAdmin && <AdClickTracker domain={domainConfig.key} />}
         </NextIntlClientProvider>
       </body>
     </html>

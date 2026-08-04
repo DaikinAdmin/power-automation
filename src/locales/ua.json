@@ -573,12 +573,18 @@
     },
     "sections": {
       "categories": "Категорії товарів",
-      "brands": "Наші бренди"
+      "brands": "Наші бренди",
+      "courses": "Курси AMM Industry school"
     },
     "badges": {
       "bestseller": "БЕСТСЕЛЕР",
       "discount": "ЗНИЖКА",
       "new": "НОВИНКА"
+    },
+    "courses": {
+      "subtitle": "Практичне навчання для інженерів: програмування, налагодження та обслуговування систем автоматизації",
+      "badge": "КУРС",
+      "cta": "Детальніше"
     },
     "messages": {
       "noProducts": "Немає товарів у цій категорії.",
@@ -771,6 +777,7 @@
       "payments": "Платежі",
       "delivery": "Доставки",
       "analytics": "Аналітика",
+      "adClicks": "Кліки з реклами",
       "settings": "Налаштування"
     },
     "dashboard": {
@@ -900,6 +907,24 @@
       },
       "loading": "Завантаження даних звіту...",
       "noData": "Немає даних за обраний період"
+    },
+    "adClicks": {
+      "title": "Кліки з реклами",
+      "description": "Відвідувачі, що прийшли за кліком з Google Ads. Шукайте за GA Client ID з журналу дзвінків/чатів Binotel, щоб знайти відповідний Google Click ID (gclid) для ручного імпорту офлайн-конверсії.",
+      "searchPlaceholder": "Пошук за GA Client ID, gclid, кампанією або сторінкою входу",
+      "search": "Пошук",
+      "clear": "Скинути",
+      "export": "Експорт CSV",
+      "empty": "Кліків з реклами не знайдено.",
+      "resultsHint": "Показано останні {count} результатів",
+      "table": {
+        "date": "Дата",
+        "gaClientId": "GA Client ID",
+        "gclid": "gclid",
+        "campaign": "Кампанія",
+        "landingPage": "Сторінка входу",
+        "domain": "Домен"
+      }
     },
     "common": {
       "actions": "Дії",

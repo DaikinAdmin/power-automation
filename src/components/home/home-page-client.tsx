@@ -10,6 +10,7 @@ import { usePublicBrands } from "@/hooks/usePublicBrands";
 import FeaturesSection from "@/components/home/features-section";
 import ProductsTabsSection from "@/components/home/products-tabs-section";
 import CategoriesSection from "@/components/home/categories-section";
+import CoursesSection from "@/components/home/courses-section";
 
 export default function HomePageClient() {
   const locale = useLocale();
@@ -57,6 +58,8 @@ export default function HomePageClient() {
               />
             </div>
           </div>
+
+          <CoursesSection />
 
           <BrandsCarousel brands={brands} isDataLoading={isDataLoading} t={t} />
         </main>

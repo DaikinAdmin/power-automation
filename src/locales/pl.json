@@ -574,12 +574,18 @@
     },
     "sections": {
       "categories": "Kategorie produktów",
-      "brands": "Nasze marki"
+      "brands": "Nasze marki",
+      "courses": "Kursy naszej szkoły automatyki"
     },
     "badges": {
       "bestseller": "BESTSELLER",
       "discount": "PROMOCJA",
       "new": "NOWOŚĆ"
+    },
+    "courses": {
+      "subtitle": "Praktyczne szkolenia dla inżynierów automatyki: programowanie, uruchamianie i serwis systemów automatyki",
+      "badge": "KURS",
+      "cta": "Dowiedz się więcej"
     },
     "messages": {
       "noProducts": "Brak produktów w tej kategorii.",
@@ -772,6 +778,7 @@
       "payments": "Płatności",
       "delivery": "Dostawy",
       "analytics": "Analityka",
+      "adClicks": "Kliknięcia reklam",
       "settings": "Ustawienia"
     },
     "dashboard": {
@@ -901,6 +908,24 @@
       },
       "loading": "Ładowanie danych raportu...",
       "noData": "Brak danych dla wybranego okresu"
+    },
+    "adClicks": {
+      "title": "Kliknięcia reklam",
+      "description": "Odwiedzający, którzy trafili na stronę przez kliknięcie w reklamę Google Ads. Wyszukaj po GA Client ID widocznym w dzienniku połączeń/czatów Binotel, aby znaleźć odpowiadające mu Google Click ID (gclid) do ręcznego importu konwersji offline.",
+      "searchPlaceholder": "Szukaj po GA Client ID, gclid, kampanii lub stronie docelowej",
+      "search": "Szukaj",
+      "clear": "Wyczyść",
+      "export": "Eksportuj CSV",
+      "empty": "Nie znaleziono kliknięć reklam.",
+      "resultsHint": "Wyświetlanie {count} ostatnich wyników",
+      "table": {
+        "date": "Data",
+        "gaClientId": "GA Client ID",
+        "gclid": "gclid",
+        "campaign": "Kampania",
+        "landingPage": "Strona docelowa",
+        "domain": "Domena"
+      }
     },
     "common": {
       "actions": "Akcje",
