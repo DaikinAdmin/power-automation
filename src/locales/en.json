@@ -149,6 +149,7 @@
     "backToShop": "Back to Shop",
     "createAccount": "Create Account",
     "login": "Login",
+    "loyaltyAlert": "Extra loyalty program discounts are available for registered customers!",
     "deliveryDetails": "Delivery details",
     "form": {
       "firstName": "First Name",
@@ -157,6 +158,8 @@
       "phoneNumber": "Phone Number",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Don't call to confirm the order",
+      "comment": "Order comment",
+      "commentPlaceholder": "E.g. delivery notes, discount request, etc.",
       "city": "City",
       "country": "Country",
       "street": "Street & number",
@@ -353,6 +356,7 @@
         "placedOn": "Placed on {date}",
         "payNow": "Pay Now",
         "proceedWithPayment": "Proceed with Payment",
+        "processingPayment": "Redirecting...",
         "cancelOrder": "Cancel Order",
         "refundOrder": "Refund Order",
         "cancelling": "Cancelling...",
@@ -365,6 +369,8 @@
         "orderSummary": "Order Summary",
         "subtotal": "Subtotal:",
         "delivery": "Delivery:",
+        "discount": "Discount:",
+        "amountDue": "Amount due:",
         "totalFormatted": "Total (formatted):",
         "total": "Total:",
         "orderTimeline": "Order Timeline",
@@ -1071,7 +1077,12 @@
           "deliveryId": "Delivery ID",
           "comment": "Comment",
           "notProvided": "Not provided",
-          "noComment": "No comment"
+          "noComment": "No comment",
+          "discount": "Discount",
+          "orderMethod": "Placed via",
+          "orderMethodQuick": "Quick order",
+          "orderMethodAccount": "Registration/login",
+          "gclid": "Google Ads (gclid)"
         },
         "customer": {
           "title": "Customer",
@@ -1125,14 +1136,44 @@
         },
         "deliveryManagement": {
           "title": "Delivery Management",
-          "description": "Update the status and tracking number.",
+          "description": "Update the status, address, and payment method.",
           "statusLabel": "Delivery Status",
           "trackingLabel": "TTN / Waybill",
           "trackingPlaceholder": "Waybill number",
+          "typeLabel": "Delivery Type",
+          "cityLabel": "City",
+          "warehouseLabel": "Branch / Warehouse",
+          "warehousePlaceholder": "E.g.: Branch #5",
+          "streetLabel": "Street",
+          "buildingLabel": "Building",
+          "flatLabel": "Apt./Office",
+          "paymentMethodLabel": "Payment Method",
+          "paymentMethodUnset": "Not set",
           "save": "Save",
           "saving": "Saving...",
           "saved": "Delivery updated",
           "errorSave": "Error updating delivery"
+        },
+        "discount": {
+          "title": "Discount & payment link",
+          "description": "Set a discount on the order and generate a new payment link (LiqPay).",
+          "currentTotal": "Order total",
+          "discountLabel": "Discount",
+          "amountDue": "Amount due",
+          "saveDiscount": "Save discount",
+          "saving": "Saving...",
+          "saved": "Discount saved",
+          "errorSave": "Error saving discount",
+          "sendEmailLabel": "Also email the link to the customer",
+          "generateButton": "Generate payment link",
+          "generating": "Generating...",
+          "linkGenerated": "Link generated",
+          "linkGeneratedEmailed": "Link generated and emailed",
+          "linkLabel": "Payment link",
+          "copyButton": "Copy",
+          "copied": "Copied",
+          "copyError": "Failed to copy",
+          "errorGenerate": "Error generating the link"
         },
         "toasts": {
           "orderDeleted": "Order deleted",
@@ -2127,5 +2168,11 @@
       "USER_ADDRESS": "User Address",
       "NOVA_POSHTA": "Nova Poshta"
     }
+  },
+  "loyaltyPromo": {
+    "title": "Extra loyalty program discounts are available!",
+    "description": "Register now and get extra discounts on products for returning customers.",
+    "continueShopping": "Continue shopping",
+    "register": "Register"
   }
 }

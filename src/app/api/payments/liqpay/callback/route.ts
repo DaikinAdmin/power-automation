@@ -167,7 +167,6 @@ export async function POST(request: NextRequest) {
 
         if (orderUser && paidOrder) {
           const lineItems = Array.isArray(paidOrder.lineItems) ? paidOrder.lineItems as any[] : [];
-          const orderNotes = paidOrder.notes as Record<string, unknown> | null;
           const emailData: PaymentEmailData = {
             orderId: paidOrder.id,
             orderShortId: paidOrder.id.substring(0, 8),
@@ -177,7 +176,7 @@ export async function POST(request: NextRequest) {
             companyName: orderUser.companyName || undefined,
             totalGross: paidOrder.totalGross ?? 0,
             currency: paidOrder.currency ?? 'UAH',
-            locale: typeof orderNotes?.locale === 'string' ? orderNotes.locale : undefined,
+            locale: paidOrder.locale ?? undefined,
             lineItems: lineItems.map((li: any) => {
               const derived = computeLineItemDerived(li);
               return {

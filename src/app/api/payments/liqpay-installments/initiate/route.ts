@@ -5,12 +5,7 @@ import { eq } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
-import crypto from 'crypto';
-import { buildCheckoutUrl } from '@/lib/liqpay';
-import type { LiqPayParams } from '@/lib/liqpay';
-
-const LIQPAY_PUBLIC_KEY = process.env.LIQPAY_PUBLIC_KEY || '';
-const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
+import { createLiqPayPaymentForOrder } from '@/lib/liqpay-order';
 
 /**
  * POST /api/payments/liqpay-installments/initiate
@@ -18,6 +13,9 @@ const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || '';
  * Same flow as /api/payments/liqpay/initiate but restricts paytypes to
  * installment options (moment_part = Monobank, paypart = PrivatBank),
  * which causes LiqPay to redirect directly to the installment checkout page.
+ * Delegates to createLiqPayPaymentForOrder() (src/lib/liqpay-order.ts) with
+ * variant: 'installment' — shared with the regular initiate routes and the
+ * admin payment-link route.
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -39,10 +37,6 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       orderId,
     });
-
-    if (!LIQPAY_PUBLIC_KEY || !LIQPAY_PRIVATE_KEY) {
-      throw new Error('LiqPay credentials (LIQPAY_PUBLIC_KEY / LIQPAY_PRIVATE_KEY) are not configured');
-    }
 
     const [order] = await db
       .select()
@@ -75,82 +69,28 @@ export async function POST(request: NextRequest) {
     const proto = request.headers.get('x-forwarded-proto') ?? 'https';
     const reqHost = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '';
     const baseUrl = reqHost ? `${proto}://${reqHost}` : (process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000');
-
-    const sessionId = `${orderId}_inst_${Date.now()}`;
-    const liqpayOrderId = sessionId;
     const resultUrl = `${baseUrl}/payment/return?orderId=${orderId}&provider=liqpay`;
-    const serverUrl = `${baseUrl}/api/payments/liqpay/callback`;
 
-    const params: LiqPayParams = {
-      version: 3,
-      public_key: LIQPAY_PUBLIC_KEY,
-      action: 'pay',
-      amount: order.totalGross > 0 ? order.totalGross : 0,
-      currency: 'UAH',
-      description: `Order #${orderId.substring(0, 8)} (частинами)`,
-      order_id: liqpayOrderId,
-      result_url: resultUrl,
-      server_url: serverUrl,
-      language: 'uk',
-      // Restrict to installment pay types so LiqPay routes to the installment checkout
-      paytypes: 'moment_part,paypart',
-    };
-
-    const paymentUrl = buildCheckoutUrl(params, LIQPAY_PRIVATE_KEY);
-
-    logger.info('LiqPay installment checkout URL built', {
-      sessionId,
-      liqpayOrderId,
-      amount: order.totalGross > 0 ? order.totalGross : 0,
+    const { paymentId, sessionId, paymentUrl, amount } = await createLiqPayPaymentForOrder({
+      order,
+      userEmail: user.email,
+      baseUrl,
+      resultUrl,
+      gaClientId,
+      variant: 'installment',
     });
-
-    const now = new Date().toISOString();
-
-    const [payment] = await db
-      .insert(schema.payment)
-      .values({
-        id: crypto.randomUUID(),
-        orderId,
-        sessionId,
-        merchantId: LIQPAY_PUBLIC_KEY,
-        posId: null,
-        amount: Math.round((order.totalGross > 0 ? order.totalGross : 0) * 100),
-        currency: 'UAH',
-        status: 'INITIATED',
-        p24Email: user.email,
-        p24OrderId: liqpayOrderId,
-        description: `Order #${orderId} (installments)`,
-        returnUrl: resultUrl,
-        statusUrl: serverUrl,
-        // GA4 client_id captured client-side right before the redirect — used by
-        // the callback webhook to send a server-side Measurement Protocol purchase event.
-        gaClientId: gaClientId || null,
-        metadata: {
-          provider: 'liqpay',
-          variant: 'installment',
-          liqpayOrderId,
-          params,
-        },
-        createdAt: now,
-        updatedAt: now,
-      })
-      .returning();
-
-    await db
-      .update(schema.order)
-      .set({ status: 'WAITING_FOR_PAYMENT', updatedAt: now })
-      .where(eq(schema.order.id, orderId));
 
     const duration = Date.now() - startTime;
     logger.info('LiqPay installment payment initiated successfully', {
-      paymentId: payment.id,
+      paymentId,
       orderId,
+      amount,
       duration,
     });
 
     return NextResponse.json({
       success: true,
-      paymentId: payment.id,
+      paymentId,
       sessionId,
       paymentUrl,
     });

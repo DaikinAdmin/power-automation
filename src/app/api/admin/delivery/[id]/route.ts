@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import * as schema from '@/db/schema';
-import { isValidDeliveryStatus } from '@/helpers/delivery';
+import { isValidDeliveryStatus, isValidDeliveryType } from '@/helpers/delivery';
 import { isUserAdmin } from '@/helpers/db/queries';
 import { apiErrorHandler, UnauthorizedError, ForbiddenError, BadRequestError } from '@/lib/error-handler';
 import logger from '@/lib/logger';
@@ -96,19 +96,29 @@ export async function PATCH(
     const { id } = await params;
     
     const body = await request.json();
-    const { status, trackingNumber } = body;
+    const { status, trackingNumber, type, city, warehouseDesc, street, building, flat, paymentMethod } = body;
 
     // Валідація через BadRequestError, як у bulk
     if (status !== undefined && !isValidDeliveryStatus(status)) {
       throw new BadRequestError('Invalid delivery status');
     }
+    if (type !== undefined && !isValidDeliveryType(type)) {
+      throw new BadRequestError('Invalid delivery type');
+    }
 
     const updateData: any = {
       updatedAt: new Date().toISOString(),
     };
-    
+
     if (status !== undefined) updateData.status = status;
     if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber ?? null;
+    if (type !== undefined) updateData.type = type;
+    if (city !== undefined) updateData.city = city ?? null;
+    if (warehouseDesc !== undefined) updateData.warehouseDesc = warehouseDesc ?? null;
+    if (street !== undefined) updateData.street = street ?? null;
+    if (building !== undefined) updateData.building = building ?? null;
+    if (flat !== undefined) updateData.flat = flat ?? null;
+    if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod ?? null;
 
     const [updated] = await db
       .update(schema.delivery)

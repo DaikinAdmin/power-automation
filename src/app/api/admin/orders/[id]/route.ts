@@ -6,6 +6,7 @@ import { eq, inArray, desc } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { computeLineItemDerived, OrderLineItem } from "@/app/api/orders/shared";
 import { ORDER_STATUS_OPTIONS } from "@/constants/order";
+import { fireOfflineOrderConversionIfNeeded } from "@/lib/offline-order-conversion";
 
 const AUTHORIZED_ROLES = new Set(["admin", "employee"]);
 
@@ -72,6 +73,9 @@ const mapOrder = (order: any) => {
       : order.lineItems,
     comment: order.comment,
     notes: order.notes ?? null,
+    discountAmount: order.discountAmount ?? null,
+    orderMethod: order.orderMethod ?? null,
+    gclid: order.gclid ?? null,
   };
 };
 
@@ -100,6 +104,9 @@ export async function GET(
         createdAt: schema.order.createdAt,
         comment: schema.order.comment,
         notes: schema.order.notes,
+        discountAmount: schema.order.discountAmount,
+        orderMethod: schema.order.orderMethod,
+        gclid: schema.order.gclid,
         deliveryId: schema.order.deliveryId,
         updatedAt: schema.order.updatedAt,
         userName: schema.user.name,
@@ -172,6 +179,9 @@ export async function GET(
       createdAt: orderData.createdAt,
       comment: orderData.comment,
       notes: orderData.notes,
+      discountAmount: orderData.discountAmount,
+      orderMethod: orderData.orderMethod,
+      gclid: orderData.gclid,
       deliveryId: orderData.deliveryId,
       updatedAt: orderData.updatedAt,
       user: {
@@ -285,6 +295,41 @@ export async function PATCH(
       return NextResponse.json({ notes: updated.notes });
     }
 
+    // Handle discount update action (UA/LiqPay orders only — see
+    // getOrderPayableAmount() in src/lib/liqpay.ts for where this is applied)
+    if (body.action === "setDiscount") {
+      const { discountAmount } = body as { discountAmount: unknown };
+      if (
+        discountAmount !== null &&
+        (typeof discountAmount !== "number" || !Number.isFinite(discountAmount) || discountAmount < 0)
+      ) {
+        return NextResponse.json(
+          { error: "Invalid discount amount" },
+          { status: 400 },
+        );
+      }
+      const [existing] = await db
+        .select({ totalGross: schema.order.totalGross })
+        .from(schema.order)
+        .where(eq(schema.order.id, id))
+        .limit(1);
+      if (!existing) {
+        return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      }
+      if (discountAmount !== null && discountAmount > existing.totalGross) {
+        return NextResponse.json(
+          { error: "Discount cannot exceed the order total" },
+          { status: 400 },
+        );
+      }
+      const [updated] = await db
+        .update(schema.order)
+        .set({ discountAmount, updatedAt: new Date().toISOString() })
+        .where(eq(schema.order.id, id))
+        .returning({ discountAmount: schema.order.discountAmount });
+      return NextResponse.json({ discountAmount: updated.discountAmount });
+    }
+
     const { status, deliveryId } = body as {
       status?: OrderStatus;
       deliveryId?: string | null;
@@ -329,6 +374,14 @@ export async function PATCH(
 
     if (!updatedOrderData) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    if (status === "PROCESSING" || status === "COMPLETED") {
+      // Fire-and-forget: covers bank_transfer/cash_on_delivery orders, whose
+      // conversion can only be confirmed here (admin-side), not at checkout.
+      // No-ops for LiqPay/Przelewy24 orders (already handled) and is
+      // dedup-guarded by order.conversionSentAt — see src/lib/offline-order-conversion.ts.
+      fireOfflineOrderConversionIfNeeded(id).catch(() => {});
     }
 
     // Fetch user data

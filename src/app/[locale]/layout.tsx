@@ -16,6 +16,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import { getServerDomainConfig } from "@/lib/server-domain";
 import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
+import LoyaltyPopup from "@/components/loyalty-popup";
 import { CatalogDataProvider } from "@/components/catalog-data-context";
 import AdClickTracker from "@/components/ad-click-tracker";
 
@@ -151,6 +152,7 @@ export default async function LocaleLayout({
           <Toaster />
           <CookieConsent requireConsent={domainConfig.key !== "ua"} />
           {!isAdmin && <AdClickTracker domain={domainConfig.key} />}
+          {!isAdmin && <LoyaltyPopup />}
         </NextIntlClientProvider>
       </body>
     </html>

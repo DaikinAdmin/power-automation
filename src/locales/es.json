@@ -149,6 +149,7 @@
     "backToShop": "Volver a la Tienda",
     "createAccount": "Crear Cuenta",
     "login": "Iniciar Sesión",
+    "loyaltyAlert": "¡Hay descuentos adicionales del programa de fidelidad para clientes registrados!",
     "deliveryDetails": "Detalles de entrega",
     "form": {
       "firstName": "Nombre",
@@ -157,6 +158,8 @@
       "phoneNumber": "Número de Teléfono",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "No llamar para confirmar el pedido",
+      "comment": "Comentario del pedido",
+      "commentPlaceholder": "Ej.: notas de entrega, solicitud de descuento, etc.",
       "city": "Ciudad",
       "country": "País",
       "street": "Calle y número",
@@ -321,6 +324,7 @@
         "placedOn": "Realizado el {date}",
         "payNow": "Pagar ahora",
         "proceedWithPayment": "Proceder al pago",
+        "processingPayment": "Redirigiendo...",
         "cancelOrder": "Cancelar pedido",
         "refundOrder": "Reembolsar pedido",
         "cancelling": "Cancelando...",
@@ -332,6 +336,9 @@
         "unit": "Unidad: {price}",
         "orderSummary": "Resumen del pedido",
         "subtotal": "Subtotal:",
+        "delivery": "Entrega:",
+        "discount": "Descuento:",
+        "amountDue": "Importe a pagar:",
         "totalFormatted": "Total (formateado):",
         "total": "Total:",
         "orderTimeline": "Línea de tiempo del pedido",
@@ -1037,7 +1044,12 @@
           "deliveryId": "ID de Entrega",
           "comment": "Comentario",
           "notProvided": "No proporcionado",
-          "noComment": "Sin comentario"
+          "noComment": "Sin comentario",
+          "discount": "Descuento",
+          "orderMethod": "Método de pedido",
+          "orderMethodQuick": "Pedido rápido",
+          "orderMethodAccount": "Con registro/inicio de sesión",
+          "gclid": "Google Ads (gclid)"
         },
         "customer": {
           "title": "Cliente",
@@ -1090,14 +1102,44 @@
         },
         "deliveryManagement": {
           "title": "Gestión de Entrega",
-          "description": "Actualice el estado y el número de seguimiento.",
+          "description": "Actualice el estado, la dirección y el método de pago.",
           "statusLabel": "Estado de Entrega",
           "trackingLabel": "TTN / Albarán",
           "trackingPlaceholder": "Número de albarán",
+          "typeLabel": "Tipo de entrega",
+          "cityLabel": "Ciudad",
+          "warehouseLabel": "Sucursal / Almacén",
+          "warehousePlaceholder": "Ej.: Sucursal N.º 5",
+          "streetLabel": "Calle",
+          "buildingLabel": "Número",
+          "flatLabel": "Piso/Oficina",
+          "paymentMethodLabel": "Método de Pago",
+          "paymentMethodUnset": "No especificado",
           "save": "Guardar",
           "saving": "Guardando...",
           "saved": "Entrega actualizada",
           "errorSave": "Error al actualizar la entrega"
+        },
+        "discount": {
+          "title": "Descuento y enlace de pago",
+          "description": "Establezca un descuento en el pedido y genere un nuevo enlace de pago (LiqPay).",
+          "currentTotal": "Total del pedido",
+          "discountLabel": "Descuento",
+          "amountDue": "Importe a pagar",
+          "saveDiscount": "Guardar descuento",
+          "saving": "Guardando...",
+          "saved": "Descuento guardado",
+          "errorSave": "Error al guardar el descuento",
+          "sendEmailLabel": "Enviar también el enlace al email del cliente",
+          "generateButton": "Generar enlace de pago",
+          "generating": "Generando...",
+          "linkGenerated": "Enlace generado",
+          "linkGeneratedEmailed": "Enlace generado y enviado por email",
+          "linkLabel": "Enlace de pago",
+          "copyButton": "Copiar",
+          "copied": "Copiado",
+          "copyError": "No se pudo copiar",
+          "errorGenerate": "Error al generar el enlace"
         },
         "toasts": {
           "orderDeleted": "Pedido eliminado",
@@ -2086,5 +2128,11 @@
       "USER_ADDRESS": "Dirección del usuario",
       "NOVA_POSHTA": "Nova Poshta"
     }
+  },
+  "loyaltyPromo": {
+    "title": "¡Hay descuentos adicionales del programa de fidelidad!",
+    "description": "Regístrate y obtén descuentos adicionales en productos para clientes habituales.",
+    "continueShopping": "Continuar comprando",
+    "register": "Registrarse"
   }
 }

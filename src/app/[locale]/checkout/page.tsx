@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   Loader2,
   Menu,
-  ShoppingCart
+  ShoppingCart,
+  Percent
 } from "lucide-react";
 import { useCart } from "@/components/cart-context";
 import { authClient } from "@/lib/auth-client";
@@ -37,7 +38,7 @@ import type { CartItemDims } from "@/helpers/parcel-locker-fit";
 import type { DeliveryInfo } from "@/types/delivery";
 import SignIn from "@/components/auth/sign-in";
 import SignUp from "@/components/auth/sign-up";
-import { getGaClientId } from "@/helpers/ga4";
+import { getGaClientId, getAdVisitorId } from "@/helpers/ga4";
 
 const DOMAIN_CURRENCY: Record<DomainKey, SupportedCurrency> = {
   pl: "PLN",
@@ -60,6 +61,7 @@ export default function CheckoutPage({
   const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">(locale === "ua" ? "quick" : "register");
   const [quickOrderMode, setQuickOrderMode] = useState(locale === "ua");
   const [guestInfo, setGuestInfo] = useState({ name: "", email: "", phone: "", countryCode: "+380" });
+  const [comment, setComment] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -267,6 +269,10 @@ export default function CheckoutPage({
                   deliveryPrice: deliveryPolandState.deliveryPrice ?? 0,
               } : null,
               locale: locale,
+              comment: comment.trim() || null,
+              orderMethod: quickOrderMode ? "QUICK" : "ACCOUNT",
+              gaClientId: getGaClientId(),
+              adVisitorId: getAdVisitorId(),
           };
 
           const endpoint = quickOrderMode ? "/api/orders/guest" : "/api/orders";
@@ -547,6 +553,10 @@ export default function CheckoutPage({
           <div className="order-2 lg:order-1">
             {!session.data?.user && !quickOrderMode ? (
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="flex items-start gap-2 p-3 lg:p-4 bg-yellow-50 border-b border-yellow-200 text-yellow-800">
+                  <Percent size={18} className="flex-shrink-0 mt-0.5" />
+                  <p className="text-xs lg:text-sm font-medium">{t("loyaltyAlert")}</p>
+                </div>
                 <div className="flex border-b">
                   <button
                     onClick={() => setActiveTab("register")}
@@ -761,6 +771,17 @@ export default function CheckoutPage({
                     />
                   </div>
                 )}
+
+                <div className="pt-4 border-t">
+                  <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t("form.comment")}</label>
+                  <textarea
+                    rows={3}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder={t("form.commentPlaceholder")}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             )}
 

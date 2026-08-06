@@ -302,3 +302,16 @@ export function decodeCallbackData(data: string): LiqPayCallbackData {
   const json = Buffer.from(data, 'base64').toString('utf8');
   return JSON.parse(json) as LiqPayCallbackData;
 }
+
+/**
+ * Amount actually charged for an order — totalGross minus any admin-applied
+ * discount (order.discountAmount). totalNet/totalVat/totalGross stay as the
+ * original line-item math for reporting; this is the single place the
+ * discount is applied, used by every code path that creates a LiqPay
+ * payment (checkout, guest checkout, and admin-generated payment links) so
+ * they can never drift out of sync.
+ */
+export function getOrderPayableAmount(order: { totalGross: number; discountAmount?: number | null }): number {
+  const amount = order.totalGross - (order.discountAmount ?? 0);
+  return amount > 0 ? Math.round(amount * 100) / 100 : 0;
+}

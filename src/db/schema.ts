@@ -40,6 +40,9 @@ export const orderStatus = pgEnum("OrderStatus", [
   "DELIVERY",
   "ASK_FOR_PRICE",
 ]);
+// How the order was placed at checkout — QUICK: no-registration guest flow
+// (auto-created account), ACCOUNT: existing session or register/login at checkout.
+export const orderMethod = pgEnum("OrderMethod", ["QUICK", "ACCOUNT"]);
 export const outOfStockStatus = pgEnum("OutOfStockStatus", [
   "PENDING",
   "PROCESSING",
@@ -616,7 +619,33 @@ export const order = pgTable(
     deliveryId: text(),
     lineItems: jsonb(),
     comment: text(),
+    // Free-text admin audit trail only (array of {id,text,createdAt}) — locale
+    // used to live here as `{ locale }` but that got silently clobbered the
+    // first time an admin added a note; it now has its own column below.
     notes: jsonb(),
+    // Checkout locale at order creation — used to pick the payment-success
+    // email language (see /api/payments/liqpay/callback).
+    locale: text(),
+    // Absolute amount (order currency) subtracted from totalGross when
+    // computing what's actually charged. totalNet/totalVat/totalGross stay
+    // as the original line-item math; see getOrderPayableAmount() in
+    // src/lib/liqpay.ts for where this is applied.
+    discountAmount: doublePrecision(),
+    orderMethod: orderMethod(),
+    // Google Ads click id + GA4 client_id captured at order creation (from
+    // the pa_ad_visitor-matched ad_click row / _ga cookie), regardless of
+    // which payment method was chosen — lets a payment link generated later
+    // (e.g. by an admin, after the original browser session is long gone)
+    // still carry correct purchase-conversion attribution. See
+    // docs/LIQPAY_INTEGRATION.md.
+    gclid: text(),
+    gaClientId: text(),
+    // Set exactly once, guarded by a conditional UPDATE ... WHERE conversionSentAt IS NULL,
+    // when a server-side GA4 purchase event has been sent for an order paid outside LiqPay
+    // (bank_transfer / cash_on_delivery — no `payment` row, so payment.conversionSentAt
+    // doesn't apply). Fired from the admin status-update endpoint when such an order
+    // transitions to PROCESSING/COMPLETED. Mirrors payment.conversionSentAt.
+    conversionSentAt: timestamp({ precision: 3, mode: "string" }),
   },
   (table) => [
     foreignKey({
@@ -1029,6 +1058,7 @@ export type CartStatus = (typeof cartStatus.enumValues)[number];
 export type Currency = (typeof currency.enumValues)[number];
 export type { DeliveryStatus } from '@/helpers/delivery';
 export type OrderStatus = (typeof orderStatus.enumValues)[number];
+export type OrderMethod = (typeof orderMethod.enumValues)[number];
 export type OutOfStockStatus = (typeof outOfStockStatus.enumValues)[number];
 export type PaymentStatus = (typeof paymentStatus.enumValues)[number];
 

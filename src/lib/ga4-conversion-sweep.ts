@@ -16,6 +16,7 @@ import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { computeLineItemDerived, parseStoredLineItems } from '@/app/api/orders/shared';
 import { sendGA4PurchaseEvent } from '@/lib/ga4-measurement-protocol';
+import { getOrderPayableAmount } from '@/lib/liqpay';
 
 // How long the browser gets to claim the conversion itself before we fall back.
 const GRACE_PERIOD_MS = 10 * 60 * 1000;
@@ -64,7 +65,7 @@ export async function sweepUnclaimedConversions(): Promise<void> {
       await sendGA4PurchaseEvent({
         clientId: claimed.gaClientId,
         transactionId: claimed.transactionId || claimed.id,
-        value: order.totalGross,
+        value: getOrderPayableAmount(order),
         currency: order.currency,
         items: lineItems.map((li) => ({
           item_id: li.articleId,

@@ -3,6 +3,7 @@ import type { OrderStatus } from '@/db/schema';
 import type { DeliveryStatus } from '@/db/schema';
 import type { DeliveryType } from '@/helpers/delivery';
 import type { PaymentStatus } from '@/db/schema';
+import type { OrderMethod } from '@/db/schema';
 
 export type { OrderLineItem };
 
@@ -17,6 +18,7 @@ export type Delivery = {
   trackingNumber: string | null;
   deliveryPrice: number | null;
   status: DeliveryStatus;
+  paymentMethod?: string | null;
 };
 
 export type Payment = {
@@ -41,6 +43,9 @@ export type OrderDetail = {
   deliveryId?: string | null;
   delivery?: Delivery | null;
   comment?: string | null;
+  discountAmount?: number | null;
+  orderMethod?: OrderMethod | null;
+  gclid?: string | null;
   createdAt: string;
   updatedAt: string;
   user?: {
@@ -72,6 +77,7 @@ export type OrderListItem = {
   totalNet: number | null;
   totalVat: number | null;
   totalGross: number | null;
+  discountAmount?: number | null;
   createdAt: string;
   lineItems: OrderLineItem[];
   payment?: Payment | null;

@@ -149,6 +149,7 @@
     "backToShop": "Повернутися до магазину",
     "createAccount": "Створити обліковий запис",
     "login": "Увійти",
+    "loyaltyAlert": "Діють додаткові знижки за програмою лояльності для зареєстрованих покупців!",
     "deliveryDetails": "Деталі доставки",
     "form": {
       "firstName": "Ім'я",
@@ -157,6 +158,8 @@
       "phoneNumber": "Номер телефону",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Не телефонуйте для підтвердження замовлення",
+      "comment": "Коментар до замовлення",
+      "commentPlaceholder": "Наприклад: побажання щодо доставки, потрібна знижка тощо",
       "city": "Місто",
       "country": "Країна",
       "street": "Вулиця та номер",
@@ -328,6 +331,7 @@
         "placedOn": "Розміщено {date}",
         "payNow": "Сплатити зараз",
         "proceedWithPayment": "Перейти до оплати",
+        "processingPayment": "Переадресація...",
         "cancelOrder": "Скасувати замовлення",
         "refundOrder": "Повернути замовлення",
         "cancelling": "Скасування...",
@@ -340,6 +344,8 @@
         "orderSummary": "Підсумок замовлення",
         "subtotal": "Проміжний підсумок:",
         "delivery": "Доставка:",
+        "discount": "Знижка:",
+        "amountDue": "До сплати:",
         "totalFormatted": "Сума (відформатована):",
         "total": "Сума:",
         "orderTimeline": "Хронологія замовлення",
@@ -1077,7 +1083,12 @@
           "deliveryId": "ID доставки",
           "comment": "Коментар",
           "notProvided": "Не вказано",
-          "noComment": "Немає коментаря"
+          "noComment": "Немає коментаря",
+          "discount": "Знижка",
+          "orderMethod": "Спосіб оформлення",
+          "orderMethodQuick": "Швидке замовлення",
+          "orderMethodAccount": "З реєстрацією/входом",
+          "gclid": "Google Ads (gclid)"
         },
         "customer": {
           "title": "Клієнт",
@@ -1131,14 +1142,44 @@
         },
         "deliveryManagement": {
           "title": "Керування доставкою",
-          "description": "Оновіть статус і номер ТТН.",
+          "description": "Оновіть статус, адресу та спосіб оплати.",
           "statusLabel": "Статус доставки",
           "trackingLabel": "ТТН / Накладна",
           "trackingPlaceholder": "Номер накладної",
+          "typeLabel": "Тип доставки",
+          "cityLabel": "Місто",
+          "warehouseLabel": "Відділення / склад",
+          "warehousePlaceholder": "Напр.: Відділення №5",
+          "streetLabel": "Вулиця",
+          "buildingLabel": "Будинок",
+          "flatLabel": "Кв./офіс",
+          "paymentMethodLabel": "Спосіб оплати",
+          "paymentMethodUnset": "Не вказано",
           "save": "Зберегти",
           "saving": "Збереження...",
           "saved": "Доставку оновлено",
           "errorSave": "Помилка оновлення доставки"
+        },
+        "discount": {
+          "title": "Знижка та посилання на оплату",
+          "description": "Встановіть знижку на замовлення та згенеруйте нове посилання на оплату (LiqPay).",
+          "currentTotal": "Сума замовлення",
+          "discountLabel": "Знижка",
+          "amountDue": "До сплати",
+          "saveDiscount": "Зберегти знижку",
+          "saving": "Збереження...",
+          "saved": "Знижку збережено",
+          "errorSave": "Помилка збереження знижки",
+          "sendEmailLabel": "Також надіслати посилання на email клієнта",
+          "generateButton": "Згенерувати посилання на оплату",
+          "generating": "Генерація...",
+          "linkGenerated": "Посилання згенеровано",
+          "linkGeneratedEmailed": "Посилання згенеровано та надіслано на email",
+          "linkLabel": "Посилання на оплату",
+          "copyButton": "Копіювати",
+          "copied": "Скопійовано",
+          "copyError": "Не вдалося скопіювати",
+          "errorGenerate": "Помилка генерації посилання"
         },
         "toasts": {
           "orderDeleted": "Замовлення видалено",
@@ -2136,5 +2177,11 @@
       "COURIER_INPOST": "Кур'єр InPost",
       "PARCEL_LOCKER_DPD": "Поштомат DPD"
     }
+  },
+  "loyaltyPromo": {
+    "title": "Діють додаткові знижки за програмою лояльності!",
+    "description": "Зареєструйтеся та отримайте додаткові знижки на товари для постійних покупців.",
+    "continueShopping": "Продовжити покупки",
+    "register": "Зареєструватись"
   }
 }

@@ -266,9 +266,17 @@ export default function DashboardOrdersPage() {
                               ? new Intl.NumberFormat("pl-PL", {
                                   style: "currency",
                                   currency: order.currency,
-                                }).format(order.totalGross)
+                                }).format(Math.max(0, order.totalGross - (order.discountAmount ?? 0)))
                               : "—"}
                           </div>
+                          {!!order.discountAmount && order.totalGross != null && order.currency && (
+                            <div className="text-xs text-gray-400 line-through">
+                              {new Intl.NumberFormat("pl-PL", {
+                                style: "currency",
+                                currency: order.currency,
+                              }).format(order.totalGross)}
+                            </div>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span

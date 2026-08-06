@@ -1,12 +1,12 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
-import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useOrderTranslations, useDeliveryTranslations } from '@/helpers/use-translations';
 import { ArrowLeft, Package, MapPin, CreditCard } from 'lucide-react';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useDomainConfig } from '@/hooks/useDomain';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,8 +21,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isRefunding, setIsRefunding] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const domainConfig = useDomainConfig();
   const { id } = use(params);
 
   useEffect(() => {
@@ -120,20 +121,56 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const handlePayOrder = () => {
+  const handlePayOrder = async () => {
     if (!order) return;
-    router.push(`/payment?orderId=${order.id}`);
+
+    setIsPaying(true);
+    setError(null);
+
+    try {
+      const isInstallment = order.delivery?.paymentMethod === 'installment';
+      const endpoint = isInstallment
+        ? '/api/payments/liqpay-installments/initiate'
+        : `/api/payments/${domainConfig.paymentProviders.includes('liqpay') ? 'liqpay' : 'przelewy24'}/initiate`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to initiate payment');
+      }
+      if (!data.paymentUrl) {
+        throw new Error('Payment URL not received');
+      }
+
+      window.location.href = data.paymentUrl;
+    } catch (err: any) {
+      setError(err.message || 'Failed to initiate payment');
+      setIsPaying(false);
+    }
   };
 
   // Check if cancel button should be disabled
   const canCancelOrder = order && ['NEW', 'WAITING_FOR_PAYMENT', 'PROCESSING'].includes(order.status);
-  
+
   // Check if refund button should be shown
   const canRefundOrder = order && order.status === 'REFUND' && order.payment?.status === 'COMPLETED';
-  
+
+  // Only "online" payment methods (card / installment) go through the gateway;
+  // cash on delivery and bank transfer (invoice) are settled outside checkout.
+  const isOnlinePaymentMethod = order?.delivery?.paymentMethod
+    ? !['cash_on_delivery', 'bank_transfer'].includes(order.delivery.paymentMethod)
+    : false;
+
   // Check if "Proceed with Payment" button should be shown
-  const canProceedWithPayment = order && ['NEW', 'WAITING_FOR_PAYMENT'].includes(order.status) && 
-    (!order.payment || order.payment.status !== 'COMPLETED');
+  const canProceedWithPayment = order && ['NEW', 'WAITING_FOR_PAYMENT'].includes(order.status) &&
+    (!order.payment || order.payment.status !== 'COMPLETED') &&
+    isOnlinePaymentMethod;
 
 
   if (isLoading) {
@@ -235,9 +272,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             {tr.statusLabel(order.status)}
           </span>
           {canProceedWithPayment && (
-            <Button onClick={handlePayOrder} className="bg-green-600 hover:bg-green-700">
+            <Button onClick={handlePayOrder} disabled={isPaying} className="bg-green-600 hover:bg-green-700">
               <CreditCard className="h-4 w-4 mr-2" />
-              {t('proceedWithPayment')}
+              {isPaying ? t('processingPayment') : t('proceedWithPayment')}
             </Button>
           )}
           <Button
@@ -327,15 +364,31 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                   </span>
                 </div>
               )}
+              {!!order.discountAmount && (
+                <div className="flex justify-between text-sm text-red-600">
+                  <span>{t('discount')}</span>
+                  <span>
+                    -{new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'EUR' }).format(order.discountAmount)}
+                  </span>
+                </div>
+              )}
               <div className="border-t pt-4">
                 <div className="flex justify-between font-medium text-lg">
-                  <span>{t('total')}</span>
+                  <span>{order.discountAmount ? t('amountDue') : t('total')}</span>
                   <span>
                     {order.totalGross != null && order.currency
-                      ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)
+                      ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(Math.max(0, order.totalGross - (order.discountAmount ?? 0)))
                       : '—'}
                   </span>
                 </div>
+                {!!order.discountAmount && order.totalGross != null && order.currency && (
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>{t('total')}</span>
+                    <span className="line-through">
+                      {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency }).format(order.totalGross)}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

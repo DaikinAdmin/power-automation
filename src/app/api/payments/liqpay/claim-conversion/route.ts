@@ -25,6 +25,7 @@ import { apiErrorHandler, BadRequestError, NotFoundError, UnauthorizedError } fr
 import { verifyGuestToken } from '@/lib/guest-token';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { computeLineItemDerived, parseStoredLineItems } from '@/app/api/orders/shared';
+import { getOrderPayableAmount } from '@/lib/liqpay';
 
 export async function POST(request: NextRequest) {
   try {
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
       claimed: true,
       purchase: {
         transactionId: claimed.transactionId || claimed.id,
-        value: order.totalGross,
+        value: getOrderPayableAmount(order),
         currency: order.currency,
         items: lineItems.map((li) => ({
           item_id: li.articleId,

@@ -7,6 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import type { AdClick } from '@/db/schema';
 
+function formatUtcDate(value: string) {
+  const hasTimezone = /Z$|[+-]\d{2}:\d{2}$/.test(value);
+  const utcValue = hasTimezone ? value : `${value.replace(' ', 'T')}Z`;
+  return new Date(utcValue).toLocaleString('uk-UA');
+}
+
 export default function AdClicksPage() {
   const t = useTranslations('adminDashboard.adClicks');
   const [adClicks, setAdClicks] = useState<AdClick[]>([]);
@@ -142,7 +148,7 @@ export default function AdClicksPage() {
                   {adClicks.map((row) => (
                     <tr key={row.id} className="border-b hover:bg-gray-50">
                       <td className="p-3 text-sm text-gray-600 whitespace-nowrap">
-                        {new Date(row.createdAt).toLocaleString('uk-UA')}
+                        {formatUtcDate(row.createdAt)}
                       </td>
                       <td className="p-3 font-mono text-xs">
                         {row.gaClientId || <span className="text-gray-400">—</span>}

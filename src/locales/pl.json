@@ -149,6 +149,7 @@
     "backToShop": "Wróć do sklepu",
     "createAccount": "Utwórz konto",
     "login": "Zaloguj się",
+    "loyaltyAlert": "Dodatkowe rabaty w programie lojalnościowym dla zarejestrowanych klientów!",
     "deliveryDetails": "Szczegóły dostawy",
     "form": {
       "firstName": "Imię",
@@ -157,6 +158,8 @@
       "phoneNumber": "Numer telefonu",
       "phonePlaceholder": "123-456-7890",
       "noCallConfirmation": "Nie dzwoń w celu potwierdzenia zamówienia",
+      "comment": "Komentarz do zamówienia",
+      "commentPlaceholder": "Np. uwagi do dostawy, prośba o rabat itp.",
       "city": "Miasto",
       "country": "Kraj",
       "street": "Ulica i numer",
@@ -359,6 +362,7 @@
         "placedOn": "Złożone {date}",
         "payNow": "Zapłać teraz",
         "proceedWithPayment": "Przejdź do płatności",
+        "processingPayment": "Przekierowanie...",
         "cancelOrder": "Anuluj zamówienie",
         "refundOrder": "Zwróć zamówienie",
         "cancelling": "Anulowanie...",
@@ -371,6 +375,8 @@
         "orderSummary": "Podsumowanie zamówienia",
         "subtotal": "Suma częściowa:",
         "delivery": "Dostawa:",
+        "discount": "Rabat:",
+        "amountDue": "Do zapłaty:",
         "totalFormatted": "Suma (sformatowana):",
         "total": "Suma:",
         "orderTimeline": "Oś czasu zamówienia",
@@ -1078,7 +1084,12 @@
           "deliveryId": "ID dostawy",
           "comment": "Komentarz",
           "notProvided": "Nie podano",
-          "noComment": "Brak komentarza"
+          "noComment": "Brak komentarza",
+          "discount": "Rabat",
+          "orderMethod": "Sposób złożenia",
+          "orderMethodQuick": "Szybkie zamówienie",
+          "orderMethodAccount": "Z rejestracją/logowaniem",
+          "gclid": "Google Ads (gclid)"
         },
         "customer": {
           "title": "Klient",
@@ -1131,14 +1142,44 @@
         },
         "deliveryManagement": {
           "title": "Zarządzanie dostawą",
-          "description": "Zaktualizuj status i numer listu przewozowego.",
+          "description": "Zaktualizuj status, adres i metodę płatności.",
           "statusLabel": "Status dostawy",
           "trackingLabel": "List przewozowy / TTN",
           "trackingPlaceholder": "Numer listu przewozowego",
+          "typeLabel": "Typ dostawy",
+          "cityLabel": "Miasto",
+          "warehouseLabel": "Punkt / magazyn",
+          "warehousePlaceholder": "Np.: Paczkomat nr 5",
+          "streetLabel": "Ulica",
+          "buildingLabel": "Numer domu",
+          "flatLabel": "Mieszkanie/biuro",
+          "paymentMethodLabel": "Metoda płatności",
+          "paymentMethodUnset": "Nie podano",
           "save": "Zapisz",
           "saving": "Zapisywanie...",
           "saved": "Dostawa zaktualizowana",
           "errorSave": "Błąd aktualizacji dostawy"
+        },
+        "discount": {
+          "title": "Rabat i link do płatności",
+          "description": "Ustaw rabat na zamówienie i wygeneruj nowy link do płatności (LiqPay).",
+          "currentTotal": "Suma zamówienia",
+          "discountLabel": "Rabat",
+          "amountDue": "Do zapłaty",
+          "saveDiscount": "Zapisz rabat",
+          "saving": "Zapisywanie...",
+          "saved": "Rabat zapisany",
+          "errorSave": "Błąd zapisywania rabatu",
+          "sendEmailLabel": "Wyślij również link na email klienta",
+          "generateButton": "Wygeneruj link do płatności",
+          "generating": "Generowanie...",
+          "linkGenerated": "Link wygenerowany",
+          "linkGeneratedEmailed": "Link wygenerowany i wysłany na email",
+          "linkLabel": "Link do płatności",
+          "copyButton": "Kopiuj",
+          "copied": "Skopiowano",
+          "copyError": "Nie udało się skopiować",
+          "errorGenerate": "Błąd generowania linku"
         },
         "toasts": {
           "orderDeleted": "Zamówienie usunięte",
@@ -2133,5 +2174,11 @@
       "USER_ADDRESS": "Adres użytkownika",
       "NOVA_POSHTA": "Nova Poshta"
     }
+  },
+  "loyaltyPromo": {
+    "title": "Dodatkowe rabaty w programie lojalnościowym!",
+    "description": "Zarejestruj się i otrzymaj dodatkowe rabaty na produkty dla stałych klientów.",
+    "continueShopping": "Kontynuuj zakupy",
+    "register": "Zarejestruj się"
   }
 }

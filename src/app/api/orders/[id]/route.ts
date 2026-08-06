@@ -81,6 +81,7 @@ export async function GET(
       trackingNumber: string | null;
       deliveryPrice: number | null;
       status: string;
+      paymentMethod: string | null;
     } | null = null;
     if (order.deliveryId) {
       const [row] = await db
@@ -94,6 +95,7 @@ export async function GET(
           trackingNumber: schema.delivery.trackingNumber,
           deliveryPrice: schema.delivery.deliveryPrice,
           status: schema.delivery.status,
+          paymentMethod: schema.delivery.paymentMethod,
         })
         .from(schema.delivery)
         .where(eq(schema.delivery.id, order.deliveryId))

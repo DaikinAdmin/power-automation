@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { getTranslations } from 'next-intl/server';
@@ -65,6 +65,7 @@ export function mapOrderForUser(order: any) {
     totalNet: order.totalNet ?? null,
     totalVat: order.totalVat ?? null,
     totalGross: order.totalGross ?? null,
+    discountAmount: order.discountAmount ?? null,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
     deliveryId: order.deliveryId,
@@ -86,6 +87,10 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     novaPost,
     deliveryPoland,
     domainCurrency: orderCurrency = 'EUR',
+    comment,
+    orderMethod,
+    gaClientId: bodyGaClientId,
+    adVisitorId,
   } = body;
 
   if (!cartItems || cartItems.length === 0) {
@@ -265,6 +270,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
   const totalGross = +(totalNet + totalVat + plDeliveryCharge).toFixed(2);
 
   let resolvedDeliveryId: string | null = deliveryId || null;
+  let deliverySummary: { type: string; address: string | null; paymentMethod: string | null } | null = null;
   if (novaPost?.method) {
     const deliveryTypeMap: Record<string, 'PICKUP_UA' | 'WAREHOUSE_NOVA_POSHTA' | 'COURIER_NOVA_POSHTA'> = {
       warehouse: 'PICKUP_UA',
@@ -293,6 +299,15 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       })
       .returning();
     resolvedDeliveryId = newDelivery.id;
+    deliverySummary = {
+      type: newDelivery.type,
+      address:
+        newDelivery.warehouseDesc ||
+        [newDelivery.street, newDelivery.building, newDelivery.flat].filter(Boolean).join(', ') ||
+        newDelivery.city ||
+        null,
+      paymentMethod: newDelivery.paymentMethod,
+    };
   }
 
   if (deliveryPoland?.method) {
@@ -325,6 +340,34 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       })
       .returning();
     resolvedDeliveryId = newPlDelivery.id;
+    deliverySummary = {
+      type: newPlDelivery.type,
+      address:
+        newPlDelivery.warehouseDesc ||
+        [newPlDelivery.street, newPlDelivery.building, newPlDelivery.flat].filter(Boolean).join(', ') ||
+        newPlDelivery.city ||
+        null,
+      paymentMethod: newPlDelivery.paymentMethod,
+    };
+  }
+
+  // Resolve Google Ads attribution captured on landing (see ad-click-tracker.tsx)
+  // so it survives on the order even if the customer never completes an
+  // online-card payment right away — a payment link generated later (e.g. by
+  // an admin) can still carry correct purchase-conversion attribution.
+  let resolvedGclid: string | null = null;
+  let resolvedGaClientId: string | null = bodyGaClientId || null;
+  if (adVisitorId) {
+    const [adClickRow] = await db
+      .select({ gclid: schema.adClick.gclid, gaClientId: schema.adClick.gaClientId })
+      .from(schema.adClick)
+      .where(eq(schema.adClick.visitorId, adVisitorId))
+      .orderBy(desc(schema.adClick.createdAt))
+      .limit(1);
+    if (adClickRow) {
+      resolvedGclid = adClickRow.gclid;
+      resolvedGaClientId = resolvedGaClientId || adClickRow.gaClientId;
+    }
   }
 
   const now = new Date().toISOString();
@@ -340,7 +383,11 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       lineItems: orderLineItems,
       status: 'NEW',
       deliveryId: resolvedDeliveryId,
-      notes: { locale },
+      comment: comment || null,
+      locale,
+      orderMethod: orderMethod === 'QUICK' ? 'QUICK' : 'ACCOUNT',
+      gclid: resolvedGclid,
+      gaClientId: resolvedGaClientId,
       createdAt: now,
       updatedAt: now,
     })
@@ -393,6 +440,9 @@ export async function orderHandler(body: any, userId: string, locale: string = '
         totalGross: order.totalGross,
         currency: order.currency,
         locale,
+        deliveryType: deliverySummary?.type,
+        deliveryAddress: deliverySummary?.address ?? undefined,
+        paymentMethod: deliverySummary?.paymentMethod ?? undefined,
         lineItems: orderLineItems.map((li: any) => {
           const derived = computeLineItemDerived(li);
           return {
@@ -404,7 +454,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
             warehouseName: li.warehouseName,
           };
         }),
-        comment: null,
+        comment: order.comment,
       };
       sendNewOrderEmails(emailData);
     }

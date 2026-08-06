@@ -338,11 +338,11 @@ export default function PaymentPage({ params, searchParams }: PaymentPageProps) 
 
                 {/* Payment Buttons */}
                 <div className="space-y-3">
-                  {orderData.payment?.paymentMethod === 'cash_on_delivery' ? (
+                  {orderData.delivery?.paymentMethod === 'cash_on_delivery' ? (
                     <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
                       {t('cashOnDelivery.info')}
                     </div>
-                  ) : orderData.payment?.paymentMethod === 'bank_transfer' ? (
+                  ) : orderData.delivery?.paymentMethod === 'bank_transfer' ? (
                     <>
                       <p className="text-sm text-gray-600 mb-2">{t('bankTransfer.info')}</p>
                       <IssueInvoiceButton

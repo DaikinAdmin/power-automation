@@ -49,6 +49,24 @@ async function sendTelegramMessage(chatId: string, text: string): Promise<void> 
   }
 }
 
+const DELIVERY_TYPE_LABELS: Record<string, string> = {
+  PICKUP_UA: 'Самовивіз з України',
+  PICKUP_PL: 'Самовивіз з Польщі',
+  WAREHOUSE_NOVA_POSHTA: 'Відділення Нової Пошти',
+  COURIER_NOVA_POSHTA: "Кур'єр Нова Пошта",
+  PARCEL_LOCKER_INPOST: 'Поштомат InPost',
+  COURIER_INPOST: "Кур'єр InPost",
+  PARCEL_LOCKER_DPD: 'Поштомат DPD',
+};
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  online_card: 'Картою онлайн',
+  bank_transfer: 'Банківський переказ (рахунок-фактура)',
+  cash_on_delivery: 'Накладений платіж',
+  installment: 'Оплата частинами (ПриватБанк)',
+  przelewy24: 'Przelewy24',
+};
+
 function buildNewOrderMessage(data: OrderEmailData): string {
   const shortId = data.orderShortId;
   const lines = [
@@ -66,6 +84,18 @@ function buildNewOrderMessage(data: OrderEmailData): string {
   }
 
   lines.push(`💰 <b>Сума:</b> ${data.totalGross.toFixed(2)} ${data.currency}`);
+
+  if (data.deliveryType) {
+    const deliveryLabel = DELIVERY_TYPE_LABELS[data.deliveryType] ?? data.deliveryType;
+    lines.push(`🚚 <b>Доставка:</b> ${deliveryLabel}`);
+  }
+  if (data.deliveryAddress) {
+    lines.push(`📍 <b>Адреса/відділення:</b> ${data.deliveryAddress}`);
+  }
+  if (data.paymentMethod) {
+    const paymentLabel = PAYMENT_METHOD_LABELS[data.paymentMethod] ?? data.paymentMethod;
+    lines.push(`💳 <b>Спосіб оплати:</b> ${paymentLabel}`);
+  }
 
   if (data.lineItems.length > 0) {
     lines.push(``, `📦 <b>Позиції:</b>`);

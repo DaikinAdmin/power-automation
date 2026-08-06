@@ -69,6 +69,8 @@ export interface OrderEmailData {
   deliveryType?: string;
   deliveryMethod?: string;
   deliveryAddress?: string;
+  /** Raw checkout payment-method code (online_card / cash_on_delivery / bank_transfer / installment / przelewy24) */
+  paymentMethod?: string;
   lineItems: Array<{
     name: string;
     articleId: string;
@@ -85,6 +87,18 @@ export interface PaymentEmailData extends OrderEmailData {
   paymentAmount: number;
   paymentCurrency: string;
   transactionId?: string;
+}
+
+export interface PaymentLinkEmailData {
+  orderId: string;
+  orderShortId: string;
+  customerName: string;
+  customerEmail: string;
+  amount: number;
+  currency: string;
+  /** BCP-47 / next-intl locale: 'pl' | 'en' | 'ua' | 'es' */
+  locale?: string;
+  paymentUrl: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -306,6 +320,43 @@ export async function sendPaymentSuccessCustomerEmail(data: PaymentEmailData): P
     logger.info('Payment success email sent to customer', { orderId: data.orderId, customerEmail: data.customerEmail });
   } catch (err) {
     logger.error('Failed to send payment success email to customer', { orderId: data.orderId, error: String(err) });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Admin-generated payment link
+// ---------------------------------------------------------------------------
+
+/** Email to customer with a manually-generated (admin) payment link, e.g. after a discount */
+export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<void> {
+  const locale = normalizeLocale(data.locale);
+  const m = await loadMessages(locale, 'emails.paymentLink');
+
+  const subject = t(m, 'subject', { orderShortId: data.orderShortId });
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <h2 style="color:#1a56db;">${t(m, 'title')}</h2>
+      <p>${t(m, 'greeting', { customerName: data.customerName })}</p>
+      <p>${t(m, 'body', { orderShortId: data.orderShortId })}</p>
+
+      <p style="font-size:18px;"><strong>${t(m, 'amount')}: ${formatCurrency(data.amount, data.currency)}</strong></p>
+
+      <p style="text-align:center;margin:32px 0;">
+        <a href="${data.paymentUrl}" style="background:#dc2626;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">${t(m, 'payButton')}</a>
+      </p>
+
+      <p style="color:#666;font-size:13px;">${t(m, 'linkFallback')}<br/><a href="${data.paymentUrl}">${data.paymentUrl}</a></p>
+
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
+      <p style="color:#666;font-size:12px;">${t(m, 'footer')}</p>
+    </div>`;
+
+  try {
+    await email.sendMail({ from: FROM_EMAIL, to: data.customerEmail, subject, html });
+    logger.info('Payment link email sent to customer', { orderId: data.orderId, customerEmail: data.customerEmail });
+  } catch (err) {
+    logger.error('Failed to send payment link email to customer', { orderId: data.orderId, error: String(err) });
   }
 }
 

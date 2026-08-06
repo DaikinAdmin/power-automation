@@ -10,10 +10,13 @@ import { formatCurrency, formatDate } from '@/helpers/formatting';
 import { OrderStatusForm } from '@/components/admin/order-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ORDER_STATUS_OPTIONS } from '@/constants/order';
-import { DELIVERY_STATUS_OPTIONS, STATUS_COLORS } from '@/constants/delivery';
+import { DELIVERY_STATUS_OPTIONS, DELIVERY_TYPE_OPTIONS, STATUS_COLORS } from '@/constants/delivery';
 import { getPaymentStatusBadgeStyle } from '@/helpers/formatting';
 import type { DeliveryRecord } from '@/types/delivery';
 import type { OrderDetail, OrderNote, Payment } from '@/types/order';
+
+const UA_PAYMENT_METHODS = ['online_card', 'installment', 'bank_transfer', 'cash_on_delivery'] as const;
+const PL_PAYMENT_METHODS = ['przelewy24', 'bank_transfer'] as const;
 
 interface OrderDetailClientProps {
   orderId: string;
@@ -32,6 +35,13 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   // Delivery edit state
   const [deliveryStatus, setDeliveryStatus] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
+  const [deliveryType, setDeliveryType] = useState('');
+  const [deliveryCity, setDeliveryCity] = useState('');
+  const [deliveryWarehouseDesc, setDeliveryWarehouseDesc] = useState('');
+  const [deliveryStreet, setDeliveryStreet] = useState('');
+  const [deliveryBuilding, setDeliveryBuilding] = useState('');
+  const [deliveryFlat, setDeliveryFlat] = useState('');
+  const [deliveryPaymentMethod, setDeliveryPaymentMethod] = useState('');
   const [isSavingDelivery, setIsSavingDelivery] = useState(false);
 
   // Notes state
@@ -43,10 +53,20 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Discount + payment-link state (UA/LiqPay orders only)
+  const [discountMode, setDiscountMode] = useState<'fixed' | 'percent'>('fixed');
+  const [discountInput, setDiscountInput] = useState('');
+  const [isSavingDiscount, setIsSavingDiscount] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+  const [sendLinkByEmail, setSendLinkByEmail] = useState(false);
+
   const router = useRouter();
   const t = useTranslations('adminDashboard.orders.detail');
   const tr = useOrderTranslations();
   const trDelivery = useDeliveryTranslations();
+  const tNovaPayment = useTranslations('novaPostDelivery.paymentOption');
+  const tPlPayment = useTranslations('deliveryPoland.payment');
 
   useEffect(() => {
     let isMounted = true;
@@ -83,10 +103,18 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         if (Array.isArray(data.order.notes)) {
           setNotes(data.order.notes);
         }
+        setDiscountInput(data.order.discountAmount ? String(data.order.discountAmount) : '');
         if (data.delivery) {
           setDelivery(data.delivery);
           setDeliveryStatus(data.delivery.status);
           setTrackingNumber(data.delivery.trackingNumber ?? '');
+          setDeliveryType(data.delivery.type);
+          setDeliveryCity(data.delivery.city ?? '');
+          setDeliveryWarehouseDesc(data.delivery.warehouseDesc ?? '');
+          setDeliveryStreet(data.delivery.street ?? '');
+          setDeliveryBuilding(data.delivery.building ?? '');
+          setDeliveryFlat(data.delivery.flat ?? '');
+          setDeliveryPaymentMethod(data.delivery.paymentMethod ?? '');
         }
         if (data.payment) {
           setPayment(data.payment);
@@ -109,6 +137,16 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
 
   const lineItems = order?.lineItems ?? [];
   const showSkeleton = status === 'loading' || status === 'idle';
+  const isPlOrder = order?.currency === 'PLN';
+  const paymentMethodOptions = isPlOrder ? PL_PAYMENT_METHODS : UA_PAYMENT_METHODS;
+  const paymentMethodLabel = (value: string): string => {
+    if (isPlOrder) {
+      return value === 'przelewy24' ? tPlPayment('przelewy24.label') : tPlPayment('bankTransfer.label');
+    }
+    return tNovaPayment(`${value}.label` as 'online_card.label' | 'installment.label' | 'bank_transfer.label' | 'cash_on_delivery.label');
+  };
+  // Discount + payment-link generation is currently wired for LiqPay (UA/UAH) only.
+  const supportsPaymentLink = order?.currency === 'UAH';
 
   const handleSaveDelivery = async () => {
     if (!delivery || isSavingDelivery) return;
@@ -120,6 +158,13 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         body: JSON.stringify({
           status: deliveryStatus || undefined,
           trackingNumber: trackingNumber.trim() || null,
+          type: deliveryType || undefined,
+          city: deliveryCity.trim() || null,
+          warehouseDesc: deliveryWarehouseDesc.trim() || null,
+          street: deliveryStreet.trim() || null,
+          building: deliveryBuilding.trim() || null,
+          flat: deliveryFlat.trim() || null,
+          paymentMethod: deliveryPaymentMethod || null,
         }),
       });
       if (!res.ok) {
@@ -133,6 +178,74 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       toast.error(err.message || t('deliveryManagement.errorSave'));
     } finally {
       setIsSavingDelivery(false);
+    }
+  };
+
+  const discountAmountValue = (): number | null => {
+    const raw = parseFloat(discountInput.replace(',', '.'));
+    if (!Number.isFinite(raw) || raw <= 0) return null;
+    if (discountMode === 'percent') {
+      const total = order?.totalGross ?? 0;
+      return Math.round(total * (raw / 100) * 100) / 100;
+    }
+    return raw;
+  };
+
+  const handleSaveDiscount = async () => {
+    if (!order || isSavingDiscount) return;
+    setIsSavingDiscount(true);
+    try {
+      const discountAmount = discountInput.trim() ? discountAmountValue() : null;
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'setDiscount', discountAmount }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || t('discount.errorSave'));
+      }
+      const data = await res.json();
+      setOrder((prev) => (prev ? { ...prev, discountAmount: data.discountAmount } : prev));
+      toast.success(t('discount.saved'));
+    } catch (err: any) {
+      toast.error(err.message || t('discount.errorSave'));
+    } finally {
+      setIsSavingDiscount(false);
+    }
+  };
+
+  const handleGeneratePaymentLink = async () => {
+    if (!order || isGeneratingLink) return;
+    setIsGeneratingLink(true);
+    setGeneratedLink(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/payment-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sendEmail: sendLinkByEmail }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({ error: 'Failed' }));
+        throw new Error(d.error || t('discount.errorGenerate'));
+      }
+      const data = await res.json();
+      setGeneratedLink(data.paymentUrl);
+      toast.success(sendLinkByEmail ? t('discount.linkGeneratedEmailed') : t('discount.linkGenerated'));
+    } catch (err: any) {
+      toast.error(err.message || t('discount.errorGenerate'));
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!generatedLink) return;
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      toast.success(t('discount.copied'));
+    } catch {
+      toast.error(t('discount.copyError'));
     }
   };
 
@@ -317,6 +430,32 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       : '—'}
                   </dd>
                 </div>
+                {!!order?.discountAmount && (
+                  <div className="flex justify-between text-red-600">
+                    <dt className="font-medium">{t('summary.discount')}</dt>
+                    <dd>
+                      -{new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'UAH' }).format(order.discountAmount)}
+                    </dd>
+                  </div>
+                )}
+                {order?.orderMethod && (
+                  <div className="flex justify-between items-center">
+                    <dt className="font-medium">{t('summary.orderMethod')}</dt>
+                    <dd>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        order.orderMethod === 'QUICK' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {order.orderMethod === 'QUICK' ? t('summary.orderMethodQuick') : t('summary.orderMethodAccount')}
+                      </span>
+                    </dd>
+                  </div>
+                )}
+                {order?.gclid && (
+                  <div className="flex justify-between">
+                    <dt className="font-medium">{t('summary.gclid')}</dt>
+                    <dd className="font-mono text-xs truncate max-w-[60%]" title={order.gclid}>{order.gclid}</dd>
+                  </div>
+                )}
                 {delivery?.deliveryPrice != null && delivery.deliveryPrice > 0 && (
                   <div className="flex justify-between text-orange-600">
                     <dt className="font-medium">{t('summary.deliveryCost')}</dt>
@@ -719,6 +858,111 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
                   </div>
+                  <div>
+                    <label htmlFor="delivery-type" className="block text-sm font-medium text-gray-700">
+                      {t('deliveryManagement.typeLabel')}
+                    </label>
+                    <select
+                      id="delivery-type"
+                      value={deliveryType}
+                      onChange={(e) => setDeliveryType(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    >
+                      {DELIVERY_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {trDelivery.typeLabel(opt)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="delivery-city" className="block text-sm font-medium text-gray-700">
+                      {t('deliveryManagement.cityLabel')}
+                    </label>
+                    <input
+                      id="delivery-city"
+                      type="text"
+                      value={deliveryCity}
+                      onChange={(e) => setDeliveryCity(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="delivery-warehouse" className="block text-sm font-medium text-gray-700">
+                      {t('deliveryManagement.warehouseLabel')}
+                    </label>
+                    <input
+                      id="delivery-warehouse"
+                      type="text"
+                      value={deliveryWarehouseDesc}
+                      onChange={(e) => setDeliveryWarehouseDesc(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      placeholder={t('deliveryManagement.warehousePlaceholder')}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-1">
+                      <label htmlFor="delivery-street" className="block text-sm font-medium text-gray-700">
+                        {t('deliveryManagement.streetLabel')}
+                      </label>
+                      <input
+                        id="delivery-street"
+                        type="text"
+                        value={deliveryStreet}
+                        onChange={(e) => setDeliveryStreet(e.target.value)}
+                        disabled={!canUpdate || isSavingDelivery}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="delivery-building" className="block text-sm font-medium text-gray-700">
+                        {t('deliveryManagement.buildingLabel')}
+                      </label>
+                      <input
+                        id="delivery-building"
+                        type="text"
+                        value={deliveryBuilding}
+                        onChange={(e) => setDeliveryBuilding(e.target.value)}
+                        disabled={!canUpdate || isSavingDelivery}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="delivery-flat" className="block text-sm font-medium text-gray-700">
+                        {t('deliveryManagement.flatLabel')}
+                      </label>
+                      <input
+                        id="delivery-flat"
+                        type="text"
+                        value={deliveryFlat}
+                        onChange={(e) => setDeliveryFlat(e.target.value)}
+                        disabled={!canUpdate || isSavingDelivery}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="delivery-payment-method" className="block text-sm font-medium text-gray-700">
+                      {t('deliveryManagement.paymentMethodLabel')}
+                    </label>
+                    <select
+                      id="delivery-payment-method"
+                      value={deliveryPaymentMethod}
+                      onChange={(e) => setDeliveryPaymentMethod(e.target.value)}
+                      disabled={!canUpdate || isSavingDelivery}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                    >
+                      <option value="">{t('deliveryManagement.paymentMethodUnset')}</option>
+                      {paymentMethodOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {paymentMethodLabel(opt)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <button
                     type="button"
                     onClick={handleSaveDelivery}
@@ -727,6 +971,118 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   >
                     {isSavingDelivery ? t('deliveryManagement.saving') : t('deliveryManagement.save')}
                   </button>
+                </div>
+              ) : null}
+            </section>
+          )}
+
+          {/* Discount + manual payment link (UA/LiqPay orders only) */}
+          {supportsPaymentLink && (order || showSkeleton) && (
+            <section className="rounded-lg border bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900">{t('discount.title')}</h2>
+              <p className="mt-1 text-sm text-gray-600">{t('discount.description')}</p>
+              {showSkeleton ? (
+                <div className="mt-4 space-y-3">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-28" />
+                </div>
+              ) : order ? (
+                <div className="mt-4 space-y-4">
+                  <div className="flex justify-between text-sm text-gray-700">
+                    <span>{t('discount.currentTotal')}</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'UAH' }).format(order.totalGross ?? 0)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label htmlFor="discount-amount" className="block text-sm font-medium text-gray-700">
+                      {t('discount.discountLabel')}
+                    </label>
+                    <div className="mt-1 flex gap-2">
+                      <input
+                        id="discount-amount"
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={discountInput}
+                        onChange={(e) => setDiscountInput(e.target.value)}
+                        disabled={!canUpdate || isSavingDiscount}
+                        placeholder="0"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      />
+                      <select
+                        value={discountMode}
+                        onChange={(e) => setDiscountMode(e.target.value as 'fixed' | 'percent')}
+                        disabled={!canUpdate || isSavingDiscount}
+                        className="w-24 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                      >
+                        <option value="fixed">{order.currency ?? 'UAH'}</option>
+                        <option value="percent">%</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-700">{t('discount.amountDue')}</span>
+                    <span className="font-bold text-red-600">
+                      {new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order.currency ?? 'UAH' }).format(
+                        Math.max(0, (order.totalGross ?? 0) - (discountInput.trim() ? discountAmountValue() ?? 0 : (order.discountAmount ?? 0)))
+                      )}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveDiscount}
+                    disabled={!canUpdate || isSavingDiscount}
+                    className="inline-flex items-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSavingDiscount ? t('discount.saving') : t('discount.saveDiscount')}
+                  </button>
+
+                  <div className="border-t pt-4 space-y-3">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        checked={sendLinkByEmail}
+                        onChange={(e) => setSendLinkByEmail(e.target.checked)}
+                        disabled={!canUpdate || isGeneratingLink}
+                        className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      />
+                      {t('discount.sendEmailLabel')}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleGeneratePaymentLink}
+                      disabled={!canUpdate || isGeneratingLink}
+                      className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isGeneratingLink ? t('discount.generating') : t('discount.generateButton')}
+                    </button>
+
+                    {generatedLink && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1 uppercase">{t('discount.linkLabel')}</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            readOnly
+                            value={generatedLink}
+                            onClick={(e) => (e.target as HTMLInputElement).select()}
+                            className="block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm text-xs font-mono sm:text-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleCopyLink}
+                            className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                          >
+                            {t('discount.copyButton')}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : null}
             </section>
