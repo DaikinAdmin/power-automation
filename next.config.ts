@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost" },
     ],
   },
-  serverExternalPackages: ['better-auth'],
+  serverExternalPackages: [],
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Fix module resolution for better-auth with Next.js 16
