@@ -4,6 +4,7 @@ import { X, Plus, Minus, ShoppingBag, ArrowLeft, Trash2, MapPin } from 'lucide-r
 import { useRouter } from '@/i18n/navigation';
 import { CartItemType } from '@/helpers/types/item';
 import { useCurrency } from '@/hooks/useCurrency';
+import { useDomainConfig } from '@/hooks/useDomain';
 import { parsePriceString, SupportedCurrency } from '@/helpers/currency';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -28,7 +29,8 @@ export default function CartModal({
 }: CartModalProps) {
   const router = useRouter();
 
-  const { formatPriceWithCurrency, convertFromCurrency, formatPrice, vatPercentage, vatInclusive } = useCurrency();
+  const { formatPriceWithCurrency, convertFromCurrency, convertToCurrency, formatPrice, vatPercentage, vatInclusive } = useCurrency();
+  const domainConfig = useDomainConfig();
   const localePreferences = useMemo(() => {
     const defaults = ['en', 'pl', 'uk'];
     if (typeof navigator === 'undefined' || !navigator.language) {
@@ -94,6 +96,34 @@ export default function CartModal({
   }, 0);
 
   const handleProceedToPayment = () => {
+    if (typeof window !== 'undefined' && cartItems.length > 0) {
+      const domainCurrency = domainConfig.currency as SupportedCurrency;
+      const gtmItems = cartItems.map((item) => {
+        const unitPrice = convertToCurrency(getItemBaseUnitPrice(item), getItemCurrency(item), domainCurrency);
+        return {
+          item_id: item.articleId,
+          item_name: getItemName(item),
+          item_brand: item.brand?.name || '',
+          item_category: item.categorySlug || '',
+          price: unitPrice,
+          quantity: item.quantity,
+        };
+      });
+      const gtmValue = gtmItems.reduce((sum, gtmItem) => sum + gtmItem.price * gtmItem.quantity, 0);
+
+      const w = window as any;
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({ ecommerce: null });
+      w.dataLayer.push({
+        event: 'begin_checkout',
+        ecommerce: {
+          currency: domainCurrency,
+          value: gtmValue,
+          items: gtmItems,
+        },
+      });
+    }
+
     onClose();
     router.push('/checkout');
   };

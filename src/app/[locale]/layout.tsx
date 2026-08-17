@@ -136,19 +136,19 @@ export default async function LocaleLayout({
           </noscript>
         )}
         <NextIntlClientProvider>
-          <CartProvider>
-            <CompareProvider>
-              <CurrencyProvider
-                initialCurrency={initialCurrency}
-                vatPercentage={vatPercentage}
-                vatInclusive={vatInclusive}
-              >
+          <CurrencyProvider
+            initialCurrency={initialCurrency}
+            vatPercentage={vatPercentage}
+            vatInclusive={vatInclusive}
+          >
+            <CartProvider>
+              <CompareProvider>
                 <CatalogDataProvider locale={locale}>
                   {children}
                 </CatalogDataProvider>
-              </CurrencyProvider>
-            </CompareProvider>
-          </CartProvider>
+              </CompareProvider>
+            </CartProvider>
+          </CurrencyProvider>
           <Toaster />
           <CookieConsent requireConsent={domainConfig.key !== "ua"} />
           {!isAdmin && <AdClickTracker domain={domainConfig.key} />}

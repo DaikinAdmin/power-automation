@@ -2,7 +2,9 @@
 
 import { CartItemType } from '@/helpers/types/item';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { parsePriceString } from '@/helpers/currency';
+import { parsePriceString, SupportedCurrency } from '@/helpers/currency';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useDomainConfig } from '@/hooks/useDomain';
 
 // Extend the Item type with cart-specific properties without creating a new standalone type
 
@@ -23,6 +25,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItemType[]>([]);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const { convertToCurrency } = useCurrency();
+  const domainConfig = useDomainConfig();
 
   const normaliseCartItem = (item: CartItemType): CartItemType => {
     const resolvedWarehouse = item.availableWarehouses?.find((warehouse: { warehouseId: any; }) => warehouse.warehouseId === item.warehouseId);
@@ -120,21 +124,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // Open cart modal when adding items
     setIsCartModalOpen(true);
 
-    // GTM add_to_cart event
+    // GA4/GTM add_to_cart event
     if (typeof window !== 'undefined') {
+      const domainCurrency = domainConfig.currency as SupportedCurrency;
+      const itemCurrency = ((itemToAdd as any).initialCurrency as SupportedCurrency) || 'EUR';
+      const basePrice = (itemToAdd as any).basePrice ?? (itemToAdd as any).price ?? 0;
+      const price = convertToCurrency(basePrice, itemCurrency, domainCurrency);
+
       const w = window as any;
       w.dataLayer = w.dataLayer || [];
       w.dataLayer.push({ ecommerce: null });
       w.dataLayer.push({
         event: 'add_to_cart',
         ecommerce: {
-          currency: (itemToAdd as any).initialCurrency || 'EUR',
-          value: (itemToAdd as any).basePrice ?? (itemToAdd as any).price ?? 0,
+          currency: domainCurrency,
+          value: price,
           items: [{
             item_id: itemToAdd.articleId,
             item_name: (itemToAdd as any).displayName || itemToAdd.articleId,
+            item_brand: (itemToAdd as any).brand?.name || '',
             item_category: itemToAdd.categorySlug || '',
-            price: (itemToAdd as any).basePrice ?? (itemToAdd as any).price ?? 0,
+            price,
             quantity: 1,
           }],
         },

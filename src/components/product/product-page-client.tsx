@@ -17,6 +17,7 @@ import { RelatedProductsCarousel } from "@/components/product/related-products-c
 import { AskPriceModal } from "@/components/product/ask-price-modal";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useDomainConfig } from "@/hooks/useDomain";
 import type { SupportedCurrency } from "@/helpers/currency";
 import { useCart } from "@/components/cart-context";
 import { useCompare } from "@/components/compare-context";
@@ -48,7 +49,8 @@ export default function ProductPageClient({
   const { locale, id } = use(params);
   const searchParams = useSearchParams();
   const showAskPrice = searchParams.get("askPrice") === "true";
-  const { formatPriceWithCurrency } = useCurrency();
+  const { formatPriceWithCurrency, convertToCurrency } = useCurrency();
+  const domainConfig = useDomainConfig();
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
   const t = useTranslations("product");
@@ -190,6 +192,45 @@ export default function ProductPageClient({
       document.title = `${productName} | Power Automation`;
     }
   }, [productName]);
+
+  // GA4 view_item event — fires once per product card view, including SPA
+  // navigation between products (keyed on product.id, not on warehouse
+  // selection so switching warehouses doesn't re-fire it).
+  useEffect(() => {
+    if (typeof window === "undefined" || !product || !selectedWarehouse) {
+      return;
+    }
+
+    const domainCurrency = domainConfig.currency as SupportedCurrency;
+    const itemCurrency =
+      (selectedWarehouse.initialCurrency as SupportedCurrency) ?? "EUR";
+    const unitPrice = convertToCurrency(
+      selectedWarehouse.baseSpecialPrice ?? selectedWarehouse.basePrice,
+      itemCurrency,
+      domainCurrency,
+    );
+
+    const w = window as any;
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ ecommerce: null });
+    w.dataLayer.push({
+      event: "view_item",
+      ecommerce: {
+        currency: domainCurrency,
+        value: unitPrice,
+        items: [
+          {
+            item_id: product.articleId,
+            item_name: productName,
+            item_brand: product.brand,
+            item_category: product.categorySlug,
+            price: unitPrice,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+  }, [product?.id]);
 
   const handleOpinionSubmit = async (data: {
     name: string;
