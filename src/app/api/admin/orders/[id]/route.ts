@@ -6,7 +6,6 @@ import { eq, inArray, desc } from "drizzle-orm";
 import * as schema from "@/db/schema";
 import { computeLineItemDerived, OrderLineItem } from "@/app/api/orders/shared";
 import { ORDER_STATUS_OPTIONS } from "@/constants/order";
-import { fireOfflineOrderConversionIfNeeded } from "@/lib/offline-order-conversion";
 
 const AUTHORIZED_ROLES = new Set(["admin", "employee"]);
 
@@ -374,14 +373,6 @@ export async function PATCH(
 
     if (!updatedOrderData) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    if (status === "PROCESSING" || status === "COMPLETED") {
-      // Fire-and-forget: covers bank_transfer/cash_on_delivery orders, whose
-      // conversion can only be confirmed here (admin-side), not at checkout.
-      // No-ops for LiqPay/Przelewy24 orders (already handled) and is
-      // dedup-guarded by order.conversionSentAt — see src/lib/offline-order-conversion.ts.
-      fireOfflineOrderConversionIfNeeded(id).catch(() => {});
     }
 
     // Fetch user data

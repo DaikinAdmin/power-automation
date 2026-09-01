@@ -335,7 +335,11 @@ definitions -> Create custom dimension** (scope: Event, parameter name
 `offline_conversion_country`) — then it's available in Explorations/reports
 alongside (but separate from) the built-in Country dimension.
 
-Non-LiqPay payment methods (`bank_transfer`, `cash_on_delivery`, Przelewy24 on
-the PL domain) are unaffected — they still fire the GTM `purchase` event
-immediately at order creation, since there's no separate async "paid"
-confirmation step for those.
+Przelewy24 (PL domain) is unaffected — it still fires the GTM `purchase`
+event immediately at order creation, since there's no separate async "paid"
+confirmation step for it.
+
+`bank_transfer` / `cash_on_delivery` (UA domain) never fire `purchase` at
+all — actual payment is never confirmed in the system for these, so checkout
+only fires `order_confirm_offline` and no GA4 purchase conversion is ever
+sent for them.
