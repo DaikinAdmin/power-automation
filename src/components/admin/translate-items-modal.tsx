@@ -143,7 +143,7 @@ export function TranslateItemsModal({ isOpen, onClose, selectedSlugs }: Translat
       const { summary } = data;
 
       toast.success('Translation completed', {
-        description: `Created: ${summary.created}, Updated: ${summary.updated}${summary.errors > 0 ? `, Errors: ${summary.errors}` : ''}`,
+        description: `Created: ${summary.created}, Updated: ${summary.updated}${summary.skipped > 0 ? `, Skipped: ${summary.skipped}` : ''}${summary.errors > 0 ? `, Errors: ${summary.errors}` : ''}`,
         duration: 5000,
       });
 

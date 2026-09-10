@@ -128,8 +128,15 @@ export async function GET(request: NextRequest) {
     }
 
     for (const d of details) {
-      if (!grouped[d.itemSlug]) continue;
-      grouped[d.itemSlug].locales[d.locale] = {
+      const group = grouped[d.itemSlug];
+      if (!group) continue;
+
+      // Skip placeholder entries created without a real translation:
+      // empty description or itemName that is just the article id.
+      const isRealTranslation = d.description.trim() !== '' && d.itemName !== group.item.articleId;
+      if (!isRealTranslation) continue;
+
+      group.locales[d.locale] = {
         id: d.id,
         itemName: d.itemName,
         description: d.description,
@@ -202,6 +209,13 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
 
+    // Article ids per item, used to detect placeholder (untranslated) entries
+    const itemRows = await db
+      .select({ slug: schema.item.slug, articleId: schema.item.articleId })
+      .from(schema.item)
+      .where(inArray(schema.item.slug, slugs));
+    const articleIdBySlug = new Map(itemRows.map(r => [r.slug, r.articleId]));
+
     logger.info('Starting batch translation', {
       userId: session.user.id,
       itemCount: sourceDetails.length,
@@ -209,7 +223,7 @@ export async function POST(request: NextRequest) {
       targetLangs,
     });
 
-    const results: { slug: string; locale: string; status: 'created' | 'updated' | 'error'; error?: string }[] = [];
+    const results: { slug: string; locale: string; status: 'created' | 'updated' | 'skipped' | 'error'; error?: string }[] = [];
 
     for (const source of sourceDetails) {
       const fields: Record<string, string | null> = {
@@ -224,11 +238,9 @@ export async function POST(request: NextRequest) {
         if (targetLang === sourceLang) continue;
 
         try {
-          const translated = await translateFields(apiKey, fields, sourceLang, targetLang);
-
-          // Check if translation already exists
+          // Check if a real translation already exists before calling the API
           const existing = await db
-            .select({ id: schema.itemDetails.id })
+            .select({ id: schema.itemDetails.id, itemName: schema.itemDetails.itemName, description: schema.itemDetails.description })
             .from(schema.itemDetails)
             .where(
               and(
@@ -237,6 +249,18 @@ export async function POST(request: NextRequest) {
               ),
             )
             .limit(1);
+
+          const articleId = articleIdBySlug.get(source.itemSlug) ?? null;
+          const isRealTranslation = existing.length > 0
+            && existing[0].description.trim() !== ''
+            && existing[0].itemName !== articleId;
+
+          if (isRealTranslation) {
+            results.push({ slug: source.itemSlug, locale: targetLang, status: 'skipped' });
+            continue;
+          }
+
+          const translated = await translateFields(apiKey, fields, sourceLang, targetLang);
 
           if (existing.length > 0) {
             // Update existing
@@ -286,14 +310,15 @@ export async function POST(request: NextRequest) {
 
     const created = results.filter(r => r.status === 'created').length;
     const updated = results.filter(r => r.status === 'updated').length;
+    const skipped = results.filter(r => r.status === 'skipped').length;
     const errors = results.filter(r => r.status === 'error').length;
 
-    logger.info('Batch translation completed', { created, updated, errors });
+    logger.info('Batch translation completed', { created, updated, skipped, errors });
 
     return NextResponse.json({
       success: true,
       results,
-      summary: { created, updated, errors, total: results.length },
+      summary: { created, updated, skipped, errors, total: results.length },
     });
   } catch (error: any) {
     logger.error('Translation POST error', { error: error.message });
