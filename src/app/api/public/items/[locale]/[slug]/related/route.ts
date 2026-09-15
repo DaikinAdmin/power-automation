@@ -8,6 +8,7 @@ import {
   apiErrorHandler,
   BadRequestError,
 } from "@/lib/error-handler";
+import { getDomainKeyByHost } from "@/lib/domain-config";
 
 // Related items are precomputed offline (see scripts/generate-linked-items.ts)
 // and stored in the linked_items table. This endpoint just resolves the
@@ -36,9 +37,10 @@ export async function GET(
       return NextResponse.json({ items: [] });
     }
 
+    const domainKey = getDomainKeyByHost(request.headers.get("host"));
     const resolvedItems = await Promise.all(
       linkedSlugs.map((linkedSlug) =>
-        getItemBySlug(linkedSlug, locale.toLowerCase()),
+        getItemBySlug(linkedSlug, locale.toLowerCase(), domainKey),
       ),
     );
 

@@ -3,8 +3,10 @@ import { db } from '@/db';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import type { DomainKey } from '@/lib/domain-config';
+import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
 
-export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> {
+export async function getItemsByLocale(locale: string, domainKey: DomainKey): Promise<ItemResponse[]> {
   try {
     console.log('[getItemsByLocale] Starting query for locale:', locale);
     // Get displayed items
@@ -32,15 +34,27 @@ export async function getItemsByLocale(locale: string): Promise<ItemResponse[]> 
       )
     );
 
-  // Fetch all prices for these items
-  const itemPrices = await db
-    .select()
-    .from(schema.itemPrice)
-    .where(inArray(schema.itemPrice.itemSlug, itemSlugs));
+  // Only warehouses visible on this domain — hides prices tied to
+  // out-of-domain warehouses; items left with zero prices are dropped below.
+  const visibleWarehouseIds = await getVisibleWarehouseIds(domainKey);
+
+  // Fetch all prices for these items, restricted to visible warehouses
+  const itemPrices = visibleWarehouseIds.length > 0
+    ? await db
+        .select()
+        .from(schema.itemPrice)
+        .where(
+          and(
+            inArray(schema.itemPrice.itemSlug, itemSlugs),
+            inArray(schema.itemPrice.warehouseId, visibleWarehouseIds)
+          )
+        )
+    : [];
 
   console.log('[getItemsByLocale PRICES]', {
     totalItems: items.length,
     totalItemSlugs: itemSlugs.length,
+    visibleWarehouseCount: visibleWarehouseIds.length,
     pricesFetched: itemPrices.length,
     firstFewItemSlugs: itemSlugs.slice(0, 5),
   });

@@ -14,6 +14,9 @@ import { useAdminWarehouses } from '@/hooks/useAdminWarehouses';
 import { ListActionButtons } from '@/components/admin/list-action-buttons';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
+import { DOMAIN_CONFIGS, type DomainKey } from '@/lib/domain-config';
+
+const ALL_DOMAINS = Object.keys(DOMAIN_CONFIGS) as DomainKey[];
 
 interface Warehouse extends Warehouses {
   id: string;
@@ -24,6 +27,8 @@ interface Warehouse extends Warehouses {
     item_price: number;
   };
   countrySlug: string | null;
+  /** Per-domain visibility (crossdomain warehouse_visibility allowlist) */
+  visibility?: Record<DomainKey, boolean>;
 }
 
 export default function WarehousesPage() {
@@ -197,6 +202,28 @@ export default function WarehousesPage() {
     }
   };
 
+  const handleToggleDomainVisibility = async (warehouse: Warehouse, domain: DomainKey) => {
+    const nextVisible = !warehouse.visibility?.[domain];
+    try {
+      const response = await fetch(`/api/admin/warehouses/${warehouse.id}/visibility`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ domain, visible: nextVisible }),
+      });
+
+      if (response.ok) {
+        await refetchWarehouses();
+      } else {
+        toast.error(t('warehouses.table.domainToggleError'));
+      }
+    } catch (error) {
+      console.error('Error updating warehouse domain visibility:', error);
+      toast.error(t('warehouses.table.domainToggleError'));
+    }
+  };
+
   const getUniqueCountries = () => {
     return new Set(warehouses.map(w => w.countrySlug)).size;
   };
@@ -276,6 +303,7 @@ export default function WarehousesPage() {
                   <th className="text-left py-3 px-4 font-medium">{t('warehouses.table.country')}</th>
                   <th className="text-left py-3 px-4 font-medium">{t('warehouses.table.itemPrices')}</th>
                   <th className="text-left py-3 px-4 font-medium">{t('warehouses.table.visibility')}</th>
+                  <th className="text-left py-3 px-4 font-medium">{t('warehouses.table.domains')}</th>
                   <th className="text-left py-3 px-4 font-medium">{t('warehouses.table.actions')}</th>
                 </tr>
               </thead>
@@ -306,6 +334,32 @@ export default function WarehousesPage() {
                             <EyeOff className="h-4 w-4 text-gray-400" />
                           )}
                         </Button>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1.5">
+                        {ALL_DOMAINS.map((domain) => {
+                          const isDomainVisible = !!warehouse.visibility?.[domain];
+                          return (
+                            <button
+                              key={domain}
+                              type="button"
+                              onClick={() => handleToggleDomainVisibility(warehouse, domain)}
+                              title={
+                                isDomainVisible
+                                  ? t('warehouses.table.domainVisibleOn', { domain: domain.toUpperCase() })
+                                  : t('warehouses.table.domainHiddenOn', { domain: domain.toUpperCase() })
+                              }
+                              className={`px-2 py-0.5 rounded-full text-xs font-medium uppercase transition-colors ${
+                                isDomainVisible
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                              }`}
+                            >
+                              {domain}
+                            </button>
+                          );
+                        })}
                       </div>
                     </td>
                     <td className="py-3 px-4">

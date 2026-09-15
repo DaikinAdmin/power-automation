@@ -35,7 +35,15 @@ test.describe('Admin Warehouses API', () => {
 
     test('DELETE /api/admin/warehouses/test-id - should return 401 without auth', async ({ request }) => {
       const response = await request.delete(`${BASE_URL}/api/admin/warehouses/test-id`);
-      
+
+      expect(response.status()).toBe(401);
+    });
+
+    test('PATCH /api/admin/warehouses/test-id/visibility - should return 401 without auth', async ({ request }) => {
+      const response = await request.patch(`${BASE_URL}/api/admin/warehouses/test-id/visibility`, {
+        data: { domain: 'ua', visible: false }
+      });
+
       expect(response.status()).toBe(401);
     });
   });
@@ -56,8 +64,26 @@ test.describe('Admin Warehouses API', () => {
           countrySlug: 'invalid-country'
         }
       });
-      
+
       expect([400, 401, 404]).toContain(response.status());
+    });
+
+    test('PATCH /api/admin/warehouses/test-id/visibility - should reject unknown domain', async ({ request }) => {
+      const response = await request.patch(`${BASE_URL}/api/admin/warehouses/test-id/visibility`, {
+        data: { domain: 'not-a-real-domain', visible: true }
+      });
+
+      // 401 (no auth) takes priority in the real handler, but a body this
+      // malformed must never succeed regardless of which check runs first.
+      expect([400, 401]).toContain(response.status());
+    });
+
+    test('PATCH /api/admin/warehouses/test-id/visibility - should require visible to be boolean', async ({ request }) => {
+      const response = await request.patch(`${BASE_URL}/api/admin/warehouses/test-id/visibility`, {
+        data: { domain: 'ua', visible: 'yes' }
+      });
+
+      expect([400, 401]).toContain(response.status());
     });
   });
 

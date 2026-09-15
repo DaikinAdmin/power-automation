@@ -2,6 +2,7 @@ import PageLayout from "@/components/layout/page-layout";
 import { CategoryBreadcrumb } from "@/components/category/category-breadcrumb";
 import { CategoryPageClient } from "@/components/category/category-page-client";
 import { getCategoryPageData } from "@/helpers/db/category-data-queries";
+import { getServerDomainConfig } from "@/lib/server-domain";
 export { generateCategoryMetadata as generateMetadata } from "@/lib/seo-metadata";
 
 interface CategoryPageProps {
@@ -41,9 +42,11 @@ export default async function CategoryPage({
   const sort = typeof search.sort === 'string' ? search.sort : 'name';
 
   // Fetch data on the server
+  const domainConfig = await getServerDomainConfig();
   const categoryData = await getCategoryPageData(
     locale,
     slug,
+    domainConfig.key,
     {
       subcategory: subcategoryFilters,
       brand: brandFilters,

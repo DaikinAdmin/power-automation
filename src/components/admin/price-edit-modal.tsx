@@ -20,6 +20,10 @@ import {
   priceFromDiscountPercent,
   roundToCents,
 } from "@/helpers/pricing";
+import type { DomainKey } from "@/lib/domain-config";
+import { warehouseDomainsLabel } from "@/helpers/warehouse-domains-label";
+
+type WarehouseWithVisibility = Warehouse & { visibility?: Record<DomainKey, boolean> };
 
 interface PriceEditModalProps {
   isOpen: boolean;
@@ -43,7 +47,7 @@ export function PriceEditModal({
     LIMITED_EDITION: t('priceModal.badgeLimited'),
     USED: t('priceModal.badgeRefurbished'),
   };
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [warehouses, setWarehouses] = useState<WarehouseWithVisibility[]>([]);
   const [formData, setFormData] = useState<ItemPrice>({
     id: "",
     itemSlug: "",
@@ -207,7 +211,9 @@ export function PriceEditModal({
                 <option value="">{t('priceModal.warehousePlaceholder')}</option>
                 {warehouses.map((warehouse) => (
                   <option key={warehouse.id} value={warehouse.id}>
-                    {warehouse.displayedName || warehouse.name}
+                    {[warehouse.displayedName || warehouse.name, warehouseDomainsLabel(warehouse.visibility)]
+                      .filter(Boolean)
+                      .join(' ')}
                   </option>
                 ))}
               </select>

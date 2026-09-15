@@ -9,6 +9,7 @@ import {
   BadRequestError,
   NotFoundError,
 } from "@/lib/error-handler";
+import { getDomainKeyByHost } from "@/lib/domain-config";
 
 export async function GET(
   request: NextRequest,
@@ -30,10 +31,12 @@ export async function GET(
       slug,
     });
 
-    // Drizzle implementation
+    // Drizzle implementation, restricted to warehouses visible on this domain
+    const domainKey = getDomainKeyByHost(request.headers.get("host"));
     const itemData: ItemResponse | null = await getItemBySlug(
       slug,
       locale.toLowerCase(),
+      domainKey,
     );
 
     if (!itemData) {

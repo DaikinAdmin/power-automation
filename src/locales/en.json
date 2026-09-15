@@ -688,7 +688,9 @@
     "total": "Total:",
     "vat": "VAT",
     "payment": "Proceed to Payment",
-    "backToShopping": "Continue Shopping"
+    "backToShopping": "Continue Shopping",
+    "sanitizedRemoved": "{count, plural, one {# item was removed from the cart — it is no longer available} other {# items were removed from the cart — they are no longer available}}",
+    "sanitizedSwitched": "{count, plural, one {A different warehouse was selected for # item — the previous one is no longer available} other {A different warehouse was selected for # items — the previous one is no longer available}}"
   },
   "errors": {
     "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",
@@ -1297,6 +1299,10 @@
         "itemPrices": "Item Prices",
         "prices": "{count} prices",
         "visibility": "Visibility",
+        "domains": "Domains",
+        "domainVisibleOn": "Visible on {domain} — click to hide",
+        "domainHiddenOn": "Hidden on {domain} — click to show",
+        "domainToggleError": "Failed to change domain visibility",
         "actions": "Actions",
         "showing": "Showing {from} to {to} of {total} warehouses",
         "pageOf": "Page {current} of {total}"
@@ -1819,6 +1825,8 @@
       "namePlaceholder": "Warehouse name",
       "country": "Country",
       "visible": "Visible",
+      "domainVisibility": "Domain visibility",
+      "domainVisibilityDesc": "Which sites show this warehouse to customers. Turning a domain off hides the warehouse from the catalog, product page, search and feed on that site.",
       "deliveryPoland": "Delivery Poland",
       "deliveryUkraine": "Delivery Ukraine",
       "deliveryEurope": "Delivery Europe",

@@ -225,9 +225,11 @@ export async function generateCategoryMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
+  const domainConfig = await getServerDomainConfig();
   const categoryData = await getCategoryPageData(
     locale,
     slug,
+    domainConfig.key,
     {},
     { page: 1, limit: 1 },
   ).catch(() => null);
@@ -264,7 +266,8 @@ export async function generateProductMetadata({
   params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
   const { locale, id } = await params;
-  const item = await getItemBySlug(id, locale).catch(() => null);
+  const domainConfig = await getServerDomainConfig();
+  const item = await getItemBySlug(id, locale, domainConfig.key).catch(() => null);
 
   if (!item) {
     return { title: "Товар не знайдено" };

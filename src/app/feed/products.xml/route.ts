@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { getExchangeRate } from "@/lib/server-currency";
 import { getDomainConfigByHost, type DomainConfig, DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { toAbsoluteImageUrl } from "@/lib/image-utils";
 import { getVatByCountryCode } from "@/helpers/db/vat-queries";
+import { getVisibleWarehouseIds } from "@/helpers/db/warehouse-visibility";
 
 /** Domain-specific feed configuration */
 interface FeedConfig {
@@ -61,6 +62,7 @@ export async function GET(request: NextRequest) {
     const vatPercentage = await getVatByCountryCode(domainCountryCode);
     const vatInclusive = domainConfig.key === 'ua';
     const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
+    const visibleWarehouseIds = await getVisibleWarehouseIds(domainConfig.key);
 
     // Exchange-rate cache: converts a price stored in `sourceCurrency` → feed target currency.
     // Formula mirrors useCurrency.convertFromCurrency: price / eurToSource * eurToTarget
@@ -149,7 +151,9 @@ export async function GET(request: NextRequest) {
         brandName = brand?.name ?? "";
       }
 
-      // Get prices (all warehouses) — pick the one with stock, lowest price
+      // Get prices, restricted to warehouses visible on this domain — pick
+      // the one with stock, lowest price
+      if (visibleWarehouseIds.length === 0) continue;
       const prices = await db
         .select({
           price: schema.itemPrice.price,
@@ -160,7 +164,12 @@ export async function GET(request: NextRequest) {
           initialCurrency: schema.itemPrice.initialCurrency,
         })
         .from(schema.itemPrice)
-        .where(eq(schema.itemPrice.itemSlug, item.slug));
+        .where(
+          and(
+            eq(schema.itemPrice.itemSlug, item.slug),
+            inArray(schema.itemPrice.warehouseId, visibleWarehouseIds)
+          )
+        );
 
       if (prices.length === 0) continue;
 
@@ -267,6 +276,9 @@ ${feedItems.join("\n")}
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
         "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=600",
+        // Feed content depends on domain (warehouse visibility, currency) —
+        // must not be shared across UA/PL by a shared HTTP cache.
+        "Vary": "Host",
       },
     });
   } catch (error) {

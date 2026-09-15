@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
 import { mapOrderForUser, computeLineItemDerived, orderHandler } from './shared';
-import { eq, desc, inArray } from 'drizzle-orm';
+import { eq, desc, inArray, and } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/error-handler';
 import { getTranslations } from 'next-intl/server';
+import { getDomainKeyByHost } from '@/lib/domain-config';
+import { isWarehouseVisibleOnDomain } from '@/helpers/db/warehouse-visibility';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -119,7 +121,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (body.isPriceRequest) {
-      return priceRequestHandler(body, userId!);
+      return priceRequestHandler(body, userId!, request.headers.get('host'));
     } else {
       return orderHandler(body, userId!, locale, request.headers.get('host'));
     }
@@ -130,12 +132,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function priceRequestHandler(body: any, userId: string) {
+async function priceRequestHandler(body: any, userId: string, host: string | null = null) {
 
   const { itemId, warehouseId, quantity, comment, price, isPriceRequest, status } = body;
 
   if (!itemId || !warehouseId || !quantity) {
     throw new BadRequestError('Missing required fields: itemId, warehouseId, quantity');
+  }
+
+  // A cart/form pointing at a warehouse hidden on this domain must not be
+  // orderable, even via a hand-crafted request.
+  const domainKey = getDomainKeyByHost(host);
+  const warehouseVisible = await isWarehouseVisibleOnDomain(warehouseId, domainKey);
+  if (!warehouseVisible) {
+    return NextResponse.json({ error: 'Item not available in selected warehouse' }, { status: 404 });
   }
 
   // Drizzle implementation - Verify item exists

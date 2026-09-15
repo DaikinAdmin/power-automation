@@ -3,6 +3,8 @@
 import { db } from "@/db";
 import { outOfStockRequest } from "@/db/schema";
 import { getUserCountry } from "./location";
+import { getServerDomainConfig } from "@/lib/server-domain";
+import { isWarehouseVisibleOnDomain } from "@/helpers/db/warehouse-visibility";
 
 // interface WarehousePrice {
 //   id: string;
@@ -111,9 +113,15 @@ import { getUserCountry } from "./location";
 
 export async function requestOutOfStockItem(itemId: string, warehouseId: string, userEmail: string, message: string, userName?: string) {
   try {
+    const domainConfig = await getServerDomainConfig();
+    const warehouseVisible = await isWarehouseVisibleOnDomain(warehouseId, domainConfig.key);
+    if (!warehouseVisible) {
+      return { success: false, error: 'Failed to submit request' };
+    }
+
     const { nanoid } = await import('nanoid');
     const now = new Date().toISOString();
-    
+
     // Store the request in database
     await db.insert(outOfStockRequest).values({
       id: nanoid(),

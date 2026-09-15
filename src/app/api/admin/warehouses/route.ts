@@ -13,6 +13,13 @@ import {
   ForbiddenError,
   BadRequestError,
 } from "@/lib/error-handler";
+import { DOMAIN_CONFIGS, type DomainKey } from "@/lib/domain-config";
+import {
+  getWarehouseVisibilityMap,
+  initWarehouseVisibilityForAllDomains,
+} from "@/helpers/db/warehouse-visibility";
+
+const ALL_DOMAINS = Object.keys(DOMAIN_CONFIGS) as DomainKey[];
 
 // GET all warehouses
 export async function GET(request: NextRequest) {
@@ -53,11 +60,26 @@ export async function GET(request: NextRequest) {
       .groupBy(schema.warehouse.id)
       .orderBy(asc(schema.warehouse.name));
 
-    const warehouses = warehousesData.map((w) => ({
-      ...w,
-      _count: { item_price: w.count },
-      count: undefined,
-    }));
+    // Per-domain visibility (allowlist: absence of a domain in the map means
+    // that warehouse is not visible there) — for the domain toggles in the
+    // admin table/modal and the domain badges in price editors.
+    const visibilityByWarehouse = await getWarehouseVisibilityMap(
+      warehousesData.map((w) => w.id)
+    );
+
+    const warehouses = warehousesData.map((w) => {
+      const visibleDomains = new Set(visibilityByWarehouse[w.id] ?? []);
+      const visibility = Object.fromEntries(
+        ALL_DOMAINS.map((domain) => [domain, visibleDomains.has(domain)])
+      ) as Record<DomainKey, boolean>;
+
+      return {
+        ...w,
+        visibility,
+        _count: { item_price: w.count },
+        count: undefined,
+      };
+    });
 
     const duration = Date.now() - startTime;
     logger.info("Warehouses fetched successfully", {
@@ -105,7 +127,8 @@ export async function POST(request: NextRequest) {
       deliveryDaysPoland,
       deliveryDaysUkraine,
       deliveryDaysEurope,
-    } = body;
+      visibility,
+    } = body as { visibility?: Partial<Record<DomainKey, boolean>> } & Record<string, any>;
 
     logger.info("Creating warehouse", {
       endpoint: "POST /api/admin/warehouses",
@@ -133,6 +156,12 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date().toISOString(),
       })
       .returning();
+
+    // Allowlist model: without an explicit row per domain a new warehouse
+    // would be invisible everywhere. Default to visible on every domain
+    // unless the caller explicitly opted a domain out.
+    const visibleOnDomains = ALL_DOMAINS.filter((domain) => visibility?.[domain] !== false);
+    await initWarehouseVisibilityForAllDomains(warehouse.id, visibleOnDomains);
 
     const duration = Date.now() - startTime;
     logger.info("Warehouse created successfully", {

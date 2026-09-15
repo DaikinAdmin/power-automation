@@ -15,13 +15,31 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Warehouse } from "@/db/schema";
+import { DOMAIN_CONFIGS, type DomainKey } from "@/lib/domain-config";
+
+const ALL_DOMAINS = Object.keys(DOMAIN_CONFIGS) as DomainKey[];
+
+type WarehouseWithVisibility = Warehouse & {
+  visibility?: Record<DomainKey, boolean>;
+};
 
 interface WarehouseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (warehouse: Omit<Warehouse, "id"> | Warehouse) => void;
-  warehouse?: Warehouse | null;
+  onSave: (
+    warehouse: (Omit<Warehouse, "id"> | Warehouse) & {
+      visibility: Record<DomainKey, boolean>;
+    }
+  ) => void;
+  warehouse?: WarehouseWithVisibility | null;
 }
+
+const defaultVisibility = (
+  warehouse?: WarehouseWithVisibility | null
+): Record<DomainKey, boolean> =>
+  Object.fromEntries(
+    ALL_DOMAINS.map((domain) => [domain, warehouse?.visibility?.[domain] ?? true])
+  ) as Record<DomainKey, boolean>;
 
 export function WarehouseModal({
   isOpen,
@@ -40,6 +58,7 @@ export function WarehouseModal({
     deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
     deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
     deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
+    visibility: defaultVisibility(warehouse),
   });
 
   useEffect(() => {
@@ -53,6 +72,7 @@ export function WarehouseModal({
       deliveryDaysPoland: warehouse?.deliveryDaysPoland ?? null,
       deliveryDaysUkraine: warehouse?.deliveryDaysUkraine ?? null,
       deliveryDaysEurope: warehouse?.deliveryDaysEurope ?? null,
+      visibility: defaultVisibility(warehouse),
     });
   }, [warehouse, isOpen]);
 
@@ -110,6 +130,7 @@ export function WarehouseModal({
         deliveryDaysPoland: Number(formData.deliveryDaysPoland),
         deliveryDaysUkraine: Number(formData.deliveryDaysUkraine),
         deliveryDaysEurope: Number(formData.deliveryDaysEurope),
+        visibility: defaultVisibility(),
       });
       onClose();
     } catch (error) {
@@ -216,6 +237,35 @@ export function WarehouseModal({
                     setFormData((prev) => ({ ...prev, isVisible: checked }))
                   }
                 />
+              </div>
+            </div>
+
+            {/* Per-domain visibility (crossdomain warehouse_visibility) */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                {t('warehouseModal.domainVisibility')}
+              </Label>
+              <div className="col-span-3 space-y-2">
+                <p className="text-xs text-gray-500">
+                  {t('warehouseModal.domainVisibilityDesc')}
+                </p>
+                {ALL_DOMAINS.map((domain) => (
+                  <div key={domain} className="flex items-center gap-3">
+                    <Switch
+                      id={`visibility-${domain}`}
+                      checked={formData.visibility[domain]}
+                      onCheckedChange={(checked) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          visibility: { ...prev.visibility, [domain]: checked },
+                        }))
+                      }
+                    />
+                    <Label htmlFor={`visibility-${domain}`} className="font-normal">
+                      {DOMAIN_CONFIGS[domain].siteName} ({domain.toUpperCase()})
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
 

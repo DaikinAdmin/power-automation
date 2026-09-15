@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/db';
-import { eq, inArray, desc } from 'drizzle-orm';
+import { eq, inArray, desc, and } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { getTranslations } from 'next-intl/server';
@@ -8,6 +8,7 @@ import { getDomainKeyByHost } from '@/lib/domain-config';
 import { getDeliveryPricingByDomainKey, computeDeliveryCharge } from '@/lib/delivery-pricing';
 import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 import { isPromoActive } from '@/helpers/pricing';
+import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
 
 export type OrderLineItem = {
   itemId: string;
@@ -111,6 +112,12 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     );
   }
 
+  // Resolve domain + visible warehouses up front — a cart line pointing at a
+  // warehouse hidden on this domain must be rejected the same way as one
+  // pointing at a non-existent warehouse, not silently honored.
+  const domainKey = getDomainKeyByHost(host);
+  const visibleWarehouseIds = await getVisibleWarehouseIds(domainKey);
+
   const dbItems = await db
     .select()
     .from(schema.item)
@@ -123,22 +130,31 @@ export async function orderHandler(body: any, userId: string, locale: string = '
           .from(schema.itemDetails)
           .where(eq(schema.itemDetails.itemSlug, item.slug))
           .limit(1),
-        db.select({
-          id: schema.itemPrice.id,
-          itemSlug: schema.itemPrice.itemSlug,
-          warehouseId: schema.itemPrice.warehouseId,
-          price: schema.itemPrice.price,
-          quantity: schema.itemPrice.quantity,
-          promotionPrice: schema.itemPrice.promotionPrice,
-          promoStartDate: schema.itemPrice.promoStartDate,
-          promoEndDate: schema.itemPrice.promoEndDate,
-          margin: schema.itemPrice.margin,
-          initialCurrency: schema.itemPrice.initialCurrency,
-          warehouse: schema.warehouse,
-        })
-          .from(schema.itemPrice)
-          .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-          .where(eq(schema.itemPrice.itemSlug, item.slug)),
+        visibleWarehouseIds.length > 0
+          ? db.select({
+              id: schema.itemPrice.id,
+              itemSlug: schema.itemPrice.itemSlug,
+              warehouseId: schema.itemPrice.warehouseId,
+              price: schema.itemPrice.price,
+              quantity: schema.itemPrice.quantity,
+              promotionPrice: schema.itemPrice.promotionPrice,
+              promoStartDate: schema.itemPrice.promoStartDate,
+              promoEndDate: schema.itemPrice.promoEndDate,
+              margin: schema.itemPrice.margin,
+              initialCurrency: schema.itemPrice.initialCurrency,
+              warehouse: schema.warehouse,
+            })
+              .from(schema.itemPrice)
+              .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+              .where(
+                and(
+                  eq(schema.itemPrice.itemSlug, item.slug),
+                  // Only prices tied to warehouses visible on this domain —
+                  // a cart carrying a hidden warehouseId must not be orderable.
+                  inArray(schema.itemPrice.warehouseId, visibleWarehouseIds)
+                )
+              )
+          : Promise.resolve([]),
       ]);
 
       return {
@@ -149,7 +165,6 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     })
   );
 
-  const domainKey = getDomainKeyByHost(host);
   const allRateRows = await db
     .select({ from: schema.currencyExchange.from, to: schema.currencyExchange.to, rate: schema.currencyExchange.rate })
     .from(schema.currencyExchange);
@@ -398,28 +413,6 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       .update(schema.delivery)
       .set({ orderId: order.id, updatedAt: now })
       .where(eq(schema.delivery.id, resolvedDeliveryId));
-  }
-
-  for (const cartItem of cartItems) {
-    const cartArticleId = cartItem.articleId || cartItem.productId;
-    const dbItem = dbItemsWithRelations.find((item: { articleId: string }) => item.articleId === cartArticleId);
-    if (dbItem) {
-      const [currentPrice] = await db
-        .select()
-        .from(schema.itemPrice)
-        .where(eq(schema.itemPrice.itemSlug, dbItem.articleId))
-        .limit(1);
-
-      if (currentPrice) {
-        await db
-          .update(schema.itemPrice)
-          .set({
-            quantity: currentPrice.quantity - cartItem.quantity,
-            updatedAt: now,
-          })
-          .where(eq(schema.itemPrice.id, currentPrice.id));
-      }
-    }
   }
 
   try {

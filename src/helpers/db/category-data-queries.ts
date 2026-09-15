@@ -4,6 +4,7 @@ import { eq, and, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { getItemsByLocale } from './items-queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
+import type { DomainKey } from '@/lib/domain-config';
 
 export interface CategoryPageData {
   items: ItemResponse[];
@@ -70,12 +71,13 @@ function getItemPrice(item: ItemResponse): number {
 export async function getCategoryPageData(
   locale: string,
   categorySlug: string,
+  domainKey: DomainKey,
   filters: CategoryFilters = {},
   pagination: PaginationParams = { page: 1, limit: 20 },
   sortBy: string = 'name'
 ): Promise<CategoryPageData> {
-  // Fetch all items for the locale
-  const allItems = await getItemsByLocale(locale);
+  // Fetch all items for the locale, restricted to warehouses visible on this domain
+  const allItems = await getItemsByLocale(locale, domainKey);
   
   // Filter by category
   let categoryItems = allItems.filter(item => item.category.slug === categorySlug);
@@ -205,13 +207,14 @@ export async function getCategoryPageData(
  */
 export async function getCategoryFilterOptions(
   locale: string,
-  categorySlug: string
+  categorySlug: string,
+  domainKey: DomainKey
 ): Promise<{
   brands: BrandInfo[];
   warehouses: WarehouseInfo[];
   subcategories: SubcategoryInfo[];
 }> {
-  const allItems = await getItemsByLocale(locale);
+  const allItems = await getItemsByLocale(locale, domainKey);
   const categoryItems = allItems.filter(item => item.category.slug === categorySlug);
   
   // Extract brands

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { db } from '@/db';
-import { eq, or, like, ilike, and } from 'drizzle-orm';
+import { eq, or, like, ilike, and, inArray } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
+import { getDomainKeyByHost } from '@/lib/domain-config';
+import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -20,6 +22,8 @@ export async function GET(request: NextRequest) {
     
     logger.info('Searching items', { query });
     const searchTerm = `%${query.trim()}%`;
+    const domainKey = getDomainKeyByHost(request.headers.get('host'));
+    const visibleWarehouseIds = await getVisibleWarehouseIds(domainKey);
     
     // Search items by articleId (case-insensitive)
     const itemsByArticleId = await db
@@ -69,23 +73,31 @@ export async function GET(request: NextRequest) {
       uniqueItems.map(async (item) => {
         const [itemDetails, itemPrices, category, subCategory, brand] = await Promise.all([
           db.select().from(schema.itemDetails).where(eq(schema.itemDetails.itemSlug, item.articleId)),
-          db.select({
-            id: schema.itemPrice.id,
-            itemSlug: schema.itemPrice.itemSlug,
-            warehouseId: schema.itemPrice.warehouseId,
-            price: schema.itemPrice.price,
-            quantity: schema.itemPrice.quantity,
-            promotionPrice: schema.itemPrice.promotionPrice,
-            promoEndDate: schema.itemPrice.promoEndDate,
-            promoCode: schema.itemPrice.promoCode,
-            badge: schema.itemPrice.badge,
-            createdAt: schema.itemPrice.createdAt,
-            updatedAt: schema.itemPrice.updatedAt,
-            warehouse: schema.warehouse,
-          })
-            .from(schema.itemPrice)
-            .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
-            .where(eq(schema.itemPrice.itemSlug, item.articleId)),
+          visibleWarehouseIds.length > 0
+            ? db.select({
+                id: schema.itemPrice.id,
+                itemSlug: schema.itemPrice.itemSlug,
+                warehouseId: schema.itemPrice.warehouseId,
+                price: schema.itemPrice.price,
+                quantity: schema.itemPrice.quantity,
+                promotionPrice: schema.itemPrice.promotionPrice,
+                promoEndDate: schema.itemPrice.promoEndDate,
+                promoCode: schema.itemPrice.promoCode,
+                badge: schema.itemPrice.badge,
+                createdAt: schema.itemPrice.createdAt,
+                updatedAt: schema.itemPrice.updatedAt,
+                warehouse: schema.warehouse,
+              })
+                .from(schema.itemPrice)
+                .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+                .where(
+                  and(
+                    eq(schema.itemPrice.itemSlug, item.articleId),
+                    // Only prices tied to warehouses visible on this domain
+                    inArray(schema.itemPrice.warehouseId, visibleWarehouseIds)
+                  )
+                )
+            : Promise.resolve([]),
           item.categorySlug
             ? db.select().from(schema.category).where(eq(schema.category.slug, item.categorySlug)).limit(1).then(r => r[0])
             : null,

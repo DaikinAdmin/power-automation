@@ -3,6 +3,7 @@ import { getItemsByLocale } from '@/helpers/db/items-queries';
 import type { ItemResponse } from '@/helpers/types/api-responses';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
+import { getDomainKeyByHost } from '@/lib/domain-config';
 
 export async function GET(
   request: NextRequest,
@@ -39,8 +40,9 @@ export async function GET(
       warehouseFilters: warehouseFilters.length > 0 ? warehouseFilters : undefined,
     });
 
-    // Fetch all items for locale
-    const allItems: ItemResponse[] = await getItemsByLocale(locale);
+    // Fetch all items for locale, restricted to warehouses visible on this domain
+    const domainKey = getDomainKeyByHost(request.headers.get('host'));
+    const allItems: ItemResponse[] = await getItemsByLocale(locale, domainKey);
     
     // Filter by category slug
     let filteredItems = allItems.filter((item) => item.category.slug === slug);
@@ -113,6 +115,9 @@ export async function GET(
       },
     });
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=1800, stale-while-revalidate=300');
+    // Response content depends on domain (warehouse visibility) — must not be
+    // shared across UA/PL by a shared HTTP cache.
+    response.headers.set('Vary', 'Host');
     return response;
   } catch (error: any) {
     return apiErrorHandler(error, request, { endpoint: 'GET /api/public/category/[locale]/[slug]' });

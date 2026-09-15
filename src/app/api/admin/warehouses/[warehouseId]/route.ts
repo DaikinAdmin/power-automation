@@ -5,6 +5,10 @@ import { db } from '@/db';
 import { and, eq, sql } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
+import { DOMAIN_CONFIGS, type DomainKey } from '@/lib/domain-config';
+import { setWarehouseVisibility } from '@/helpers/db/warehouse-visibility';
+
+const ALL_DOMAINS = Object.keys(DOMAIN_CONFIGS) as DomainKey[];
 
 // get all prices for a warehouse
 export async function GET(
@@ -91,7 +95,16 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, countrySlug, isVisible, displayedName, deliveryDaysPoland, deliveryDaysUkraine, deliveryDaysEurope } = body;
+    const {
+      name,
+      countrySlug,
+      isVisible,
+      displayedName,
+      deliveryDaysPoland,
+      deliveryDaysUkraine,
+      deliveryDaysEurope,
+      visibility,
+    } = body as { visibility?: Partial<Record<DomainKey, boolean>> } & Record<string, any>;
 
     if (!name || !countrySlug) {
       return NextResponse.json({ error: 'Name and country are required' }, { status: 400 });
@@ -115,6 +128,15 @@ export async function PUT(
 
     if (!warehouse) {
       return NextResponse.json({ error: 'Warehouse not found' }, { status: 404 });
+    }
+
+    // Per-domain visibility — only touch domains explicitly present in the payload
+    if (visibility) {
+      await Promise.all(
+        ALL_DOMAINS.filter((domain) => visibility[domain] !== undefined).map((domain) =>
+          setWarehouseVisibility(warehouseId, domain, !!visibility[domain])
+        )
+      );
     }
 
     /* Prisma implementation (commented out)

@@ -4,6 +4,7 @@ import type { ItemResponse } from '@/helpers/types/api-responses';
 import { isPromoActive } from '@/helpers/pricing';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
+import { getDomainKeyByHost } from '@/lib/domain-config';
 
 export async function GET(
   request: NextRequest,
@@ -33,8 +34,10 @@ export async function GET(
       warehouses 
     });
 
-    // Drizzle implementation - returns complete item data
-    let items: ItemResponse[] = await getItemsByLocale(locale);
+    // Drizzle implementation - returns complete item data, restricted to
+    // warehouses visible on this domain
+    const domainKey = getDomainKeyByHost(request.headers.get('host'));
+    let items: ItemResponse[] = await getItemsByLocale(locale, domainKey);
 
     // Apply search filter
     if (searchQuery && searchQuery.trim()) {
@@ -99,6 +102,9 @@ export async function GET(
 
     const response = NextResponse.json(publicItems);
     response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300');
+    // Response content depends on domain (warehouse visibility) — must not be
+    // shared across UA/PL by a shared HTTP cache.
+    response.headers.set('Vary', 'Host');
     return response;
   } catch (error: any) {
     return apiErrorHandler(error, request, {

@@ -100,6 +100,8 @@ export type ProductDetailsResponse = {
 export type CartItemType = Item & {
   quantity: number;
   warehouseId?: string;
+  warehouseName?: string;
+  warehouseCountry?: string;
   displayName?: string;
   price?: number;
   specialPrice?: number;

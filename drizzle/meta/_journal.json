@@ -169,6 +169,13 @@
       "when": 1785923855385,
       "tag": "0023_kind_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1789475339633,
+      "tag": "0024_rare_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

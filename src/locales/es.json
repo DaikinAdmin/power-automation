@@ -656,7 +656,9 @@
     "total": "Total:",
     "vat": "IVA",
     "payment": "Proceder al Pago",
-    "backToShopping": "Continuar Comprando"
+    "backToShopping": "Continuar Comprando",
+    "sanitizedRemoved": "{count, plural, one {Se eliminó # producto del carrito — ya no está disponible} other {Se eliminaron # productos del carrito — ya no están disponibles}}",
+    "sanitizedSwitched": "{count, plural, one {Se seleccionó otro almacén para # producto — el anterior ya no está disponible} other {Se seleccionó otro almacén para # productos — el anterior ya no está disponible}}"
   },
   "errors": {
     "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
@@ -1263,6 +1265,10 @@
         "itemPrices": "Precios de Productos",
         "prices": "{count} precios",
         "visibility": "Visibilidad",
+        "domains": "Dominios",
+        "domainVisibleOn": "Visible en {domain} — clic para ocultar",
+        "domainHiddenOn": "Oculto en {domain} — clic para mostrar",
+        "domainToggleError": "No se pudo cambiar la visibilidad en el dominio",
         "actions": "Acciones",
         "showing": "Mostrando {from}–{to} de {total} almacenes",
         "pageOf": "Página {current} de {total}"
@@ -1787,6 +1793,8 @@
       "namePlaceholder": "Nombre interno del almacén",
       "country": "País",
       "visible": "Visible",
+      "domainVisibility": "Visibilidad por dominio",
+      "domainVisibilityDesc": "En qué sitios mostrar este almacén a los clientes. Desactivar un dominio oculta el almacén del catálogo, la ficha de producto, la búsqueda y el feed en ese sitio.",
       "deliveryPoland": "Entrega a Polonia",
       "deliveryUkraine": "Entrega a Ucrania",
       "deliveryEurope": "Entrega a Europa",

@@ -8,6 +8,10 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2, Upload, Edit } from 'lucide-react';
 import { Item, Category, ItemPrice } from '@/helpers/types/item';
 import type { Warehouse, Brand, Badge, SubCategories } from '@/db/schema';
+import { DOMAIN_CONFIGS, type DomainKey } from '@/lib/domain-config';
+import { warehouseDomainsLabel } from '@/helpers/warehouse-domains-label';
+
+type WarehouseWithVisibility = Warehouse & { visibility?: Record<DomainKey, boolean> };
 import { PriceEditModal } from '@/components/admin/price-edit-modal';
 import { ImagePickerModal } from '@/components/admin/image-picker-modal';
 import {
@@ -24,7 +28,7 @@ interface BasicInformationStepProps {
 export function BasicInformationStep({ formData, setFormData }: BasicInformationStepProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedParentCategorySlug, setSelectedParentCategorySlug] = useState<string>('');
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [warehouses, setWarehouses] = useState<WarehouseWithVisibility[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
@@ -764,7 +768,9 @@ export function BasicInformationStep({ formData, setFormData }: BasicInformation
                   <option value="">Select Warehouse</option>
                   {warehouses.map(warehouse => (
                     <option key={warehouse.id} value={warehouse.id}>
-                      {warehouse.displayedName || warehouse.name}
+                      {[warehouse.displayedName || warehouse.name, warehouseDomainsLabel(warehouse.visibility)]
+                        .filter(Boolean)
+                        .join(' ')}
                     </option>
                   ))}
                 </select>

@@ -12,6 +12,8 @@ import type {
   UserResponse,
   DiscountLevelResponse,
 } from '@/helpers/types/api-responses';
+import type { DomainKey } from '@/lib/domain-config';
+import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
 
 // ==================== Category Queries ====================
 export async function getCategoriesByLocale(locale: string) {
@@ -178,11 +180,14 @@ export async function getBrandByAlias(alias: string) {
 }
 
 // ==================== Warehouse Queries ====================
-export async function getAllWarehouses() {
+export async function getAllWarehouses(domainKey: DomainKey) {
+  const visibleWarehouseIds = await getVisibleWarehouseIds(domainKey);
+  if (visibleWarehouseIds.length === 0) return [];
+
   const warehouses = await db
     .select()
     .from(schema.warehouse)
-    .where(eq(schema.warehouse.isVisible, true));
+    .where(inArray(schema.warehouse.id, visibleWarehouseIds));
 
   const countries = await db
     .select()
@@ -213,7 +218,7 @@ export async function getAllWarehouses() {
 }
 
 // ==================== Item Queries ====================
-export async function getItemBySlug(slug: string, locale: string): Promise<ItemResponse | null> {
+export async function getItemBySlug(slug: string, locale: string, domainKey: DomainKey): Promise<ItemResponse | null> {
   const [item] = await db
     .select()
     .from(schema.item)
@@ -239,11 +244,19 @@ export async function getItemBySlug(slug: string, locale: string): Promise<ItemR
 
   if (!detail) return null;
 
-  // Get prices
-  const prices = await db
-    .select()
-    .from(schema.itemPrice)
-    .where(eq(schema.itemPrice.itemSlug, slug));
+  // Get prices, restricted to warehouses visible on this domain
+  const visibleWarehouseIds = await getVisibleWarehouseIds(domainKey);
+  const prices = visibleWarehouseIds.length > 0
+    ? await db
+        .select()
+        .from(schema.itemPrice)
+        .where(
+          and(
+            eq(schema.itemPrice.itemSlug, slug),
+            inArray(schema.itemPrice.warehouseId, visibleWarehouseIds)
+          )
+        )
+    : [];
 
   // Get warehouses
   const warehouseIds = prices.map((p) => p.warehouseId);

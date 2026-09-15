@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { warehouse, itemPrice, item, warehouseCountries, user, session, account, twoFactor, brand, category, subcategories, cart, itemOpinion, messages, order, outOfStockRequest, itemDetails, itemPriceHistory, linkedItems, categoryTranslation, subcategoryTranslation, itemToOrder, cartToItem, discountLevel, discountLevelToUser, itemPriceToItemPriceHistory } from "./schema";
+import { warehouse, warehouseVisibility, itemPrice, item, warehouseCountries, user, session, account, twoFactor, brand, category, subcategories, cart, itemOpinion, messages, order, outOfStockRequest, itemDetails, itemPriceHistory, linkedItems, categoryTranslation, subcategoryTranslation, itemToOrder, cartToItem, discountLevel, discountLevelToUser, itemPriceToItemPriceHistory } from "./schema";
 
 export const itemPriceRelations = relations(itemPrice, ({one, many}) => ({
 	warehouse: one(warehouse, {
@@ -21,6 +21,14 @@ export const warehouseRelations = relations(warehouse, ({one, many}) => ({
 	}),
 	outOfStockRequests: many(outOfStockRequest),
 	itemPriceHistories: many(itemPriceHistory),
+	visibility: many(warehouseVisibility),
+}));
+
+export const warehouseVisibilityRelations = relations(warehouseVisibility, ({one}) => ({
+	warehouse: one(warehouse, {
+		fields: [warehouseVisibility.warehouseId],
+		references: [warehouse.id]
+	}),
 }));
 
 export const itemRelations = relations(item, ({one, many}) => ({

@@ -695,7 +695,9 @@
     "total": "Łącznie:",
     "vat": "VAT",
     "payment": "Przejdź do płatności",
-    "backToShopping": "Kontynuuj zakupy"
+    "backToShopping": "Kontynuuj zakupy",
+    "sanitizedRemoved": "{count, plural, one {# produkt został usunięty z koszyka — jest już niedostępny} few {# produkty zostały usunięte z koszyka — są już niedostępne} many {# produktów zostało usuniętych z koszyka — są już niedostępne} other {# produktu zostało usuniętych z koszyka — są już niedostępne}}",
+    "sanitizedSwitched": "{count, plural, one {Dla # produktu wybrano inny magazyn — poprzedni jest już niedostępny} other {Dla # produktów wybrano inny magazyn — poprzedni jest już niedostępny}}"
   },
   "errors": {
     "insufficientStock": "Niewystarczająca ilość towaru {itemName}. Dostępne: {available}, Zamówione: {requested}",
@@ -1303,6 +1305,10 @@
         "itemPrices": "Ceny produktów",
         "prices": "{count} cen",
         "visibility": "Widoczność",
+        "domains": "Domeny",
+        "domainVisibleOn": "Widoczny na {domain} — kliknij, aby ukryć",
+        "domainHiddenOn": "Ukryty na {domain} — kliknij, aby pokazać",
+        "domainToggleError": "Nie udało się zmienić widoczności na domenie",
         "actions": "Akcje",
         "showing": "Wyświetlanie {from}–{to} z {total} magazynów",
         "pageOf": "Strona {current} z {total}"
@@ -1828,6 +1834,8 @@
       "namePlaceholder": "Wewnętrzna nazwa magazynu",
       "country": "Kraj",
       "visible": "Widoczny",
+      "domainVisibility": "Widoczność na domenach",
+      "domainVisibilityDesc": "Na jakich witrynach pokazywać ten magazyn klientom. Wyłączona domena ukrywa magazyn w katalogu, na stronie produktu, w wyszukiwarce i w feedzie na tej stronie.",
       "deliveryPoland": "Dostawa do Polski",
       "deliveryUkraine": "Dostawa do Ukrainy",
       "deliveryEurope": "Dostawa do Europy",

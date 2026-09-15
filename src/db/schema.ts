@@ -15,6 +15,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import type { DomainKey } from "@/lib/domain-config";
 
 export const badge = pgEnum("Badge", [
   "NEW_ARRIVALS",
@@ -189,6 +190,50 @@ export const warehouse = pgTable(
     })
       .onUpdate("cascade")
       .onDelete("set null"),
+  ]
+);
+
+/**
+ * Видимість складу на конкретному домені (крос-доменна архітектура).
+ *
+ * Allowlist: якщо рядка для пари (warehouseId, domain) немає — склад на цьому
+ * домені НЕ показується. Ефективна видимість:
+ *   warehouse.isVisible === true  AND  warehouse_visibility.visible === true
+ * тобто warehouse.isVisible лишається глобальним рубильником.
+ */
+export const warehouseVisibility = pgTable(
+  "warehouse_visibility",
+  {
+    id: text()
+      .primaryKey()
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    warehouseId: text().notNull(),
+    domain: text().$type<DomainKey>().notNull(), // domainConfig.key ("ua" | "pl")
+    visible: boolean().default(true).notNull(),
+    createdAt: timestamp({ precision: 3, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp({ precision: 3, mode: "string" }).notNull(),
+  },
+  (table) => [
+    // Один рядок на пару — інакше видимість стає недетермінованою
+    uniqueIndex("warehouse_visibility_warehouseId_domain_idx").on(
+      table.warehouseId,
+      table.domain
+    ),
+    // Гарячий шлях: "усі видимі склади цього домену"
+    index("warehouse_visibility_domain_visible_idx").on(
+      table.domain,
+      table.visible
+    ),
+    foreignKey({
+      columns: [table.warehouseId],
+      foreignColumns: [warehouse.id],
+      name: "warehouse_visibility_warehouseId_fkey",
+    })
+      .onUpdate("cascade")
+      .onDelete("cascade"),
   ]
 );
 
@@ -1074,6 +1119,8 @@ export type Warehouse = typeof warehouse.$inferSelect;
 export type WarehouseInsert = typeof warehouse.$inferInsert;
 export type WarehouseCountries = typeof warehouseCountries.$inferSelect;
 export type WarehouseCountriesInsert = typeof warehouseCountries.$inferInsert;
+export type WarehouseVisibility = typeof warehouseVisibility.$inferSelect;
+export type WarehouseVisibilityInsert = typeof warehouseVisibility.$inferInsert;
 export type Category = typeof category.$inferSelect;
 export type CategoryInsert = typeof category.$inferInsert;
 export type CategoryTranslation = typeof categoryTranslation.$inferSelect;

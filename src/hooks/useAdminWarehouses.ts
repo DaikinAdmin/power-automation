@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { DomainKey } from '@/lib/domain-config';
 
 interface Warehouse {
   id: string;
@@ -9,6 +10,8 @@ interface Warehouse {
   deliveryDaysPoland: number | null;
   deliveryDaysUkraine: number | null;
   deliveryDaysEurope: number | null;
+  /** Per-domain visibility (crossdomain warehouse_visibility allowlist) */
+  visibility: Record<DomainKey, boolean>;
   _count?: {
     item_price: number;
   };

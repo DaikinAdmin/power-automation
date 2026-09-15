@@ -5,6 +5,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { parsePriceString, SupportedCurrency } from '@/helpers/currency';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useDomainConfig } from '@/hooks/useDomain';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 // Extend the Item type with cart-specific properties without creating a new standalone type
 
@@ -82,17 +84,119 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const normaliseCartItems = (items: CartItemType[]): CartItemType[] => items.map(normaliseCartItem);
 
-  // Load cart from localStorage when component mounts
+  const t = useTranslations('cart');
+
+  // Restores a cart item's price fields to match a given availableWarehouses
+  // entry — same computation as updateCartWarehouse below, factored out so
+  // sanitizeAgainstVisibleWarehouses (auto-switch) and the manual selector
+  // share one implementation.
+  const applyWarehouseToItem = (
+    item: CartItemType,
+    selectedWarehouse: NonNullable<CartItemType['availableWarehouses']>[number]
+  ): CartItemType => {
+    const basePrice = typeof selectedWarehouse.basePrice === 'number'
+      ? selectedWarehouse.basePrice
+      : parsePriceString(selectedWarehouse.price);
+    const baseSpecialPrice = selectedWarehouse.specialPrice != null
+      ? (typeof selectedWarehouse.baseSpecialPrice === 'number'
+          ? selectedWarehouse.baseSpecialPrice
+          : parsePriceString(selectedWarehouse.specialPrice))
+      : undefined;
+
+    return {
+      ...item,
+      warehouseId: selectedWarehouse.warehouseId,
+      warehouseName: selectedWarehouse.warehouseName,
+      warehouseCountry: selectedWarehouse.warehouseCountry,
+      price: typeof selectedWarehouse.price === 'number'
+        ? selectedWarehouse.price
+        : parsePriceString(selectedWarehouse.price),
+      specialPrice: selectedWarehouse.specialPrice != null
+        ? (typeof selectedWarehouse.specialPrice === 'number'
+            ? selectedWarehouse.specialPrice
+            : parsePriceString(selectedWarehouse.specialPrice))
+        : undefined,
+      basePrice,
+      baseSpecialPrice,
+      initialCurrency: selectedWarehouse.initialCurrency ?? item.initialCurrency,
+    };
+  };
+
+  // A warehouse an admin hides on this domain after an item was added to the
+  // cart must not silently stay orderable — the server rejects it anyway at
+  // checkout (see /api/orders), this just catches it earlier with a clear
+  // message instead of a checkout-time error. Also drops now-hidden entries
+  // from each item's availableWarehouses so the warehouse selector doesn't
+  // offer switching to something that would be rejected.
+  const sanitizeAgainstVisibleWarehouses = (
+    items: CartItemType[],
+    visibleWarehouseIds: Set<string>
+  ): { items: CartItemType[]; removedCount: number; switchedCount: number } => {
+    let removedCount = 0;
+    let switchedCount = 0;
+
+    const sanitized = items.reduce<CartItemType[]>((acc, item) => {
+      const filteredAvailable = item.availableWarehouses?.filter((wh) =>
+        visibleWarehouseIds.has(wh.warehouseId)
+      );
+
+      if (!item.warehouseId || visibleWarehouseIds.has(item.warehouseId)) {
+        acc.push(
+          item.availableWarehouses
+            ? { ...item, availableWarehouses: filteredAvailable }
+            : item
+        );
+        return acc;
+      }
+
+      const replacement = filteredAvailable?.[0];
+      if (replacement) {
+        switchedCount++;
+        acc.push(applyWarehouseToItem({ ...item, availableWarehouses: filteredAvailable }, replacement));
+      } else {
+        removedCount++;
+      }
+      return acc;
+    }, []);
+
+    return { items: sanitized, removedCount, switchedCount };
+  };
+
+  // Load cart from localStorage when component mounts, then drop/switch any
+  // line still pointing at a warehouse hidden on this domain.
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        const parsed: CartItemType[] = JSON.parse(savedCart);
-        setCartItems(normaliseCartItems(parsed));
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage:', e);
-      }
+    if (!savedCart) return;
+
+    let restored: CartItemType[];
+    try {
+      const parsed: CartItemType[] = JSON.parse(savedCart);
+      restored = normaliseCartItems(parsed);
+    } catch (e) {
+      console.error('Failed to parse cart from localStorage:', e);
+      return;
     }
+
+    setCartItems(restored);
+
+    fetch('/api/public/warehouses/visible')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { warehouseIds: string[] } | null) => {
+        if (!data) return;
+        const visibleWarehouseIds = new Set(data.warehouseIds);
+        const { items, removedCount, switchedCount } = sanitizeAgainstVisibleWarehouses(
+          restored,
+          visibleWarehouseIds
+        );
+
+        if (removedCount === 0 && switchedCount === 0) return;
+
+        setCartItems(items);
+        if (removedCount > 0) toast.info(t('sanitizedRemoved', { count: removedCount }));
+        if (switchedCount > 0) toast.info(t('sanitizedSwitched', { count: switchedCount }));
+      })
+      .catch((e) => console.error('Failed to validate cart warehouse visibility:', e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -173,36 +277,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return prev.map(item => {
         if (item.id === id && item.availableWarehouses) {
           const selectedWarehouse = item.availableWarehouses.find(
-            (            wh: { warehouseId: string; }) => wh.warehouseId === warehouseId
+            (wh: { warehouseId: string }) => wh.warehouseId === warehouseId
           );
-          
           if (selectedWarehouse) {
-            const basePrice = typeof selectedWarehouse.basePrice === 'number'
-              ? selectedWarehouse.basePrice
-              : parsePriceString(selectedWarehouse.price);
-            const baseSpecialPrice = selectedWarehouse.specialPrice != null
-              ? (typeof selectedWarehouse.baseSpecialPrice === 'number'
-                  ? selectedWarehouse.baseSpecialPrice
-                  : parsePriceString(selectedWarehouse.specialPrice))
-              : undefined;
-
-            return {
-              ...item,
-              warehouseId: selectedWarehouse.warehouseId,
-              warehouseName: selectedWarehouse.warehouseName,
-              warehouseCountry: selectedWarehouse.warehouseCountry,
-              price: typeof selectedWarehouse.price === 'number'
-                ? selectedWarehouse.price
-                : parsePriceString(selectedWarehouse.price),
-              specialPrice: selectedWarehouse.specialPrice != null
-                ? (typeof selectedWarehouse.specialPrice === 'number'
-                    ? selectedWarehouse.specialPrice
-                    : parsePriceString(selectedWarehouse.specialPrice))
-                : undefined,
-              basePrice,
-              baseSpecialPrice,
-              initialCurrency: selectedWarehouse.initialCurrency ?? item.initialCurrency,
-            };
+            return applyWarehouseToItem(item, selectedWarehouse);
           }
         }
         return item;
