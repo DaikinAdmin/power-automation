@@ -4,6 +4,11 @@ export interface FinancialSummary {
   totalVat: number;
   totalGross: number;
   avgOrderValue: number;
+  // null only when zero line items in range have a cost snapshot at all.
+  // profitCoveragePercent tells the reader how much of the total the figure
+  // actually covers when it's a partial (not 100%) sample.
+  totalProfit: number | null;
+  profitCoveragePercent: number;
 }
 
 export interface FinancialByStatus {
@@ -14,6 +19,7 @@ export interface FinancialByStatus {
   totalGross: number;
 }
 
+/** @deprecated replaced by FinancialTrendRow — kept only for old imports */
 export interface FinancialMonthlyRow {
   year: number;
   month: number;
@@ -23,10 +29,32 @@ export interface FinancialMonthlyRow {
   totalGross: number;
 }
 
+export type FinancialGranularity = 'day' | 'week' | 'month';
+
+export interface FinancialTrendRow {
+  // ISO date (day granularity), ISO week-start date, or YYYY-MM-01 (month)
+  period: string;
+  totalOrders: number;
+  totalNet: number;
+  totalVat: number;
+  totalGross: number;
+}
+
+export interface FinancialByWarehouseRow {
+  warehouseId: string;
+  warehouseName: string;
+  orderCount: number;
+  totalNet: number;
+  totalProfit: number | null;
+  profitCoveragePercent: number;
+}
+
 export interface FinancialReportData {
   summary: FinancialSummary;
   byStatus: FinancialByStatus[];
-  monthly: FinancialMonthlyRow[];
+  trend: FinancialTrendRow[];
+  byWarehouse: FinancialByWarehouseRow[];
+  granularity: FinancialGranularity;
   dateFrom: string;
   dateTo: string;
 }

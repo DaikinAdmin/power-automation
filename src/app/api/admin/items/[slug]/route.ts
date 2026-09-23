@@ -7,6 +7,8 @@ import { eq, asc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import { isUserAdmin } from '@/helpers/db/queries';
 
+const AUTHORIZED_ROLES = new Set(['admin', 'employee']);
+
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
@@ -20,6 +22,18 @@ export async function GET(
 
         if (!session?.user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // This endpoint returns itemPrice rows including initialPrice/margin
+        // (cost-of-goods data) — must never be reachable by a plain customer.
+        const [requester] = await db
+            .select({ role: schema.user.role })
+            .from(schema.user)
+            .where(eq(schema.user.id, session.user.id))
+            .limit(1);
+
+        if (!requester?.role || !AUTHORIZED_ROLES.has(requester.role)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         // Drizzle implementation with new category/subcategory logic

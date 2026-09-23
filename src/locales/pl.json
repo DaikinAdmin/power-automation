@@ -830,7 +830,13 @@
         "dateFrom": "Od",
         "dateTo": "Do",
         "apply": "Zastosuj",
-        "reset": "Resetuj"
+        "reset": "Resetuj",
+        "granularity": "Granulacja",
+        "granularityOptions": {
+          "day": "Dzień",
+          "week": "Tydzień",
+          "month": "Miesiąc"
+        }
       },
       "export": {
         "label": "Eksport",
@@ -844,7 +850,14 @@
         "totalVat": "Łącznie VAT",
         "totalGross": "Łącznie brutto",
         "avgOrder": "Śr. wartość zamówienia",
+        "totalProfit": "Łączny zysk",
+        "unavailable": "Niedostępne",
         "byStatus": "Według statusu zamówień",
+        "byWarehouse": "Według magazynu",
+        "warehouse": "Magazyn",
+        "profit": "Zysk",
+        "trend": "Trend",
+        "period": "Okres",
         "monthly": "Trend miesięczny",
         "month": "Miesiąc",
         "orders": "Zamówień",
@@ -1046,6 +1059,10 @@
         "revenue": "Przychód",
         "fromCompleted": "Z {count} zrealizowanych zamówień"
       },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy"
+      },
       "table": {
         "header": "Wszystkie zamówienia",
         "description": "Lista wszystkich zamówień klientów.",
@@ -1060,7 +1077,8 @@
         "update": "Aktualizuj",
         "itemsCount": "{count} produktów",
         "more": "+{count} więcej",
-        "empty": "Nie znaleziono zamówień."
+        "empty": "Nie znaleziono zamówień.",
+        "emptyFiltered": "Brak zamówień o tym statusie."
       },
       "detail": {
         "title": "Szczegóły zamówienia",
@@ -1112,8 +1130,56 @@
           "columnQuantity": "Ilość",
           "columnPrice": "Cena (z VAT)",
           "columnLineTotal": "Suma linii (z VAT)",
+          "columnProfit": "Zysk",
+          "columnMargin": "Marża %",
+          "columnActions": "Akcje",
+          "unavailable": "Niedostępne",
           "empty": "Brak produktów w tym zamówieniu.",
-          "article": "Artykuł: {id}"
+          "article": "Artykuł: {id}",
+          "warehouseChange": {
+            "button": "Zmień magazyn",
+            "legacyDisabled": "Niedostępne dla zamówień sprzed wprowadzenia zmiany magazynu",
+            "warehouseLabel": "Nowy magazyn",
+            "reasonLabel": "Powód (opcjonalnie)",
+            "reasonPlaceholder": "Np.: brak towaru, siła wyższa",
+            "priceLockedNote": "Cena klienta pozostaje dokładnie taka sama — zmienia się tylko magazyn realizacji.",
+            "save": "Zmień",
+            "saving": "Zmienianie...",
+            "saved": "Magazyn zmieniony",
+            "error": "Błąd zmiany magazynu",
+            "loadError": "Błąd wczytywania dostępnych magazynów"
+          },
+          "priceOverride": {
+            "button": "Zmień cenę",
+            "priceLabel": "Nowa cena jednostkowa (z VAT)",
+            "reasonLabel": "Powód (wymagany)",
+            "reasonPlaceholder": "Np.: rabat uzgodniony z klientem",
+            "save": "Zapisz cenę",
+            "saving": "Zapisywanie...",
+            "saved": "Cena zaktualizowana",
+            "error": "Błąd aktualizacji ceny",
+            "cancel": "Anuluj"
+          },
+          "addItem": {
+            "button": "Dodaj produkt",
+            "searchPlaceholder": "Szukaj po numerze artykułu lub nazwie...",
+            "searchButton": "Szukaj",
+            "searching": "Wyszukiwanie...",
+            "searchError": "Błąd wyszukiwania produktów",
+            "noWarehouses": "niedostępny w żadnym magazynie",
+            "quantityLabel": "Ilość",
+            "confirm": "Dodaj do zamówienia",
+            "saving": "Dodawanie...",
+            "saved": "Produkt dodany",
+            "error": "Błąd dodawania produktu"
+          },
+          "removeItem": {
+            "button": "Usuń",
+            "removing": "Usuwanie...",
+            "confirm": "Usunąć \"{name}\" z tego zamówienia?",
+            "saved": "Produkt usunięty",
+            "error": "Błąd usuwania produktu"
+          }
         },
         "notes": {
           "title": "Historia notatek",
@@ -1136,7 +1202,13 @@
           "address": "Adres",
           "paymentMethod": "Metoda płatności",
           "status": "Status",
-          "trackingNumber": "Numer śledzenia"
+          "trackingNumber": "Numer śledzenia",
+          "trackingCopied": "Numer przesyłki skopiowany"
+        },
+        "invoice": {
+          "exportButton": "Eksportuj fakturę (PDF)",
+          "generating": "Generowanie...",
+          "error": "Błąd generowania faktury PDF"
         },
         "updateStatus": {
           "title": "Zmień status",

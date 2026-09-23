@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useOrderTranslations } from '@/helpers/use-translations';
 import type { OrderStatus } from '@/db/schema';
+import { ORDER_STATUS_OPTIONS } from '@/constants/order';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency, formatDate, getOrderStatusBadgeStyle } from '@/helpers/formatting';
 import { useDomainConfig } from '@/hooks/useDomain';
+import { useQueryState } from '@/hooks/useQueryParam';
 
 type OrderListItem = {
   id: string;
@@ -40,6 +42,7 @@ export default function OrdersPage() {
   const t = useTranslations('adminDashboard');
   const tr = useOrderTranslations();
   const domainConfig = useDomainConfig();
+  const [statusFilter, setStatusFilter] = useQueryState('status', { defaultValue: '' });
 
   useEffect(() => {
     let isMounted = true;
@@ -85,6 +88,13 @@ export default function OrdersPage() {
       .filter(order => order.status === 'COMPLETED')
       .reduce((sum, order) => sum + (order.totalGross ?? 0), 0),
   };
+
+  // Stats above stay based on all orders (overview); only the table itself
+  // is narrowed by the status filter.
+  const filteredOrders = useMemo(
+    () => (statusFilter ? orders.filter((order) => order.status === statusFilter) : orders),
+    [orders, statusFilter],
+  );
 
   return (
     <div className="space-y-6">
@@ -146,10 +156,32 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('orders.table.header')}</CardTitle>
-          <CardDescription>
-            {t('orders.table.description')}
-          </CardDescription>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <CardTitle>{t('orders.table.header')}</CardTitle>
+              <CardDescription>
+                {t('orders.table.description')}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="order-status-filter" className="text-xs font-medium text-gray-600">
+                {t('orders.filters.status')}
+              </label>
+              <select
+                id="order-status-filter"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value || null)}
+                className="rounded-md border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
+              >
+                <option value="">{t('orders.filters.allStatuses')}</option>
+                {ORDER_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {tr.statusLabel(opt)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {error && (
@@ -188,7 +220,7 @@ export default function OrdersPage() {
                   </tr>
                 )}
 
-                {!isLoading && orders.map((order) => (
+                {!isLoading && filteredOrders.map((order) => (
                   <tr key={order.id} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">
                       <div className="font-mono text-sm">#{order.id.slice(0, 8)}</div>
@@ -227,17 +259,17 @@ export default function OrdersPage() {
                         <Link href={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-900 text-sm">
                           {t('orders.table.view')}
                         </Link>
-                        <button className="text-green-600 hover:text-green-900 text-sm">
+                        <Link href={`/admin/orders/${order.id}`} className="text-green-600 hover:text-green-900 text-sm">
                           {t('orders.table.update')}
-                        </button>
+                        </Link>
                       </div>
                     </td>
                   </tr>
                 ))}
-                {!isLoading && orders.length === 0 && (
+                {!isLoading && filteredOrders.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-gray-500">
-                      {t('orders.table.empty')}
+                      {statusFilter ? t('orders.table.emptyFiltered') : t('orders.table.empty')}
                     </td>
                   </tr>
                 )}

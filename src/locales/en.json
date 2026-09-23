@@ -823,7 +823,13 @@
         "dateFrom": "From",
         "dateTo": "To",
         "apply": "Apply",
-        "reset": "Reset"
+        "reset": "Reset",
+        "granularity": "Granularity",
+        "granularityOptions": {
+          "day": "Day",
+          "week": "Week",
+          "month": "Month"
+        }
       },
       "export": {
         "label": "Export",
@@ -837,7 +843,14 @@
         "totalVat": "Total VAT",
         "totalGross": "Total Gross",
         "avgOrder": "Avg. Order Value",
+        "totalProfit": "Total Profit",
+        "unavailable": "Unavailable",
         "byStatus": "By Order Status",
+        "byWarehouse": "By Warehouse",
+        "warehouse": "Warehouse",
+        "profit": "Profit",
+        "trend": "Trend",
+        "period": "Period",
         "monthly": "Monthly Trend",
         "month": "Month",
         "orders": "Orders",
@@ -1039,6 +1052,10 @@
         "revenue": "Revenue",
         "fromCompleted": "From {count} completed orders"
       },
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses"
+      },
       "table": {
         "header": "All Orders",
         "description": "A list of all customer orders.",
@@ -1053,7 +1070,8 @@
         "update": "Update",
         "itemsCount": "{count} items",
         "more": "+{count} more",
-        "empty": "No orders found."
+        "empty": "No orders found.",
+        "emptyFiltered": "No orders match this status."
       },
       "detail": {
         "title": "Order Details",
@@ -1105,8 +1123,56 @@
           "columnQuantity": "Quantity",
           "columnPrice": "Price (with VAT)",
           "columnLineTotal": "Line Total (with VAT)",
+          "columnProfit": "Profit",
+          "columnMargin": "Margin %",
+          "columnActions": "Actions",
+          "unavailable": "Unavailable",
           "empty": "No line items recorded for this order.",
-          "article": "Article: {id}"
+          "article": "Article: {id}",
+          "warehouseChange": {
+            "button": "Change warehouse",
+            "legacyDisabled": "Not available for orders placed before warehouse reassignment was added",
+            "warehouseLabel": "New warehouse",
+            "reasonLabel": "Reason (optional)",
+            "reasonPlaceholder": "E.g.: out of stock, force majeure",
+            "priceLockedNote": "The customer's price stays exactly the same — only the fulfilling warehouse changes.",
+            "save": "Reassign",
+            "saving": "Reassigning...",
+            "saved": "Warehouse reassigned",
+            "error": "Error reassigning warehouse",
+            "loadError": "Error loading available warehouses"
+          },
+          "priceOverride": {
+            "button": "Override price",
+            "priceLabel": "New unit price (with VAT)",
+            "reasonLabel": "Reason (required)",
+            "reasonPlaceholder": "E.g.: manual discount agreed with customer",
+            "save": "Save price",
+            "saving": "Saving...",
+            "saved": "Price updated",
+            "error": "Error updating price",
+            "cancel": "Cancel"
+          },
+          "addItem": {
+            "button": "Add item",
+            "searchPlaceholder": "Search by article number or product name...",
+            "searchButton": "Search",
+            "searching": "Searching...",
+            "searchError": "Error searching items",
+            "noWarehouses": "not available in any warehouse",
+            "quantityLabel": "Quantity",
+            "confirm": "Add to order",
+            "saving": "Adding...",
+            "saved": "Item added",
+            "error": "Error adding item"
+          },
+          "removeItem": {
+            "button": "Remove",
+            "removing": "Removing...",
+            "confirm": "Remove \"{name}\" from this order?",
+            "saved": "Item removed",
+            "error": "Error removing item"
+          }
         },
         "notes": {
           "title": "Notes history",
@@ -1130,7 +1196,13 @@
           "paymentMethod": "Payment Method",
           "status": "Status",
           "trackingNumber": "Tracking Number",
+          "trackingCopied": "Tracking number copied",
           "deliveryPrice": "Delivery Cost"
+        },
+        "invoice": {
+          "exportButton": "Export invoice (PDF)",
+          "generating": "Generating...",
+          "error": "Error generating the invoice PDF"
         },
         "updateStatus": {
           "title": "Update Status",

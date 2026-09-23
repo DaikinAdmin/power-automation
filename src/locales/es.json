@@ -791,7 +791,13 @@
         "dateFrom": "Desde",
         "dateTo": "Hasta",
         "apply": "Aplicar",
-        "reset": "Restablecer"
+        "reset": "Restablecer",
+        "granularity": "Granularidad",
+        "granularityOptions": {
+          "day": "Día",
+          "week": "Semana",
+          "month": "Mes"
+        }
       },
       "export": {
         "label": "Exportar",
@@ -805,7 +811,14 @@
         "totalVat": "Total IVA",
         "totalGross": "Total bruto",
         "avgOrder": "Valor medio del pedido",
+        "totalProfit": "Beneficio total",
+        "unavailable": "No disponible",
         "byStatus": "Por estado del pedido",
+        "byWarehouse": "Por almacén",
+        "warehouse": "Almacén",
+        "profit": "Beneficio",
+        "trend": "Tendencia",
+        "period": "Período",
         "monthly": "Tendencia mensual",
         "month": "Mes",
         "orders": "Pedidos",
@@ -1007,6 +1020,10 @@
         "revenue": "Ingresos",
         "fromCompleted": "De {count} pedidos completados"
       },
+      "filters": {
+        "status": "Estado",
+        "allStatuses": "Todos los estados"
+      },
       "table": {
         "header": "Todos los Pedidos",
         "description": "Una lista de todos los pedidos de clientes.",
@@ -1021,7 +1038,8 @@
         "update": "Actualizar",
         "itemsCount": "{count} productos",
         "more": "+{count} más",
-        "empty": "No se encontraron pedidos."
+        "empty": "No se encontraron pedidos.",
+        "emptyFiltered": "No hay pedidos con este estado."
       },
       "detail": {
         "title": "Detalles del Pedido",
@@ -1072,8 +1090,56 @@
           "columnQuantity": "Cantidad",
           "columnPrice": "Precio (con IVA)",
           "columnLineTotal": "Total de Línea (con IVA)",
+          "columnProfit": "Beneficio",
+          "columnMargin": "Margen %",
+          "columnActions": "Acciones",
+          "unavailable": "No disponible",
           "empty": "No hay productos en este pedido.",
-          "article": "Artículo: {id}"
+          "article": "Artículo: {id}",
+          "warehouseChange": {
+            "button": "Cambiar almacén",
+            "legacyDisabled": "No disponible para pedidos anteriores a esta función",
+            "warehouseLabel": "Nuevo almacén",
+            "reasonLabel": "Motivo (opcional)",
+            "reasonPlaceholder": "Ej.: sin stock, fuerza mayor",
+            "priceLockedNote": "El precio del cliente permanece exactamente igual — solo cambia el almacén de origen.",
+            "save": "Reasignar",
+            "saving": "Reasignando...",
+            "saved": "Almacén reasignado",
+            "error": "Error al reasignar el almacén",
+            "loadError": "Error al cargar los almacenes disponibles"
+          },
+          "priceOverride": {
+            "button": "Anular precio",
+            "priceLabel": "Nuevo precio unitario (con IVA)",
+            "reasonLabel": "Motivo (obligatorio)",
+            "reasonPlaceholder": "Ej.: descuento acordado con el cliente",
+            "save": "Guardar precio",
+            "saving": "Guardando...",
+            "saved": "Precio actualizado",
+            "error": "Error al actualizar el precio",
+            "cancel": "Cancelar"
+          },
+          "addItem": {
+            "button": "Añadir producto",
+            "searchPlaceholder": "Buscar por número de artículo o nombre...",
+            "searchButton": "Buscar",
+            "searching": "Buscando...",
+            "searchError": "Error al buscar productos",
+            "noWarehouses": "no disponible en ningún almacén",
+            "quantityLabel": "Cantidad",
+            "confirm": "Añadir al pedido",
+            "saving": "Añadiendo...",
+            "saved": "Producto añadido",
+            "error": "Error al añadir el producto"
+          },
+          "removeItem": {
+            "button": "Eliminar",
+            "removing": "Eliminando...",
+            "confirm": "¿Eliminar \"{name}\" de este pedido?",
+            "saved": "Producto eliminado",
+            "error": "Error al eliminar el producto"
+          }
         },
         "notes": {
           "title": "Historial de Notas",
@@ -1096,7 +1162,13 @@
           "address": "Dirección",
           "paymentMethod": "Método de Pago",
           "status": "Estado",
-          "trackingNumber": "Número de Seguimiento"
+          "trackingNumber": "Número de Seguimiento",
+          "trackingCopied": "Número de seguimiento copiado"
+        },
+        "invoice": {
+          "exportButton": "Exportar factura (PDF)",
+          "generating": "Generando...",
+          "error": "Error al generar el PDF de la factura"
         },
         "updateStatus": {
           "title": "Actualizar Estado",

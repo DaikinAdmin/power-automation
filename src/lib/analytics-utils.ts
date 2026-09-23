@@ -9,6 +9,12 @@ export function fmt(n: number, decimals = 2) {
   return n.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
 }
 
+// null means "unavailable" (see FinancialSummary.totalProfit /
+// FinancialByWarehouseRow.totalProfit) \u2014 never render it as 0.
+export function fmtOrUnavailable(n: number | null, unavailableLabel: string, decimals = 2) {
+  return n == null ? unavailableLabel : fmt(n, decimals);
+}
+
 export function monthLabel(year: number, month: number) {
   return `${String(month).padStart(2, "0")}/${year}`;
 }
@@ -32,9 +38,9 @@ function cellValue(
 
 // ─── PDF font loader ─────────────────────────────────────────────────────────
 
-const FONT_FAMILY = "CustomTimes";
+export const FONT_FAMILY = "CustomTimes";
 
-async function loadFont(doc: any): Promise<void> {
+export async function loadFont(doc: any): Promise<void> {
   const res = await fetch("/fonts/NotoSans.ttf");
   const buffer = await res.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -61,6 +67,11 @@ export function exportFinancialExcel(data: FinancialReportData, title: string) {
     ["Total VAT", data.summary.totalVat],
     ["Total Gross", data.summary.totalGross],
     ["Avg. Order Value", data.summary.avgOrderValue],
+    [
+      "Total Profit",
+      data.summary.totalProfit == null ? "Unavailable" : data.summary.totalProfit,
+    ],
+    ["Profit Data Coverage", `${data.summary.profitCoveragePercent}%`],
     ["Period", `${data.dateFrom} — ${data.dateTo}`],
   ];
   XLSX.utils.book_append_sheet(
@@ -85,10 +96,26 @@ export function exportFinancialExcel(data: FinancialReportData, title: string) {
     "By Status",
   );
 
-  const monthlyData = [
-    ["Month/Year", "Orders", "Net", "VAT", "Gross"],
-    ...data.monthly.map((r) => [
-      monthLabel(r.year, r.month),
+  const warehouseData = [
+    ["Warehouse", "Orders", "Net", "Profit", "Profit Coverage %"],
+    ...data.byWarehouse.map((r) => [
+      r.warehouseName,
+      r.orderCount,
+      r.totalNet,
+      r.totalProfit == null ? "Unavailable" : r.totalProfit,
+      r.profitCoveragePercent,
+    ]),
+  ];
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.aoa_to_sheet(warehouseData),
+    "By Warehouse",
+  );
+
+  const trendData = [
+    ["Period", "Orders", "Net", "VAT", "Gross"],
+    ...data.trend.map((r) => [
+      r.period,
       r.totalOrders,
       r.totalNet,
       r.totalVat,
@@ -97,8 +124,8 @@ export function exportFinancialExcel(data: FinancialReportData, title: string) {
   ];
   XLSX.utils.book_append_sheet(
     wb,
-    XLSX.utils.aoa_to_sheet(monthlyData),
-    "Monthly",
+    XLSX.utils.aoa_to_sheet(trendData),
+    "Trend",
   );
 
   XLSX.writeFile(wb, `${title}.xlsx`);
@@ -152,12 +179,29 @@ export async function exportFinancialPdf(
 
   const afterStatus = (doc as any).lastAutoTable.finalY + 10;
   doc.setFontSize(12);
-  doc.text("Monthly Trend", 14, afterStatus);
+  doc.text("By Warehouse", 14, afterStatus);
   autoTable(doc, {
     startY: afterStatus + 4,
-    head: [["Month", "Orders", "Net", "VAT", "Gross"]],
-    body: data.monthly.map((r) => [
-      monthLabel(r.year, r.month),
+    head: [["Warehouse", "Orders", "Net", "Profit", "Coverage"]],
+    body: data.byWarehouse.map((r) => [
+      r.warehouseName,
+      r.orderCount,
+      fmt(r.totalNet),
+      fmtOrUnavailable(r.totalProfit, "Unavailable"),
+      `${r.profitCoveragePercent}%`,
+    ]),
+    theme: "grid",
+    styles: { font: FONT_FAMILY },
+  });
+
+  const afterWarehouse = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(12);
+  doc.text("Trend", 14, afterWarehouse);
+  autoTable(doc, {
+    startY: afterWarehouse + 4,
+    head: [["Period", "Orders", "Net", "VAT", "Gross"]],
+    body: data.trend.map((r) => [
+      r.period,
       r.totalOrders,
       fmt(r.totalNet),
       fmt(r.totalVat),

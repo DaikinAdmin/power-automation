@@ -14,15 +14,18 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SummaryCard, StatusBadge } from "./shared-components";
+import { TrendChart } from "./trend-chart";
 import { cn } from "@/lib/utils";
-import type { FinancialReportData } from "@/types/analytics";
+import type { FinancialGranularity, FinancialReportData } from "@/types/analytics";
 import {
   fmt,
-  monthLabel,
+  fmtOrUnavailable,
   exportFinancialExcel,
   exportFinancialPdf,
 } from "@/lib/analytics-utils";
 import { useQueryState } from "@/hooks/useQueryParam";
+
+const GRANULARITY_OPTIONS: FinancialGranularity[] = ["day", "week", "month"];
 
 
 
@@ -43,13 +46,16 @@ export function FinancialTab() {
   const [dateTo, setDateTo] = useQueryState("to", {
     defaultValue: today,
   });
+  const [granularity, setGranularity] = useQueryState("granularity", {
+    defaultValue: "month",
+  });
   const [loading, setLoading] = useState(false);
 
-  const load = useCallback(async (from: string, to: string) => {
+  const load = useCallback(async (from: string, to: string, gran: string) => {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/admin/analytics/financial?from=${from}&to=${to}`,
+        `/api/admin/analytics/financial?from=${from}&to=${to}&granularity=${gran}`,
       );
       if (!res.ok) throw new Error("Failed");
       setData(await res.json());
@@ -61,7 +67,7 @@ export function FinancialTab() {
   }, []);
 
   useEffect(() => {
-    load(dateFrom, dateTo);
+    load(dateFrom, dateTo, granularity);
   }, []);
 
   const handleExportExcel = () => {
@@ -104,9 +110,28 @@ export function FinancialTab() {
                 className="border rounded px-3 py-1.5 text-sm"
               />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {t("filters.granularity")}
+              </label>
+              <select
+                value={granularity}
+                onChange={(e) => {
+                  setGranularity(e.target.value);
+                  load(dateFrom, dateTo, e.target.value);
+                }}
+                className="border rounded px-3 py-1.5 text-sm"
+              >
+                {GRANULARITY_OPTIONS.map((g) => (
+                  <option key={g} value={g}>
+                    {t(`filters.granularityOptions.${g}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button
               size="sm"
-              onClick={() => load(dateFrom, dateTo)}
+              onClick={() => load(dateFrom, dateTo, granularity)}
               disabled={loading}
             >
               <RefreshCw
@@ -120,7 +145,7 @@ export function FinancialTab() {
               onClick={() => {
                 setDateFrom(defaultFrom);
                 setDateTo(today);
-                load(defaultFrom, today);
+                load(defaultFrom, today, granularity);
               }}
               disabled={loading}
             >
@@ -161,7 +186,7 @@ export function FinancialTab() {
       {!loading && data && (
         <>
           {/* Summary cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <SummaryCard
               label={tf("totalOrders")}
               value={data.summary.totalOrders}
@@ -186,6 +211,15 @@ export function FinancialTab() {
               label={tf("avgOrder")}
               value={fmt(data.summary.avgOrderValue)}
               icon={<BarChart3 className="h-5 w-5" />}
+            />
+            <SummaryCard
+              label={
+                data.summary.profitCoveragePercent < 100
+                  ? `${tf("totalProfit")} (${data.summary.profitCoveragePercent}%)`
+                  : tf("totalProfit")
+              }
+              value={fmtOrUnavailable(data.summary.totalProfit, tf("unavailable"))}
+              icon={<TrendingUp className="h-5 w-5" />}
             />
           </div>
 
@@ -244,13 +278,61 @@ export function FinancialTab() {
             </CardContent>
           </Card>
 
-          {/* Monthly trend table */}
+          {/* By warehouse table */}
           <Card>
             <CardHeader>
-              <CardTitle>{tf("monthly")}</CardTitle>
+              <CardTitle>{tf("byWarehouse")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {data.monthly.length === 0 ? (
+              {data.byWarehouse.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t("noData")}</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 pr-4 font-medium">{tf("warehouse")}</th>
+                        <th className="text-right py-2 pr-4 font-medium">{tf("orders")}</th>
+                        <th className="text-right py-2 pr-4 font-medium">{tf("net")}</th>
+                        <th className="text-right py-2 font-medium">{tf("profit")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.byWarehouse.map((row) => (
+                        <tr key={row.warehouseId} className="border-b last:border-0">
+                          <td className="py-2 pr-4">{row.warehouseName}</td>
+                          <td className="text-right py-2 pr-4">{row.orderCount}</td>
+                          <td className="text-right py-2 pr-4">{fmt(row.totalNet)}</td>
+                          <td className="text-right py-2 font-medium">
+                            {fmtOrUnavailable(row.totalProfit, tf("unavailable"))}
+                            {row.totalProfit != null && row.profitCoveragePercent < 100 && (
+                              <span className="ml-1 text-xs text-muted-foreground">
+                                ({row.profitCoveragePercent}%)
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Trend chart + table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{tf("trend")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <TrendChart
+                rows={data.trend}
+                netLabel={tf("net")}
+                vatLabel={tf("vat")}
+                noDataLabel={t("noData")}
+              />
+              {data.trend.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t("noData")}</p>
               ) : (
                 <div className="overflow-x-auto">
@@ -258,7 +340,7 @@ export function FinancialTab() {
                     <thead>
                       <tr className="border-b">
                         <th className="text-left py-2 pr-4 font-medium">
-                          {tf("month")}
+                          {tf("period")}
                         </th>
                         <th className="text-right py-2 pr-4 font-medium">
                           {tf("orders")}
@@ -275,14 +357,9 @@ export function FinancialTab() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.monthly.map((row) => (
-                        <tr
-                          key={`${row.year}-${row.month}`}
-                          className="border-b last:border-0"
-                        >
-                          <td className="py-2 pr-4 font-mono">
-                            {monthLabel(row.year, row.month)}
-                          </td>
+                      {data.trend.map((row) => (
+                        <tr key={row.period} className="border-b last:border-0">
+                          <td className="py-2 pr-4 font-mono">{row.period}</td>
                           <td className="text-right py-2 pr-4">
                             {row.totalOrders}
                           </td>

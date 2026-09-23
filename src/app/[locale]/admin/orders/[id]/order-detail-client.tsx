@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { toast } from 'sonner';
@@ -13,7 +13,11 @@ import { ORDER_STATUS_OPTIONS } from '@/constants/order';
 import { DELIVERY_STATUS_OPTIONS, DELIVERY_TYPE_OPTIONS, STATUS_COLORS } from '@/constants/delivery';
 import { getPaymentStatusBadgeStyle } from '@/helpers/formatting';
 import type { DeliveryRecord } from '@/types/delivery';
-import type { OrderDetail, OrderNote, Payment } from '@/types/order';
+import type { OrderDetail, OrderLineItem, OrderNote, Payment } from '@/types/order';
+import { generateOrderInvoicePdf } from '@/lib/invoice-pdf';
+
+type WarehouseOption = { id: string; label: string; quantity: number };
+type ItemSearchResult = { itemSlug: string; articleId: string; name: string; warehouses: WarehouseOption[] };
 
 const UA_PAYMENT_METHODS = ['online_card', 'installment', 'bank_transfer', 'cash_on_delivery'] as const;
 const PL_PAYMENT_METHODS = ['przelewy24', 'bank_transfer'] as const;
@@ -60,6 +64,35 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [sendLinkByEmail, setSendLinkByEmail] = useState(false);
+
+  // Line-item warehouse reassignment (force majeure) state
+  const [warehouseEditItemId, setWarehouseEditItemId] = useState<string | null>(null);
+  const [warehouseOptions, setWarehouseOptions] = useState<Record<string, WarehouseOption[]>>({});
+  const [warehouseOptionsLoading, setWarehouseOptionsLoading] = useState(false);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
+  const [warehouseChangeReason, setWarehouseChangeReason] = useState('');
+  const [isSavingWarehouse, setIsSavingWarehouse] = useState(false);
+
+  // Line-item manual price override state
+  const [priceEditItemId, setPriceEditItemId] = useState<string | null>(null);
+  const [priceOverrideInput, setPriceOverrideInput] = useState('');
+  const [priceOverrideReason, setPriceOverrideReason] = useState('');
+  const [isSavingPrice, setIsSavingPrice] = useState(false);
+
+  const [isExportingInvoice, setIsExportingInvoice] = useState(false);
+
+  // Add-item picker state
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [addItemQuery, setAddItemQuery] = useState('');
+  const [addItemResults, setAddItemResults] = useState<ItemSearchResult[]>([]);
+  const [addItemSearching, setAddItemSearching] = useState(false);
+  const [selectedAddItem, setSelectedAddItem] = useState<ItemSearchResult | null>(null);
+  const [addItemWarehouseId, setAddItemWarehouseId] = useState('');
+  const [addItemQuantity, setAddItemQuantity] = useState('1');
+  const [isSavingAddItem, setIsSavingAddItem] = useState(false);
+
+  // Remove-item state
+  const [removingItemId, setRemovingItemId] = useState<string | null>(null);
 
   const router = useRouter();
   const t = useTranslations('adminDashboard.orders.detail');
@@ -246,6 +279,229 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       toast.success(t('discount.copied'));
     } catch {
       toast.error(t('discount.copyError'));
+    }
+  };
+
+  const handleCopyTrackingNumber = async () => {
+    if (!delivery?.trackingNumber) return;
+    try {
+      await navigator.clipboard.writeText(delivery.trackingNumber);
+      toast.success(t('delivery.trackingCopied'));
+    } catch {
+      toast.error(t('discount.copyError'));
+    }
+  };
+
+  const handleOpenWarehouseEdit = async (item: OrderLineItem) => {
+    setWarehouseEditItemId(item.itemId);
+    setPriceEditItemId(null);
+    setSelectedWarehouseId(item.warehouseId);
+    setWarehouseChangeReason('');
+    if (warehouseOptions[item.itemId]) return;
+    setWarehouseOptionsLoading(true);
+    try {
+      // Keyed by itemId (always present), not itemSlug (only present on
+      // orders placed after that field existed) — this works for every
+      // order, including ones placed before this feature shipped.
+      const res = await fetch(`/api/admin/orders/line-item-warehouses?itemId=${item.itemId}`);
+      if (!res.ok) throw new Error('Failed to load warehouses');
+      const data = await res.json();
+      const options: WarehouseOption[] = Array.isArray(data.warehouses) ? data.warehouses : [];
+      setWarehouseOptions((prev) => ({ ...prev, [item.itemId]: options }));
+    } catch {
+      toast.error(t('items.warehouseChange.loadError'));
+    } finally {
+      setWarehouseOptionsLoading(false);
+    }
+  };
+
+  const handleSaveWarehouseChange = async (item: OrderLineItem) => {
+    if (!selectedWarehouseId || isSavingWarehouse) return;
+    setIsSavingWarehouse(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reassignLineItemWarehouse',
+          itemId: item.itemId,
+          warehouseId: item.warehouseId,
+          targetWarehouseId: selectedWarehouseId,
+          reason: warehouseChangeReason.trim() || undefined,
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || t('items.warehouseChange.error'));
+      setOrder((prev) => (prev ? { ...prev, lineItems: d.lineItems } : prev));
+      if (Array.isArray(d.notes)) setNotes(d.notes);
+      (d.warnings ?? []).forEach((w: string) => toast.warning(w));
+      toast.success(t('items.warehouseChange.saved'));
+      setWarehouseEditItemId(null);
+    } catch (err: any) {
+      toast.error(err.message || t('items.warehouseChange.error'));
+    } finally {
+      setIsSavingWarehouse(false);
+    }
+  };
+
+  const handleOpenPriceEdit = (item: OrderLineItem) => {
+    setPriceEditItemId(item.itemId);
+    setWarehouseEditItemId(null);
+    // The input works in the same terms as the Price column: gross
+    // (VAT-included), in the order's payment currency — not the internal
+    // net storage figure.
+    const currentGross = item.unitPriceGrossConverted ?? item.unitPriceNet;
+    setPriceOverrideInput(currentGross != null ? String(currentGross) : '');
+    setPriceOverrideReason('');
+  };
+
+  const handleSavePriceOverride = async (item: OrderLineItem) => {
+    const value = parseFloat(priceOverrideInput.replace(',', '.'));
+    if (!Number.isFinite(value) || value < 0 || !priceOverrideReason.trim() || isSavingPrice) return;
+    setIsSavingPrice(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'setLineItemPrice',
+          itemId: item.itemId,
+          warehouseId: item.warehouseId,
+          unitPriceGross: value,
+          reason: priceOverrideReason.trim(),
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || t('items.priceOverride.error'));
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              lineItems: d.lineItems,
+              totalNet: d.totalNet ?? prev.totalNet,
+              totalVat: d.totalVat ?? prev.totalVat,
+              totalGross: d.totalGross ?? prev.totalGross,
+            }
+          : prev,
+      );
+      if (Array.isArray(d.notes)) setNotes(d.notes);
+      (d.warnings ?? []).forEach((w: string) => toast.warning(w));
+      toast.success(t('items.priceOverride.saved'));
+      setPriceEditItemId(null);
+    } catch (err: any) {
+      toast.error(err.message || t('items.priceOverride.error'));
+    } finally {
+      setIsSavingPrice(false);
+    }
+  };
+
+  const handleExportInvoice = async () => {
+    if (!order || isExportingInvoice) return;
+    setIsExportingInvoice(true);
+    try {
+      await generateOrderInvoicePdf(order, delivery);
+    } catch {
+      toast.error(t('invoice.error'));
+    } finally {
+      setIsExportingInvoice(false);
+    }
+  };
+
+  const handleSearchItems = async () => {
+    const q = addItemQuery.trim();
+    if (q.length < 2 || addItemSearching) return;
+    setAddItemSearching(true);
+    try {
+      const res = await fetch(`/api/admin/orders/item-search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setAddItemResults(Array.isArray(data.results) ? data.results : []);
+    } catch {
+      toast.error(t('items.addItem.searchError'));
+    } finally {
+      setAddItemSearching(false);
+    }
+  };
+
+  const handleSelectAddItem = (result: ItemSearchResult) => {
+    setSelectedAddItem(result);
+    setAddItemWarehouseId(result.warehouses[0]?.id ?? '');
+    setAddItemQuantity('1');
+  };
+
+  const handleConfirmAddItem = async () => {
+    if (!selectedAddItem || !addItemWarehouseId || isSavingAddItem) return;
+    const qty = parseInt(addItemQuantity, 10);
+    if (!Number.isFinite(qty) || qty <= 0) return;
+    setIsSavingAddItem(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'addLineItem',
+          itemSlug: selectedAddItem.itemSlug,
+          warehouseId: addItemWarehouseId,
+          quantity: qty,
+        }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || t('items.addItem.error'));
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              lineItems: d.lineItems,
+              totalNet: d.totalNet ?? prev.totalNet,
+              totalVat: d.totalVat ?? prev.totalVat,
+              totalGross: d.totalGross ?? prev.totalGross,
+            }
+          : prev,
+      );
+      if (Array.isArray(d.notes)) setNotes(d.notes);
+      (d.warnings ?? []).forEach((w: string) => toast.warning(w));
+      toast.success(t('items.addItem.saved'));
+      setShowAddItem(false);
+      setSelectedAddItem(null);
+      setAddItemResults([]);
+      setAddItemQuery('');
+    } catch (err: any) {
+      toast.error(err.message || t('items.addItem.error'));
+    } finally {
+      setIsSavingAddItem(false);
+    }
+  };
+
+  const handleRemoveLineItem = async (item: OrderLineItem) => {
+    if (removingItemId) return;
+    if (!window.confirm(t('items.removeItem.confirm', { name: item.name }))) return;
+    const lineKey = `${item.itemId}-${item.warehouseId}`;
+    setRemovingItemId(lineKey);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'removeLineItem', itemId: item.itemId, warehouseId: item.warehouseId }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || t('items.removeItem.error'));
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              lineItems: d.lineItems,
+              totalNet: d.totalNet ?? prev.totalNet,
+              totalVat: d.totalVat ?? prev.totalVat,
+              totalGross: d.totalGross ?? prev.totalGross,
+            }
+          : prev,
+      );
+      if (Array.isArray(d.notes)) setNotes(d.notes);
+      toast.success(t('items.removeItem.saved'));
+    } catch (err: any) {
+      toast.error(err.message || t('items.removeItem.error'));
+    } finally {
+      setRemovingItemId(null);
     }
   };
 
@@ -537,7 +793,136 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
           </section>
 
           <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900">{t('items.title')}</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">{t('items.title')}</h2>
+              {!showSkeleton && order && (
+                <div className="flex gap-2">
+                  {canUpdate && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddItem((v) => !v);
+                        setSelectedAddItem(null);
+                      }}
+                      className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
+                      {t('items.addItem.button')}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => void handleExportInvoice()}
+                    disabled={isExportingInvoice}
+                    className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-60"
+                  >
+                    {isExportingInvoice ? t('invoice.generating') : t('invoice.exportButton')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {showAddItem && (
+              <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={addItemQuery}
+                    onChange={(e) => setAddItemQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') void handleSearchItems();
+                    }}
+                    placeholder={t('items.addItem.searchPlaceholder')}
+                    className="block w-full rounded-md border-gray-300 shadow-sm text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleSearchItems()}
+                    disabled={addItemQuery.trim().length < 2 || addItemSearching}
+                    className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-60"
+                  >
+                    {addItemSearching ? t('items.addItem.searching') : t('items.addItem.searchButton')}
+                  </button>
+                </div>
+
+                {addItemResults.length > 0 && !selectedAddItem && (
+                  <ul className="mt-3 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white">
+                    {addItemResults.map((result) => (
+                      <li key={result.itemSlug}>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectAddItem(result)}
+                          disabled={result.warehouses.length === 0}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:text-gray-300"
+                        >
+                          <div className="font-medium text-gray-900">{result.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {t('items.article', { id: result.articleId })}
+                            {result.warehouses.length === 0 && ` — ${t('items.addItem.noWarehouses')}`}
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {selectedAddItem && (
+                  <div className="mt-3 flex flex-wrap items-end gap-3 rounded-md border border-gray-200 bg-white p-3">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{selectedAddItem.name}</div>
+                      <div className="text-xs text-gray-500">{t('items.article', { id: selectedAddItem.articleId })}</div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700">
+                        {t('items.warehouseChange.warehouseLabel')}
+                      </label>
+                      <select
+                        value={addItemWarehouseId}
+                        onChange={(e) => setAddItemWarehouseId(e.target.value)}
+                        disabled={isSavingAddItem}
+                        className="mt-1 rounded-md border-gray-300 shadow-sm text-sm"
+                      >
+                        {selectedAddItem.warehouses.map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.label} ({w.quantity})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700">
+                        {t('items.addItem.quantityLabel')}
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        value={addItemQuantity}
+                        onChange={(e) => setAddItemQuantity(e.target.value)}
+                        disabled={isSavingAddItem}
+                        className="mt-1 block w-20 rounded-md border-gray-300 shadow-sm text-sm"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleConfirmAddItem()}
+                      disabled={isSavingAddItem || !addItemWarehouseId}
+                      className="rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {isSavingAddItem ? t('items.addItem.saving') : t('items.addItem.confirm')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAddItem(null)}
+                      disabled={isSavingAddItem}
+                      className="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                    >
+                      {t('items.priceOverride.cancel')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {showSkeleton ? (
               <div className="mt-4 space-y-3">
                 {[...Array(3)].map((_, index) => (
@@ -558,39 +943,200 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                       <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnQuantity')}</th>
                       <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnPrice')}</th>
                       <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnLineTotal')}</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnProfit')}</th>
+                      <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnMargin')}</th>
+                      {canUpdate && (
+                        <th className="px-4 py-2 text-right font-semibold text-gray-600">{t('items.columnActions')}</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {lineItems.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
+                        <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
                           {t('items.empty')}
                         </td>
                       </tr>
                     )}
-                    {lineItems.map((item) => (
-                      <tr key={`${item.itemId}-${item.warehouseId}`}>
-                        <td className="px-4 py-2">
-                          <div className="font-medium text-gray-900">{item.name}</div>
-                          <div className="text-xs text-gray-500">{t('items.article', { id: item.articleId })}</div>
-                        </td>
-                        <td className="px-4 py-2">
-                          <div className="text-gray-900">{item.warehouseName || item.warehouseDisplayedName || '—'}</div>
-                          <div className="text-xs text-gray-500">{item.warehouseCountry || '—'}</div>
-                        </td>
-                        <td className="px-4 py-2 text-right">{item.quantity}</td>
-                        <td className="px-4 py-2 text-right">
-                          {typeof item.unitPriceNet === 'number'
-                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.unitPriceGrossConverted ?? item.unitPriceNet)
-                            : '—'}
-                        </td>
-                        <td className="px-4 py-2 text-right">
-                          {typeof item.lineTotalGrossConverted === 'number'
-                            ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.lineTotalGrossConverted)
-                            : '—'}
-                        </td>
-                      </tr>
-                    ))}
+                    {lineItems.map((item) => {
+                      const hasProfit = item.lineProfitNetConverted != null;
+                      const isWarehouseEditOpen = warehouseEditItemId === item.itemId;
+                      const isPriceEditOpen = priceEditItemId === item.itemId;
+                      const options = warehouseOptions[item.itemId];
+                      return (
+                        <Fragment key={`${item.itemId}-${item.warehouseId}`}>
+                          <tr>
+                            <td className="px-4 py-2">
+                              <div className="font-medium text-gray-900">{item.name}</div>
+                              <div className="text-xs text-gray-500">{t('items.article', { id: item.articleId })}</div>
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="text-gray-900">{item.warehouseName || item.warehouseDisplayedName || '—'}</div>
+                              <div className="text-xs text-gray-500">{item.warehouseCountry || '—'}</div>
+                            </td>
+                            <td className="px-4 py-2 text-right">{item.quantity}</td>
+                            <td className="px-4 py-2 text-right">
+                              {typeof item.unitPriceNet === 'number'
+                                ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.unitPriceGrossConverted ?? item.unitPriceNet)
+                                : '—'}
+                            </td>
+                            <td className="px-4 py-2 text-right">
+                              {typeof item.lineTotalGrossConverted === 'number'
+                                ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.lineTotalGrossConverted)
+                                : '—'}
+                            </td>
+                            <td className="px-4 py-2 text-right">
+                              {hasProfit
+                                ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: order?.currency || 'EUR' }).format(item.lineProfitNetConverted as number)
+                                : <span className="text-gray-400">{t('items.unavailable')}</span>}
+                            </td>
+                            <td className="px-4 py-2 text-right">
+                              {hasProfit && item.lineProfitMarginPercent != null
+                                ? `${item.lineProfitMarginPercent.toFixed(1)}%`
+                                : <span className="text-gray-400">{t('items.unavailable')}</span>}
+                            </td>
+                            {canUpdate && (
+                              <td className="px-4 py-2 text-right whitespace-nowrap">
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleOpenWarehouseEdit(item)}
+                                    className="text-xs font-medium text-red-600 hover:text-red-700"
+                                  >
+                                    {t('items.warehouseChange.button')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenPriceEdit(item)}
+                                    className="text-xs font-medium text-red-600 hover:text-red-700"
+                                  >
+                                    {t('items.priceOverride.button')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleRemoveLineItem(item)}
+                                    disabled={removingItemId === `${item.itemId}-${item.warehouseId}`}
+                                    className="text-xs font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:text-gray-300"
+                                  >
+                                    {removingItemId === `${item.itemId}-${item.warehouseId}`
+                                      ? t('items.removeItem.removing')
+                                      : t('items.removeItem.button')}
+                                  </button>
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                          {isWarehouseEditOpen && (
+                            <tr>
+                              <td colSpan={8} className="bg-gray-50 px-4 py-3">
+                                <div className="flex flex-wrap items-end gap-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700">
+                                      {t('items.warehouseChange.warehouseLabel')}
+                                    </label>
+                                    <select
+                                      value={selectedWarehouseId}
+                                      onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                                      disabled={warehouseOptionsLoading || isSavingWarehouse}
+                                      className="mt-1 rounded-md border-gray-300 shadow-sm text-sm"
+                                    >
+                                      {!options && <option value={item.warehouseId}>{item.warehouseDisplayedName || item.warehouseName}</option>}
+                                      {options?.map((opt) => (
+                                        <option key={opt.id} value={opt.id}>
+                                          {opt.label} ({opt.quantity})
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="flex-1 min-w-[180px]">
+                                    <label className="block text-xs font-medium text-gray-700">
+                                      {t('items.warehouseChange.reasonLabel')}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={warehouseChangeReason}
+                                      onChange={(e) => setWarehouseChangeReason(e.target.value)}
+                                      disabled={isSavingWarehouse}
+                                      placeholder={t('items.warehouseChange.reasonPlaceholder')}
+                                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm"
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleSaveWarehouseChange(item)}
+                                    disabled={isSavingWarehouse || warehouseOptionsLoading || !selectedWarehouseId}
+                                    className="rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                                  >
+                                    {isSavingWarehouse ? t('items.warehouseChange.saving') : t('items.warehouseChange.save')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setWarehouseEditItemId(null)}
+                                    disabled={isSavingWarehouse}
+                                    className="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                                  >
+                                    {t('items.priceOverride.cancel')}
+                                  </button>
+                                </div>
+                                <p className="mt-2 text-xs text-gray-500">{t('items.warehouseChange.priceLockedNote')}</p>
+                              </td>
+                            </tr>
+                          )}
+                          {isPriceEditOpen && (
+                            <tr>
+                              <td colSpan={8} className="bg-gray-50 px-4 py-3">
+                                <div className="flex flex-wrap items-end gap-3">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-700">
+                                      {t('items.priceOverride.priceLabel')} ({order?.currency ?? ''})
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min={0}
+                                      step="0.01"
+                                      value={priceOverrideInput}
+                                      onChange={(e) => setPriceOverrideInput(e.target.value)}
+                                      disabled={isSavingPrice}
+                                      className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm text-sm"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-[180px]">
+                                    <label className="block text-xs font-medium text-gray-700">
+                                      {t('items.priceOverride.reasonLabel')}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={priceOverrideReason}
+                                      onChange={(e) => setPriceOverrideReason(e.target.value)}
+                                      disabled={isSavingPrice}
+                                      placeholder={t('items.priceOverride.reasonPlaceholder')}
+                                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm"
+                                      required
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleSavePriceOverride(item)}
+                                    disabled={isSavingPrice || !priceOverrideReason.trim()}
+                                    className="rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
+                                  >
+                                    {isSavingPrice ? t('items.priceOverride.saving') : t('items.priceOverride.save')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPriceEditItemId(null)}
+                                    disabled={isSavingPrice}
+                                    className="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                                  >
+                                    {t('items.priceOverride.cancel')}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -774,9 +1320,18 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   </dd>
                 </div>
                 {delivery.trackingNumber && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <dt className="font-medium">{t('delivery.trackingNumber')}</dt>
-                    <dd className="font-mono">{delivery.trackingNumber}</dd>
+                    <dd className="flex items-center gap-2">
+                      <span className="font-mono">{delivery.trackingNumber}</span>
+                      <button
+                        type="button"
+                        onClick={() => void handleCopyTrackingNumber()}
+                        className="text-xs font-medium text-red-600 hover:text-red-700"
+                      >
+                        {t('discount.copyButton')}
+                      </button>
+                    </dd>
                   </div>
                 )}
                 {delivery.deliveryPrice > 0 && (

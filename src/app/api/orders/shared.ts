@@ -19,6 +19,10 @@ export type OrderLineItem = {
   warehouseName?: string | null;
   warehouseDisplayedName?: string | null;
   warehouseCountry?: string | null;
+  // Catalog slug, needed to re-look-up itemPrice rows for warehouse
+  // reassignment / re-costing. Never exposed to customers (see
+  // mapLineItemForCustomer below).
+  itemSlug?: string | null;
   // Stored financial fields
   originalCurrency?: string | null;
   vatRate?: number | null;
@@ -26,12 +30,23 @@ export type OrderLineItem = {
   basePriceNet?: number | null;
   specialPriceNet?: number | null;
   unitPriceNet?: number | null;
+  // Cost-basis snapshot (admin/analytics only — NEVER sent to customers).
+  // costPriceNet is in the same currency basis as unitPriceNet
+  // (originalCurrency), so it goes through the same exchangeRate as the
+  // selling price when converting to the order's payment currency.
+  costPriceNet?: number | null;
+  costMarginPercent?: number | null;
   // Derived fields (computed in API, not stored in DB)
   unitPriceGrossConverted?: number | null;
   lineTotalNet?: number | null;
   lineTotalNetConverted?: number | null;
   lineVatConverted?: number | null;
   lineTotalGrossConverted?: number | null;
+  // Derived profit fields — null means "unavailable" (missing cost snapshot,
+  // e.g. an order placed before this field existed, or a catalog row with no
+  // initialPrice), never rendered/treated as 0.
+  lineProfitNetConverted?: number | null;
+  lineProfitMarginPercent?: number | null;
 };
 
 export function computeLineItemDerived(item: OrderLineItem): OrderLineItem {
@@ -48,7 +63,63 @@ export function computeLineItemDerived(item: OrderLineItem): OrderLineItem {
   const unitPriceNetConverted = +(unitPriceNet * exchangeRate).toFixed(2);
   const unitVatConverted = +(unitPriceNetConverted * vatRate).toFixed(2);
   const unitPriceGrossConverted = +(unitPriceNetConverted + unitVatConverted).toFixed(2);
-  return { ...item, lineTotalNet, lineTotalNetConverted, lineVatConverted, lineTotalGrossConverted, unitPriceGrossConverted };
+
+  const hasCost = item.costPriceNet != null;
+  const costTotalNetConverted = hasCost
+    ? +((item.costPriceNet as number) * quantity * exchangeRate).toFixed(2)
+    : null;
+  const lineProfitNetConverted = hasCost
+    ? +(lineTotalNetConverted - (costTotalNetConverted as number)).toFixed(2)
+    : null;
+  const lineProfitMarginPercent =
+    hasCost && lineTotalNetConverted > 0
+      ? +(((lineProfitNetConverted as number) / lineTotalNetConverted) * 100).toFixed(2)
+      : null;
+
+  return {
+    ...item,
+    lineTotalNet,
+    lineTotalNetConverted,
+    lineVatConverted,
+    lineTotalGrossConverted,
+    unitPriceGrossConverted,
+    lineProfitNetConverted,
+    lineProfitMarginPercent,
+  };
+}
+
+// Fields safe to return to the customer who owns the order. Deliberately
+// excludes itemSlug/costPriceNet/costMarginPercent/lineProfit* — cost and
+// profit data must never leave the admin/employee-only API surface.
+const CUSTOMER_SAFE_LINE_ITEM_FIELDS = [
+  'itemId',
+  'articleId',
+  'name',
+  'quantity',
+  'warehouseId',
+  'warehouseName',
+  'warehouseDisplayedName',
+  'warehouseCountry',
+  'originalCurrency',
+  'vatRate',
+  'exchangeRate',
+  'basePriceNet',
+  'specialPriceNet',
+  'unitPriceNet',
+  'unitPriceGrossConverted',
+  'lineTotalNet',
+  'lineTotalNetConverted',
+  'lineVatConverted',
+  'lineTotalGrossConverted',
+] as const;
+
+export function mapLineItemForCustomer(item: OrderLineItem): Partial<OrderLineItem> {
+  const derived = computeLineItemDerived(item);
+  const safe: Record<string, unknown> = {};
+  for (const key of CUSTOMER_SAFE_LINE_ITEM_FIELDS) {
+    safe[key] = (derived as any)[key];
+  }
+  return safe as Partial<OrderLineItem>;
 }
 
 export const parseStoredLineItems = (value: unknown): OrderLineItem[] => {
@@ -73,8 +144,147 @@ export function mapOrderForUser(order: any) {
     delivery: order.delivery ?? null,
     payment: order.payment ?? null,
     lineItems: Array.isArray(order.lineItems)
-      ? (order.lineItems as OrderLineItem[]).map(computeLineItemDerived)
+      ? (order.lineItems as OrderLineItem[]).map(mapLineItemForCustomer)
       : [],
+  };
+}
+
+// Resolves a currency conversion rate using the currency_exchange table
+// (all rates are quoted against EUR as the base). Shared by checkout and by
+// the admin order-editing actions (warehouse reassignment / price override)
+// so both paths derive rates identically.
+export async function buildRateResolver(): Promise<(src: string, dst: string) => number> {
+  const allRateRows = await db
+    .select({ from: schema.currencyExchange.from, to: schema.currencyExchange.to, rate: schema.currencyExchange.rate })
+    .from(schema.currencyExchange);
+
+  const rateTable = new Map<string, Map<string, number>>();
+  for (const r of allRateRows) {
+    if (!rateTable.has(r.from)) rateTable.set(r.from, new Map());
+    rateTable.get(r.from)!.set(r.to, r.rate);
+  }
+
+  return (src: string, dst: string): number => {
+    if (src === dst) return 1;
+    const BASE = 'EUR';
+    const srcToBase = src === BASE ? 1 : (rateTable.get(BASE)?.get(src) ?? null);
+    const baseToDs = dst === BASE ? 1 : (rateTable.get(BASE)?.get(dst) ?? null);
+    if (srcToBase != null && baseToDs != null && srcToBase !== 0) {
+      return (1 / srcToBase) * baseToDs;
+    }
+    const direct = rateTable.get(src)?.get(dst);
+    if (direct != null) return direct;
+    const dstToSrc = rateTable.get(dst)?.get(src);
+    if (dstToSrc != null && dstToSrc !== 0) return 1 / dstToSrc;
+    return 1;
+  };
+}
+
+export type RefreshLineItemCostResult =
+  | { ok: true; item: OrderLineItem; warning?: string }
+  | { ok: false; reason: 'not_found' };
+
+// Re-derives a line item's cost snapshot (and, when targetWarehouseId is
+// given and differs from the current one, its warehouse identity/display
+// fields) from the CURRENT itemPrice catalog row — used by admin order
+// editing (warehouse reassignment, price override) where profit must always
+// reflect live cost data, unlike the selling price which stays frozen.
+// Returns { ok: false, reason: 'not_found' } when the target warehouse has
+// no itemPrice row at all for this item (can't be priced/costed there) —
+// callers should block the edit in that case.
+export async function refreshLineItemCost(
+  item: OrderLineItem,
+  targetWarehouseId?: string,
+  resolveRate?: (src: string, dst: string) => number,
+): Promise<RefreshLineItemCostResult> {
+  // Orders placed before the itemSlug field existed don't carry it on the
+  // line item — fall back to resolving it from itemId (always present,
+  // since it's the item table's own primary key), so warehouse reassignment
+  // and price overrides work on every order, not just ones created after
+  // that field was added. The resolved slug is written back below so the
+  // order self-heals the first time it's edited.
+  let itemSlug = item.itemSlug ?? null;
+  if (!itemSlug) {
+    const [itemRow] = await db
+      .select({ slug: schema.item.slug })
+      .from(schema.item)
+      .where(eq(schema.item.id, item.itemId))
+      .limit(1);
+    itemSlug = itemRow?.slug ?? null;
+  }
+  if (!itemSlug) {
+    return { ok: false, reason: 'not_found' };
+  }
+  const warehouseId = targetWarehouseId ?? item.warehouseId;
+
+  const [row] = await db
+    .select({
+      quantity: schema.itemPrice.quantity,
+      margin: schema.itemPrice.margin,
+      initialPrice: schema.itemPrice.initialPrice,
+      initialCurrency: schema.itemPrice.initialCurrency,
+      warehouse: schema.warehouse,
+    })
+    .from(schema.itemPrice)
+    .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+    .where(and(eq(schema.itemPrice.itemSlug, itemSlug), eq(schema.itemPrice.warehouseId, warehouseId)))
+    .limit(1);
+
+  if (!row || !row.warehouse) {
+    return { ok: false, reason: 'not_found' };
+  }
+
+  const resolve = resolveRate ?? (await buildRateResolver());
+  // costPriceNet must stay in the same currency basis as unitPriceNet
+  // (item.originalCurrency) so computeLineItemDerived's exchangeRate applies
+  // to it identically — the selling-price basis never changes on a
+  // warehouse swap, only which catalog row backs the cost figure.
+  const targetCurrency = item.originalCurrency ?? row.initialCurrency ?? null;
+  const costPriceNet =
+    row.initialPrice != null
+      ? +(
+          row.initialCurrency && targetCurrency && row.initialCurrency !== targetCurrency
+            ? row.initialPrice * resolve(row.initialCurrency, targetCurrency)
+            : row.initialPrice
+        ).toFixed(6)
+      : null;
+
+  const updated: OrderLineItem = {
+    ...item,
+    itemSlug,
+    warehouseId: row.warehouse.id,
+    warehouseName: row.warehouse.name ?? row.warehouse.displayedName ?? item.warehouseName ?? null,
+    warehouseDisplayedName: row.warehouse.displayedName ?? item.warehouseDisplayedName ?? null,
+    warehouseCountry: row.warehouse.countrySlug ?? item.warehouseCountry ?? null,
+    costPriceNet,
+    costMarginPercent: row.margin ?? null,
+  };
+
+  const warning = row.quantity === 0 ? 'Target warehouse has zero stock for this item.' : undefined;
+  return { ok: true, item: updated, warning };
+}
+
+// Sums totals across all lines the same way checkout does, for use after an
+// admin edits a line item's price (warehouse reassignment never changes
+// selling-price fields, so it never needs this).
+export function recomputeOrderTotalsFromLineItems(lineItems: OrderLineItem[]): {
+  totalNet: number;
+  totalVat: number;
+  totalGross: number;
+} {
+  let totalNet = 0;
+  let totalVat = 0;
+  let totalGross = 0;
+  for (const li of lineItems) {
+    const derived = computeLineItemDerived(li);
+    totalNet += derived.lineTotalNetConverted ?? 0;
+    totalVat += derived.lineVatConverted ?? 0;
+    totalGross += derived.lineTotalGrossConverted ?? 0;
+  }
+  return {
+    totalNet: +totalNet.toFixed(2),
+    totalVat: +totalVat.toFixed(2),
+    totalGross: +totalGross.toFixed(2),
   };
 }
 
@@ -141,6 +351,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
               promoStartDate: schema.itemPrice.promoStartDate,
               promoEndDate: schema.itemPrice.promoEndDate,
               margin: schema.itemPrice.margin,
+              initialPrice: schema.itemPrice.initialPrice,
               initialCurrency: schema.itemPrice.initialCurrency,
               warehouse: schema.warehouse,
             })
@@ -165,30 +376,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     })
   );
 
-  const allRateRows = await db
-    .select({ from: schema.currencyExchange.from, to: schema.currencyExchange.to, rate: schema.currencyExchange.rate })
-    .from(schema.currencyExchange);
-
-  const rateTable = new Map<string, Map<string, number>>();
-  for (const r of allRateRows) {
-    if (!rateTable.has(r.from)) rateTable.set(r.from, new Map());
-    rateTable.get(r.from)!.set(r.to, r.rate);
-  }
-
-  const resolveRate = (src: string, dst: string): number => {
-    if (src === dst) return 1;
-    const BASE = 'EUR';
-    const srcToBase = src === BASE ? 1 : (rateTable.get(BASE)?.get(src) ?? null);
-    const baseToDs = dst === BASE ? 1 : (rateTable.get(BASE)?.get(dst) ?? null);
-    if (srcToBase != null && baseToDs != null && srcToBase !== 0) {
-      return (1 / srcToBase) * baseToDs;
-    }
-    const direct = rateTable.get(src)?.get(dst);
-    if (direct != null) return direct;
-    const dstToSrc = rateTable.get(dst)?.get(src);
-    if (dstToSrc != null && dstToSrc !== 0) return 1 / dstToSrc;
-    return 1;
-  };
+  const resolveRate = await buildRateResolver();
 
   const [domainVatRow] = await db
     .select({ vatPercentage: schema.warehouseCountries.vatPercentage })
@@ -243,6 +431,20 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     const exchangeRate = originalCurrency ? resolveRate(originalCurrency, orderCurrency) : 1;
     const vatRate = domainVatRate;
     const basePriceNet = itemPrice.price;
+
+    // Cost-of-goods snapshot, frozen at order time (admin/analytics only —
+    // stripped from every customer-facing response by mapLineItemForCustomer).
+    const costInitialPrice = (itemPrice as any).initialPrice ?? null;
+    const costInitialCurrency = (itemPrice as any).initialCurrency ?? null;
+    const costPriceNet =
+      costInitialPrice != null
+        ? +(
+            costInitialCurrency && costInitialCurrency !== originalCurrency
+              ? costInitialPrice * resolveRate(costInitialCurrency, originalCurrency)
+              : costInitialPrice
+          ).toFixed(6)
+        : null;
+    const costMarginPercent = itemPrice.margin ?? null;
     const specialPriceNet =
       itemPrice.promotionPrice != null &&
       isPromoActive(itemPrice.promoStartDate, itemPrice.promoEndDate)
@@ -259,6 +461,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
     orderLineItems.push({
       itemId: dbItem.id,
       articleId: cartArticleId,
+      itemSlug: dbItem.slug,
       name:
         cartItem.name ||
         dbItem.itemDetails?.[0]?.itemName ||
@@ -275,6 +478,8 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       basePriceNet,
       specialPriceNet,
       unitPriceNet,
+      costPriceNet,
+      costMarginPercent,
     });
   }
 
@@ -465,7 +670,7 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       totalVat: order.totalVat,
       totalGross: order.totalGross,
       lineItems: Array.isArray(order.lineItems)
-        ? (order.lineItems as any[]).map(computeLineItemDerived)
+        ? (order.lineItems as OrderLineItem[]).map(mapLineItemForCustomer)
         : order.lineItems,
       createdAt: order.createdAt
     }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { mapOrderForUser, computeLineItemDerived, orderHandler } from './shared';
+import { mapOrderForUser, orderHandler } from './shared';
 import { eq, desc, inArray, and } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
@@ -282,7 +282,7 @@ async function priceRequestHandler(body: any, userId: string, host: string | nul
 
   return NextResponse.json({
     success: true,
-    order: order,
+    order: mapOrderForUser(order),
     orderId: order.id,
     message: isPriceRequest ? 'Price request submitted successfully' : 'Order created successfully'
   });
