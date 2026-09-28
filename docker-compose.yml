@@ -70,9 +70,12 @@ services:
       # Gemini (linked-items generation script)
       GEMINI_API_KEY: ${GEMINI_API_KEY}
 
-      # GA4 Measurement Protocol (server-side purchase event, UA domain only)
+      # GA4 Measurement Protocol (server-side purchase fallback, one property
+      # per domain: UA = LiqPay, PL = Przelewy24)
       GA4_MEASUREMENT_ID_UA: ${GA4_MEASUREMENT_ID_UA}
       GA4_API_SECRET_UA: ${GA4_API_SECRET_UA}
+      GA4_MEASUREMENT_ID_PL: ${GA4_MEASUREMENT_ID_PL}
+      GA4_API_SECRET_PL: ${GA4_API_SECRET_PL}
       GA4_MP_DEBUG: ${GA4_MP_DEBUG:-false}
 
       # Multi-domain

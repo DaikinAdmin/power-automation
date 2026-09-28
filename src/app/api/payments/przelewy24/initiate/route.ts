@@ -48,7 +48,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { orderId } = body;
+    // gaClientId is read from the _ga cookie client-side before the redirect —
+    // without it the offline conversion sweep can't attribute a server-side
+    // purchase event to the buyer's GA4 visitor (see src/lib/ga4-conversion-sweep.ts).
+    const { orderId, gaClientId } = body;
 
     if (!orderId) {
       throw new BadRequestError('Missing required field: orderId');
@@ -187,6 +190,10 @@ export async function POST(request: NextRequest) {
         amount: amountInGrosze,
         currency: 'PLN',
         status: 'INITIATED',
+        // Live value from the current browser wins; otherwise fall back to what
+        // was captured on the order at creation time (see src/app/api/orders/shared.ts) —
+        // needed for payments created with no browser present (admin-generated links).
+        gaClientId: gaClientId || order.gaClientId || null,
         p24Email: user.email,
         p24OrderId: orderId,
         description: `Order #${orderId}`,

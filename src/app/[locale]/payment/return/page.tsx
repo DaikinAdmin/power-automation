@@ -47,13 +47,17 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
   }, [orderId]);
 
   // Claims the right to report the GA4 purchase conversion for this order
-  // (atomic on the server — see /api/payments/liqpay/claim-conversion). If we
-  // win the race, push a live client-side purchase event; if the payment was
+  // (atomic on the server — see /api/payments/claim-conversion). If we win
+  // the race, push a live client-side purchase event; if the payment was
   // already claimed (e.g. the offline sweep got there first), this no-ops.
+  //
+  // Runs for every online-gateway provider (LiqPay on UA, Przelewy24 on PL) —
+  // neither fires `purchase` at checkout any more, so this (or the sweep) is
+  // the only place a paid order becomes a conversion.
   const claimConversion = async () => {
     if (!orderId) return;
     try {
-      const res = await fetch('/api/payments/liqpay/claim-conversion', {
+      const res = await fetch('/api/payments/claim-conversion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, token: isGuestFlow ? token : undefined }),
@@ -69,7 +73,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
             transaction_id: data.purchase.transactionId,
             value: data.purchase.value,
             currency: data.purchase.currency,
-            shipping: 0,
+            shipping: data.purchase.shipping ?? 0,
             items: data.purchase.items,
           },
         });
@@ -129,11 +133,7 @@ export default function PaymentReturnPage({ params, searchParams }: PaymentRetur
 
       if (resolvedPaymentStatus === 'COMPLETED' || resolvedOrderStatus === 'PROCESSING' || resolvedOrderStatus === 'COMPLETED') {
         setPaymentStatus('success');
-        // Przelewy24 already fires its purchase event at checkout — only
-        // LiqPay orders go through the deferred claim/sweep conversion flow.
-        if (provider !== 'przelewy24') {
-          claimConversion();
-        }
+        claimConversion();
       } else if (resolvedPaymentStatus === 'FAILED') {
         setPaymentStatus('failed');
       } else if (attempt < MAX_RETRIES) {

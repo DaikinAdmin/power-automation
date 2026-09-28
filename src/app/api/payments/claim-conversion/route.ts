@@ -1,16 +1,20 @@
 /**
- * POST /api/payments/liqpay/claim-conversion
+ * POST /api/payments/claim-conversion
  *
- * Called by /payment/return once it observes a COMPLETED payment. Atomically
- * "claims" the right to report the GA4 purchase conversion for this payment —
- * if this call wins the race (payment.conversionSentAt was still NULL), the
- * caller is expected to push a live client-side `purchase` event to
- * dataLayer using the returned data.
+ * Provider-agnostic: serves LiqPay (UA domain) and Przelewy24 (PL domain)
+ * alike. Called by /payment/return once it observes a COMPLETED payment.
+ * Atomically "claims" the right to report the GA4 purchase conversion for
+ * this payment — if this call wins the race (payment.conversionSentAt was
+ * still NULL), the caller is expected to push a live client-side `purchase`
+ * event to dataLayer using the returned data.
+ *
+ * The browser is by definition on the right domain, so its dataLayer push
+ * lands in that domain's own GTM container with no extra routing needed.
  *
  * If the buyer never returns to claim it, src/lib/ga4-conversion-sweep.ts
  * eventually claims it instead and reports the conversion server-side via
- * the GA4 Measurement Protocol. Either way the conversion fires exactly once
- * — see docs/LIQPAY_INTEGRATION.md.
+ * the GA4 Measurement Protocol, into that payment's domain property. Either
+ * way the conversion fires exactly once — see docs/LIQPAY_INTEGRATION.md.
  *
  * Body: { orderId: string, token?: string }
  *   `token` is the guest-flow HMAC token (present for unauthenticated quick orders).
@@ -30,7 +34,7 @@ import { getOrderPayableAmount } from '@/lib/liqpay';
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIp(request);
-    const rl = checkRateLimit(`liqpay-claim-conversion:${ip}`, 20, 60_000);
+    const rl = checkRateLimit(`claim-conversion:${ip}`, 20, 60_000);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'Too many requests' },
@@ -69,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ------------------------------------------------------------------
-    // Find the completed LiqPay payment for this order
+    // Find the completed payment for this order (any provider)
     // ------------------------------------------------------------------
     const [payment] = await db
       .select()
@@ -107,12 +111,22 @@ export async function POST(request: NextRequest) {
 
     const lineItems = parseStoredLineItems(order.lineItems).map(computeLineItemDerived);
 
+    // The delivery charge isn't stored on its own column — it's whatever
+    // totalGross carries on top of the line items' net + VAT (see
+    // computeTotals in src/app/api/orders/shared.ts). It's already inside
+    // `value`; reporting it separately is what GA4 expects.
+    const shipping = +Math.max(
+      0,
+      order.totalGross - order.totalNet - order.totalVat,
+    ).toFixed(2);
+
     return NextResponse.json({
       claimed: true,
       purchase: {
         transactionId: claimed.transactionId || claimed.id,
         value: getOrderPayableAmount(order),
         currency: order.currency,
+        shipping,
         items: lineItems.map((li) => ({
           item_id: li.articleId,
           item_name: li.name || li.articleId,
@@ -123,7 +137,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return apiErrorHandler(error, request, {
-      endpoint: 'POST /api/payments/liqpay/claim-conversion',
+      endpoint: 'POST /api/payments/claim-conversion',
     });
   }
 }

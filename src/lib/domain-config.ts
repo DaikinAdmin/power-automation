@@ -8,6 +8,7 @@
  *  - контактні дані
  *  - платіжні системи
  *  - Google Tag Manager ID
+ *  - GA4 Measurement Protocol (серверні purchase-події)
  *  - базовий URL
  */
 
@@ -22,6 +23,19 @@ export interface DomainContacts {
   email: string;
   contactPerson?: string;
   contactRole?: string;
+}
+
+export interface DomainGa4Config {
+  /** GA4 Measurement ID (G-XXXXXXX) — свій для кожного домену */
+  measurementId: string;
+  /** GA4 API secret для Measurement Protocol */
+  apiSecret: string;
+  /**
+   * GA4 не дає перевизначити вбудований Geo/Country через Measurement
+   * Protocol — країна визначається за IP нашого сервера, а не покупця.
+   * Тому кладемо країну домену в кастомний параметр для звітів.
+   */
+  conversionCountry: string;
 }
 
 export interface DomainConfig {
@@ -39,8 +53,25 @@ export interface DomainConfig {
   indexedLocales: string[];
   /** Платіжні системи: 'liqpay' | 'przelewy24' */
   paymentProviders: string[];
+  /**
+   * Способи оплати, що проходять через онлайн-шлюз. Для них `purchase`
+   * НЕ надсилається на чекауті — конверсія відкладається до фактичного
+   * підтвердження оплати (див. /api/payments/claim-conversion).
+   * Усі інші способи вважаються офлайновими: на чекауті одразу
+   * надсилається `order_confirm_offline`.
+   */
+  onlinePaymentMethods: string[];
+  /**
+   * Способи оплати поза шлюзом (переказ, оплата при отриманні). Підтверджувати
+   * нічого не треба, тож на чекауті одразу надсилається `order_confirm_offline`.
+   * Список явний (а не «все, що не онлайн»), щоб подія не надсилалась на
+   * замовленнях, де спосіб оплати ще не обрано.
+   */
+  offlinePaymentMethods: string[];
   /** GTM Container ID */
   gtmId: string;
+  /** GA4 Measurement Protocol — серверний фолбек для purchase-конверсій */
+  ga4: DomainGa4Config;
   /** Включити Binotel віджети */
   binotelEnabled: boolean;
   /** Контактна інформація */
@@ -62,7 +93,14 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['ua', 'en', 'es', 'pl'],
     indexedLocales: ['ua'],
     paymentProviders: ['liqpay', 'liqpay_installments'],
+    onlinePaymentMethods: ['online_card', 'installment'],
+    offlinePaymentMethods: ['bank_transfer', 'cash_on_delivery'],
     gtmId: process.env.APP_GTM_ID_UA ?? '',
+    ga4: {
+      measurementId: process.env.GA4_MEASUREMENT_ID_UA ?? '',
+      apiSecret: process.env.GA4_API_SECRET_UA ?? '',
+      conversionCountry: 'Ukraine',
+    },
     binotelEnabled: true,
     contacts: {
       address: ['Україна, м. Житомир, вул. Київська 77, оф.605'], // TODO: уточнити адресу
@@ -81,7 +119,14 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     availableLocales: ['pl', 'en', 'es', 'ua'],
     indexedLocales: ['pl'],
     paymentProviders: ['przelewy24'],
+    onlinePaymentMethods: ['przelewy24'],
+    offlinePaymentMethods: ['bank_transfer'],
     gtmId: process.env.APP_GTM_ID_PL ?? '',
+    ga4: {
+      measurementId: process.env.GA4_MEASUREMENT_ID_PL ?? '',
+      apiSecret: process.env.GA4_API_SECRET_PL ?? '',
+      conversionCountry: 'Poland',
+    },
     binotelEnabled: true,
     contacts: {
       address: ['Tyniecka 2, 52-407', 'Wrocław, Polska'],
@@ -155,6 +200,34 @@ export function getDomainKeyByHost(host: string | null | undefined): DomainKey {
  */
 export function getDomainConfigByKey(key: DomainKey): DomainConfig {
   return DOMAIN_CONFIGS[key] ?? DOMAIN_CONFIGS.pl;
+}
+
+/**
+ * Онлайн-шлюз (`payment.metadata.provider`) → домен. Використовується на
+ * сервері (sweep), де немає ні Host-заголовка, ні браузера, але треба знати,
+ * у яку GA4-property репортувати конверсію.
+ */
+const GATEWAY_DOMAIN: Record<string, DomainKey> = {
+  liqpay: 'ua',
+  przelewy24: 'pl',
+};
+
+/**
+ * Домен платежу, якщо він пройшов через онлайн-шлюз, інакше `null`.
+ *
+ * Тільки такі платежі мають відкладену `purchase`-конверсію. Рядки без
+ * `provider` (наприклад, рахунок-фактура, яку адмін позначив оплаченою)
+ * навмисно повертають `null`: за специфікацією оплата поза шлюзом уже
+ * відрепортована як `order_confirm_offline` на чекауті, тож надсилати по ній
+ * ще й `purchase` означало б подвійний облік. Домен НЕ вгадується за
+ * валютою — краще не відправити конверсію, ніж відправити її в чужий тег.
+ */
+export function getOnlineGatewayDomainKey(payment: { metadata?: unknown }): DomainKey | null {
+  const provider = (payment.metadata as { provider?: unknown } | null)?.provider;
+  if (typeof provider === 'string' && GATEWAY_DOMAIN[provider]) {
+    return GATEWAY_DOMAIN[provider];
+  }
+  return null;
 }
 
 /**

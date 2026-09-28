@@ -227,9 +227,27 @@ import {
 
 ## Conversion Tracking (GA4)
 
-Online LiqPay payments (`card` / `installment`) are only confirmed asynchronously,
-so the `purchase` conversion is **not** fired from the checkout page — that would
-count failed/abandoned payments (declined card, closed LiqPay tab, etc.) as sales.
+**This algorithm is not LiqPay-specific — both domains use it**, with the same
+code paths and only the payment-method names differing:
+
+| Domain | Online gateway (deferred `purchase`) | Outside a gateway (immediate `order_confirm_offline`) |
+|---|---|---|
+| `ua` (powerautomation.com.ua) | `online_card`, `installment` → LiqPay | `bank_transfer`, `cash_on_delivery` |
+| `pl` (powerautomation.pl) | `przelewy24` | `bank_transfer` |
+
+The classification lives in `onlinePaymentMethods` / `offlinePaymentMethods` in
+`src/lib/domain-config.ts`, so checkout never hardcodes a method name. Each
+domain reports into **its own GA4 property** (`ga4.measurementId` in the same
+config) — a UA payment can never land in the PL property or vice versa.
+
+> Note: everything payment-related keys off the **domain**, never the locale.
+> The UA domain also serves `en`/`es`/`pl` locales, so gating on locale
+> previously dropped the delivery payload and fired a `purchase` for orders
+> that were never paid.
+
+Online gateway payments are only confirmed asynchronously, so the `purchase`
+conversion is **not** fired from the checkout page — that would count
+failed/abandoned payments (declined card, closed gateway tab, etc.) as sales.
 Instead, the buyer's browser gets first shot at a *live* client-side hit (better
 attribution — real session, referrer, device); if they never come back, a
 background sweep reports the conversion server-side instead. Either way it
@@ -272,9 +290,10 @@ the same webhook, or the buyer refreshing `/payment/return`.
 
 | File | Purpose |
 |---|---|
-| `src/lib/ga4-measurement-protocol.ts` | GA4 Measurement Protocol client (`sendGA4PurchaseEvent`), used only by the sweep |
+| `src/lib/ga4-measurement-protocol.ts` | GA4 Measurement Protocol client (`sendGA4PurchaseEvent`), used only by the sweep; resolves the target property from the payment's domain |
+| `src/lib/domain-config.ts` | Per-domain GA4 property + online/offline payment-method classification |
 | `src/app/api/payments/liqpay/callback/route.ts` | Marks payment COMPLETED — does **not** fire the conversion |
-| `src/app/api/payments/liqpay/claim-conversion/route.ts` | Browser-triggered claim; returns purchase data for a live client-side push |
+| `src/app/api/payments/claim-conversion/route.ts` | Browser-triggered claim; returns purchase data for a live client-side push |
 | `src/app/[locale]/payment/return/page.tsx` | Calls claim-conversion on success, pushes `dataLayer` purchase if it won the claim |
 | `src/lib/ga4-conversion-sweep.ts` | Offline fallback — claims + sends MP for payments unclaimed after the grace period |
 | `src/instrumentation.ts` | Starts the sweep on server boot (runs every 5 min) |
@@ -328,18 +347,30 @@ Step by step:
 **Geo:** GA4's built-in Geo/Country dimension is derived from the IP of the
 request that hits `/mp/collect` — since that request comes from *our* server,
 not the buyer's browser, it can't be overridden and will show the server's
-location. Every event sent by `sendGA4PurchaseEvent` includes a hardcoded
-`offline_conversion_country: "Ukraine"` event parameter as a workaround (LiqPay
-is UA-only). To use it in reports, register it once in **GA4 Admin -> Custom
+location. Every event sent by `sendGA4PurchaseEvent` includes an
+`offline_conversion_country` event parameter as a workaround, taken from the
+payment's domain (`ga4.conversionCountry` — `Ukraine` / `Poland`). To use it in
+reports, register it once **in each property**: **GA4 Admin -> Custom
 definitions -> Create custom dimension** (scope: Event, parameter name
 `offline_conversion_country`) — then it's available in Explorations/reports
 alongside (but separate from) the built-in Country dimension.
 
-Przelewy24 (PL domain) is unaffected — it still fires the GTM `purchase`
-event immediately at order creation, since there's no separate async "paid"
-confirmation step for it.
+### Which event fires when
 
-`bank_transfer` / `cash_on_delivery` (UA domain) never fire `purchase` at
-all — actual payment is never confirmed in the system for these, so checkout
-only fires `order_confirm_offline` and no GA4 purchase conversion is ever
-sent for them.
+`order_confirm_offline` covers orders paid outside a gateway (`bank_transfer`
+on both domains, plus `cash_on_delivery` on UA). Payment is never confirmed in
+the system for these, so it fires **immediately at checkout** and no GA4
+`purchase` is ever sent for them. It is deliberately a separate event name so
+`purchase` revenue only ever counts money actually collected through a gateway
+— **it needs its own trigger and (if used for Ads) its own conversion action in
+each GTM container.**
+
+An order created with no payment method selected yet (the `/payment` fallback
+route) fires neither event — its conversion is reported later, through the
+normal gateway flow, if and when it gets paid.
+
+The sweep only sends `purchase` for payments whose `metadata.provider` is a
+known gateway (`liqpay` / `przelewy24`). Other payment rows — e.g. an invoice
+an admin marked paid — are claimed and skipped, since their order already
+reported `order_confirm_offline` at checkout and a `purchase` on top would
+double-count.

@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
 
       // Note: the GA4 purchase conversion is deliberately NOT sent from here.
       // It's claimed either by the buyer's browser (see
-      // /api/payments/liqpay/claim-conversion, called from /payment/return)
+      // /api/payments/claim-conversion, called from /payment/return)
       // or, if they never return, by the periodic sweep in
       // src/lib/ga4-conversion-sweep.ts. See docs/LIQPAY_INTEGRATION.md.
 

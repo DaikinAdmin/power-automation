@@ -56,10 +56,15 @@ export default function CheckoutPage({
   const domainConfig = useDomainConfig();
   const { contacts } = domainConfig;
   const router = useRouter();
+  // Everything payment/delivery-related keys off the DOMAIN, never the locale:
+  // the UA domain also serves en/es/pl locales, and gating on `locale` there
+  // silently dropped the Nova Poshta payload, skipped the LiqPay redirect and
+  // fired a `purchase` for an order that was never paid.
+  const isUaDomain = domainConfig.key === "ua";
   
   // UA: default to quick order (no registration required); PL: show register/login tabs
-  const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">(locale === "ua" ? "quick" : "register");
-  const [quickOrderMode, setQuickOrderMode] = useState(locale === "ua");
+  const [activeTab, setActiveTab] = useState<"register" | "login" | "quick">(isUaDomain ? "quick" : "register");
+  const [quickOrderMode, setQuickOrderMode] = useState(isUaDomain);
   const [guestInfo, setGuestInfo] = useState({ name: "", email: "", phone: "", countryCode: "+380" });
   const [comment, setComment] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -242,7 +247,7 @@ export default function CheckoutPage({
                   postalCode: deliveryInfo.address.postalCode,
               },
               deliveryId: null,
-              novaPost: locale === "ua" && novaPostState ? {
+              novaPost: isUaDomain && novaPostState ? {
                   method: novaPostState.method,
                   payment: novaPostState.payment,
                   city: novaPostState.city?.name ?? null,
@@ -290,24 +295,33 @@ export default function CheckoutPage({
 
           setOrderSuccess(true);
 
-          // LiqPay online payments (card / installment) are only confirmed
-          // asynchronously via webhook, so the purchase conversion for those is
-          // sent server-side from /api/payments/liqpay/callback once the payment
-          // actually succeeds — firing it here would count failed/abandoned
-          // payments as conversions. See docs/LIQPAY_INTEGRATION.md.
-          const isLiqPayOnlinePayment =
-              locale === "ua" &&
-              (novaPostState?.payment === "online_card" || novaPostState?.payment === "installment");
-          // "order_confirm_offline" is only for ua orders paid outside a payment
-          // gateway (bank transfer / cash on delivery) — every other case (pl
-          // Przelewy24, etc.) keeps firing the standard "purchase" event that
-          // /payment/return relies on for the LiqPay claim/sweep flow.
-          const isUaOfflinePayment =
-              locale === "ua" &&
-              (novaPostState?.payment === "bank_transfer" || novaPostState?.payment === "cash_on_delivery");
+          // ----------------------------------------------------------------
+          // Conversion event — identical shape on both domains, only the
+          // payment-method names differ (see domain-config).
+          //
+          // Online gateway (UA: LiqPay card/installments, PL: Przelewy24):
+          // NOTHING is pushed here. The payment is not confirmed yet, and
+          // firing now would count every abandoned or failed payment as a
+          // conversion. `purchase` is reported once the gateway confirms it —
+          // from /payment/return via /api/payments/claim-conversion, or, if
+          // the buyer never comes back, server-side by the sweep in
+          // src/lib/ga4-conversion-sweep.ts. Exactly once, either way.
+          //
+          // Paid outside a gateway (bank transfer, cash on delivery): there is
+          // nothing left to confirm, so `order_confirm_offline` fires straight
+          // away. Deliberately a separate event name, so GA4 `purchase`
+          // revenue only ever counts money actually collected through a
+          // gateway — it needs its own trigger in each GTM container.
+          //
+          // An order with no payment method selected yet (the /payment
+          // fallback below) gets neither event.
+          // See docs/LIQPAY_INTEGRATION.md.
+          // ----------------------------------------------------------------
+          const selectedPaymentMethod =
+              (isUaDomain ? novaPostState?.payment : deliveryPolandState?.payment) ?? "";
+          const isOfflinePayment = domainConfig.offlinePaymentMethods.includes(selectedPaymentMethod);
 
-          if (!isLiqPayOnlinePayment) {
-              // GTM purchase event
+          if (isOfflinePayment) {
               const gtmItems = cartItems.map((item) => ({
                   item_id: item.articleId,
                   item_name: item.displayName,
@@ -316,18 +330,26 @@ export default function CheckoutPage({
                   price: convertToCurrency(resolveBaseUnitPrice(item), getItemCurrency(item), domainCurrency as SupportedCurrency),
                   quantity: item.quantity,
               }));
-              const gtmValue = cartItems.reduce((sum, item) => {
-                  return sum + convertToCurrency(resolveBaseUnitPrice(item) * item.quantity, getItemCurrency(item), domainCurrency as SupportedCurrency);
-              }, 0);
+              // value/currency come from the order the server just created, so
+              // this matches what the deferred purchase path reports for a
+              // gateway order (gross, incl. VAT, delivery charge and any
+              // discount) instead of a separate client-side sum that silently
+              // omits the delivery charge.
+              const gtmValue =
+                  typeof result.order?.totalGross === "number"
+                      ? result.order.totalGross
+                      : cartItems.reduce((sum, item) => {
+                            return sum + convertToCurrency(resolveBaseUnitPrice(item) * item.quantity, getItemCurrency(item), domainCurrency as SupportedCurrency);
+                        }, 0);
               const w = window as any;
               w.dataLayer = w.dataLayer || [];
               w.dataLayer.push({ ecommerce: null });
               w.dataLayer.push({
-                  event: isUaOfflinePayment ? "order_confirm_offline" : "purchase",
+                  event: "order_confirm_offline",
                   ecommerce: {
                       transaction_id: result.order.id,
                       value: gtmValue,
-                      currency: domainCurrency,
+                      currency: result.order?.currency ?? domainCurrency,
                       items: gtmItems,
                   },
               });
@@ -348,7 +370,7 @@ export default function CheckoutPage({
           }
           cartItems.forEach((item) => removeFromCart(item.id));
 
-          if (locale === "ua" && novaPostState?.payment) {
+          if (isUaDomain && novaPostState?.payment) {
               const paymentMethod = novaPostState.payment;
               if (paymentMethod === "online_card" || paymentMethod === "installment") {
                   setIsRedirectingToPayment(true);
@@ -381,10 +403,14 @@ export default function CheckoutPage({
               const plPayment = deliveryPolandState.payment;
               if (plPayment === "przelewy24") {
                   setIsRedirectingToPayment(true);
+                  // gaClientId must be read here, while the buyer's browser is
+                  // still on our domain — the offline conversion sweep needs it
+                  // to attribute a server-side purchase event if they never
+                  // make it back from Przelewy24.
                   const payRes = await fetch("/api/payments/przelewy24/initiate", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ orderId: result.order.id }),
+                      body: JSON.stringify({ orderId: result.order.id, gaClientId: getGaClientId() }),
                   });
                   const payData = await payRes.json();
                   if (!payRes.ok) throw new Error(payData.error || "Payment initiation failed");
@@ -407,8 +433,8 @@ export default function CheckoutPage({
     if (!acceptTerms || cartItems.length === 0 || isSubmittingOrder) return true;
     if (!session.data?.user && !quickOrderMode) return true;
     if (quickOrderMode && (!guestInfo.email.trim() || !guestInfo.name.trim())) return true;
-    if (locale === "ua" && (!novaPostState || !novaPostState.isValid)) return true;
-    if (locale === "ua" && novaPostState?.method === "nova_courier") {
+    if (isUaDomain && (!novaPostState || !novaPostState.isValid)) return true;
+    if (isUaDomain && novaPostState?.method === "nova_courier") {
       const { city, street } = deliveryInfo.address;
       if (!city?.trim() || !street?.trim()) return true;
     }
@@ -570,7 +596,7 @@ export default function CheckoutPage({
                   >
                     {t("login")}
                   </button>
-                  {locale === "ua" && (
+                  {isUaDomain && (
                     <button
                       onClick={() => { setActiveTab("quick"); setQuickOrderMode(true); }}
                       className={`flex-1 px-4 py-4 text-sm lg:text-base font-semibold ${activeTab === "quick" ? "bg-white border-b-2 border-red-600 text-red-600" : "bg-gray-50 text-gray-600"}`}
