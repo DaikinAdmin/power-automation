@@ -491,7 +491,8 @@
       "cancel": "Cancelar",
       "successMessage": "Tu solicitud ha sido enviada. Te contactaremos cuando el artículo esté disponible.",
       "errorMessage": "No se pudo enviar la solicitud. Por favor, inténtelo de nuevo.",
-      "deliveryDays": "Entrega estimada: {days} días"
+      "deliveryDays": "Entrega estimada: {days} días",
+      "deliveryNotice": "Debido a los ataques a la infraestructura de Ucrania, los plazos de entrega pueden verse significativamente ampliados. Por favor, confirme los plazos actuales con nuestro gerente."
     },
     "productCatalogCard": {
       "buy": "Comprar",

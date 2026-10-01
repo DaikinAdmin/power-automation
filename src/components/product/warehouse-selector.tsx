@@ -98,6 +98,17 @@ export default function WarehouseSelector({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">{t("title")}</h3>
+      {domainKey === "ua" && (
+        <div
+          className="flex items-start gap-2 rounded-md border-2 border-yellow-400 bg-yellow-50 p-3 animate-pulse"
+          role="alert"
+        >
+          <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600 mt-0.5" />
+          <p className="text-sm font-medium text-yellow-800">
+            {t("deliveryNotice")}
+          </p>
+        </div>
+      )}
 
       <div className="grid gap-3">
         {warehouses.map((warehouse) => (
@@ -116,10 +127,15 @@ export default function WarehouseSelector({
                 <div>
                   <div className="flex items-center gap-2 font-medium">
                     <span>
-                    {t("warehouse")} №{warehouse.displayedName}
+                      {t("warehouse")} №{warehouse.displayedName}
                     </span>
                     {warehouse.warehouseCountry !== "Ukraine" && (
-                      <img src="/eu_flag.svg" alt="EU" draggable="false" className="h-6 w-6" />
+                      <img
+                        src="/eu_flag.svg"
+                        alt="EU"
+                        draggable="false"
+                        className="h-6 w-6"
+                      />
                     )}
                   </div>
                   {(() => {

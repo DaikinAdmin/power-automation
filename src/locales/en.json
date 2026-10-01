@@ -523,7 +523,8 @@
       "cancel": "Cancel",
       "successMessage": "Your request has been submitted! We will contact you when the item becomes available.",
       "errorMessage": "Failed to submit request. Please try again.",
-      "deliveryDays": "Estimated delivery: {days} days"
+      "deliveryDays": "Estimated delivery: {days} days",
+      "deliveryNotice": "Due to the ongoing attacks on Ukraine's infrastructure, delivery times may be significantly extended. Please confirm current delivery estimates with our manager."
     },
     "productCatalogCard": {
       "buy": "Buy",

@@ -530,7 +530,8 @@
       "cancel": "Anuluj",
       "successMessage": "Twoje zapytanie zostało przesłane! Skontaktujemy się gdy produkt będzie dostępny.",
       "errorMessage": "Nie udało się wysłać zapytania. Spróbuj ponownie.",
-      "deliveryDays": "Przybliżony czas dostawy: {days} dni"
+      "deliveryDays": "Przybliżony czas dostawy: {days} dni",
+      "deliveryNotice": "W związku z atakami na infrastrukturę Ukrainy czas dostawy może ulec znacznemu wydłużeniu. Prosimy o potwierdzenie aktualnych terminów dostawy u menedżera."
     },
     "productCatalogCard": {
       "buy": "Kup",
