@@ -16,6 +16,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import { getServerDomainConfig } from "@/lib/server-domain";
 import { getVatBySlug } from "@/helpers/db/vat-queries";
 import CookieConsent from "@/components/cookie-consent";
+import { CONSENT_COOKIE, CONSENT_REVISION } from "@/lib/consent";
 import LoyaltyPopup from "@/components/loyalty-popup";
 import { CatalogDataProvider } from "@/components/catalog-data-context";
 import AdClickTracker from "@/components/ad-click-tracker";
@@ -99,13 +100,16 @@ export default async function LocaleLayout({
               `
                   : `
               try{
-                var c=localStorage.getItem('cookie_consent');
-                var s=c==='accepted'?'granted':'denied';
+                var m=document.cookie.match(/(?:^|;\\s*)${CONSENT_COOKIE}=([^;]*)/);
+                var c=m?JSON.parse(decodeURIComponent(m[1])):null;
+                var cats=c&&c.revision===${CONSENT_REVISION}?c.categories||[]:null;
+                var a=cats&&cats.indexOf('analytics')>-1?'granted':'denied';
+                var d=cats&&cats.indexOf('marketing')>-1?'granted':'denied';
                 gtag('consent','default',{
-                  analytics_storage:s,ad_storage:s,
-                  ad_user_data:s,ad_personalization:s,
+                  analytics_storage:a,ad_storage:d,
+                  ad_user_data:d,ad_personalization:d,
                   functionality_storage:'granted',security_storage:'granted',
-                  wait_for_update:c?0:500
+                  wait_for_update:cats?0:500
                 });
               }catch(e){
                 gtag('consent','default',{

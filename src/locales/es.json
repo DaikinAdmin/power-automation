@@ -628,7 +628,8 @@
       "purchaseDelivery": "Compra y entrega",
       "refunding": "Devoluciones",
       "contacts": "Contactos",
-      "privacyPolicy": "Política de privacidad"
+      "privacyPolicy": "Política de privacidad",
+      "cookieSettings": "Configuración de cookies"
     },
     "categories1": {
       "electronics": "Electrónica",
@@ -667,15 +668,40 @@
     "itemNotFound": "Artículo {articleId} no encontrado"
   },
   "cookieConsent": {
-    "title": "Usamos cookies",
-    "description": "Usamos cookies para mejorar su experiencia en nuestro sitio, analizar el tráfico y personalizar el contenido. Puede aceptar todas las cookies o gestionar sus preferencias.",
-    "accept": "Aceptar",
-    "decline": "Rechazar",
-    "learnMore": "Más información"
+    "title": "Respetamos tu privacidad",
+    "description": "Utilizamos cookies y tecnologías similares para que la tienda funcione correctamente y, con tu consentimiento, para analizar el tráfico (Google Analytics), grabar sesiones para mejorar el sitio (Microsoft Clarity) y medir la eficacia de los anuncios (Google Ads). Haz clic en «Aceptar todas» o elige las categorías en «Personalizar». Puedes cambiar tu elección en cualquier momento en el pie de página («Configuración de cookies»).",
+    "acceptAll": "Aceptar todas",
+    "customize": "Personalizar",
+    "privacyPolicy": "Política de privacidad",
+    "preferences": {
+      "title": "Configuración de cookies",
+      "save": "Guardar selección",
+      "close": "Cerrar",
+      "intro": {
+        "title": "Cómo usamos las cookies",
+        "description": "Las cookies necesarias están siempre activas: sin ellas la tienda no funciona. Las demás categorías están desactivadas por defecto y solo las activamos con tu consentimiento. Puedes retirarlo en cualquier momento, sin que ello afecte a la licitud del tratamiento previo a su retirada."
+      },
+      "necessary": {
+        "title": "Necesarias",
+        "description": "Inicio de sesión, carrito, selección de idioma y moneda, seguridad de los pagos y recordar tu configuración de cookies. No se pueden desactivar."
+      },
+      "analytics": {
+        "title": "Analíticas",
+        "description": "Google Analytics 4: estadísticas de visitas y fuentes de tráfico (buscadores, anuncios, enlaces de otros sitios). Microsoft Clarity: mapas de calor y grabaciones de sesiones (movimientos del cursor, clics, desplazamiento) que nos ayudan a encontrar y corregir problemas en el sitio. El texto que escribes en los formularios se enmascara y no se graba."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Google Ads: medir qué anuncios llevaron a una visita o pedido (conversiones) y adaptar los anuncios (remarketing). Si llegas desde un anuncio, guardamos el identificador del clic (gclid) y los parámetros de la campaña para atribuir también al anuncio un pedido realizado más tarde, por ejemplo por teléfono."
+      },
+      "more": {
+        "title": "Más información",
+        "description": "La lista completa de cookies, proveedores, plazos de conservación y tus derechos está en nuestra <link>Política de privacidad</link>."
+      }
+    }
   },
   "privacyPolicy": {
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: enero de 2025",
+    "lastUpdated": "Última actualización: octubre de 2026",
     "s1": {
       "title": "1. Información general",
       "body": "Esta Política de privacidad define los principios de procesamiento y protección de datos personales proporcionados por los Usuarios en relación con el uso de los servicios ofrecidos por Power Automation."
@@ -700,8 +726,15 @@
       "item3": "Análisis y mejora de nuestros servicios"
     },
     "s5": {
-      "title": "5. Cookies",
-      "body": "Nuestro sitio utiliza cookies para garantizar el correcto funcionamiento, analizar el tráfico y personalizar el contenido. Puede gestionar la configuración de cookies a través de la configuración de su navegador o mediante nuestro panel de consentimiento."
+      "title": "5. Cookies, analítica y grabación de sesiones",
+      "intro": "Utilizamos cookies y tecnologías similares (como el almacenamiento del navegador y scripts de medición). En tu primera visita mostramos una ventana en la que puedes aceptar todas las categorías o elegirlas en la configuración. Las cookies que no son necesarias solo se almacenan y leen con tu consentimiento (art. 6.1.a del RGPD en relación con el art. 399 de la Ley polaca de Comunicaciones Electrónicas).",
+      "introImplied": "Utilizamos cookies y tecnologías similares (como el almacenamiento del navegador y scripts de medición). En esta versión del sitio, las herramientas analíticas y de marketing descritas a continuación están activadas por defecto.",
+      "necessary": "Necesarias: permiten iniciar sesión, usar el carrito y los pagos, y recordar el idioma, la moneda y tu decisión sobre las cookies (cc_cookie, válida 6 meses). Las usamos sin consentimiento porque sin ellas la tienda no puede funcionar (art. 6.1.b y f del RGPD).",
+      "analytics": "Analíticas: Google Analytics 4 (Google Ireland Ltd.): estadísticas de visitas y fuentes de tráfico, incluidas las visitas desde resultados de búsqueda (tráfico orgánico) y desde anuncios; cookies _ga y _ga_*, válidas hasta 2 años. Microsoft Clarity (Microsoft Ireland Operations Ltd.): mapas de calor y grabaciones de sesiones que reproducen los movimientos del cursor, los clics y el desplazamiento y nos ayudan a mejorar la tienda; el texto escrito en los formularios se enmascara y no se graba; cookies _clck (hasta 1 año) y _clsk (1 día).",
+      "marketing": "Marketing: Google Ads (Google Ireland Ltd.): medición de la eficacia de los anuncios (conversiones) y remarketing; cookies _gcl_*, válidas hasta 90 días. Si llegas desde un anuncio de Google, guardamos el identificador del clic (gclid), los parámetros de la campaña (UTM), la página de entrada y la cookie pa_ad_visitor (90 días) para atribuir al anuncio también un pedido realizado más tarde, por ejemplo por teléfono.",
+      "transfer": "Google y Microsoft también pueden tratar datos en EE. UU. Estas transferencias se basan en la decisión de adecuación de la Comisión Europea relativa al Marco de Privacidad de Datos UE-EE. UU. (EU-US Data Privacy Framework), en el que ambas empresas están certificadas.",
+      "withdraw": "Puedes cambiar o retirar tu consentimiento en cualquier momento haciendo clic en «Configuración de cookies» en el pie de página. La retirada no afecta a la licitud del tratamiento realizado antes de ella. También puedes eliminar o bloquear las cookies en la configuración de tu navegador.",
+      "withdrawImplied": "Puedes eliminar o bloquear las cookies en cualquier momento en la configuración de tu navegador; bloquear las cookies necesarias puede dificultar el uso de la tienda."
     },
     "s6": {
       "title": "6. Compartir datos",

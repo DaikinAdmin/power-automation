@@ -667,7 +667,8 @@
       "purchaseDelivery": "Zakup i dostawa",
       "refunding": "Zwroty",
       "contacts": "Kontakt",
-      "privacyPolicy": "Polityka prywatności"
+      "privacyPolicy": "Polityka prywatności",
+      "cookieSettings": "Ustawienia cookies"
     },
     "categories1": {
       "electronics": "Elektronika",
@@ -706,15 +707,40 @@
     "itemNotFound": "Towar {articleId} nie znaleziony"
   },
   "cookieConsent": {
-    "title": "Używamy plików cookie",
-    "description": "Używamy plików cookie, aby poprawić Twoje doświadczenia na naszej stronie, analizować ruch oraz personalizować treści. Możesz zaakceptować wszystkie pliki cookie lub zarządzać swoimi preferencjami.",
-    "accept": "Akceptuj",
-    "decline": "Odrzuć",
-    "learnMore": "Dowiedz się więcej"
+    "title": "Szanujemy Twoją prywatność",
+    "description": "Używamy plików cookie i podobnych technologii, aby sklep działał prawidłowo, a za Twoją zgodą także do analizy ruchu (Google Analytics), nagrywania sesji w celu ulepszania strony (Microsoft Clarity) oraz pomiaru skuteczności reklam (Google Ads). Kliknij „Akceptuj wszystkie” lub wybierz kategorie w „Dostosuj”. Swój wybór możesz zmienić w każdej chwili w stopce strony („Ustawienia cookies”).",
+    "acceptAll": "Akceptuj wszystkie",
+    "customize": "Dostosuj",
+    "privacyPolicy": "Polityka prywatności",
+    "preferences": {
+      "title": "Ustawienia plików cookie",
+      "save": "Zapisz wybrane",
+      "close": "Zamknij",
+      "intro": {
+        "title": "Jak używamy plików cookie",
+        "description": "Pliki cookie niezbędne są zawsze włączone — bez nich sklep nie działa. Pozostałe kategorie są domyślnie wyłączone i włączamy je tylko za Twoją zgodą. Zgodę możesz wycofać w dowolnym momencie; nie wpływa to na zgodność z prawem przetwarzania przed jej wycofaniem."
+      },
+      "necessary": {
+        "title": "Niezbędne",
+        "description": "Logowanie, koszyk, wybór języka i waluty, bezpieczeństwo płatności oraz zapamiętanie Twoich ustawień cookies. Tych plików nie można wyłączyć."
+      },
+      "analytics": {
+        "title": "Analityczne",
+        "description": "Google Analytics 4 — statystyki odwiedzin i źródła ruchu (wyszukiwarki, reklamy, linki z innych stron). Microsoft Clarity — mapy cieplne i nagrania sesji (ruchy kursora, kliknięcia, przewijanie), dzięki którym znajdujemy i naprawiamy problemy na stronie. Treść wpisywana w polach formularzy jest maskowana i nie trafia do nagrań."
+      },
+      "marketing": {
+        "title": "Marketingowe",
+        "description": "Google Ads — pomiar, które reklamy doprowadziły do wizyty lub zamówienia (konwersje), oraz dopasowanie reklam (remarketing). Jeśli trafisz do nas z reklamy, zapisujemy identyfikator kliknięcia (gclid) i parametry kampanii, aby powiązać z reklamą również zamówienie złożone później, np. telefonicznie."
+      },
+      "more": {
+        "title": "Więcej informacji",
+        "description": "Pełną listę plików cookie, dostawców, okresów przechowywania i Twoich praw znajdziesz w <link>Polityce prywatności</link>."
+      }
+    }
   },
   "privacyPolicy": {
     "title": "Polityka prywatności",
-    "lastUpdated": "Ostatnia aktualizacja: styczeń 2025",
+    "lastUpdated": "Ostatnia aktualizacja: październik 2026",
     "s1": {
       "title": "1. Informacje ogólne",
       "body": "Niniejsza Polityka prywatności określa zasady przetwarzania i ochrony danych osobowych przekazanych przez Użytkowników w związku z korzystaniem przez nich z usług oferowanych przez Power Automation."
@@ -739,8 +765,15 @@
       "item3": "Analiza i poprawa działania naszych usług"
     },
     "s5": {
-      "title": "5. Pliki cookie",
-      "body": "Nasza strona używa plików cookie w celu zapewnienia prawidłowego działania, analizy ruchu oraz personalizacji treści. Możesz zarządzać ustawieniami plików cookie za pomocą ustawień swojej przeglądarki lub korzystając z naszego panelu zgód."
+      "title": "5. Pliki cookie, analityka i nagrania sesji",
+      "intro": "Korzystamy z plików cookie i podobnych technologii (np. pamięci przeglądarki i skryptów pomiarowych). Przy pierwszej wizycie wyświetlamy okno, w którym możesz zaakceptować wszystkie kategorie lub wybrać je w ustawieniach. Pliki cookie inne niż niezbędne zapisujemy i odczytujemy wyłącznie za Twoją zgodą (art. 6 ust. 1 lit. a RODO w związku z art. 399 ustawy – Prawo komunikacji elektronicznej).",
+      "introImplied": "Korzystamy z plików cookie i podobnych technologii (np. pamięci przeglądarki i skryptów pomiarowych). W tej wersji serwisu opisane poniżej narzędzia analityczne i marketingowe są włączone domyślnie.",
+      "necessary": "Niezbędne — umożliwiają logowanie, działanie koszyka i płatności, zapamiętanie języka, waluty oraz Twojej decyzji dotyczącej cookies (plik cc_cookie, ważny 6 miesięcy). Stosujemy je bez zgody, ponieważ bez nich sklep nie może działać (art. 6 ust. 1 lit. b i f RODO).",
+      "analytics": "Analityczne — Google Analytics 4 (Google Ireland Ltd.): statystyki odwiedzin oraz źródła ruchu, w tym wejścia z wyników wyszukiwania (ruch organiczny) i z reklam; pliki _ga i _ga_*, ważne do 2 lat. Microsoft Clarity (Microsoft Ireland Operations Ltd.): mapy cieplne i nagrania sesji odtwarzające ruchy kursora, kliknięcia i przewijanie strony, które pomagają nam ulepszać sklep; treść wpisywana w pola formularzy jest maskowana i nie jest nagrywana; pliki _clck (do 1 roku) i _clsk (1 dzień).",
+      "marketing": "Marketingowe — Google Ads (Google Ireland Ltd.): pomiar skuteczności reklam (konwersji) i remarketing; pliki _gcl_*, ważne do 90 dni. Jeśli wejdziesz na stronę z reklamy Google, zapisujemy identyfikator kliknięcia (gclid), parametry kampanii (UTM), stronę wejścia oraz plik pa_ad_visitor (90 dni), aby przypisać do reklamy także zamówienie złożone później, np. telefonicznie.",
+      "transfer": "Google i Microsoft mogą przetwarzać dane również w USA. Przekazanie odbywa się na podstawie decyzji Komisji Europejskiej stwierdzającej odpowiedni stopień ochrony (EU-US Data Privacy Framework), w ramach którego obie firmy posiadają certyfikację.",
+      "withdraw": "Zgodę możesz w każdej chwili zmienić lub wycofać, klikając „Ustawienia cookies” w stopce strony. Wycofanie zgody nie wpływa na zgodność z prawem przetwarzania dokonanego przed jej wycofaniem. Pliki cookie możesz też usunąć lub zablokować w ustawieniach przeglądarki.",
+      "withdrawImplied": "Pliki cookie możesz w każdej chwili usunąć lub zablokować w ustawieniach przeglądarki; zablokowanie plików niezbędnych może jednak utrudnić korzystanie ze sklepu."
     },
     "s6": {
       "title": "6. Udostępnianie danych",

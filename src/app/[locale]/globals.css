@@ -70,3 +70,18 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Вікно згоди на cookies (vanilla-cookieconsent) — у кольорах сайту */
+#cc-main {
+  --cc-font-family: var(--font-montserrat), Arial, Helvetica, sans-serif;
+  --cc-modal-border-radius: 0.75rem;
+  --cc-btn-border-radius: 0.375rem;
+  --cc-link-color: #dc2626;
+  --cc-btn-primary-bg: #dc2626;
+  --cc-btn-primary-border-color: #dc2626;
+  --cc-btn-primary-hover-bg: #b91c1c;
+  --cc-btn-primary-hover-border-color: #b91c1c;
+  --cc-toggle-on-bg: #dc2626;
+  /* вище за loyalty-popup / модалки сайту */
+  --cc-z-index: 2147483647;
+}

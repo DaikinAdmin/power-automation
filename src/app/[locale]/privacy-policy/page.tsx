@@ -1,14 +1,21 @@
 import PageLayout from "@/components/layout/page-layout";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { getServerDomainConfig } from "@/lib/server-domain";
 export { generatePrivacyPolicyMetadata as generateMetadata } from "@/lib/seo-metadata";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export default function PrivacyPolicyPage() {
-  const t = useTranslations("privacyPolicy");
+export default async function PrivacyPolicyPage() {
+  const [t, domainConfig] = await Promise.all([
+    getTranslations("privacyPolicy"),
+    getServerDomainConfig(),
+  ]);
+  // UA-домен не показує вікно згоди (див. src/components/cookie-consent.tsx) —
+  // описуємо, як там насправді працюють cookies.
+  const hasConsentBanner = domainConfig.key !== "ua";
 
   return (
     <PageLayout>
@@ -54,7 +61,14 @@ export default function PrivacyPolicyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">{t("s5.title")}</h2>
-            <p>{t("s5.body")}</p>
+            <p className="mb-2">{t(hasConsentBanner ? "s5.intro" : "s5.introImplied")}</p>
+            <ul className="list-disc pl-6 space-y-1 mb-2">
+              <li>{t("s5.necessary")}</li>
+              <li>{t("s5.analytics")}</li>
+              <li>{t("s5.marketing")}</li>
+            </ul>
+            <p className="mb-2">{t("s5.transfer")}</p>
+            <p>{t(hasConsentBanner ? "s5.withdraw" : "s5.withdrawImplied")}</p>
           </section>
 
           <section>

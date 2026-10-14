@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useCategories } from '@/hooks/useCategories';
 import { useLocale } from 'next-intl';
 import { useDomainConfig } from '@/hooks/useDomain';
+import { showCookiePreferences } from '@/lib/consent';
 
 const ACCEPTED_CARDS = [
   {
@@ -119,6 +120,13 @@ export default function Footer() {
               <li><Link href="/refunding" className="hover:text-white transition-colors">{t('links.refunding')}</Link></li>
               <li><Link href="/contacts" className="hover:text-white transition-colors">{t('links.contacts')}</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-white transition-colors">{t('links.privacyPolicy')}</Link></li>
+              {domainConfig.key !== 'ua' && (
+                <li>
+                  <button type="button" onClick={showCookiePreferences} className="hover:text-white transition-colors text-left">
+                    {t('links.cookieSettings')}
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { getGaClientId } from '@/helpers/ga4';
+import { subscribeConsent } from '@/lib/consent';
 import type { DomainKey } from '@/lib/domain-config';
 
 const VISITOR_COOKIE = 'pa_ad_visitor';
@@ -24,6 +25,12 @@ interface AdClickTrackerProps {
  * Google Ads click, so a manager-handled order (chat/call, not checkout) can
  * later be matched back to a gclid for a manual Google Ads offline
  * conversion import. No-ops for any visitor without a ?gclid= param.
+ *
+ * The visitor cookie and the server-side gclid record are ad tracking, so
+ * nothing is stored until the visitor grants marketing consent (see
+ * src/components/cookie-consent.tsx). The landing URL is captured on mount —
+ * the layout doesn't remount on client navigation, so consent given on a
+ * later page still attributes the original ad click.
  */
 export default function AdClickTracker({ domain }: AdClickTrackerProps) {
   useEffect(() => {
@@ -31,9 +38,7 @@ export default function AdClickTracker({ domain }: AdClickTrackerProps) {
     const gclid = params.get('gclid');
     if (!gclid) return;
 
-    const visitorId = getOrCreateVisitorId();
-    const basePayload = {
-      visitorId,
+    const landing = {
       gclid,
       utmSource: params.get('utm_source'),
       utmMedium: params.get('utm_medium'),
@@ -47,27 +52,39 @@ export default function AdClickTracker({ domain }: AdClickTrackerProps) {
     };
 
     let cancelled = false;
-    const send = () => {
-      if (cancelled) return;
-      fetch('/api/tracking/ad-click', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...basePayload, gaClientId: getGaClientId() }),
-        keepalive: true,
-      }).catch(() => {});
+    let started = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const start = () => {
+      if (started) return;
+      started = true;
+      const basePayload = { visitorId: getOrCreateVisitorId(), ...landing };
+
+      const send = () => {
+        if (cancelled) return;
+        fetch('/api/tracking/ad-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...basePayload, gaClientId: getGaClientId() }),
+          keepalive: true,
+        }).catch(() => {});
+      };
+
+      // _ga may not be set yet right after consent (GTM loads async, consent
+      // mode can delay it further) — send immediately, then retry to backfill
+      // gaClientId. The server upsert is idempotent on gclid.
+      send();
+      timers.push(setTimeout(send, 1500), setTimeout(send, 4000));
     };
 
-    // _ga may not be set yet on first paint (GTM loads async, consent mode
-    // can delay it further) — send immediately, then retry to backfill
-    // gaClientId. The server upsert is idempotent on gclid.
-    send();
-    const retry1 = setTimeout(send, 1500);
-    const retry2 = setTimeout(send, 4000);
+    const unsubscribe = subscribeConsent((consent) => {
+      if (consent.marketing) start();
+    });
 
     return () => {
       cancelled = true;
-      clearTimeout(retry1);
-      clearTimeout(retry2);
+      unsubscribe();
+      timers.forEach(clearTimeout);
     };
   }, [domain]);
 

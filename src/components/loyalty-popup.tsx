@@ -6,6 +6,7 @@ import { X, Percent } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { subscribeConsent } from "@/lib/consent";
 
 const SHOWN_KEY = "loyalty_popup_shown";
 const SHOW_DELAY_MS = 20000;
@@ -24,6 +25,8 @@ export default function LoyaltyPopup() {
   const session = authClient.useSession();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // Не накладаємось на вікно згоди cookies: таймер стартує після вибору відвідувача.
+  const [consentDecided, setConsentDecided] = useState(false);
 
   const isExcludedPath = EXCLUDED_PATH_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
@@ -32,10 +35,11 @@ export default function LoyaltyPopup() {
 
   useEffect(() => {
     setMounted(true);
+    return subscribeConsent(() => setConsentDecided(true));
   }, []);
 
   useEffect(() => {
-    if (isExcludedPath || isLoggedIn || session.isPending) return;
+    if (isExcludedPath || isLoggedIn || session.isPending || !consentDecided) return;
     if (sessionStorage.getItem(SHOWN_KEY)) return;
 
     const timer = setTimeout(() => {
@@ -44,7 +48,7 @@ export default function LoyaltyPopup() {
     }, SHOW_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [isExcludedPath, isLoggedIn, session.isPending]);
+  }, [isExcludedPath, isLoggedIn, session.isPending, consentDecided]);
 
   function handleClose() {
     setVisible(false);
