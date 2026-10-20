@@ -692,7 +692,12 @@
     "payment": "Proceed to Payment",
     "backToShopping": "Continue Shopping",
     "sanitizedRemoved": "{count, plural, one {# item was removed from the cart — it is no longer available} other {# items were removed from the cart — they are no longer available}}",
-    "sanitizedSwitched": "{count, plural, one {A different warehouse was selected for # item — the previous one is no longer available} other {A different warehouse was selected for # items — the previous one is no longer available}}"
+    "sanitizedSwitched": "{count, plural, one {A different warehouse was selected for # item — the previous one is no longer available} other {A different warehouse was selected for # items — the previous one is no longer available}}",
+    "stockLimit": "{count, plural, =0 {Out of stock at {price}} other {Only # pcs available at {price}}}",
+    "stockAlternative": "{count} pcs available at {price} — warehouse “{warehouse}”",
+    "addAlternative": "Add",
+    "soldOutRemoved": "“{name}” is out of stock and was removed from the cart",
+    "quantityReduced": "“{name}”: only {count} pcs available — the quantity in the cart was reduced"
   },
   "errors": {
     "insufficientStock": "Insufficient stock for item {itemName}. Available: {available}, Requested: {requested}",

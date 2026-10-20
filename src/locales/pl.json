@@ -699,7 +699,12 @@
     "payment": "Przejdź do płatności",
     "backToShopping": "Kontynuuj zakupy",
     "sanitizedRemoved": "{count, plural, one {# produkt został usunięty z koszyka — jest już niedostępny} few {# produkty zostały usunięte z koszyka — są już niedostępne} many {# produktów zostało usuniętych z koszyka — są już niedostępne} other {# produktu zostało usuniętych z koszyka — są już niedostępne}}",
-    "sanitizedSwitched": "{count, plural, one {Dla # produktu wybrano inny magazyn — poprzedni jest już niedostępny} other {Dla # produktów wybrano inny magazyn — poprzedni jest już niedostępny}}"
+    "sanitizedSwitched": "{count, plural, one {Dla # produktu wybrano inny magazyn — poprzedni jest już niedostępny} other {Dla # produktów wybrano inny magazyn — poprzedni jest już niedostępny}}",
+    "stockLimit": "{count, plural, =0 {Brak w magazynie w cenie {price}} other {W cenie {price} dostępne tylko # szt.}}",
+    "stockAlternative": "Dostępne {count} szt. w cenie {price} — magazyn „{warehouse}”",
+    "addAlternative": "Dodaj",
+    "soldOutRemoved": "„{name}” — brak w magazynie, produkt usunięto z koszyka",
+    "quantityReduced": "„{name}”: dostępne tylko {count} szt. — zmniejszono ilość w koszyku"
   },
   "errors": {
     "insufficientStock": "Niewystarczająca ilość towaru {itemName}. Dostępne: {available}, Zamówione: {requested}",

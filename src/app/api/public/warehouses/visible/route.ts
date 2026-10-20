@@ -4,10 +4,9 @@ import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
 
 /**
  * Public, unauthenticated list of warehouse ids visible on the requesting
- * domain. Used client-side to sanitize a cart restored from localStorage —
- * a warehouse an admin hid after the item was added must not silently stay
- * orderable in the UI (the server rejects it anyway at checkout, see
- * /api/orders — this just lets the cart catch it earlier).
+ * domain. The cart no longer calls this — it syncs with
+ * /api/public/cart/stock, which applies the same visibility filter and also
+ * returns live stock and prices.
  */
 export async function GET(request: NextRequest) {
   try {

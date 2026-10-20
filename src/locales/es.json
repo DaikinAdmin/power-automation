@@ -660,7 +660,12 @@
     "payment": "Proceder al Pago",
     "backToShopping": "Continuar Comprando",
     "sanitizedRemoved": "{count, plural, one {Se eliminó # producto del carrito — ya no está disponible} other {Se eliminaron # productos del carrito — ya no están disponibles}}",
-    "sanitizedSwitched": "{count, plural, one {Se seleccionó otro almacén para # producto — el anterior ya no está disponible} other {Se seleccionó otro almacén para # productos — el anterior ya no está disponible}}"
+    "sanitizedSwitched": "{count, plural, one {Se seleccionó otro almacén para # producto — el anterior ya no está disponible} other {Se seleccionó otro almacén para # productos — el anterior ya no está disponible}}",
+    "stockLimit": "{count, plural, =0 {Agotado a {price}} other {Solo hay # uds. disponibles a {price}}}",
+    "stockAlternative": "Hay {count} uds. a {price} — almacén «{warehouse}»",
+    "addAlternative": "Añadir",
+    "soldOutRemoved": "«{name}» está agotado y se eliminó del carrito",
+    "quantityReduced": "«{name}»: solo hay {count} uds. disponibles — se redujo la cantidad en el carrito"
   },
   "errors": {
     "insufficientStock": "Stock insuficiente para el artículo {itemName}. Disponible: {available}, Solicitado: {requested}",
