@@ -5,7 +5,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { getExchangeRate } from "@/lib/server-currency";
 import { getDomainConfigByHost, type DomainConfig, DOMAIN_CONFIGS } from "@/lib/domain-config";
 import { toAbsoluteImageUrl } from "@/lib/image-utils";
-import { getVatByCountryCode } from "@/helpers/db/vat-queries";
+import { getVatBySlug } from "@/helpers/db/vat-queries";
 import { getVisibleWarehouseIds } from "@/helpers/db/warehouse-visibility";
 
 /** Domain-specific feed configuration */
@@ -57,11 +57,11 @@ export async function GET(request: NextRequest) {
   try {
     // 0. Fetch EUR → target currency exchange rate and VAT once
     const eurToTarget = await getExchangeRate("EUR", feedCfg.exchangeTarget);
-    const domainCountryCodeMap: Record<string, string> = { pl: 'PL', ua: 'UA' };
-    const domainCountryCode = domainCountryCodeMap[domainConfig.key] ?? 'PL';
-    const vatPercentage = await getVatByCountryCode(domainCountryCode);
-    const vatInclusive = domainConfig.key === 'ua';
-    const vatMultiplier = vatInclusive && vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
+    // Prices are VAT-inclusive on every domain (mirrors [locale]/layout.tsx) —
+    // Ukraine uses 20% (slug='ua'), all others use 23% (slug='pl')
+    const vatSlug = domainConfig.key === 'ua' ? 'ua' : 'pl';
+    const vatPercentage = await getVatBySlug(vatSlug);
+    const vatMultiplier = vatPercentage > 0 ? 1 + vatPercentage / 100 : 1;
     const visibleWarehouseIds = await getVisibleWarehouseIds(domainConfig.key);
 
     // Exchange-rate cache: converts a price stored in `sourceCurrency` → feed target currency.
