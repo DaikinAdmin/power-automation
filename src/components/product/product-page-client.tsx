@@ -14,7 +14,12 @@ import { ProductPriceCard } from "@/components/product/product-price-card";
 import { ProductDetailsCard } from "@/components/product/product-details-card";
 import { ProductOpinionForm } from "@/components/product/product-opinion-form";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
-import { AskPriceModal } from "@/components/product/ask-price-modal";
+import {
+  AskPriceModal,
+  isGuestInfoValid,
+  type AskPriceGuestInfo,
+} from "@/components/product/ask-price-modal";
+import { authClient } from "@/lib/auth-client";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useDomainConfig } from "@/hooks/useDomain";
@@ -54,6 +59,8 @@ export default function ProductPageClient({
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
   const t = useTranslations("product");
+  const session = authClient.useSession();
+  const isGuest = !session.isPending && !session.data?.user;
 
   const [product, setProduct] = useState<ProductDetailsResponse | null>(null);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
@@ -69,6 +76,12 @@ export default function ProductPageClient({
   });
   const [isSubmittingPriceRequest, setIsSubmittingPriceRequest] =
     useState(false);
+  const [askPriceGuest, setAskPriceGuest] = useState<AskPriceGuestInfo>({
+    name: "",
+    email: "",
+    phone: "",
+    countryCode: domainConfig.key === "ua" ? "+380" : "+48",
+  });
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -370,39 +383,48 @@ export default function ProductPageClient({
     if (!product || !askPriceForm.warehouseId || isSubmittingPriceRequest) {
       return;
     }
+    if (isGuest && !isGuestInfoValid(askPriceGuest)) return;
 
     setIsSubmittingPriceRequest(true);
 
     try {
-      const response = await fetch("/api/orders", {
+      const payload = {
+        itemId: product.id,
+        warehouseId: askPriceForm.warehouseId,
+        quantity: askPriceForm.quantity,
+        comment: askPriceForm.comment,
+        isPriceRequest: true,
+        locale,
+      };
+      // Гість (без сесії) — через /api/orders/guest: акаунт створюється за email.
+      const response = await fetch(isGuest ? "/api/orders/guest" : "/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          itemId: product.id,
-          warehouseId: askPriceForm.warehouseId,
-          quantity: askPriceForm.quantity,
-          comment: askPriceForm.comment,
-          price: 0,
-          isPriceRequest: true,
-          status: "ASK_FOR_PRICE",
-        }),
+        body: JSON.stringify(
+          isGuest
+            ? {
+                ...payload,
+                guestName: askPriceGuest.name.trim(),
+                guestEmail: askPriceGuest.email.trim(),
+                guestPhone: askPriceGuest.phone.trim(),
+                guestCountryCode: askPriceGuest.countryCode,
+              }
+            : payload,
+        ),
       });
 
       if (response.ok) {
         setShowAskPriceModal(false);
         setAskPriceForm({ warehouseId: "", quantity: 1, comment: "" });
-        // You might want to show a success message here
-        alert(
-          "Price request submitted successfully! We will contact you soon.",
-        );
+        alert(t("askPriceModal.success"));
       } else {
-        throw new Error("Failed to submit price request");
+        throw new Error(`Failed to submit price request: ${response.status}`);
       }
     } catch (error) {
       console.error("Error submitting price request:", error);
-      alert("Failed to submit price request. Please try again.");
+      alert(t("askPriceModal.error"));
     } finally {
       setIsSubmittingPriceRequest(false);
     }
@@ -573,6 +595,11 @@ export default function ProductPageClient({
         formData={askPriceForm}
         onFormChange={(updates) =>
           setAskPriceForm((prev) => ({ ...prev, ...updates }))
+        }
+        isGuest={isGuest}
+        guestInfo={askPriceGuest}
+        onGuestInfoChange={(updates) =>
+          setAskPriceGuest((prev) => ({ ...prev, ...updates }))
         }
         onSubmit={handleAskForPrice}
         isSubmitting={isSubmittingPriceRequest}

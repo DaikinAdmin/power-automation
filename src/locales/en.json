@@ -486,6 +486,9 @@
       "submit": "Submit Opinion"
     },
     "askPriceModal": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
       "title": "Ask for Price",
       "product": "Product",
       "warehouse": "Warehouse",
@@ -706,7 +709,7 @@
   },
   "cookieConsent": {
     "title": "We respect your privacy",
-    "description": "We use cookies and similar technologies to keep the shop working and, with your consent, to analyse traffic (Google Analytics), record sessions to improve the site (Microsoft Clarity) and measure ad performance (Google Ads). Click “Accept all” or choose categories under “Customize”. You can change your choice at any time in the page footer (“Cookie settings”).",
+    "description": "We use cookies and similar technologies to keep the shop working and, with your consent, to run live chat (Tawk.to), analyse traffic (Google Analytics), record sessions to improve the site (Microsoft Clarity) and measure ad performance (Google Ads). Click “Accept all” or choose categories under “Customize”. You can change your choice at any time in the page footer (“Cookie settings”).",
     "acceptAll": "Accept all",
     "customize": "Customize",
     "privacyPolicy": "Privacy Policy",
@@ -721,6 +724,10 @@
       "necessary": {
         "title": "Necessary",
         "description": "Sign-in, shopping cart, language and currency selection, payment security and remembering your cookie settings. These cannot be switched off."
+      },
+      "functional": {
+        "title": "Functional",
+        "description": "Tawk.to live chat — lets you message us right from the site. The chat stores a conversation ID and message history in the twk_* / TawkConnectionTime cookies and in browser storage. Without this consent the chat is not loaded."
       },
       "analytics": {
         "title": "Analytics",
@@ -767,6 +774,7 @@
       "intro": "We use cookies and similar technologies (such as browser storage and measurement scripts). On your first visit we show a window where you can accept all categories or choose them in the settings. Cookies other than necessary ones are stored and read only with your consent (Art. 6(1)(a) GDPR in conjunction with Art. 399 of the Polish Electronic Communications Law).",
       "introImplied": "We use cookies and similar technologies (such as browser storage and measurement scripts). On this version of the site, the analytics and marketing tools described below are enabled by default.",
       "necessary": "Necessary — enable sign-in, the cart and payments, and remember your language, currency and cookie decision (cc_cookie, valid for 6 months). We use them without consent because the shop cannot work without them (Art. 6(1)(b) and (f) GDPR).",
+      "functional": "Functional — Tawk.to live chat (tawk.to Inc., USA): chatting with a consultant directly on the site; the twk_* and TawkConnectionTime cookies and browser storage keep the conversation ID and message history (up to 6 months).",
       "analytics": "Analytics — Google Analytics 4 (Google Ireland Ltd.): visit statistics and traffic sources, including visits from search results (organic traffic) and from ads; cookies _ga and _ga_*, valid for up to 2 years. Microsoft Clarity (Microsoft Ireland Operations Ltd.): heatmaps and session recordings that replay cursor movement, clicks and scrolling and help us improve the shop; text typed into form fields is masked and not recorded; cookies _clck (up to 1 year) and _clsk (1 day).",
       "marketing": "Marketing — Google Ads (Google Ireland Ltd.): ad performance (conversion) measurement and remarketing; cookies _gcl_*, valid for up to 90 days. If you arrive from a Google ad, we store the click ID (gclid), campaign parameters (UTM), the landing page and the pa_ad_visitor cookie (90 days) so that an order placed later, e.g. by phone, can also be attributed to that ad.",
       "transfer": "Google and Microsoft may also process data in the USA. Such transfers are based on the European Commission adequacy decision for the EU-US Data Privacy Framework, under which both companies are certified.",
@@ -2222,7 +2230,7 @@
     "flat": "Flat no.",
     "flatPlaceholder": "e.g. 5",
     "postalCode": "Postal code",
-    "deliveryCostNote": "Delivery cost is calculated according to the carrier\u2019s rates.",
+    "deliveryCostNote": "Delivery cost is calculated according to the carrier’s rates.",
     "option": {
       "parcelLocker": {
         "label": "Parcel Locker 24/7",

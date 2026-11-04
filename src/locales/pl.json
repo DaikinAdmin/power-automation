@@ -493,6 +493,9 @@
       "submit": "Wyślij opinię"
     },
     "askPriceModal": {
+      "name": "Imię i nazwisko",
+      "email": "E-mail",
+      "phone": "Telefon",
       "title": "Zapytaj o cenę",
       "product": "Produkt",
       "warehouse": "Magazyn",
@@ -713,7 +716,7 @@
   },
   "cookieConsent": {
     "title": "Szanujemy Twoją prywatność",
-    "description": "Używamy plików cookie i podobnych technologii, aby sklep działał prawidłowo, a za Twoją zgodą także do analizy ruchu (Google Analytics), nagrywania sesji w celu ulepszania strony (Microsoft Clarity) oraz pomiaru skuteczności reklam (Google Ads). Kliknij „Akceptuj wszystkie” lub wybierz kategorie w „Dostosuj”. Swój wybór możesz zmienić w każdej chwili w stopce strony („Ustawienia cookies”).",
+    "description": "Używamy plików cookie i podobnych technologii, aby sklep działał prawidłowo, a za Twoją zgodą także do obsługi czatu online (Tawk.to), analizy ruchu (Google Analytics), nagrywania sesji w celu ulepszania strony (Microsoft Clarity) oraz pomiaru skuteczności reklam (Google Ads). Kliknij „Akceptuj wszystkie” lub wybierz kategorie w „Dostosuj”. Swój wybór możesz zmienić w każdej chwili w stopce strony („Ustawienia cookies”).",
     "acceptAll": "Akceptuj wszystkie",
     "customize": "Dostosuj",
     "privacyPolicy": "Polityka prywatności",
@@ -728,6 +731,10 @@
       "necessary": {
         "title": "Niezbędne",
         "description": "Logowanie, koszyk, wybór języka i waluty, bezpieczeństwo płatności oraz zapamiętanie Twoich ustawień cookies. Tych plików nie można wyłączyć."
+      },
+      "functional": {
+        "title": "Funkcjonalne",
+        "description": "Czat online Tawk.to — umożliwia napisanie do nas bezpośrednio ze strony. Czat zapisuje identyfikator rozmowy i historię wiadomości w plikach twk_* / TawkConnectionTime oraz w pamięci przeglądarki. Bez tej zgody czat nie jest wczytywany."
       },
       "analytics": {
         "title": "Analityczne",
@@ -774,6 +781,7 @@
       "intro": "Korzystamy z plików cookie i podobnych technologii (np. pamięci przeglądarki i skryptów pomiarowych). Przy pierwszej wizycie wyświetlamy okno, w którym możesz zaakceptować wszystkie kategorie lub wybrać je w ustawieniach. Pliki cookie inne niż niezbędne zapisujemy i odczytujemy wyłącznie za Twoją zgodą (art. 6 ust. 1 lit. a RODO w związku z art. 399 ustawy – Prawo komunikacji elektronicznej).",
       "introImplied": "Korzystamy z plików cookie i podobnych technologii (np. pamięci przeglądarki i skryptów pomiarowych). W tej wersji serwisu opisane poniżej narzędzia analityczne i marketingowe są włączone domyślnie.",
       "necessary": "Niezbędne — umożliwiają logowanie, działanie koszyka i płatności, zapamiętanie języka, waluty oraz Twojej decyzji dotyczącej cookies (plik cc_cookie, ważny 6 miesięcy). Stosujemy je bez zgody, ponieważ bez nich sklep nie może działać (art. 6 ust. 1 lit. b i f RODO).",
+      "functional": "Funkcjonalne — czat online Tawk.to (tawk.to Inc., USA): rozmowa z konsultantem bezpośrednio na stronie; pliki twk_*, TawkConnectionTime i pamięć przeglądarki przechowują identyfikator rozmowy i historię wiadomości (do 6 miesięcy).",
       "analytics": "Analityczne — Google Analytics 4 (Google Ireland Ltd.): statystyki odwiedzin oraz źródła ruchu, w tym wejścia z wyników wyszukiwania (ruch organiczny) i z reklam; pliki _ga i _ga_*, ważne do 2 lat. Microsoft Clarity (Microsoft Ireland Operations Ltd.): mapy cieplne i nagrania sesji odtwarzające ruchy kursora, kliknięcia i przewijanie strony, które pomagają nam ulepszać sklep; treść wpisywana w pola formularzy jest maskowana i nie jest nagrywana; pliki _clck (do 1 roku) i _clsk (1 dzień).",
       "marketing": "Marketingowe — Google Ads (Google Ireland Ltd.): pomiar skuteczności reklam (konwersji) i remarketing; pliki _gcl_*, ważne do 90 dni. Jeśli wejdziesz na stronę z reklamy Google, zapisujemy identyfikator kliknięcia (gclid), parametry kampanii (UTM), stronę wejścia oraz plik pa_ad_visitor (90 dni), aby przypisać do reklamy także zamówienie złożone później, np. telefonicznie.",
       "transfer": "Google i Microsoft mogą przetwarzać dane również w USA. Przekazanie odbywa się na podstawie decyzji Komisji Europejskiej stwierdzającej odpowiedni stopień ochrony (EU-US Data Privacy Framework), w ramach którego obie firmy posiadają certyfikację.",

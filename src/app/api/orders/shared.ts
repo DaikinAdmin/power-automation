@@ -8,7 +8,8 @@ import { getDomainKeyByHost } from '@/lib/domain-config';
 import { getDeliveryPricingByDomainKey, computeDeliveryCharge } from '@/lib/delivery-pricing';
 import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 import { isPromoActive } from '@/helpers/pricing';
-import { getVisibleWarehouseIds } from '@/helpers/db/warehouse-visibility';
+import { getVisibleWarehouseIds, isWarehouseVisibleOnDomain } from '@/helpers/db/warehouse-visibility';
+import { BadRequestError } from '@/lib/error-handler';
 
 export type OrderLineItem = {
   itemId: string;
@@ -674,5 +675,104 @@ export async function orderHandler(body: any, userId: string, locale: string = '
         : order.lineItems,
       createdAt: order.createdAt
     }
+  });
+}
+
+/**
+ * «Запит ціни» з картки товару: замовлення зі статусом ASK_FOR_PRICE і нульовою
+ * сумою. Викликається з /api/orders (залогінений) і /api/orders/guest (гість).
+ */
+export async function priceRequestHandler(body: any, userId: string, host: string | null = null) {
+
+  // Статус і суму не беремо з тіла запиту — інакше клієнт міг би їх підмінити.
+  const { itemId, warehouseId, quantity, comment } = body;
+
+  if (!itemId || !warehouseId || !quantity) {
+    throw new BadRequestError('Missing required fields: itemId, warehouseId, quantity');
+  }
+
+  // A cart/form pointing at a warehouse hidden on this domain must not be
+  // orderable, even via a hand-crafted request.
+  const domainKey = getDomainKeyByHost(host);
+  const warehouseVisible = await isWarehouseVisibleOnDomain(warehouseId, domainKey);
+  if (!warehouseVisible) {
+    return NextResponse.json({ error: 'Item not available in selected warehouse' }, { status: 404 });
+  }
+
+  const [item] = await db
+    .select()
+    .from(schema.item)
+    .where(eq(schema.item.id, itemId))
+    .limit(1);
+
+  if (!item) {
+    return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+  }
+
+  const [itemDetail] = await db
+    .select({ itemName: schema.itemDetails.itemName, locale: schema.itemDetails.locale })
+    .from(schema.itemDetails)
+    .where(eq(schema.itemDetails.itemSlug, item.slug))
+    .limit(1);
+
+  const [itemPrice] = await db
+    .select({
+      id: schema.itemPrice.id,
+      price: schema.itemPrice.price,
+      promotionPrice: schema.itemPrice.promotionPrice,
+      margin: schema.itemPrice.margin,
+      initialCurrency: schema.itemPrice.initialCurrency,
+      warehouse: schema.warehouse,
+    })
+    .from(schema.itemPrice)
+    .leftJoin(schema.warehouse, eq(schema.itemPrice.warehouseId, schema.warehouse.id))
+    .where(and(eq(schema.itemPrice.itemSlug, item.slug), eq(schema.itemPrice.warehouseId, warehouseId)))
+    .limit(1);
+
+  if (!itemPrice || !itemPrice.warehouse) {
+    return NextResponse.json({ error: 'Item not available in selected warehouse' }, { status: 404 });
+  }
+
+  const orderLineItems = [{
+      itemId: itemId,
+      articleId: item.articleId,
+      name: itemDetail?.itemName,
+      quantity: quantity,
+      warehouseId: itemPrice.warehouse.id,
+      warehouseName: itemPrice.warehouse.name ?? itemPrice.warehouse.displayedName ?? 'Unknown warehouse',
+      warehouseDisplayedName: itemPrice.warehouse.displayedName,
+      warehouseCountry: itemPrice.warehouse.countrySlug,
+      originalCurrency: itemPrice.initialCurrency ?? null,
+      vatRate: 0,
+      exchangeRate: 1,
+      basePriceNet: itemPrice.price,
+      specialPriceNet: itemPrice.promotionPrice ?? null,
+      unitPriceNet: 0,
+    }];
+
+  // Create order for price request
+  const now = new Date().toISOString();
+  const [order] = await db
+    .insert(schema.order)
+    .values({
+      id: crypto.randomUUID(),
+      userId: userId,
+      currency: 'EUR',
+      totalNet: 0,
+      totalVat: 0,
+      totalGross: 0,
+      status: 'ASK_FOR_PRICE',
+      comment: comment || null,
+      lineItems: orderLineItems,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
+
+  return NextResponse.json({
+    success: true,
+    order: mapOrderForUser(order),
+    orderId: order.id,
+    message: 'Price request submitted successfully'
   });
 }

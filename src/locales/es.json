@@ -454,6 +454,9 @@
       "submit": "Enviar opinión"
     },
     "askPriceModal": {
+      "name": "Nombre y apellidos",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
       "title": "Consultar precio",
       "product": "Producto",
       "warehouse": "Almacén",
@@ -674,7 +677,7 @@
   },
   "cookieConsent": {
     "title": "Respetamos tu privacidad",
-    "description": "Utilizamos cookies y tecnologías similares para que la tienda funcione correctamente y, con tu consentimiento, para analizar el tráfico (Google Analytics), grabar sesiones para mejorar el sitio (Microsoft Clarity) y medir la eficacia de los anuncios (Google Ads). Haz clic en «Aceptar todas» o elige las categorías en «Personalizar». Puedes cambiar tu elección en cualquier momento en el pie de página («Configuración de cookies»).",
+    "description": "Utilizamos cookies y tecnologías similares para que la tienda funcione correctamente y, con tu consentimiento, para el chat en línea (Tawk.to), analizar el tráfico (Google Analytics), grabar sesiones para mejorar el sitio (Microsoft Clarity) y medir la eficacia de los anuncios (Google Ads). Haz clic en «Aceptar todas» o elige las categorías en «Personalizar». Puedes cambiar tu elección en cualquier momento en el pie de página («Configuración de cookies»).",
     "acceptAll": "Aceptar todas",
     "customize": "Personalizar",
     "privacyPolicy": "Política de privacidad",
@@ -689,6 +692,10 @@
       "necessary": {
         "title": "Necesarias",
         "description": "Inicio de sesión, carrito, selección de idioma y moneda, seguridad de los pagos y recordar tu configuración de cookies. No se pueden desactivar."
+      },
+      "functional": {
+        "title": "Funcionales",
+        "description": "Chat en línea Tawk.to: te permite escribirnos directamente desde el sitio. El chat guarda un identificador de conversación y el historial de mensajes en las cookies twk_* / TawkConnectionTime y en el almacenamiento del navegador. Sin este consentimiento el chat no se carga."
       },
       "analytics": {
         "title": "Analíticas",
@@ -735,6 +742,7 @@
       "intro": "Utilizamos cookies y tecnologías similares (como el almacenamiento del navegador y scripts de medición). En tu primera visita mostramos una ventana en la que puedes aceptar todas las categorías o elegirlas en la configuración. Las cookies que no son necesarias solo se almacenan y leen con tu consentimiento (art. 6.1.a del RGPD en relación con el art. 399 de la Ley polaca de Comunicaciones Electrónicas).",
       "introImplied": "Utilizamos cookies y tecnologías similares (como el almacenamiento del navegador y scripts de medición). En esta versión del sitio, las herramientas analíticas y de marketing descritas a continuación están activadas por defecto.",
       "necessary": "Necesarias: permiten iniciar sesión, usar el carrito y los pagos, y recordar el idioma, la moneda y tu decisión sobre las cookies (cc_cookie, válida 6 meses). Las usamos sin consentimiento porque sin ellas la tienda no puede funcionar (art. 6.1.b y f del RGPD).",
+      "functional": "Funcionales: chat en línea Tawk.to (tawk.to Inc., EE. UU.): conversación con un asesor directamente en el sitio; las cookies twk_*, TawkConnectionTime y el almacenamiento del navegador guardan el identificador de la conversación y el historial de mensajes (hasta 6 meses).",
       "analytics": "Analíticas: Google Analytics 4 (Google Ireland Ltd.): estadísticas de visitas y fuentes de tráfico, incluidas las visitas desde resultados de búsqueda (tráfico orgánico) y desde anuncios; cookies _ga y _ga_*, válidas hasta 2 años. Microsoft Clarity (Microsoft Ireland Operations Ltd.): mapas de calor y grabaciones de sesiones que reproducen los movimientos del cursor, los clics y el desplazamiento y nos ayudan a mejorar la tienda; el texto escrito en los formularios se enmascara y no se graba; cookies _clck (hasta 1 año) y _clsk (1 día).",
       "marketing": "Marketing: Google Ads (Google Ireland Ltd.): medición de la eficacia de los anuncios (conversiones) y remarketing; cookies _gcl_*, válidas hasta 90 días. Si llegas desde un anuncio de Google, guardamos el identificador del clic (gclid), los parámetros de la campaña (UTM), la página de entrada y la cookie pa_ad_visitor (90 días) para atribuir al anuncio también un pedido realizado más tarde, por ejemplo por teléfono.",
       "transfer": "Google y Microsoft también pueden tratar datos en EE. UU. Estas transferencias se basan en la decisión de adecuación de la Comisión Europea relativa al Marco de Privacidad de Datos UE-EE. UU. (EU-US Data Privacy Framework), en el que ambas empresas están certificadas.",

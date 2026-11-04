@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from 'next-intl';
+import { countryCodes } from '@/helpers/country-codes';
+
+export interface AskPriceGuestInfo {
+  name: string;
+  email: string;
+  phone: string;
+  countryCode: string;
+}
 
 interface AskPriceModalProps {
   isOpen: boolean;
@@ -17,8 +25,18 @@ interface AskPriceModalProps {
     comment: string;
   };
   onFormChange: (data: { warehouseId?: string; quantity?: number; comment?: string }) => void;
+  /** Незалогінений відвідувач — показуємо поля контактів. */
+  isGuest: boolean;
+  guestInfo: AskPriceGuestInfo;
+  onGuestInfoChange: (data: Partial<AskPriceGuestInfo>) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function isGuestInfoValid(info: AskPriceGuestInfo): boolean {
+  return info.name.trim().length > 0 && EMAIL_RE.test(info.email.trim());
 }
 
 export function AskPriceModal({
@@ -28,11 +46,16 @@ export function AskPriceModal({
   warehouses,
   formData,
   onFormChange,
+  isGuest,
+  guestInfo,
+  onGuestInfoChange,
   onSubmit,
   isSubmitting,
 }: AskPriceModalProps) {
   const t = useTranslations('product');
-  
+  const canSubmit =
+    !!formData.warehouseId && !isSubmitting && (!isGuest || isGuestInfoValid(guestInfo));
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -45,7 +68,7 @@ export function AskPriceModal({
             <label className="block text-sm font-medium mb-2">{t('askPriceModal.product')}</label>
             <p className="text-sm text-gray-600">{productName}</p>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-2">{t('askPriceModal.selectWarehouse')}</label>
             <select
@@ -74,6 +97,55 @@ export function AskPriceModal({
             />
           </div>
 
+          {isGuest && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">{t('askPriceModal.name')} *</label>
+                <Input
+                  type="text"
+                  autoComplete="name"
+                  value={guestInfo.name}
+                  onChange={(e) => onGuestInfoChange({ name: e.target.value })}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">{t('askPriceModal.email')} *</label>
+                <Input
+                  type="email"
+                  autoComplete="email"
+                  value={guestInfo.email}
+                  onChange={(e) => onGuestInfoChange({ email: e.target.value })}
+                  placeholder="your@email.com"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">{t('askPriceModal.phone')}</label>
+                <div className="flex gap-2">
+                  <select
+                    value={guestInfo.countryCode}
+                    onChange={(e) => onGuestInfoChange({ countryCode: e.target.value })}
+                    className="w-[100px] rounded border px-2 py-2 text-sm"
+                  >
+                    {countryCodes.map((item) => (
+                      <option key={`${item.country}-${item.code}`} value={item.code}>
+                        {item.code}
+                      </option>
+                    ))}
+                  </select>
+                  <Input
+                    type="tel"
+                    autoComplete="tel-national"
+                    value={guestInfo.phone}
+                    onChange={(e) => onGuestInfoChange({ phone: e.target.value })}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-sm font-medium mb-2">{t('askPriceModal.comments')}</label>
             <Textarea
@@ -95,7 +167,7 @@ export function AskPriceModal({
             </Button>
             <Button
               onClick={onSubmit}
-              disabled={!formData.warehouseId || isSubmitting}
+              disabled={!canSubmit}
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
               {isSubmitting ? t('askPriceModal.submitting') : t('askPriceModal.submit')}

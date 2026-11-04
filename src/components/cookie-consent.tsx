@@ -48,6 +48,7 @@ function pushConsentEvent(state: ConsentState) {
   w.dataLayer = w.dataLayer || [];
   w.dataLayer.push({
     event: "cookie_consent_update",
+    consent_functional: state.functional,
     consent_analytics: state.analytics,
     consent_marketing: state.marketing,
   });
@@ -64,7 +65,7 @@ export default function CookieConsent({ requireConsent }: { requireConsent: bool
     // UA-домен: згода не потрібна (не підпадає під ePrivacy), вікно не показуємо —
     // consent mode у <head> уже "granted".
     if (!requireConsent) {
-      applyConsent({ analytics: true, marketing: true });
+      applyConsent({ functional: true, analytics: true, marketing: true });
       return;
     }
     if (started) return;
@@ -100,6 +101,11 @@ export default function CookieConsent({ requireConsent }: { requireConsent: bool
             linkedCategory: "necessary",
           },
           {
+            title: t("preferences.functional.title"),
+            description: t("preferences.functional.description"),
+            linkedCategory: "functional",
+          },
+          {
             title: t("preferences.analytics.title"),
             description: t("preferences.analytics.description"),
             linkedCategory: "analytics",
@@ -128,6 +134,7 @@ export default function CookieConsent({ requireConsent }: { requireConsent: bool
 
       const accepted = (category: ConsentCategory) => CC.acceptedCategory(category);
       const currentState = (): ConsentState => ({
+        functional: accepted("functional"),
         analytics: accepted("analytics"),
         marketing: accepted("marketing"),
       });
@@ -148,6 +155,13 @@ export default function CookieConsent({ requireConsent }: { requireConsent: bool
         },
         categories: {
           necessary: { enabled: true, readOnly: true },
+          functional: {
+            // Віджет Tawk.to не вивантажується без перезавантаження сторінки.
+            autoClear: {
+              cookies: [{ name: /^twk_/ }, { name: "TawkConnectionTime" }, { name: "__tawkuuid" }],
+              reloadPage: true,
+            },
+          },
           analytics: {
             autoClear: {
               cookies: [{ name: /^_ga/ }, { name: "_gid" }, { name: /^_cl(ck|sk)$/ }],

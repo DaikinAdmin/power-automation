@@ -12,11 +12,13 @@ export const CONSENT_COOKIE = 'cc_cookie';
  * Збільшити, коли змінюється перелік сервісів/cookies (новий трекер тощо) —
  * збережена згода зі старою ревізією стає недійсною і вікно показується знову.
  */
-export const CONSENT_REVISION = 1;
+export const CONSENT_REVISION = 2;
 
-export type ConsentCategory = 'necessary' | 'analytics' | 'marketing';
+export type ConsentCategory = 'necessary' | 'functional' | 'analytics' | 'marketing';
 
 export interface ConsentState {
+  /** Онлайн-чат Tawk.to */
+  functional: boolean;
   /** Google Analytics 4 + Microsoft Clarity */
   analytics: boolean;
   /** Google Ads (конверсії, ремаркетинг) + збереження gclid */

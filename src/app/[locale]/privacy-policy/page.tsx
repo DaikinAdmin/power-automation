@@ -64,6 +64,7 @@ export default async function PrivacyPolicyPage() {
             <p className="mb-2">{t(hasConsentBanner ? "s5.intro" : "s5.introImplied")}</p>
             <ul className="list-disc pl-6 space-y-1 mb-2">
               <li>{t("s5.necessary")}</li>
+              {hasConsentBanner && <li>{t("s5.functional")}</li>}
               <li>{t("s5.analytics")}</li>
               <li>{t("s5.marketing")}</li>
             </ul>

@@ -20,6 +20,7 @@ import { CONSENT_COOKIE, CONSENT_REVISION } from "@/lib/consent";
 import LoyaltyPopup from "@/components/loyalty-popup";
 import { CatalogDataProvider } from "@/components/catalog-data-context";
 import AdClickTracker from "@/components/ad-click-tracker";
+import TawkChat from "@/components/tawk-chat";
 
 export { generateLayoutMetadata as generateMetadata } from "@/lib/seo-metadata";
 
@@ -157,6 +158,8 @@ export default async function LocaleLayout({
           <CookieConsent requireConsent={domainConfig.key !== "ua"} />
           {!isAdmin && <AdClickTracker domain={domainConfig.key} />}
           {!isAdmin && <LoyaltyPopup />}
+          {/* Онлайн-чат лише для PL; на UA працює Binotel */}
+          {!isAdmin && domainConfig.key === "pl" && <TawkChat />}
         </NextIntlClientProvider>
       </body>
     </html>
