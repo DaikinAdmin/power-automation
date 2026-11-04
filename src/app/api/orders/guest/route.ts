@@ -4,17 +4,13 @@
  * Temporary quick-order endpoint for the UA domain (conversion-rate testing).
  * Automatically creates a user account for first-time visitors and places the
  * order on their behalf. Sends a welcome e-mail with login credentials.
- *
- * Also accepts guest «ask for price» requests from the product page
- * (`isPriceRequest: true`, any domain). Those don't send the welcome e-mail —
- * a manager contacts the visitor; the account can be claimed via password reset.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { hashPassword } from 'better-auth/crypto';
-import { orderHandler, priceRequestHandler } from '../shared';
+import { orderHandler } from '../shared';
 import { email } from '@/helpers/email/resend';
 import logger from '@/lib/logger';
 import { apiErrorHandler, BadRequestError } from '@/lib/error-handler';
@@ -127,19 +123,6 @@ export async function POST(request: NextRequest) {
     } else {
       userId = existingUser.id;
       logger.info('Guest order for existing user', { userId, email: normalizedEmail });
-    }
-
-    // ── 2a. Price request: no cart, no welcome e-mail ────────
-    if (orderPayload.isPriceRequest) {
-      // У існуючого акаунта контакти можуть бути старими — дублюємо введені
-      // у формі в коментар, щоб менеджер бачив, куди відповідати.
-      const contact = [guestName, normalizedEmail, guestPhone ? `${guestCountryCode} ${guestPhone}` : '']
-        .filter(Boolean)
-        .join(', ');
-      const comment = [orderPayload.comment, existingUser ? `Kontakt: ${contact}` : '']
-        .filter(Boolean)
-        .join('\n\n');
-      return priceRequestHandler({ ...orderPayload, comment }, userId, request.headers.get('host'));
     }
 
     // ── 2. Enrich payload with guest customer info ──────────

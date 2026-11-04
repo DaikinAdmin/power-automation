@@ -2160,66 +2160,7 @@
       }
     },
     "deliveryCostNote": "Kwota płatności nie zawiera kosztu dostawy. Opłata za dostawę realizowana jest zgodnie z taryfami przewoźnika.",
-    "courierAddressMissing": "Aby dostarczyć kurierem, wypełnij adres w sekcji ‘Szczegóły dostawy’ powyżej.",
-    "emails": {
-      "newOrderManager": {
-        "subject": "Nowe zamówienie #{orderShortId} od {customerName}",
-        "title": "Nowe zamówienie otrzymano",
-        "orderId": "Nr zamówienia",
-        "customer": "Klient",
-        "email": "Email",
-        "phone": "Telefon",
-        "company": "Firma",
-        "total": "Suma",
-        "comment": "Komentarz",
-        "orderItems": "Pozycje zamówienia",
-        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
-      },
-      "newOrderCustomer": {
-        "subject": "Potwierdzenie zamówienia #{orderShortId} — PowerAutomation",
-        "title": "Dziękujemy za zamówienie!",
-        "greeting": "Drogi {customerName},",
-        "received": "Otrzymaliśmy Twoje zamówienie #{orderShortId}.",
-        "orderSummary": "Podsumowanie zamówienia",
-        "total": "Suma",
-        "nextEmail": "Otrzymasz kolejny email po potwierdzeniu płatności.",
-        "footer": "W razie pytań skontaktuj się z nami:"
-      },
-      "paymentSuccessManager": {
-        "subject": "Płatność za zamówienie #{orderShortId} otrzymana",
-        "title": "Płatność otrzymana",
-        "orderId": "Nr zamówienia",
-        "customer": "Klient",
-        "phone": "Telefon",
-        "company": "Firma",
-        "paymentAmount": "Kwota płatności",
-        "paymentMethod": "Metoda płatności",
-        "transactionId": "ID transakcji",
-        "orderTotal": "Suma zamówienia",
-        "orderItems": "Pozycje zamówienia",
-        "footer": "To jest automatyczne powiadomienie z PowerAutomation."
-      },
-      "paymentSuccessCustomer": {
-        "subject": "Płatność potwierdzona — zamówienie #{orderShortId} — PowerAutomation",
-        "title": "Płatność potwierdzona!",
-        "greeting": "Drogi {customerName},",
-        "confirmed": "Twoja płatność za zamówienie #{orderShortId} została pomyślnie przetworzona.",
-        "amountPaid": "Zapłacona kwota",
-        "paymentMethod": "Metoda płatności",
-        "transactionId": "ID transakcji",
-        "orderSummary": "Podsumowanie zamówienia",
-        "total": "Suma",
-        "processing": "Twoje zamówienie jest teraz realizowane. Powiadomimy Cię, gdy zostanie wysłane.",
-        "footer": "W razie pytań skontaktuj się z nami:"
-      },
-      "table": {
-        "product": "Produkt",
-        "article": "Artykuł",
-        "qty": "Ilość",
-        "unitPrice": "Cena jedn.",
-        "total": "Suma"
-      }
-    }
+    "courierAddressMissing": "Aby dostarczyć kurierem, wypełnij adres w sekcji ‘Szczegóły dostawy’ powyżej."
   },
   "deliveryPoland": {
     "deliveryMethod": "Sposób dostawy",
@@ -2307,5 +2248,77 @@
     "description": "Zarejestruj się i otrzymaj dodatkowe rabaty na produkty dla stałych klientów.",
     "continueShopping": "Kontynuuj zakupy",
     "register": "Zarejestruj się"
+  },
+  "emails": {
+    "priceRequestManager": {
+      "subject": "Zapytanie o cenę: {articleId} — {customerName}",
+      "title": "Nowe zapytanie o cenę",
+      "product": "Produkt",
+      "article": "Artykuł",
+      "warehouse": "Magazyn",
+      "quantity": "Ilość",
+      "customer": "Klient",
+      "email": "Email",
+      "phone": "Telefon",
+      "comment": "Komentarz",
+      "footer": "To jest automatyczne powiadomienie z PowerAutomation. Odpowiedz na ten e-mail, aby napisać do klienta."
+    },
+    "newOrderManager": {
+      "subject": "Nowe zamówienie #{orderShortId} od {customerName}",
+      "title": "Nowe zamówienie otrzymano",
+      "orderId": "Nr zamówienia",
+      "customer": "Klient",
+      "email": "Email",
+      "phone": "Telefon",
+      "company": "Firma",
+      "total": "Suma",
+      "comment": "Komentarz",
+      "orderItems": "Pozycje zamówienia",
+      "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+    },
+    "newOrderCustomer": {
+      "subject": "Potwierdzenie zamówienia #{orderShortId} — PowerAutomation",
+      "title": "Dziękujemy za zamówienie!",
+      "greeting": "Drogi {customerName},",
+      "received": "Otrzymaliśmy Twoje zamówienie #{orderShortId}.",
+      "orderSummary": "Podsumowanie zamówienia",
+      "total": "Suma",
+      "nextEmail": "Otrzymasz kolejny email po potwierdzeniu płatności.",
+      "footer": "W razie pytań skontaktuj się z nami:"
+    },
+    "paymentSuccessManager": {
+      "subject": "Płatność za zamówienie #{orderShortId} otrzymana",
+      "title": "Płatność otrzymana",
+      "orderId": "Nr zamówienia",
+      "customer": "Klient",
+      "phone": "Telefon",
+      "company": "Firma",
+      "paymentAmount": "Kwota płatności",
+      "paymentMethod": "Metoda płatności",
+      "transactionId": "ID transakcji",
+      "orderTotal": "Suma zamówienia",
+      "orderItems": "Pozycje zamówienia",
+      "footer": "To jest automatyczne powiadomienie z PowerAutomation."
+    },
+    "paymentSuccessCustomer": {
+      "subject": "Płatność potwierdzona — zamówienie #{orderShortId} — PowerAutomation",
+      "title": "Płatność potwierdzona!",
+      "greeting": "Drogi {customerName},",
+      "confirmed": "Twoja płatność za zamówienie #{orderShortId} została pomyślnie przetworzona.",
+      "amountPaid": "Zapłacona kwota",
+      "paymentMethod": "Metoda płatności",
+      "transactionId": "ID transakcji",
+      "orderSummary": "Podsumowanie zamówienia",
+      "total": "Suma",
+      "processing": "Twoje zamówienie jest teraz realizowane. Powiadomimy Cię, gdy zostanie wysłane.",
+      "footer": "W razie pytań skontaktuj się z nami:"
+    },
+    "table": {
+      "product": "Produkt",
+      "article": "Artykuł",
+      "qty": "Ilość",
+      "unitPrice": "Cena jedn.",
+      "total": "Suma"
+    }
   }
 }

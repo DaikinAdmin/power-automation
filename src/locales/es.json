@@ -2122,6 +2122,19 @@
     "courierAddressMissing": "Para la entrega por mensajero, rellene su dirección en la sección &#39;Detalles de entrega&#39; de arriba."
   },
   "emails": {
+    "priceRequestManager": {
+      "subject": "Solicitud de precio: {articleId} — {customerName}",
+      "title": "Nueva solicitud de precio",
+      "product": "Producto",
+      "article": "Artículo",
+      "warehouse": "Almacén",
+      "quantity": "Cantidad",
+      "customer": "Cliente",
+      "email": "Email",
+      "phone": "Teléfono",
+      "comment": "Comentario",
+      "footer": "Esta es una notificación automática de PowerAutomation. Responde a este correo para escribir al cliente."
+    },
     "newOrderManager": {
       "subject": "Nuevo pedido #{orderShortId} de {customerName}",
       "title": "Nuevo pedido recibido",

@@ -2157,6 +2157,19 @@
     "courierAddressMissing": "For courier delivery, please fill in your address in the &#39;Delivery Details&#39; section above."
   },
   "emails": {
+    "priceRequestManager": {
+      "subject": "Price request: {articleId} — {customerName}",
+      "title": "New price request",
+      "product": "Product",
+      "article": "Article",
+      "warehouse": "Warehouse",
+      "quantity": "Quantity",
+      "customer": "Customer",
+      "email": "Email",
+      "phone": "Phone",
+      "comment": "Comment",
+      "footer": "This is an automated notification from PowerAutomation. Reply to this e-mail to contact the customer."
+    },
     "newOrderManager": {
       "subject": "New Order #{orderShortId} from {customerName}",
       "title": "New Order Received",

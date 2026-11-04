@@ -361,6 +361,85 @@ export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<
 }
 
 // ---------------------------------------------------------------------------
+// Price request (product page «Ask for price»)
+// ---------------------------------------------------------------------------
+
+export interface PriceRequestEmailData {
+  customerName: string;
+  customerEmail: string;
+  customerPhone?: string;
+  productName: string;
+  articleId: string;
+  productUrl: string;
+  warehouseName?: string | null;
+  quantity: number;
+  comment?: string | null;
+  /** Locale the visitor used — the e-mail is rendered in it, like order e-mails. */
+  locale?: string;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Лист менеджерам (MANAGER_EMAILS) із запитом ціни. Це єдиний канал доставки
+ * запиту, тому, на відміну від листів про замовлення, кидає помилку, якщо
+ * лист не пішов жодному адресату.
+ */
+export async function sendPriceRequestManagerEmail(data: PriceRequestEmailData): Promise<void> {
+  const locale = normalizeLocale(data.locale);
+  const m = await loadMessages(locale, 'emails.priceRequestManager');
+  const e = (v: string | number) => escapeHtml(String(v));
+
+  const subject = t(m, 'subject', { articleId: data.articleId, customerName: data.customerName });
+  const row = (label: string, value: string) =>
+    `<p><strong>${e(label)}:</strong> ${value}</p>`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <h2 style="color:#1a56db;">${e(t(m, 'title'))}</h2>
+      ${row(t(m, 'product'), `<a href="${e(data.productUrl)}">${e(data.productName)}</a>`)}
+      ${row(t(m, 'article'), e(data.articleId))}
+      ${data.warehouseName ? row(t(m, 'warehouse'), e(data.warehouseName)) : ''}
+      ${row(t(m, 'quantity'), e(data.quantity))}
+      <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
+      ${row(t(m, 'customer'), e(data.customerName))}
+      ${row(t(m, 'email'), `<a href="mailto:${e(data.customerEmail)}">${e(data.customerEmail)}</a>`)}
+      ${data.customerPhone ? row(t(m, 'phone'), e(data.customerPhone)) : ''}
+      ${data.comment ? row(t(m, 'comment'), e(data.comment).replace(/\n/g, '<br />')) : ''}
+      <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
+      <p style="color:#666;font-size:12px;">${e(t(m, 'footer'))}</p>
+    </div>`;
+
+  const managerEmails = getManagerEmails();
+  const results = await Promise.allSettled(
+    managerEmails.map((to) =>
+      email.sendMail({ from: FROM_EMAIL, to, replyTo: data.customerEmail, subject, html }),
+    ),
+  );
+  const failed = results.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
+
+  if (failed.length === results.length) {
+    logger.error('Failed to send price request email', {
+      articleId: data.articleId,
+      error: String(failed[0]?.reason),
+    });
+    throw new Error('Price request e-mail could not be sent');
+  }
+  logger.info('Price request email sent to manager', {
+    articleId: data.articleId,
+    recipients: managerEmails,
+    failed: failed.length,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Convenience wrappers
 // ---------------------------------------------------------------------------
 

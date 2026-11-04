@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from 'next-intl';
 import { countryCodes } from '@/helpers/country-codes';
 
-export interface AskPriceGuestInfo {
+export interface AskPriceContactInfo {
   name: string;
   email: string;
   phone: string;
@@ -25,17 +25,16 @@ interface AskPriceModalProps {
     comment: string;
   };
   onFormChange: (data: { warehouseId?: string; quantity?: number; comment?: string }) => void;
-  /** Незалогінений відвідувач — показуємо поля контактів. */
-  isGuest: boolean;
-  guestInfo: AskPriceGuestInfo;
-  onGuestInfoChange: (data: Partial<AskPriceGuestInfo>) => void;
+  /** Контакти, на які менеджер відповість (для залогіненого — з профілю). */
+  contactInfo: AskPriceContactInfo;
+  onContactInfoChange: (data: Partial<AskPriceContactInfo>) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function isGuestInfoValid(info: AskPriceGuestInfo): boolean {
+export function isContactInfoValid(info: AskPriceContactInfo): boolean {
   return info.name.trim().length > 0 && EMAIL_RE.test(info.email.trim());
 }
 
@@ -46,15 +45,14 @@ export function AskPriceModal({
   warehouses,
   formData,
   onFormChange,
-  isGuest,
-  guestInfo,
-  onGuestInfoChange,
+  contactInfo,
+  onContactInfoChange,
   onSubmit,
   isSubmitting,
 }: AskPriceModalProps) {
   const t = useTranslations('product');
   const canSubmit =
-    !!formData.warehouseId && !isSubmitting && (!isGuest || isGuestInfoValid(guestInfo));
+    !!formData.warehouseId && !isSubmitting && isContactInfoValid(contactInfo);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -97,54 +95,50 @@ export function AskPriceModal({
             />
           </div>
 
-          {isGuest && (
-            <>
-              <div>
-                <label className="block text-sm font-medium mb-2">{t('askPriceModal.name')} *</label>
-                <Input
-                  type="text"
-                  autoComplete="name"
-                  value={guestInfo.name}
-                  onChange={(e) => onGuestInfoChange({ name: e.target.value })}
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">{t('askPriceModal.email')} *</label>
-                <Input
-                  type="email"
-                  autoComplete="email"
-                  value={guestInfo.email}
-                  onChange={(e) => onGuestInfoChange({ email: e.target.value })}
-                  placeholder="your@email.com"
-                  className="w-full"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">{t('askPriceModal.phone')}</label>
-                <div className="flex gap-2">
-                  <select
-                    value={guestInfo.countryCode}
-                    onChange={(e) => onGuestInfoChange({ countryCode: e.target.value })}
-                    className="w-[100px] rounded border px-2 py-2 text-sm"
-                  >
-                    {countryCodes.map((item) => (
-                      <option key={`${item.country}-${item.code}`} value={item.code}>
-                        {item.code}
-                      </option>
-                    ))}
-                  </select>
-                  <Input
-                    type="tel"
-                    autoComplete="tel-national"
-                    value={guestInfo.phone}
-                    onChange={(e) => onGuestInfoChange({ phone: e.target.value })}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('askPriceModal.name')} *</label>
+            <Input
+              type="text"
+              autoComplete="name"
+              value={contactInfo.name}
+              onChange={(e) => onContactInfoChange({ name: e.target.value })}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('askPriceModal.email')} *</label>
+            <Input
+              type="email"
+              autoComplete="email"
+              value={contactInfo.email}
+              onChange={(e) => onContactInfoChange({ email: e.target.value })}
+              placeholder="your@email.com"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">{t('askPriceModal.phone')}</label>
+            <div className="flex gap-2">
+              <select
+                value={contactInfo.countryCode}
+                onChange={(e) => onContactInfoChange({ countryCode: e.target.value })}
+                className="w-[100px] rounded border px-2 py-2 text-sm"
+              >
+                {countryCodes.map((item) => (
+                  <option key={`${item.country}-${item.code}`} value={item.code}>
+                    {item.code}
+                  </option>
+                ))}
+              </select>
+              <Input
+                type="tel"
+                autoComplete="tel-national"
+                value={contactInfo.phone}
+                onChange={(e) => onContactInfoChange({ phone: e.target.value })}
+                className="flex-1"
+              />
+            </div>
+          </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">{t('askPriceModal.comments')}</label>

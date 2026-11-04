@@ -2163,6 +2163,19 @@
     "courierAddressMissing": "Для доставки кур'єром вкажіть адресу у розділі 'Деталі доставки' вище."
   },
   "emails": {
+    "priceRequestManager": {
+      "subject": "Запит ціни: {articleId} — {customerName}",
+      "title": "Новий запит ціни",
+      "product": "Товар",
+      "article": "Артикул",
+      "warehouse": "Склад",
+      "quantity": "Кількість",
+      "customer": "Клієнт",
+      "email": "Email",
+      "phone": "Телефон",
+      "comment": "Коментар",
+      "footer": "Це автоматичне повідомлення від PowerAutomation. Відповідайте на цей лист, щоб написати клієнту."
+    },
     "newOrderManager": {
       "subject": "Нове замовлення #{orderShortId} від {customerName}",
       "title": "Нове замовлення отримано",

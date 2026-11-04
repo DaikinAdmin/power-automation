@@ -16,8 +16,8 @@ import { ProductOpinionForm } from "@/components/product/product-opinion-form";
 import { RelatedProductsCarousel } from "@/components/product/related-products-carousel";
 import {
   AskPriceModal,
-  isGuestInfoValid,
-  type AskPriceGuestInfo,
+  isContactInfoValid,
+  type AskPriceContactInfo,
 } from "@/components/product/ask-price-modal";
 import { authClient } from "@/lib/auth-client";
 import { calculateDiscountPercentage } from "@/helpers/pricing";
@@ -60,7 +60,6 @@ export default function ProductPageClient({
   const { addToCompare, isInCompare } = useCompare();
   const t = useTranslations("product");
   const session = authClient.useSession();
-  const isGuest = !session.isPending && !session.data?.user;
 
   const [product, setProduct] = useState<ProductDetailsResponse | null>(null);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
@@ -76,7 +75,7 @@ export default function ProductPageClient({
   });
   const [isSubmittingPriceRequest, setIsSubmittingPriceRequest] =
     useState(false);
-  const [askPriceGuest, setAskPriceGuest] = useState<AskPriceGuestInfo>({
+  const [askPriceContact, setAskPriceContact] = useState<AskPriceContactInfo>({
     name: "",
     email: "",
     phone: "",
@@ -160,6 +159,20 @@ export default function ProductPageClient({
       setShowAskPriceModal(true);
     }
   }, [showAskPrice]);
+
+  // Залогіненому підставляємо контакти з профілю (поля лишаються редагованими).
+  const sessionUser = session.data?.user as
+    | { name?: string; email?: string; phoneNumber?: string | null; countryCode?: string | null }
+    | undefined;
+  useEffect(() => {
+    if (!sessionUser) return;
+    setAskPriceContact((prev) => ({
+      name: prev.name || sessionUser.name || "",
+      email: prev.email || sessionUser.email || "",
+      phone: prev.phone || sessionUser.phoneNumber || "",
+      countryCode: prev.phone ? prev.countryCode : sessionUser.countryCode || prev.countryCode,
+    }));
+  }, [sessionUser]);
 
   useEffect(() => {
     if (!product) return;
@@ -383,36 +396,28 @@ export default function ProductPageClient({
     if (!product || !askPriceForm.warehouseId || isSubmittingPriceRequest) {
       return;
     }
-    if (isGuest && !isGuestInfoValid(askPriceGuest)) return;
+    if (!isContactInfoValid(askPriceContact)) return;
 
     setIsSubmittingPriceRequest(true);
 
     try {
-      const payload = {
-        itemId: product.id,
-        warehouseId: askPriceForm.warehouseId,
-        quantity: askPriceForm.quantity,
-        comment: askPriceForm.comment,
-        isPriceRequest: true,
-        locale,
-      };
-      // Гість (без сесії) — через /api/orders/guest: акаунт створюється за email.
-      const response = await fetch(isGuest ? "/api/orders/guest" : "/api/orders", {
+      // Запит ціни не прив'язаний до акаунта — це лише лист менеджерам.
+      const response = await fetch("/api/price-request", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(
-          isGuest
-            ? {
-                ...payload,
-                guestName: askPriceGuest.name.trim(),
-                guestEmail: askPriceGuest.email.trim(),
-                guestPhone: askPriceGuest.phone.trim(),
-                guestCountryCode: askPriceGuest.countryCode,
-              }
-            : payload,
-        ),
+        body: JSON.stringify({
+          itemId: product.id,
+          warehouseId: askPriceForm.warehouseId,
+          quantity: askPriceForm.quantity,
+          comment: askPriceForm.comment,
+          name: askPriceContact.name.trim(),
+          email: askPriceContact.email.trim(),
+          phone: askPriceContact.phone.trim(),
+          countryCode: askPriceContact.countryCode,
+          locale,
+        }),
       });
 
       if (response.ok) {
@@ -596,10 +601,9 @@ export default function ProductPageClient({
         onFormChange={(updates) =>
           setAskPriceForm((prev) => ({ ...prev, ...updates }))
         }
-        isGuest={isGuest}
-        guestInfo={askPriceGuest}
-        onGuestInfoChange={(updates) =>
-          setAskPriceGuest((prev) => ({ ...prev, ...updates }))
+        contactInfo={askPriceContact}
+        onContactInfoChange={(updates) =>
+          setAskPriceContact((prev) => ({ ...prev, ...updates }))
         }
         onSubmit={handleAskForPrice}
         isSubmitting={isSubmittingPriceRequest}
