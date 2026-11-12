@@ -1940,7 +1940,18 @@
       "deliveryPlaceholder": "Wprowadź ID dostawy...",
       "updating": "Aktualizowanie...",
       "updateBtn": "Zaktualizuj status",
-      "noPermission": "Nie masz uprawnień do aktualizacji tego zamówienia."
+      "noPermission": "Nie masz uprawnień do aktualizacji tego zamówienia.",
+      "stockReturn": {
+        "title": "Zwrócić towar na stan magazynowy?",
+        "description": "Produkty z tego zamówienia zostały zdjęte ze stanu magazynowego. Przywrócić je na stan po anulowaniu?",
+        "cancelAndReturn": "Anuluj i zwróć na magazyn",
+        "cancelWithoutReturn": "Anuluj bez zwrotu",
+        "back": "Wstecz",
+        "returned": "Zamówienie zaktualizowane, towar wrócił na stan magazynowy",
+        "pendingNote": "Zamówienie jest anulowane, ale jego produkty nadal są zdjęte ze stanu magazynowego.",
+        "returnNow": "Zwróć towar na magazyn",
+        "error": "Nie udało się zwrócić towaru na magazyn"
+      }
     },
     "warehouseModal": {
       "addTitle": "Dodaj magazyn",

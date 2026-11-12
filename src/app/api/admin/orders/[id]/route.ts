@@ -15,6 +15,15 @@ import { ORDER_STATUS_OPTIONS } from "@/constants/order";
 import { isWarehouseVisibleOnDomain } from "@/helpers/db/warehouse-visibility";
 import { isPromoActive } from "@/helpers/pricing";
 import type { DomainKey } from "@/lib/domain-config";
+import {
+  deductStock,
+  restoreStock,
+  resolveLineItemSlug,
+  restoreLineItemsStock,
+  reserveLineItemsStock,
+  orderHoldsStock,
+  hasDeductedStock,
+} from "@/lib/order-stock";
 
 const AUTHORIZED_ROLES = new Set(["admin", "employee"]);
 
@@ -400,6 +409,7 @@ export async function PATCH(
           lineItems: schema.order.lineItems,
           notes: schema.order.notes,
           currency: schema.order.currency,
+          status: schema.order.status,
         })
         .from(schema.order)
         .where(eq(schema.order.id, id))
@@ -469,14 +479,37 @@ export async function PATCH(
         `Warehouse reassignment: "${line.name}" ${oldWarehouseLabel} → ${newWarehouseLabel}${reason ? ` — ${reason}` : ""}`,
       );
 
-      await db
-        .update(schema.order)
-        .set({
-          lineItems: updatedLineItems,
-          notes: updatedNotes,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(schema.order.id, id));
+      await db.transaction(async (tx) => {
+        // Stock follows the line: what it held goes back to the old
+        // warehouse and is taken from the new one. Lines that predate stock
+        // deduction (stockDeducted undefined) never held anything, so they
+        // move without touching stock.
+        if (line.stockDeducted != null && result.item.itemSlug) {
+          const slug = result.item.itemSlug;
+          if (line.stockDeducted > 0) {
+            await restoreStock(tx, slug, line.warehouseId, line.stockDeducted);
+          }
+          let deducted = 0;
+          if (orderHoldsStock(existing.status)) {
+            deducted = (await deductStock(tx, slug, targetWarehouseId, line.quantity ?? 0, "lenient")) ?? 0;
+            if (deducted < (line.quantity ?? 0)) {
+              warnings.push(
+                `Target warehouse only had ${deducted} of ${line.quantity} in stock — its stock is now 0.`,
+              );
+            }
+          }
+          updatedLineItems[lineIndex] = { ...result.item, stockDeducted: deducted };
+        }
+
+        await tx
+          .update(schema.order)
+          .set({
+            lineItems: updatedLineItems,
+            notes: updatedNotes,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.order.id, id));
+      });
 
       return NextResponse.json({
         lineItems: updatedLineItems.map(computeLineItemDerived),
@@ -640,6 +673,7 @@ export async function PATCH(
           notes: schema.order.notes,
           currency: schema.order.currency,
           locale: schema.order.locale,
+          status: schema.order.status,
         })
         .from(schema.order)
         .where(eq(schema.order.id, id))
@@ -661,6 +695,9 @@ export async function PATCH(
 
       const actorLabel =
         authResult.session.user.email ?? authResult.session.user.name ?? authResult.role;
+      // A cancelled order / price request holds no stock — lines added to
+      // it are only reserved once it becomes a live order again.
+      const holdsStock = orderHoldsStock(existing.status);
 
       // Already on the order from this exact warehouse — increase quantity
       // on that line rather than creating a duplicate. Same item from a
@@ -680,24 +717,40 @@ export async function PATCH(
           actorLabel,
           `Increased quantity: "${existingLine.name}" +${quantity} (now ${updatedLineItems[existingIndex].quantity})${reason ? ` — ${reason}` : ""}`,
         );
-        await db
-          .update(schema.order)
-          .set({
-            lineItems: updatedLineItems,
-            notes: updatedNotes,
-            totalNet: totals.totalNet,
-            totalVat: totals.totalVat,
-            totalGross: totals.totalGross,
-            updatedAt: new Date().toISOString(),
-          })
-          .where(eq(schema.order.id, id));
+        const increaseWarnings: string[] = [];
+        await db.transaction(async (tx) => {
+          // Write off the extra units (admins may knowingly oversell, so
+          // this takes what's available rather than blocking the edit).
+          let deducted = 0;
+          if (holdsStock) {
+            deducted = (await deductStock(tx, itemSlug, warehouseId, quantity, "lenient")) ?? 0;
+            if (deducted < quantity) {
+              increaseWarnings.push("Requested quantity exceeds current stock at this warehouse.");
+            }
+          }
+          updatedLineItems[existingIndex] = {
+            ...updatedLineItems[existingIndex],
+            stockDeducted: (existingLine.stockDeducted ?? 0) + deducted,
+          };
+          await tx
+            .update(schema.order)
+            .set({
+              lineItems: updatedLineItems,
+              notes: updatedNotes,
+              totalNet: totals.totalNet,
+              totalVat: totals.totalVat,
+              totalGross: totals.totalGross,
+              updatedAt: new Date().toISOString(),
+            })
+            .where(eq(schema.order.id, id));
+        });
         return NextResponse.json({
           lineItems: updatedLineItems.map(computeLineItemDerived),
           notes: updatedNotes,
           totalNet: totals.totalNet,
           totalVat: totals.totalVat,
           totalGross: totals.totalGross,
-          warnings: [],
+          warnings: increaseWarnings,
         });
       }
 
@@ -791,17 +844,25 @@ export async function PATCH(
         `Added item: "${name}" x${quantity} from ${priceRow.warehouse.displayedName ?? priceRow.warehouse.name ?? warehouseId}${reason ? ` — ${reason}` : ""}`,
       );
 
-      await db
-        .update(schema.order)
-        .set({
-          lineItems: updatedLineItems,
-          notes: updatedNotes,
-          totalNet: totals.totalNet,
-          totalVat: totals.totalVat,
-          totalGross: totals.totalGross,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(schema.order.id, id));
+      await db.transaction(async (tx) => {
+        // Takes what's available (the oversell warning above already told
+        // the admin when stock doesn't cover the quantity).
+        const deducted = holdsStock
+          ? ((await deductStock(tx, itemSlug, warehouseId, quantity, "lenient")) ?? 0)
+          : 0;
+        updatedLineItems[updatedLineItems.length - 1] = { ...newLine, stockDeducted: deducted };
+        await tx
+          .update(schema.order)
+          .set({
+            lineItems: updatedLineItems,
+            notes: updatedNotes,
+            totalNet: totals.totalNet,
+            totalVat: totals.totalVat,
+            totalGross: totals.totalGross,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.order.id, id));
+      });
 
       return NextResponse.json({
         lineItems: updatedLineItems.map(computeLineItemDerived),
@@ -844,23 +905,31 @@ export async function PATCH(
 
       const actorLabel =
         authResult.session.user.email ?? authResult.session.user.name ?? authResult.role;
+      const heldUnits = line.stockDeducted ?? 0;
       const updatedNotes = appendAuditNote(
         existing.notes,
         actorLabel,
-        `Removed item: "${line.name}" x${line.quantity}${reason ? ` — ${reason}` : ""}`,
+        `Removed item: "${line.name}" x${line.quantity}${heldUnits > 0 ? ` (${heldUnits} returned to stock)` : ""}${reason ? ` — ${reason}` : ""}`,
       );
 
-      await db
-        .update(schema.order)
-        .set({
-          lineItems: updatedLineItems,
-          notes: updatedNotes,
-          totalNet: totals.totalNet,
-          totalVat: totals.totalVat,
-          totalGross: totals.totalGross,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(schema.order.id, id));
+      await db.transaction(async (tx) => {
+        // The line is gone from the order, so whatever it held goes back.
+        if (heldUnits > 0) {
+          const slug = await resolveLineItemSlug(tx, line);
+          if (slug) await restoreStock(tx, slug, line.warehouseId, heldUnits);
+        }
+        await tx
+          .update(schema.order)
+          .set({
+            lineItems: updatedLineItems,
+            notes: updatedNotes,
+            totalNet: totals.totalNet,
+            totalVat: totals.totalVat,
+            totalGross: totals.totalGross,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.order.id, id));
+      });
 
       return NextResponse.json({
         lineItems: updatedLineItems.map(computeLineItemDerived),
@@ -872,9 +941,59 @@ export async function PATCH(
       });
     }
 
-    const { status, deliveryId } = body as {
+    // Return a cancelled order's stock to the warehouses after the fact —
+    // for when the admin cancelled without returning it and later wants to.
+    if (body.action === "restoreStock") {
+      const actorLabel =
+        authResult.session.user.email ?? authResult.session.user.name ?? authResult.role;
+      const result = await db.transaction(async (tx) => {
+        const [locked] = await tx
+          .select({
+            status: schema.order.status,
+            lineItems: schema.order.lineItems,
+            notes: schema.order.notes,
+          })
+          .from(schema.order)
+          .where(eq(schema.order.id, id))
+          .limit(1)
+          .for("update");
+        if (!locked) return { error: "Order not found", code: 404 } as const;
+        if (locked.status !== "CANCELLED") {
+          return { error: "Stock can only be returned for a cancelled order", code: 400 } as const;
+        }
+        const restored = await restoreLineItemsStock(
+          tx,
+          parseLineItems(locked.lineItems as JsonValue | null),
+        );
+        const notes =
+          restored.restoredUnits > 0
+            ? appendAuditNote(locked.notes, actorLabel, `Stock returned to warehouse: ${restored.restoredUnits} unit(s)`)
+            : (locked.notes as OrderNoteEntry[] | null);
+        await tx
+          .update(schema.order)
+          .set({ lineItems: restored.lineItems, notes, updatedAt: new Date().toISOString() })
+          .where(eq(schema.order.id, id));
+        return { restored, notes } as const;
+      });
+      if ("error" in result) {
+        return NextResponse.json({ error: result.error }, { status: result.code });
+      }
+      return NextResponse.json({
+        lineItems: result.restored.lineItems.map(computeLineItemDerived),
+        notes: result.notes,
+        restoredUnits: result.restored.restoredUnits,
+        warnings: result.restored.missing.map(
+          (name) => `"${name}" is no longer in the catalog at that warehouse — its stock was not returned.`,
+        ),
+      });
+    }
+
+    const { status, deliveryId, restoreStock: restoreStockOnCancel } = body as {
       status?: OrderStatus;
       deliveryId?: string | null;
+      // Only meaningful when status is CANCELLED: the admin's answer to
+      // "return this order's stock to the warehouse?".
+      restoreStock?: boolean;
     };
 
     if (!status || !(ORDER_STATUS_OPTIONS as readonly string[]).includes(status)) {
@@ -907,12 +1026,65 @@ export async function PATCH(
       updateData.deliveryId = deliveryId ? deliveryId.trim() : null;
     }
 
-    // Drizzle implementation
-    const [updatedOrderData] = await db
-      .update(schema.order)
-      .set(updateData)
-      .where(eq(schema.order.id, id))
-      .returning();
+    const stockWarnings: string[] = [];
+    const statusActorLabel =
+      authResult.session.user.email ?? authResult.session.user.name ?? authResult.role;
+
+    // Status and stock change together, under a lock on the order row, so
+    // two concurrent submits can't return (or reserve) the same units twice.
+    const updatedOrderData = await db.transaction(async (tx) => {
+      const [locked] = await tx
+        .select({
+          status: schema.order.status,
+          lineItems: schema.order.lineItems,
+          notes: schema.order.notes,
+        })
+        .from(schema.order)
+        .where(eq(schema.order.id, id))
+        .limit(1)
+        .for("update");
+      if (!locked) return null;
+
+      const currentLines = parseLineItems(locked.lineItems as JsonValue | null);
+
+      if (status === "CANCELLED" && restoreStockOnCancel === true && hasDeductedStock(currentLines)) {
+        // Cancelled, and the admin chose to put the goods back on the shelf.
+        const restored = await restoreLineItemsStock(tx, currentLines);
+        updateData.lineItems = restored.lineItems;
+        updateData.notes = appendAuditNote(
+          locked.notes,
+          statusActorLabel,
+          `Order cancelled — stock returned to warehouse: ${restored.restoredUnits} unit(s)`,
+        );
+        for (const name of restored.missing) {
+          stockWarnings.push(
+            `"${name}" is no longer in the catalog at that warehouse — its stock was not returned.`,
+          );
+        }
+      } else if (!orderHoldsStock(locked.status) && orderHoldsStock(status)) {
+        // The order is live again (cancellation undone, or a price request
+        // turned into a real order) — take back the stock it no longer holds.
+        const reserved = await reserveLineItemsStock(tx, currentLines);
+        updateData.lineItems = reserved.lineItems;
+        if (reserved.reservedUnits > 0) {
+          updateData.notes = appendAuditNote(
+            locked.notes,
+            statusActorLabel,
+            `Order reactivated — stock reserved again: ${reserved.reservedUnits} unit(s)`,
+          );
+        }
+        for (const name of reserved.shortages) {
+          stockWarnings.push(`Not enough stock to fully cover "${name}".`);
+        }
+      }
+
+      const [row] = await tx
+        .update(schema.order)
+        .set(updateData)
+        .where(eq(schema.order.id, id))
+        .returning();
+      return row ?? null;
+    });
 
     if (!updatedOrderData) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -1030,6 +1202,7 @@ export async function PATCH(
       order: mapOrder(updatedOrder),
       currency: paymentRecord?.currency ?? null,
       viewerRole: authResult.role,
+      warnings: stockWarnings,
     });
   } catch (error) {
     console.error("Error updating order status:", error);

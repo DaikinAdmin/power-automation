@@ -1899,7 +1899,18 @@
       "deliveryPlaceholder": "Introduce el ID de entrega...",
       "updating": "Actualizando...",
       "updateBtn": "Actualizar estado",
-      "noPermission": "No tienes permiso para actualizar este pedido."
+      "noPermission": "No tienes permiso para actualizar este pedido.",
+      "stockReturn": {
+        "title": "¿Devolver las existencias al almacén?",
+        "description": "Los artículos de este pedido se descontaron del stock del almacén. ¿Devolverlos al stock tras la cancelación?",
+        "cancelAndReturn": "Cancelar y devolver al almacén",
+        "cancelWithoutReturn": "Cancelar sin devolver",
+        "back": "Atrás",
+        "returned": "Pedido actualizado, existencias devueltas al almacén",
+        "pendingNote": "El pedido está cancelado, pero sus artículos siguen descontados del stock del almacén.",
+        "returnNow": "Devolver existencias al almacén",
+        "error": "No se pudieron devolver las existencias al almacén"
+      }
     },
     "warehouseModal": {
       "addTitle": "Añadir almacén",

@@ -10,6 +10,7 @@ import { sendNewOrderEmails, type OrderEmailData } from '@/lib/order-emails';
 import { isPromoActive } from '@/helpers/pricing';
 import { getVisibleWarehouseIds, isWarehouseVisibleOnDomain } from '@/helpers/db/warehouse-visibility';
 import { BadRequestError } from '@/lib/error-handler';
+import { deductStock } from '@/lib/order-stock';
 
 export type OrderLineItem = {
   itemId: string;
@@ -37,6 +38,11 @@ export type OrderLineItem = {
   // selling price when converting to the order's payment currency.
   costPriceNet?: number | null;
   costMarginPercent?: number | null;
+  // Units this order currently holds out of the warehouse's stock (see
+  // src/lib/order-stock.ts). undefined = line predates stock deduction and
+  // holds nothing; 0 = tracked, but nothing held (returned on cancel, or
+  // never available). Admin-only, never sent to customers.
+  stockDeducted?: number;
   // Derived fields (computed in API, not stored in DB)
   unitPriceGrossConverted?: number | null;
   lineTotalNet?: number | null;
@@ -481,6 +487,9 @@ export async function orderHandler(body: any, userId: string, locale: string = '
       unitPriceNet,
       costPriceNet,
       costMarginPercent,
+      // Deducted from the warehouse in the same transaction that inserts
+      // the order (below).
+      stockDeducted: cartItem.quantity,
     });
   }
 
@@ -592,27 +601,73 @@ export async function orderHandler(body: any, userId: string, locale: string = '
   }
 
   const now = new Date().toISOString();
-  const [order] = await db
-    .insert(schema.order)
-    .values({
-      id: crypto.randomUUID(),
-      userId: userId,
-      currency: orderCurrency,
-      totalNet,
-      totalVat,
-      totalGross,
-      lineItems: orderLineItems,
-      status: 'NEW',
-      deliveryId: resolvedDeliveryId,
-      comment: comment || null,
-      locale,
-      orderMethod: orderMethod === 'QUICK' ? 'QUICK' : 'ACCOUNT',
-      gclid: resolvedGclid,
-      gaClientId: resolvedGaClientId,
-      createdAt: now,
-      updatedAt: now,
-    })
-    .returning();
+  // Stock is written off in the same transaction that creates the order:
+  // either every line is deducted and the order exists, or nothing changes.
+  // The availability check earlier in this handler is only a fast path — two
+  // customers racing for the last unit are settled here, under a row lock.
+  let soldOutLine: any = null;
+  const order = await db.transaction(async (tx) => {
+    for (const li of orderLineItems) {
+      const deducted = await deductStock(tx, li.itemSlug, li.warehouseId, li.quantity, 'strict');
+      if (deducted === null) {
+        soldOutLine = li;
+        tx.rollback();
+      }
+    }
+    const [created] = await tx
+      .insert(schema.order)
+      .values({
+        id: crypto.randomUUID(),
+        userId: userId,
+        currency: orderCurrency,
+        totalNet,
+        totalVat,
+        totalGross,
+        lineItems: orderLineItems,
+        status: 'NEW',
+        deliveryId: resolvedDeliveryId,
+        comment: comment || null,
+        locale,
+        orderMethod: orderMethod === 'QUICK' ? 'QUICK' : 'ACCOUNT',
+        gclid: resolvedGclid,
+        gaClientId: resolvedGaClientId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+    return created;
+  }).catch(async (err) => {
+    // The delivery row was created above, outside the transaction — don't
+    // leave it orphaned when the order itself didn't go through.
+    if (resolvedDeliveryId && !deliveryId) {
+      await db.delete(schema.delivery).where(eq(schema.delivery.id, resolvedDeliveryId)).catch(() => undefined);
+    }
+    if (soldOutLine) return null;
+    throw err;
+  });
+
+  if (!order) {
+    const [currentStock] = await db
+      .select({ quantity: schema.itemPrice.quantity })
+      .from(schema.itemPrice)
+      .where(
+        and(
+          eq(schema.itemPrice.itemSlug, soldOutLine.itemSlug),
+          eq(schema.itemPrice.warehouseId, soldOutLine.warehouseId),
+        ),
+      )
+      .limit(1);
+    return NextResponse.json(
+      {
+        error: t('insufficientStock', {
+          itemName: soldOutLine.name,
+          available: Math.max(currentStock?.quantity ?? 0, 0),
+          requested: soldOutLine.quantity,
+        }),
+      },
+      { status: 400 },
+    );
+  }
 
   if (resolvedDeliveryId && !deliveryId) {
     await db
@@ -748,6 +803,11 @@ export async function priceRequestHandler(body: any, userId: string, host: strin
       basePriceNet: itemPrice.price,
       specialPriceNet: itemPrice.promotionPrice ?? null,
       unitPriceNet: 0,
+      // A price request holds no stock; marking the line as tracked (0, not
+      // undefined) lets it be reserved once an admin turns the request into
+      // a real order (see reserveLineItemsStock).
+      itemSlug: item.slug,
+      stockDeducted: 0,
     }];
 
   // Create order for price request

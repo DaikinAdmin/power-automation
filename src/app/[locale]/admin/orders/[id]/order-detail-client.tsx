@@ -1361,6 +1361,20 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   initialDeliveryId={order.deliveryId}
                   statusOptions={[...ORDER_STATUS_OPTIONS]}
                   canUpdate={canUpdate}
+                  hasDeductedStock={lineItems.some((li) => (li.stockDeducted ?? 0) > 0)}
+                  onUpdated={(update) => {
+                    setOrder((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            status: (update.status as OrderDetail['status']) ?? prev.status,
+                            deliveryId: update.deliveryId !== undefined ? update.deliveryId : prev.deliveryId,
+                            lineItems: (update.lineItems as OrderLineItem[] | null | undefined) ?? prev.lineItems,
+                          }
+                        : prev,
+                    );
+                    if (Array.isArray(update.notes)) setNotes(update.notes);
+                  }}
                 />
               ) : (
                 <Skeleton className="h-10 w-full" />

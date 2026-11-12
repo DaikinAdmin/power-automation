@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // import prisma from '@/db';
 import { db } from '@/db';
 import { auth } from '@/lib/auth';
-import { mapOrderForUser } from '../shared';
+import { mapOrderForUser, parseStoredLineItems } from '../shared';
+import { restoreLineItemsStock } from '@/lib/order-stock';
 import { eq, and, inArray, desc } from 'drizzle-orm';
 import * as schema from '@/db/schema';
 import logger from '@/lib/logger';
@@ -243,14 +244,34 @@ export async function PATCH(
     }
 
     if (action === 'cancel' && order.status === 'NEW') {
-      const [updatedOrder] = await db
-        .update(schema.order)
-        .set({
-          status: 'CANCELLED',
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(schema.order.id, id))
-        .returning();
+      // A NEW order hasn't been picked or shipped, so the stock it reserved
+      // goes straight back to the warehouse. Done under a row lock on the
+      // order so a double-submit can't return the same units twice.
+      const updatedOrder = await db.transaction(async (tx) => {
+        const [locked] = await tx
+          .select({ status: schema.order.status, lineItems: schema.order.lineItems })
+          .from(schema.order)
+          .where(eq(schema.order.id, id))
+          .limit(1)
+          .for('update');
+        if (!locked || locked.status !== 'NEW') return null;
+
+        const restored = await restoreLineItemsStock(tx, parseStoredLineItems(locked.lineItems));
+        const [row] = await tx
+          .update(schema.order)
+          .set({
+            status: 'CANCELLED',
+            lineItems: restored.lineItems,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(schema.order.id, id))
+          .returning();
+        return row;
+      });
+
+      if (!updatedOrder) {
+        throw new BadRequestError('Invalid action or order status');
+      }
 
       /* Prisma implementation (commented out)
       const updatedOrder = await db.order.update({

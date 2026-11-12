@@ -1931,7 +1931,18 @@
       "deliveryPlaceholder": "Enter delivery ticket ID",
       "updating": "Updating…",
       "updateBtn": "Update Order",
-      "noPermission": "You do not have permission to update this order."
+      "noPermission": "You do not have permission to update this order.",
+      "stockReturn": {
+        "title": "Return stock to the warehouse?",
+        "description": "This order's items were deducted from warehouse stock. Put them back in stock after cancelling?",
+        "cancelAndReturn": "Cancel and return to stock",
+        "cancelWithoutReturn": "Cancel without returning",
+        "back": "Back",
+        "returned": "Order updated, stock returned to the warehouse",
+        "pendingNote": "This order is cancelled, but its items are still deducted from warehouse stock.",
+        "returnNow": "Return stock to the warehouse",
+        "error": "Failed to return stock to the warehouse"
+      }
     },
     "warehouseModal": {
       "addTitle": "Add New Warehouse",
