@@ -13,16 +13,16 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { INVENTORY_COLUMNS } from './column-defs';
-import type { InventoryColumnKey } from '@/types/analytics';
+import { INVENTORY_COLUMNS, INVENTORY_COLUMN_GROUPS } from './column-defs';
+import type { InventoryColumnGroup, InventoryColumnKey } from '@/types/analytics';
 
 interface ColumnConfigModalProps {
   visible: Set<InventoryColumnKey>;
   onChange: (visible: Set<InventoryColumnKey>) => void;
 }
 
-const GROUPS = ['identifiers', 'names', 'warehouse', 'stock', 'pricing', 'sizes'] as const;
-type Group = (typeof GROUPS)[number];
+const GROUPS = INVENTORY_COLUMN_GROUPS;
+type Group = InventoryColumnGroup;
 
 export function ColumnConfigModal({ visible, onChange }: ColumnConfigModalProps) {
   const t = useTranslations('adminDashboard.analytics.inventory');
@@ -74,13 +74,13 @@ export function ColumnConfigModal({ visible, onChange }: ColumnConfigModalProps)
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('columnConfig.title')}</DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">{t('columnConfig.description')}</p>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
           {GROUPS.map((group) => {
             const cols = INVENTORY_COLUMNS.filter((c) => c.group === group);
             const allOn = cols.every((c) => draft.has(c.key));

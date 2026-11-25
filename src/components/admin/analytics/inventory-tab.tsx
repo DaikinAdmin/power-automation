@@ -1,19 +1,34 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { FileDown, Warehouse, PackageOpen, AlertTriangle } from "lucide-react";
+import {
+  FileDown,
+  Warehouse,
+  PackageOpen,
+  AlertTriangle,
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Loader2,
+} from "lucide-react";
 import type {
   InventoryReportData,
   InventoryColumnKey,
+  InventoryColumnDef,
 } from "@/types/analytics";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SummaryCard, StatusBadge } from "./shared-components";
 import {
   fmt,
+  fmtDateTime,
   exportInventoryExcel,
   exportInventoryPdf,
   type ExportColumnSpec,
@@ -46,6 +61,7 @@ const PRICE_CURRENCY_COLUMNS = new Set<InventoryColumnKey>([
   "priceWithMarginWithVatUa",
   "priceWithMarginWithVatPl",
   "totalValue",
+  "promotionPrice",
 ]);
 
 const CURRENCIES = ["EUR", "UAH", "PLN"] as const;
@@ -55,6 +71,31 @@ const CURRENCY_SYMBOLS: Record<DisplayCurrency, string> = {
   EUR: "€",
   UAH: "₴",
   PLN: "zł",
+};
+
+const PAGE_SIZES = [25, 50, 100, 200] as const;
+const DEFAULT_PAGE_SIZE = 50;
+const SEARCH_DEBOUNCE_MS = 400;
+
+// Radix Select does not allow "" as an item value
+const ALL = "__all__";
+
+type Filters = {
+  search: string;
+  brand: string;
+  category: string;
+  badge: string;
+  visibility: "" | "visible" | "hidden";
+  stock: "" | "inStock" | "zero";
+};
+
+const EMPTY_FILTERS: Filters = {
+  search: "",
+  brand: "",
+  category: "",
+  badge: "",
+  visibility: "",
+  stock: "",
 };
 
 const LS_KEY = "analytics_inventory_columns";
@@ -71,62 +112,129 @@ function loadVisibleFromStorage(): Set<InventoryColumnKey> {
   }
 }
 
-function formatCell(
+function buildParams(opts: {
+  warehouseId: string;
+  currency: string;
+  locale: string;
+  filters: Filters;
+  columns: InventoryColumnKey[];
+  page?: number;
+  pageSize?: number;
+  all?: boolean;
+}): URLSearchParams {
+  const params = new URLSearchParams();
+  if (opts.warehouseId) params.set("warehouseId", opts.warehouseId);
+  params.set("currency", opts.currency);
+  params.set("locale", opts.locale);
+  for (const [key, value] of Object.entries(opts.filters)) {
+    if (value) params.set(key, value);
+  }
+  params.set("columns", opts.columns.join(","));
+  if (opts.all) {
+    params.set("all", "1");
+  } else {
+    params.set("page", String(opts.page ?? 1));
+    params.set("pageSize", String(opts.pageSize ?? DEFAULT_PAGE_SIZE));
+  }
+  return params;
+}
+
+function rawValue(
   row: InventoryReportData["rows"][number],
   key: InventoryColumnKey,
-  format?: "price" | "percent" | "integer",
+): unknown {
+  return (row as unknown as Record<string, unknown>)[key];
+}
+
+function formatCell(
+  row: InventoryReportData["rows"][number],
+  col: InventoryColumnDef,
 ): string {
-  const v = (row as unknown as Record<string, unknown>)[key];
-  if (v === null || v === undefined) return "—";
+  const v = rawValue(row, col.key);
+  if (v === null || v === undefined || v === "") return "—";
   if (typeof v === "number") {
-    if (format === "integer") return String(v);
-    if (format === "percent") return `${v.toFixed(1)}%`;
+    if (col.format === "integer") return String(v);
+    if (col.format === "percent") return `${v.toFixed(1)}%`;
     return fmt(v);
   }
+  if (col.format === "date" && typeof v === "string") return fmtDateTime(v);
   return String(v);
 }
 
 export function InventoryTab() {
   const t = useTranslations("adminDashboard.analytics");
   const ti = useTranslations("adminDashboard.analytics.inventory");
+  const locale = useLocale();
 
   const [data, setData] = useState<InventoryReportData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState<"excel" | "pdf" | null>(null);
 
   const [queryCurrency, setQueryCurrency] = useQueryParam("currency", "EUR");
   const [queryWarehouse, setQueryWarehouse] = useQueryParam("warehouse", "");
+
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
 
   const [visibleColumns, setVisibleColumns] = useState<Set<InventoryColumnKey>>(
     () => loadVisibleFromStorage(),
   );
 
-  const load = useCallback(
-    async (warehouseId: string, currency: DisplayCurrency = "EUR") => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        if (warehouseId) params.set("warehouseId", warehouseId);
-        params.set("currency", currency);
-        const res = await fetch(
-          `/api/admin/analytics/inventory?${params.toString()}`,
-        );
+  // Ordered list of active column defs (for table and exports)
+  const activeColumns = useMemo(
+    () => INVENTORY_COLUMNS.filter((c) => visibleColumns.has(c.key)),
+    [visibleColumns],
+  );
+  const activeColumnKeys = useMemo(
+    () => activeColumns.map((c) => c.key),
+    [activeColumns],
+  );
+
+  // Debounce the search box into the filters
+  useEffect(() => {
+    const trimmed = searchInput.trim();
+    if (trimmed === filters.search) return;
+    const id = setTimeout(() => {
+      setFilters((f) => ({ ...f, search: trimmed }));
+      setPage(1);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [searchInput, filters.search]);
+
+  const queryString = buildParams({
+    warehouseId: queryWarehouse,
+    currency: queryCurrency,
+    locale,
+    filters,
+    columns: activeColumnKeys,
+    page,
+    pageSize,
+  }).toString();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    fetch(`/api/admin/analytics/inventory?${queryString}`, {
+      signal: controller.signal,
+    })
+      .then((res) => {
         if (!res.ok) throw new Error("Failed");
-        setData(await res.json());
-      } catch {
+        return res.json() as Promise<InventoryReportData>;
+      })
+      .then(setData)
+      .catch(() => {
+        if (controller.signal.aborted) return;
         toast.error("Error", {
           description: "Failed to load inventory report",
         });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    load(queryWarehouse, queryCurrency as DisplayCurrency);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [queryString]);
 
   const handleColumnsChange = (next: Set<InventoryColumnKey>) => {
     setVisibleColumns(next);
@@ -134,21 +242,33 @@ export function InventoryTab() {
   };
 
   const handleWarehouseChange = (value: string) => {
-    const warehouseId = value === "__all__" ? "" : value;
-    setQueryWarehouse(warehouseId);
-    load(warehouseId, queryCurrency as DisplayCurrency);
+    setQueryWarehouse(value === ALL ? "" : value);
+    setPage(1);
   };
 
   const handleCurrencyChange = (currency: DisplayCurrency) => {
     setQueryCurrency(currency);
-    load(queryWarehouse, currency);
   };
 
-  // Ordered list of active column defs (for table and exports)
-  const activeColumns = useMemo(
-    () => INVENTORY_COLUMNS.filter((c) => visibleColumns.has(c.key)),
-    [visibleColumns],
-  );
+  const setFilter = <K extends keyof Filters>(key: K, value: string) => {
+    setFilters((f) => ({ ...f, [key]: value === ALL ? "" : value }));
+    setPage(1);
+  };
+
+  const hasActiveFilters =
+    searchInput.trim() !== "" ||
+    Object.values(filters).some((v) => v !== "");
+
+  const resetFilters = () => {
+    setSearchInput("");
+    setFilters(EMPTY_FILTERS);
+    setPage(1);
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setPage(1);
+  };
 
   // Column specs with translated labels for exports
   const exportSpecs: ExportColumnSpec[] = activeColumns.map((c) => ({
@@ -157,38 +277,63 @@ export function InventoryTab() {
     format: c.format,
   }));
 
-  const handleExportExcel = () => {
-    if (!data) return;
-    exportInventoryExcel(data, "Inventory_Report", exportSpecs);
+  // Exports cover every filtered row, not just the current page
+  const handleExport = async (kind: "excel" | "pdf") => {
+    setExporting(kind);
+    try {
+      const params = buildParams({
+        warehouseId: queryWarehouse,
+        currency: queryCurrency,
+        locale,
+        filters,
+        columns: activeColumnKeys,
+        all: true,
+      });
+      const res = await fetch(`/api/admin/analytics/inventory?${params}`);
+      if (!res.ok) throw new Error("Failed");
+      const full: InventoryReportData = await res.json();
+      if (kind === "excel") {
+        exportInventoryExcel(full, "Inventory_Report", exportSpecs);
+      } else {
+        await exportInventoryPdf(full, "Inventory_Report", exportSpecs);
+      }
+    } catch {
+      toast.error(kind === "pdf" ? "PDF export failed" : "Excel export failed");
+    } finally {
+      setExporting(null);
+    }
   };
 
-  const handleExportPdf = () => {
-    if (!data) return;
-    exportInventoryPdf(data, "Inventory_Report", exportSpecs).catch(() =>
-      toast.error("PDF export failed"),
-    );
-  };
+  const pagination = data?.pagination;
+  const currentPage = pagination?.page ?? page;
+  const totalPages = pagination?.totalPages ?? 1;
+  const rangeFrom =
+    pagination && pagination.total > 0
+      ? (pagination.page - 1) * pagination.pageSize + 1
+      : 0;
+  const rangeTo = pagination
+    ? Math.min(pagination.page * pagination.pageSize, pagination.total)
+    : 0;
 
   return (
     <div className="space-y-6">
       {/* Filters & actions */}
       <Card>
-        <CardContent className="pt-5">
+        <CardContent className="pt-5 space-y-4">
           <div className="flex flex-wrap items-end gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm text-muted-foreground">
                 {ti("warehouseFilter")}
               </label>
               <Select
-                value={queryWarehouse === "" ? "__all__" : queryWarehouse}
+                value={queryWarehouse === "" ? ALL : queryWarehouse}
                 onValueChange={handleWarehouseChange}
-                disabled={loading}
               >
                 <SelectTrigger className="min-w-[120px] h-9 text-sm">
                   <SelectValue placeholder={ti("allWarehouses")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">{ti("allWarehouses")}</SelectItem>
+                  <SelectItem value={ALL}>{ti("allWarehouses")}</SelectItem>
                   {data?.warehouses.map((w) => (
                     <SelectItem key={w.id} value={w.id}>
                       {w.name}
@@ -202,11 +347,7 @@ export function InventoryTab() {
               <label className="text-sm text-muted-foreground">
                 {ti("currencyFilter")}
               </label>
-              <Select
-                value={queryCurrency}
-                onValueChange={handleCurrencyChange}
-                disabled={loading}
-              >
+              <Select value={queryCurrency} onValueChange={handleCurrencyChange}>
                 <SelectTrigger className="min-w-[120px] h-9 text-sm">
                   <SelectValue />
                 </SelectTrigger>
@@ -228,27 +369,179 @@ export function InventoryTab() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleExportExcel}
-                disabled={!data}
+                onClick={() => handleExport("excel")}
+                disabled={!data || exporting !== null}
               >
-                <FileDown className="h-4 w-4 mr-2" />
+                {exporting === "excel" ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileDown className="h-4 w-4 mr-2" />
+                )}
                 {t("export.excel")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={handleExportPdf}
-                disabled={!data}
+                onClick={() => handleExport("pdf")}
+                disabled={!data || exporting !== null}
               >
-                <FileDown className="h-4 w-4 mr-2" />
+                {exporting === "pdf" ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileDown className="h-4 w-4 mr-2" />
+                )}
                 {t("export.pdf")}
               </Button>
             </div>
           </div>
+
+          {/* Table filters */}
+          <div className="flex flex-wrap items-end gap-4 border-t pt-4">
+            <div className="flex flex-col gap-1 min-w-[220px] flex-1 max-w-sm">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.search")}
+              </label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder={ti("filters.searchPlaceholder")}
+                  className="h-9 pl-8 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.brand")}
+              </label>
+              <Select
+                value={filters.brand || ALL}
+                onValueChange={(v) => setFilter("brand", v)}
+              >
+                <SelectTrigger className="min-w-[140px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>{ti("filters.allBrands")}</SelectItem>
+                  {data?.filterOptions.brands.map((b) => (
+                    <SelectItem key={b.alias} value={b.alias}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.category")}
+              </label>
+              <Select
+                value={filters.category || ALL}
+                onValueChange={(v) => setFilter("category", v)}
+              >
+                <SelectTrigger className="min-w-[180px] max-w-[260px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>
+                    {ti("filters.allCategories")}
+                  </SelectItem>
+                  {data?.filterOptions.categories.map((c) => (
+                    <SelectItem
+                      key={c.value}
+                      value={c.value}
+                      className={cn(c.parentSlug ? "pl-8" : "font-medium")}
+                    >
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.badge")}
+              </label>
+              <Select
+                value={filters.badge || ALL}
+                onValueChange={(v) => setFilter("badge", v)}
+              >
+                <SelectTrigger className="min-w-[140px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>{ti("filters.allBadges")}</SelectItem>
+                  {data?.filterOptions.badges.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.visibility")}
+              </label>
+              <Select
+                value={filters.visibility || ALL}
+                onValueChange={(v) => setFilter("visibility", v)}
+              >
+                <SelectTrigger className="min-w-[140px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>{ti("filters.all")}</SelectItem>
+                  <SelectItem value="visible">
+                    {ti("filters.visible")}
+                  </SelectItem>
+                  <SelectItem value="hidden">{ti("filters.hidden")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-muted-foreground">
+                {ti("filters.stock")}
+              </label>
+              <Select
+                value={filters.stock || ALL}
+                onValueChange={(v) => setFilter("stock", v)}
+              >
+                <SelectTrigger className="min-w-[140px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>{ti("filters.all")}</SelectItem>
+                  <SelectItem value="inStock">
+                    {ti("filters.inStock")}
+                  </SelectItem>
+                  <SelectItem value="zero">{ti("filters.zeroStock")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {hasActiveFilters && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-9"
+                onClick={resetFilters}
+              >
+                <X className="h-4 w-4 mr-1" />
+                {ti("filters.reset")}
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      {loading && (
+      {loading && !data && (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-10 w-full" />
@@ -256,9 +549,9 @@ export function InventoryTab() {
         </div>
       )}
 
-      {!loading && data && (
+      {data && (
         <>
-          {/* Summary cards */}
+          {/* Summary cards — over all filtered rows */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SummaryCard
               label={ti("totalItems")}
@@ -280,9 +573,19 @@ export function InventoryTab() {
           {/* Inventory table */}
           <Card>
             <CardHeader>
-              <CardTitle>{ti("summary")}</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                {ti("summary")}
+                {loading && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent
+              className={cn(
+                "space-y-4 transition-opacity",
+                loading && "opacity-60 pointer-events-none",
+              )}
+            >
               {data.rows.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t("noData")}</p>
               ) : (
@@ -300,7 +603,7 @@ export function InventoryTab() {
                             )}
                           >
                             {ti(`columns.${col.key}`)}
-                            {PRICE_CURRENCY_COLUMNS.has(col.key) && data && (
+                            {PRICE_CURRENCY_COLUMNS.has(col.key) && (
                               <span className="ml-1 font-normal text-muted-foreground">
                                 (
                                 {CURRENCY_SYMBOLS[
@@ -332,6 +635,7 @@ export function InventoryTab() {
                             }
                             const isZeroQty =
                               col.key === "quantity" && row.quantity === 0;
+                            const text = formatCell(row, col);
                             return (
                               <TableCell
                                 key={col.key}
@@ -341,28 +645,11 @@ export function InventoryTab() {
                                   col.key === "articleId" &&
                                     "font-mono text-xs",
                                   isZeroQty && "text-red-600 font-medium",
-                                  (col.key === "namesPl" ||
-                                    col.key === "namesUa" ||
-                                    col.key === "namesEn" ||
-                                    col.key === "namesEs") &&
-                                    "max-w-[200px] truncate",
+                                  col.truncate && "max-w-[240px] truncate",
                                 )}
-                                title={
-                                  col.key === "namesPl" ||
-                                  col.key === "namesUa" ||
-                                  col.key === "namesEn" ||
-                                  col.key === "namesEs"
-                                    ? ((
-                                        row as unknown as Record<
-                                          string,
-                                          unknown
-                                        >
-                                      )[col.key] as string)
-                                    : undefined
-                                }
+                                title={col.truncate ? text : undefined}
                               >
-                                {" "}
-                                {formatCell(row, col.key, col.format)}
+                                {text}
                               </TableCell>
                             );
                           })}
@@ -370,6 +657,91 @@ export function InventoryTab() {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {pagination && pagination.total > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-4 border-t pt-4 text-sm">
+                  <span className="text-muted-foreground">
+                    {ti("pagination.shown", {
+                      from: rangeFrom,
+                      to: rangeTo,
+                      total: pagination.total,
+                    })}
+                  </span>
+
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">
+                        {ti("pagination.pageSize")}
+                      </span>
+                      <Select
+                        value={String(pageSize)}
+                        onValueChange={handlePageSizeChange}
+                      >
+                        <SelectTrigger className="h-8 w-[80px] text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAGE_SIZES.map((s) => (
+                            <SelectItem key={s} value={String(s)}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        disabled={currentPage <= 1}
+                        onClick={() => setPage(1)}
+                        aria-label={ti("pagination.first")}
+                      >
+                        <ChevronsLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        disabled={currentPage <= 1}
+                        onClick={() => setPage(currentPage - 1)}
+                        aria-label={ti("pagination.previous")}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="px-2 whitespace-nowrap">
+                        {ti("pagination.pageOf", {
+                          page: currentPage,
+                          totalPages,
+                        })}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        disabled={currentPage >= totalPages}
+                        onClick={() => setPage(currentPage + 1)}
+                        aria-label={ti("pagination.next")}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-8 w-8"
+                        disabled={currentPage >= totalPages}
+                        onClick={() => setPage(totalPages)}
+                        aria-label={ti("pagination.last")}
+                      >
+                        <ChevronsRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
             </CardContent>

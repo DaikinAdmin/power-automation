@@ -2,6 +2,7 @@ import type {
   FinancialReportData,
   InventoryReportData,
   InventoryColumnKey,
+  InventoryColumnDef,
 } from "@/types/analytics";
 import * as XLSX from "xlsx";
 
@@ -24,16 +25,26 @@ export function monthLabel(year: number, month: number) {
 export type ExportColumnSpec = {
   key: InventoryColumnKey;
   label: string;
-  format?: "price" | "percent" | "integer";
+  format?: InventoryColumnDef["format"];
 };
+
+// "2025-03-04 10:22:33.123" / ISO → "2025-03-04 10:22"
+export function fmtDateTime(value: string) {
+  return value.slice(0, 16).replace("T", " ");
+}
+
+// Excel rejects cells longer than 32 767 characters
+const EXCEL_MAX_CELL_LENGTH = 32767;
 
 function cellValue(
   row: InventoryReportData["rows"][number],
-  key: InventoryColumnKey,
+  spec: ExportColumnSpec,
 ): string | number {
-  const v = (row as unknown as Record<string, unknown>)[key];
+  const v = (row as unknown as Record<string, unknown>)[spec.key];
   if (v === null || v === undefined) return "";
-  return typeof v === "number" ? v : String(v);
+  if (typeof v === "number") return v;
+  if (spec.format === "date" && typeof v === "string") return fmtDateTime(v);
+  return String(v);
 }
 
 // ─── PDF font loader ─────────────────────────────────────────────────────────
@@ -240,9 +251,11 @@ export function exportInventoryExcel(
   const header = columns.map((c) => c.label);
   const body = data.rows.map((row) =>
     columns.map((c) => {
-      const v = cellValue(row, c.key);
+      const v = cellValue(row, c);
       if (typeof v === "number") return v; // keep numeric for Excel formatting
-      return v;
+      return v.length > EXCEL_MAX_CELL_LENGTH
+        ? v.slice(0, EXCEL_MAX_CELL_LENGTH - 1) + "…"
+        : v;
     }),
   );
   XLSX.utils.book_append_sheet(
@@ -270,7 +283,7 @@ export async function exportInventoryPdf(
   const head = [columns.map((c) => c.label)];
   const body = data.rows.map((row) =>
     columns.map((c) => {
-      const v = cellValue(row, c.key);
+      const v = cellValue(row, c);
       if (typeof v === "number") {
         if (c.format === "integer") return String(v);
         if (c.format === "percent") return `${v.toFixed(1)}%`;
