@@ -957,7 +957,8 @@
           "grossWeight": "Waga brutto (kg)",
           "lengthPacking": "Długość opakowania (cm)",
           "widthPacking": "Szerokość opakowania (cm)",
-          "heightPacking": "Wysokość opakowania (cm)"
+          "heightPacking": "Wysokość opakowania (cm)",
+          "isVisible": "Widoczny na stronie"
         },
         "columnConfig": {
           "title": "Konfiguracja kolumn",

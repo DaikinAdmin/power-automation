@@ -44,6 +44,7 @@ export const INVENTORY_COLUMNS: InventoryColumnDef[] = [
     format: "integer",
   },
   { key: "badge", group: "stock", defaultVisible: true, numeric: false },
+  { key: "isVisible", group: "stock", defaultVisible: false, numeric: false },
   // Pricing
   {
     key: "initialPrice",

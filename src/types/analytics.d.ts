@@ -80,6 +80,7 @@ export type InventoryColumnKey =
   | 'warehouseDisplayedName'
   | 'quantity'
   | 'badge'
+  | 'isVisible'
   | 'initialPrice'
   | 'initialCurrency'
   | 'margin'
@@ -123,6 +124,8 @@ export interface InventoryRow {
   // Stock
   quantity: number;
   badge: string;
+  // Whether the product is shown on the site (item.isDisplayed)
+  isVisible: boolean;
   // Base pricing (stored)
   price: number;
   initialPrice: number | null;

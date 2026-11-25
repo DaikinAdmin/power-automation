@@ -918,7 +918,8 @@
           "grossWeight": "Peso bruto (kg)",
           "lengthPacking": "Longitud del paquete (cm)",
           "widthPacking": "Anchura del paquete (cm)",
-          "heightPacking": "Altura del paquete (cm)"
+          "heightPacking": "Altura del paquete (cm)",
+          "isVisible": "Visible en el sitio"
         },
         "columnConfig": {
           "title": "Configurar columnas",

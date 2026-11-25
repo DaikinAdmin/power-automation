@@ -950,7 +950,8 @@
           "grossWeight": "Gross Weight (kg)",
           "lengthPacking": "Package Length (cm)",
           "widthPacking": "Package Width (cm)",
-          "heightPacking": "Package Height (cm)"
+          "heightPacking": "Package Height (cm)",
+          "isVisible": "Visible on site"
         },
         "columnConfig": {
           "title": "Configure Columns",

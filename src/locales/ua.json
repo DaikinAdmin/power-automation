@@ -956,7 +956,8 @@
           "grossWeight": "Вага (кг)",
           "lengthPacking": "Довжина упаковки (см)",
           "widthPacking": "Ширина упаковки (см)",
-          "heightPacking": "Висота упаковки (см)"
+          "heightPacking": "Висота упаковки (см)",
+          "isVisible": "Відображення на сайті"
         },
         "columnConfig": {
           "title": "Налаштування стовпців",
